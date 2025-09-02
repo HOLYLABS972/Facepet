@@ -371,7 +371,13 @@ export default function AddNewPetForm() {
                 />
                 <div className="text-left">
                   <h4 className="font-semibold text-lg">{formData.name}</h4>
-                  <p className="text-gray-600">{formData.breed}</p>
+                  <p className="text-gray-600">
+                    {(() => {
+                      const breeds = getBreedsForType(formData.type as PetType);
+                      const selectedBreed = breeds.find(breed => breed.id === formData.breed);
+                      return selectedBreed ? selectedBreed.name : '';
+                    })()}
+                  </p>
                 </div>
               </div>
             </div>
