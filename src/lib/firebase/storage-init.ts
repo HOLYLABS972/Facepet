@@ -1,5 +1,5 @@
 // Firebase Storage initialization utility
-import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getStorage, FirebaseStorage, ref } from 'firebase/storage';
 import app from './config';
 
 let storageInstance: FirebaseStorage | null = null;
@@ -21,7 +21,7 @@ export function initializeStorage(): FirebaseStorage | null {
     console.log('✅ Firebase Storage initialized successfully');
     
     // Test storage initialization
-    const testRef = storageInstance.ref('test');
+    const testRef = ref(storageInstance, 'test');
     console.log('✅ Firebase Storage reference created successfully');
     
     return storageInstance;
@@ -60,7 +60,7 @@ export async function testStorageConnection(): Promise<{ success: boolean; error
     }
 
     // Try to create a reference
-    const testRef = storage.ref('test/connection-test');
+    const testRef = ref(storage, 'test/connection-test');
     console.log('✅ Storage connection test successful');
     
     return { success: true };
