@@ -53,6 +53,18 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
 
       {/* Content */}
       <div className="relative z-10 flex h-full">
+        {/* Leading Icon */}
+        <div
+          className={cn(
+            'flex items-center justify-center',
+            `w-[${iconSectionWidth}px]`
+          )}
+        >
+          <div className="flex items-center justify-center">
+            <Plus className="stroke-black" size={25} />
+          </div>
+        </div>
+
         <div className="flex grow flex-col justify-center p-4">
           {/* Title with blur animation */}
           <motion.div
@@ -72,18 +84,6 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
           >
             {t('phoneNumberDescription')}
           </motion.div>
-        </div>
-
-        {/* Icon overlay */}
-        <div
-          className={cn(
-            'flex items-center justify-center',
-            `w-[${iconSectionWidth}px]`
-          )}
-        >
-          <div className="flex items-center justify-center">
-            <Plus className="stroke-black" size={25} />
-          </div>
         </div>
       </div>
     </div>

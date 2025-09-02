@@ -78,28 +78,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
 
       {/* Content */}
       <div className="relative z-10 flex h-full">
-        <div className="flex grow flex-col justify-center p-4">
-          {/* Title with blur animation */}
-          <motion.div
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.2 }}
-            className="text-primary text-lg font-bold"
-          >
-            {t('shareWithFriends')}
-          </motion.div>
-          {/* Subtitle with slight delay */}
-          <motion.div
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.2, delay: 0.1 }}
-            className="text-sm text-black"
-          >
-            {t('shareDescription')}
-          </motion.div>
-        </div>
-
-        {/* Icon overlay */}
+        {/* Leading Icon */}
         <div
           className={cn(
             'flex items-center justify-center',
@@ -122,6 +101,27 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
               <Share2 className="stroke-black" size={25} />
             </div>
           )}
+        </div>
+
+        <div className="flex grow flex-col justify-center p-4">
+          {/* Title with blur animation */}
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="text-primary text-lg font-bold"
+          >
+            {t('shareWithFriends')}
+          </motion.div>
+          {/* Subtitle with slight delay */}
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+            className="text-sm text-black"
+          >
+            {t('shareDescription')}
+          </motion.div>
         </div>
       </div>
     </div>
