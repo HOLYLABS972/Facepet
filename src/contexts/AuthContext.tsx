@@ -26,7 +26,9 @@ const adminEmails: Record<string, 'admin' | 'super_admin'> = {
 // Function to determine user role based on email
 const getUserRole = (email: string): 'user' | 'admin' | 'super_admin' => {
   const emailLower = email.toLowerCase();
-  return adminEmails[emailLower] || 'user';
+  const role = adminEmails[emailLower] || 'user';
+  console.log('🔍 Role assignment:', { email, emailLower, role, adminEmails });
+  return role;
 };
 
 interface AuthContextType {
@@ -95,6 +97,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Store user in Firestore collection with role assignment
         const userRole = getUserRole(email);
         const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
+        console.log('🔍 Creating user (signUp) with role:', { email, userRole, cookiePreference });
         const userResult = await createUserInFirestore(userCredential.user, {
           acceptCookies: cookiePreference,
           language: 'en',
@@ -199,6 +202,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Store user in Firestore collection with role assignment
         const userRole = getUserRole(email);
         const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
+        console.log('🔍 Creating user with role:', { email, userRole, cookiePreference });
         const userResult = await createUserInFirestore(userCredential.user, {
           phone: phone || '',
           acceptCookies: cookiePreference,
