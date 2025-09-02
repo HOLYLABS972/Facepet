@@ -34,24 +34,7 @@ export default async function AdminPage() {
     <div className="container mx-auto p-8">
       <h1 className="mb-6 text-3xl font-bold">{t('dashboard')}</h1>
 
-      {/* User Welcome Card */}
-      <div className="mb-6 flex rounded-lg bg-white p-6 shadow-md">
-        <div>
-          <h2 className="mb-3 text-xl font-semibold">{t('welcome')}</h2>
-          <p className="mb-4 text-gray-700">
-            {t('loggedInAs')}{' '}
-            <span className="font-medium">{session.user.name}</span>
-          </p>
-        </div>
-        <div className="ml-auto text-right">
-          <h2 className="mb-3 text-xl font-semibold">
-            {format(new Date(), 'dd/MM/yyyy')}
-          </h2>
-          <div className="inline-block rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-            {session.user.role}
-          </div>
-        </div>
-      </div>
+
 
       {/* Stats Overview */}
       <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
