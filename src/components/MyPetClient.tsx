@@ -165,20 +165,32 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         </div>
         
         {/* Admin Notifications */}
-        {adminNotifications.map((notification, index) => (
-          <div key={index} className="mb-4">
-            <AdminNotificationCard
-              title={notification.title}
-              message={notification.message}
-              type={notification.type}
-              actionText={notification.actionText}
-              onAction={notification.onAction}
-              onClose={() => {
-                setAdminNotifications(prev => prev.filter((_, i) => i !== index));
-              }}
-            />
-          </div>
-        ))}
+        {adminNotifications.map((notification, index) => {
+          const handleClose = () => {
+            setAdminNotifications(prev => {
+              // Find the current index of this notification in the updated array
+              const currentIndex = prev.findIndex(n => 
+                n.title === notification.title && 
+                n.message === notification.message &&
+                n.type === notification.type
+              );
+              return prev.filter((_, i) => i !== currentIndex);
+            });
+          };
+          
+          return (
+            <div key={`notification-${index}-${notification.title}`} className="mb-4">
+              <AdminNotificationCard
+                title={notification.title}
+                message={notification.message}
+                type={notification.type}
+                actionText={notification.actionText}
+                onAction={notification.onAction}
+                onClose={handleClose}
+              />
+            </div>
+          );
+        })}
         
         {/* Phone Number Notification - matching share style */}
         {showPhoneNotification && (

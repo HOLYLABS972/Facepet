@@ -67,6 +67,21 @@ export async function createPetInFirestore(
 }
 
 /**
+ * Get breed name from breedId
+ */
+async function getBreedName(breedId: number): Promise<string> {
+  try {
+    // Import the breeds data
+    const breedsData = await import('../../../utils/database/seeds/breeds.json');
+    const breed = breedsData.default.find((b: any) => b.id === breedId);
+    return breed ? breed.en : `Breed ${breedId}`;
+  } catch (error) {
+    console.error('Error getting breed name:', error);
+    return `Breed ${breedId}`;
+  }
+}
+
+/**
  * Update a pet in Firestore
  */
 export async function updatePetInFirestore(
@@ -76,10 +91,19 @@ export async function updatePetInFirestore(
   try {
     const petRef = doc(db, 'pets', petId);
     
-    const updateData = {
-      ...petData,
-      updatedAt: new Date()
-    };
+    // If breedName is being updated and we have breedId, resolve the breed name
+    let updateData = { ...petData };
+    
+    // If breedName is provided as a string, use it directly
+    if (petData.breedName && typeof petData.breedName === 'string') {
+      updateData.breedName = petData.breedName;
+    }
+    // If breedId is provided but no breedName, resolve the breed name
+    else if (petData.breedId && !petData.breedName) {
+      updateData.breedName = await getBreedName(petData.breedId);
+    }
+    
+    updateData.updatedAt = new Date();
 
     await updateDoc(petRef, updateData);
 

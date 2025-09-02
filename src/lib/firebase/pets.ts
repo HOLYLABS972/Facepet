@@ -63,6 +63,21 @@ export interface Pet {
 /**
  * Create a new pet in Firestore
  */
+/**
+ * Get breed name from breedId
+ */
+async function getBreedName(breedId: number): Promise<string> {
+  try {
+    // Import the breeds data
+    const breedsData = await import('../../../utils/database/seeds/breeds.json');
+    const breed = breedsData.default.find((b: any) => b.id === breedId);
+    return breed ? breed.en : `Breed ${breedId}`;
+  } catch (error) {
+    console.error('Error getting breed name:', error);
+    return `Breed ${breedId}`;
+  }
+}
+
 export async function createPetInFirestore(
   petData: PetData, 
   user: User
@@ -71,6 +86,9 @@ export async function createPetInFirestore(
     if (!user?.email) {
       return { success: false, error: 'User not authenticated' };
     }
+
+    // Get breed name from breedId
+    const breedName = await getBreedName(petData.breedId);
 
     // Create owner document first
     const ownerData: OwnerData = {
@@ -114,8 +132,10 @@ export async function createPetInFirestore(
       name: petData.name,
       description: petData.description || '',
       imageUrl: petData.imageUrl,
+      type: 'Dog', // Default type for display compatibility
       genderId: petData.genderId,
       breedId: petData.breedId,
+      breedName: breedName, // Add breed name for display
       birthDate: petData.birthDate || null,
       notes: petData.notes || '',
       userEmail: user.email,
