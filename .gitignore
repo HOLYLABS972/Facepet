@@ -12,6 +12,9 @@ out/
 build/
 dist/
 
+# Note: public/ folder should NOT be ignored - it contains static assets
+# public/
+
 # Environment variables
 .env
 .env.local
