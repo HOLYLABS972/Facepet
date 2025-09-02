@@ -1,4 +1,11 @@
 {
+  "components": {
+    "PrizeClaimNotification": {
+      "title": "🎉 פרס זמין!",
+      "message": "יש לך 30 נקודות! קבל את מתנת ההצטרפות שלך עכשיו.",
+      "claimButton": "קבל פרס"
+    }
+  },
   "Pet": {
     "nfcTag": {
       "title": "חיבור תג NFC",

@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   CircleUserRound,
   Coins,
-  Gift,
   LogIn,
   LogOut,
   Menu,
@@ -116,17 +115,6 @@ const Navbar = () => {
             <div className="hidden md:flex items-center gap-4">
               {user ? (
                 <>
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    className="group active:bg-accent relative rounded-md p-2"
-                  >
-                    <Link href="/pages/my-gifts" className="relative">
-                      <span className="bg-primary border-background group-hover:border-accent absolute -top-1 -right-1 z-50 h-3 w-3 rounded-full border-3 transition-colors"></span>
-                      <Gift className="block h-6 w-6" />
-                    </Link>
-                  </Button>
-                  
                   {/* User Dropdown Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -186,20 +174,6 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <div className="flex md:hidden rtl:flex-row-reverse">
-              {user && (
-                <div className="flex">
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    className="group active:bg-accent relative rounded-md p-2"
-                  >
-                    <Link href="/pages/my-gifts" className="relative">
-                      <span className="bg-primary border-background group-hover:border-accent absolute -top-1 -right-1 z-50 h-3 w-3 rounded-full border-3 transition-colors"></span>
-                      <Gift className="block h-6 w-6" />
-                    </Link>
-                  </Button>
-                </div>
-              )}
               <Button
                 variant={'ghost'}
                 type="button"

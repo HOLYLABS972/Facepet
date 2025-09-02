@@ -28,6 +28,11 @@
           "description": "One-time purchase for lifetime peace of mind."
         }
       ]
+    },
+    "PrizeClaimNotification": {
+      "title": "🎉 Prize Available!",
+      "message": "You have 30 points! Claim your welcome gift now.",
+      "claimButton": "Claim Prize"
     }
   },
   "Pet": {

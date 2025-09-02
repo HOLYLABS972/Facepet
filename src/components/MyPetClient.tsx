@@ -235,7 +235,6 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         {showPrizeNotification && (
           <div className="mb-4">
             <PrizeClaimNotification 
-              onClose={() => setShowPrizeNotification(false)}
               onClaim={handlePrizeClaim}
             />
           </div>
@@ -271,8 +270,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         
 
         
-        {/* Show "No new notifications" only when there are no admin notifications */}
-        {adminNotifications.length === 0 && (
+        {/* Show "No new notifications" only when there are no notifications at all */}
+        {adminNotifications.length === 0 && !showPointsBreakdown && !showPrizeNotification && (
           <div className="text-center py-8">
             <div className="text-gray-400 text-4xl mb-2">🔔</div>
             <p className="text-gray-500">{t('noNotifications')}</p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -15,12 +15,23 @@ import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 const AuthPage = () => {
   const t = useTranslations('pages.AuthPage');
-  const { signIn, signUp, signInWithGoogle, sendVerificationCode } = useAuth();
+  const { signIn, signUp, signInWithGoogle, sendVerificationCode, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  
+  // Debug logging
+  console.log('AuthPage rendered:', { user, authLoading });
+  
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (!authLoading && user) {
+      console.log('User already authenticated, redirecting to dashboard');
+      router.push('/pages/my-pets');
+    }
+  }, [user, authLoading, router]);
   
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -36,7 +47,7 @@ const AuthPage = () => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setFormLoading(true);
 
     try {
       if (isSignUp) {
@@ -55,12 +66,12 @@ const AuthPage = () => {
       console.error('Auth error:', error);
       toast.error(error.message || t('authError'));
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
   const handleGoogleAuth = async () => {
-    setLoading(true);
+    setFormLoading(true);
     try {
       await signInWithGoogle();
       toast.success(t('signInSuccessGoogle'));
@@ -69,9 +80,21 @@ const AuthPage = () => {
       console.error('Google auth error:', error);
       toast.error(error.message || t('authErrorGoogle'));
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -120,7 +143,7 @@ const AuthPage = () => {
               {/* Google Sign In Button */}
               <Button
                 onClick={handleGoogleAuth}
-                disabled={loading}
+                disabled={formLoading}
                 variant="outline"
                 className="w-full h-12 text-gray-700 border-gray-300 hover:bg-gray-50"
               >
@@ -215,10 +238,10 @@ const AuthPage = () => {
 
                 <Button
                   type="submit"
-                  disabled={loading}
+                  disabled={formLoading}
                   className="w-full h-12 bg-primary hover:bg-primary/90 text-white"
                 >
-                  {loading ? (
+                  {formLoading ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>{t('loading')}</span>

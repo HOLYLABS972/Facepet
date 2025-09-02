@@ -1,30 +1,21 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Gift, X } from 'lucide-react';
-import React, { useState } from 'react';
+import { Gift } from 'lucide-react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '../lib/utils';
 
 interface PrizeClaimNotificationProps {
-  onClose?: () => void;
   onClaim?: () => void;
 }
 
 const PrizeClaimNotification: React.FC<PrizeClaimNotificationProps> = ({ 
-  onClose,
   onClaim
 }) => {
-  const [isClosed, setIsClosed] = useState(false);
   const router = useRouter();
-
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsClosed(true);
-    if (onClose) {
-      onClose();
-    }
-  };
+  const t = useTranslations('components.PrizeClaimNotification');
 
   const handleClaim = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -35,26 +26,13 @@ const PrizeClaimNotification: React.FC<PrizeClaimNotificationProps> = ({
     router.push('/pages/my-gifts');
   };
 
-  if (isClosed) {
-    return null;
-  }
-
   return (
     <div className="relative h-22 rounded-2xl transition duration-200 hover:shadow-lg">
-      {/* Background with prize styling */}
+      {/* Background with same styling as other notifications */}
       <div className={cn(
         "absolute inset-0 rounded-2xl border shadow-sm",
-        "border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50"
+        "border-blue-200 bg-blue-50"
       )} />
-
-      {/* Close button */}
-      <button
-        onClick={handleClose}
-        className="absolute top-2 right-2 z-20 p-1 rounded-full hover:bg-gray-100 transition-colors"
-        aria-label="Close notification"
-      >
-        <X className="h-4 w-4 text-gray-500" />
-      </button>
 
       {/* Content */}
       <div className="relative z-10 flex h-full">
@@ -66,7 +44,7 @@ const PrizeClaimNotification: React.FC<PrizeClaimNotificationProps> = ({
             transition={{ duration: 0.2 }}
             className="text-lg font-bold text-gray-900"
           >
-            🎉 Prize Available!
+            {t('title')}
           </motion.div>
           {/* Message with slight delay */}
           <motion.div
@@ -75,7 +53,7 @@ const PrizeClaimNotification: React.FC<PrizeClaimNotificationProps> = ({
             transition={{ duration: 0.2, delay: 0.1 }}
             className="text-sm text-gray-700"
           >
-            You have 30 points! Claim your welcome gift now.
+            {t('message')}
           </motion.div>
           {/* Claim button */}
           <motion.button
@@ -83,9 +61,9 @@ const PrizeClaimNotification: React.FC<PrizeClaimNotificationProps> = ({
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.2, delay: 0.2 }}
             onClick={handleClaim}
-            className="mt-2 text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors"
+            className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
           >
-            Claim Prize →
+            {t('claimButton')} →
           </motion.button>
         </div>
 
