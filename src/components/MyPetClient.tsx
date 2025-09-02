@@ -8,6 +8,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
+import PhoneNumberCard from './PhoneNumberCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useRouter } from '@/i18n/routing';
@@ -112,24 +113,11 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
 
       {/* Notifications Section */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+        <h2 className="text-2xl font-bold mb-4">{t('notifications')}</h2>
         
-        {/* Phone Number Notification */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-blue-600 text-sm">📱</span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-blue-900 mb-1">Add Phone Number</h3>
-              <p className="text-sm text-blue-700">
-                Add your phone number to receive our newsletter with pet care tips and updates.
-              </p>
-              <button className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
-                Add Phone Number →
-              </button>
-            </div>
-          </div>
+        {/* Phone Number Notification - matching share style */}
+        <div className="mb-4">
+          <PhoneNumberCard />
         </div>
       </div>
 
