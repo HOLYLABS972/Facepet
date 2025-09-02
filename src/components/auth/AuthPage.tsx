@@ -40,31 +40,12 @@ const AuthPage = () => {
 
     try {
       if (isSignUp) {
-        // Store signup data temporarily
-        const tempResponse = await fetch('/api/temp-signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-            fullName: formData.fullName
-          }),
-        });
-
-        const tempData = await tempResponse.json();
-
-        if (!tempData.success) {
-          throw new Error(tempData.error || 'Failed to create temporary signup');
-        }
-
-        // Send verification code
+        // Send verification code using your simple API
         await sendVerificationCode(formData.email);
         toast.success('Verification code sent! Please check your email.');
         
-        // Redirect to email verification page with token
-        router.push(`/auth/verify-email?token=${tempData.token}`);
+        // Redirect to email verification page with simple parameters
+        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}&fullName=${encodeURIComponent(formData.fullName)}`);
       } else {
         await signIn(formData.email, formData.password);
         toast.success('Signed in successfully!');
