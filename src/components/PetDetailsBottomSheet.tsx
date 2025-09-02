@@ -1,11 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { X, Trash2 } from 'lucide-react';
+import { X, Trash2, MoreVertical, Edit } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 import { useRouter } from '@/i18n/routing';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
@@ -60,14 +66,26 @@ export default function PetDetailsBottomSheet({
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>{pet.name}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Pet
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onClose} className="text-gray-500">
+                  Close
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </DialogTitle>
         </DialogHeader>
 

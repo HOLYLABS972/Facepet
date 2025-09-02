@@ -61,10 +61,11 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           if (!querySnapshot.empty) {
             const petsData = querySnapshot.docs.map(doc => {
               const data = doc.data();
+              console.log('Pet data from Firestore:', data);
               return {
                 id: doc.id,
                 name: data.name || 'Unknown Pet',
-                breed: data.breedName || 'Unknown Breed',
+                breed: data.breedName || data.breed || 'Unknown Breed',
                 image: data.imageUrl || '/default-pet.png'
               };
             });

@@ -163,6 +163,8 @@ export default function AddNewPetForm() {
         vetId: ''
       };
 
+      console.log('Creating pet with data:', petData);
+
       const result = await createPetInFirestore(petData, user);
 
       if (result.success) {
