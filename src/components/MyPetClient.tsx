@@ -168,45 +168,43 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-4">{t('notifications')}</h2>
         
-        {/* Check if there are any notifications to show */}
-        {adminNotifications.length === 0 && !showPhoneNotification ? (
+        {/* Share with Friends - always show */}
+        <div className="mb-4">
+          <InviteFriendsCard onClose={() => {}} />
+        </div>
+        
+        {/* Admin Notifications */}
+        {adminNotifications.map((notification, index) => (
+          <div key={index} className="mb-4">
+            <AdminNotificationCard
+              title={notification.title}
+              message={notification.message}
+              type={notification.type}
+              actionText={notification.actionText}
+              onAction={notification.onAction}
+              onClose={() => {
+                setAdminNotifications(prev => prev.filter((_, i) => i !== index));
+              }}
+            />
+          </div>
+        ))}
+        
+        {/* Phone Number Notification - matching share style */}
+        {showPhoneNotification && (
+          <div className="mb-4">
+            <PhoneNumberCard 
+              onClose={() => setShowPhoneNotification(false)}
+              onOpenBottomSheet={() => setShowPhoneBottomSheet(true)}
+            />
+          </div>
+        )}
+        
+        {/* Show "No new notifications" only when there are no admin notifications and no phone notification */}
+        {adminNotifications.length === 0 && !showPhoneNotification && (
           <div className="text-center py-8">
             <div className="text-gray-400 text-4xl mb-2">🔔</div>
             <p className="text-gray-500">{t('noNotifications')}</p>
           </div>
-        ) : (
-          <>
-            {/* Share with Friends - always show */}
-            <div className="mb-4">
-              <InviteFriendsCard onClose={() => {}} />
-            </div>
-            
-            {/* Admin Notifications */}
-            {adminNotifications.map((notification, index) => (
-              <div key={index} className="mb-4">
-                <AdminNotificationCard
-                  title={notification.title}
-                  message={notification.message}
-                  type={notification.type}
-                  actionText={notification.actionText}
-                  onAction={notification.onAction}
-                  onClose={() => {
-                    setAdminNotifications(prev => prev.filter((_, i) => i !== index));
-                  }}
-                />
-              </div>
-            ))}
-            
-            {/* Phone Number Notification - matching share style */}
-            {showPhoneNotification && (
-              <div className="mb-4">
-                <PhoneNumberCard 
-                  onClose={() => setShowPhoneNotification(false)}
-                  onOpenBottomSheet={() => setShowPhoneBottomSheet(true)}
-                />
-              </div>
-            )}
-          </>
         )}
       </div>
 
