@@ -203,12 +203,7 @@
       "signInText": "כבר יש לכם חשבון?",
       "signInLink": "התחברות",
       "brand": "FacePet",
-      "menuButton": "פתחו את התפריט הראשי",
-      "options": "אפשרויות",
-      "language": "שפה",
-      "privacyPolicy": "מדיניות פרטיות",
-      "termsOfService": "תנאי שימוש",
-      "contactUs": "צרו קשר"
+      "menuButton": "פתחו את התפריט הראשי"
     },
     "AuthPage": {
       "welcomeBack": "ברוכים השבים!",
@@ -330,9 +325,11 @@
       "signUp": "הירשם"
     },
     "Footer": {
+      "usefulLinks": "קישורים שימושיים",
       "privacyPolicy": "מדיניות פרטיות",
       "termsOfService": "תנאי שימוש",
       "contact": "צור קשר",
+      "language": "שפה",
       "madeWithLove": "נוצר באהבה לחיות המחמד"
     },
     "ProductHighlights": {
