@@ -1,7 +1,10 @@
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { Trash2, AlertTriangle } from 'lucide-react';
 import { TabName } from './AnimatedTabs';
+import toast from 'react-hot-toast';
 
 const variants = {
   initial: (direction: number) => ({
@@ -34,14 +37,19 @@ interface TabContentProps {
   petInfo: { label: string; value: string }[];
   ownerInfo: { label: string; value: string; link?: string }[];
   vetInfo: { label: string; value: string }[];
+  petId?: string;
+  onDeletePet?: (petId: string) => void;
 }
 
 // Render only details that have a non-empty value.
 const renderDetails = (
-  details: { label: string; value: string; link?: string }[]
+  details: { label: string; value: string; link?: string }[],
+  petId?: string,
+  onDeletePet?: (petId: string) => void
 ) => {
   const filtered = details.filter((d) => d.value.trim() !== '');
   if (filtered.length === 0) return null;
+  
   return (
     <Card className="mx-auto mt-4 w-[325px] border-none bg-transparent shadow-none">
       <CardContent className="p-0">
@@ -63,8 +71,78 @@ const renderDetails = (
             </div>
           ))}
         </div>
+        
+        {/* Delete Pet Button - only show on pet tab */}
+        {petId && onDeletePet && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <DeletePetButton petId={petId} onDelete={onDeletePet} />
+          </div>
+        )}
       </CardContent>
     </Card>
+  );
+};
+
+// Delete Pet Button Component
+const DeletePetButton = ({ petId, onDelete }: { petId: string; onDelete: (petId: string) => void }) => {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await onDelete(petId);
+      toast.success('Pet deleted successfully');
+    } catch (error) {
+      console.error('Error deleting pet:', error);
+      toast.error('Failed to delete pet');
+    } finally {
+      setDeleting(false);
+      setShowConfirm(false);
+    }
+  };
+
+  if (!showConfirm) {
+    return (
+      <Button
+        variant="outline"
+        onClick={() => setShowConfirm(true)}
+        className="w-full border-red-300 text-red-600 hover:bg-red-50"
+      >
+        <Trash2 className="h-4 w-4 mr-2" />
+        Delete Pet
+      </Button>
+    );
+  }
+
+  return (
+    <div className="space-y-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div className="flex items-center gap-2 text-red-800">
+        <AlertTriangle className="h-5 w-5" />
+        <span className="font-semibold">Confirm Deletion</span>
+      </div>
+      <p className="text-sm text-red-700">
+        Are you sure you want to delete this pet? This action cannot be undone.
+      </p>
+      <div className="flex gap-2">
+        <Button
+          variant="destructive"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="bg-red-600 hover:bg-red-700"
+        >
+          {deleting ? 'Deleting...' : 'Yes, Delete'}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => setShowConfirm(false)}
+          disabled={deleting}
+          className="border-gray-300"
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
   );
 };
 
@@ -73,11 +151,13 @@ const TabContent = ({
   lockedDirection,
   petInfo,
   ownerInfo,
-  vetInfo
+  vetInfo,
+  petId,
+  onDeletePet
 }: TabContentProps) => {
   let content = null;
   if (activeTab === 'pet') {
-    content = renderDetails(petInfo);
+    content = renderDetails(petInfo, petId, onDeletePet);
   } else if (activeTab === 'owner') {
     content = renderDetails(ownerInfo);
   } else if (activeTab === 'vet') {

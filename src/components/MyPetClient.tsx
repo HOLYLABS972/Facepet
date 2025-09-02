@@ -105,13 +105,37 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         </div>
       </div>
 
-      {/* Header */}
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold">{t('title')}</h2>
-      </div>
-
+      {/* Share with Friends - moved above title */}
       <div className="mb-4">
         <InviteFriendsCard />
+      </div>
+
+      {/* Notifications Section */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+        
+        {/* Phone Number Notification */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-blue-600 text-sm">📱</span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-1">Add Phone Number</h3>
+              <p className="text-sm text-blue-700">
+                Add your phone number to receive our newsletter with pet care tips and updates.
+              </p>
+              <button className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                Add Phone Number →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* My Pets Header */}
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold">{t('title')}</h2>
       </div>
 
       <Separator className="mb-4 h-0.5" />
