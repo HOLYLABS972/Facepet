@@ -114,6 +114,21 @@ export async function deletePetFromFirestore(
 }
 
 /**
+ * Get breed name from breedId
+ */
+async function getBreedName(breedId: number): Promise<string> {
+  try {
+    // Import the breeds data
+    const breedsData = await import('../../../utils/database/seeds/breeds.json');
+    const breed = breedsData.default.find((b: any) => b.id === breedId);
+    return breed ? breed.en : `Breed ${breedId}`;
+  } catch (error) {
+    console.error('Error getting breed name:', error);
+    return `Breed ${breedId}`;
+  }
+}
+
+/**
  * Get a pet by ID
  */
 export async function getPetById(
@@ -125,11 +140,18 @@ export async function getPetById(
 
     if (petSnap.exists()) {
       const data = petSnap.data();
+      
+      // Resolve breed name if breedId is provided instead of breedName
+      let breedName = data.breedName;
+      if (!breedName && data.breedId) {
+        breedName = await getBreedName(data.breedId);
+      }
+      
       const pet: SimplePet = {
         id: petSnap.id,
         name: data.name,
-        type: data.type,
-        breedName: data.breedName,
+        type: data.type || 'Dog', // Default to Dog if type is not set
+        breedName: breedName || 'Unknown Breed',
         imageUrl: data.imageUrl,
         description: data.description,
         age: data.age,
