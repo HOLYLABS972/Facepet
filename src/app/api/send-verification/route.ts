@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verificationStore } from '@/src/lib/verification-store';
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,6 +26,9 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
+
+    // Store the verification code temporarily (expires in 10 minutes)
+    verificationStore.set(email, data.verification_code, 10);
 
     return NextResponse.json({
       success: true,

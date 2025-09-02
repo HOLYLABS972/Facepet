@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verificationStore } from '@/src/lib/verification-store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,10 +12,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call your OTP verification service
-    // Note: You'll need to implement the actual verification endpoint
-    // For now, we'll simulate verification by checking if the code is 6 digits
-    if (code.length === 6 && /^\d{6}$/.test(code)) {
+    // Get the stored verification code for this email
+    const storedData = verificationStore.get(email);
+
+    if (!storedData) {
+      return NextResponse.json({
+        success: false,
+        error: 'No verification code found for this email. Please request a new code.'
+      }, { status: 404 });
+    }
+
+    // Verify the code
+    if (storedData.code === code) {
+      // Remove the code after successful verification (one-time use)
+      verificationStore.delete(email);
       return NextResponse.json({
         success: true,
         message: 'Email verified successfully',

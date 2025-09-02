@@ -39,16 +39,31 @@ const AuthPage = () => {
 
     try {
       if (isSignUp) {
-        // Only send verification code, don't create account yet
+        // Store signup data temporarily
+        const tempResponse = await fetch('/api/temp-signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            fullName: formData.fullName
+          }),
+        });
+
+        const tempData = await tempResponse.json();
+
+        if (!tempData.success) {
+          throw new Error(tempData.error || 'Failed to create temporary signup');
+        }
+
+        // Send verification code
         await sendVerificationCode(formData.email);
         toast.success('Verification code sent! Please check your email.');
-        // Redirect to email verification page with form data
-        const params = new URLSearchParams({
-          email: formData.email,
-          password: formData.password,
-          fullName: formData.fullName
-        });
-        router.push(`/auth/verify-email?${params.toString()}`);
+        
+        // Redirect to email verification page with token
+        router.push(`/auth/verify-email?token=${tempData.token}`);
       } else {
         await signIn(formData.email, formData.password);
         toast.success('Signed in successfully!');
@@ -226,6 +241,18 @@ const AuthPage = () => {
                     isSignUp ? 'Create Account' : 'Sign In'
                   )}
                 </Button>
+
+                {!isSignUp && (
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => router.push('/auth/forgot')}
+                      className="text-sm text-gray-600 hover:text-primary underline"
+                    >
+                      Forgot your password?
+                    </button>
+                  </div>
+                )}
               </form>
 
               {/* Toggle Sign In/Sign Up */}
