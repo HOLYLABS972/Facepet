@@ -46,16 +46,26 @@
       "title": "עריכת חיית מחמד",
       "subtitle": "עדכון פרטי חיית המחמד",
       "form": {
-        "name": "שם",
-        "type": "סוג",
+        "name": "שם חיית מחמד",
+        "type": "סוג חיית מחמד",
+        "selectType": "בחר סוג",
         "breed": "גזע",
-        "gender": "מין",
-        "birthDate": "תאריך לידה",
+        "selectBreed": "בחר גזע",
+        "currentPhoto": "תמונה נוכחית",
+        "changePhoto": "שנה תמונה",
+        "uploadPhoto": "העלה תמונה",
+        "uploadPrompt": "לחץ להעלאה או גרור ושחרר",
+        "imageRequirements": "PNG, JPG או GIF (מקסימום 10MB)",
         "description": "תיאור",
-        "image": "תמונה",
-        "uploadImage": "העלאת תמונה",
-        "save": "שמור שינויים",
-        "cancel": "ביטול"
+        "descriptionPlaceholder": "תאר את חיית המחמד שלך...",
+        "age": "גיל",
+        "agePlaceholder": "הזן גיל",
+        "gender": "מין",
+        "selectGender": "בחר מין",
+        "genderMale": "זכר",
+        "genderFemale": "נקבה",
+        "updating": "מעדכן...",
+        "save": "שמור שינויים"
       },
       "success": "חיית המחמד עודכנה בהצלחה!",
       "error": "שגיאה בעדכון חיית המחמד"
@@ -292,6 +302,11 @@
         "deleteFailed": "מחיקת חיית המחמד נכשלה",
         "linkCopied": "הקישור הועתק ללוח!",
         "copyFailed": "העתקת הקישור נכשלה"
+      },
+      "popup": {
+        "title": "תן מתנת FacePet",
+        "text": "עזור לחברים שלך לשמור על החיות שלהם בטוחות גם!",
+        "buttonLabel": "תן עכשיו"
       }
     },
     "UserSettingsPage": {
