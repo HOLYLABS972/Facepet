@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useRandomAd } from '@/hooks/useRandomAd';
 import { usePathname, useRouter } from '@/i18n/routing';
 import { usePetId } from '@/src/hooks/use-pet-id';
-import { signOut, useSession } from 'next-auth/react';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Suspense, useEffect } from 'react';
@@ -28,7 +28,7 @@ export default function WelcomeGetStartedPage() {
   const pathName = usePathname();
   const petId = pathName.split('/')[2];
   const { savePetId } = usePetId();
-  const { data: session, status } = useSession();
+  const { user, signOut } = useAuth();
   const { showAd, adData, handleAdClose } = useRandomAd(null, 1);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function WelcomeGetStartedPage() {
 
         <Button
           onClick={() =>
-            status === 'authenticated'
+            user
               ? router.push(`/pet/${petId}/get-started/register`)
               : router.push(`/auth`)
           }
@@ -72,18 +72,18 @@ export default function WelcomeGetStartedPage() {
         </Button>
         <div className="mt-4 flex items-center justify-center gap-2 text-sm">
           <span className="text-gray-500">
-            {status === 'authenticated' ? t('signOutText') : t('signInText')}
+            {user ? t('signOutText') : t('signInText')}
           </span>
           <Button
             onClick={() =>
-              status === 'authenticated'
-                ? signOut({ redirect: false })
+              user
+                ? signOut()
                 : router.push(`/auth`)
             }
             className="text-primary p-0 font-bold underline hover:bg-transparent"
             variant={'ghost'}
           >
-            {status === 'authenticated' ? t('signOutLink') : t('signInLink')}
+            {user ? t('signOutLink') : t('signInLink')}
           </Button>
         </div>
       </div>
