@@ -134,11 +134,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     }
   };
 
-  const handleDeletePet = (petId: string) => {
-    setPets(prev => prev.filter(pet => pet.id !== petId));
-    setShowPetBottomSheet(false);
-    setSelectedPet(null);
-  };
+
 
   return (
     <div>
