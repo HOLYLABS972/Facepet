@@ -1,6 +1,9 @@
 'use client';
 
-import traffic_light from '@/public/assets/traffic_light.png';
+// Assets - using public paths
+const assets = {
+  traffic_light: '/assets/traffic_light.png'
+};
 import { Button } from '@/src/components/ui/button';
 import { useRouter } from '@/src/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -16,7 +19,7 @@ const Layout = ({ children }: LayoutProps) => {
   const t = useTranslations('components.GoBackButton');
   return (
     <div className="flex grow flex-col items-center">
-      <Image src={traffic_light} alt="traffic-light" width={100} height={100} />
+      <Image src={assets.traffic_light} alt="traffic-light" width={100} height={100} />
       <div className="justify-center p-10 text-center">
         {children}
         <Button

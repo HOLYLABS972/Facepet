@@ -3,7 +3,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import upload_figures from '@/public/assets/upload_figures.png';
+// Assets - using public paths
+const assets = {
+  upload_figures: '/assets/upload_figures.png'
+};
 import { IKImage, IKUpload, ImageKitProvider } from 'imagekitio-next';
 import { ArrowLeftRight } from 'lucide-react';
 import Image from 'next/image';
@@ -154,7 +157,7 @@ const ImageUpload = ({
                 {label}
               </span>
               <Image
-                src={upload_figures}
+                src={assets.upload_figures}
                 alt="figure"
                 width={162.67}
                 height={121.53}

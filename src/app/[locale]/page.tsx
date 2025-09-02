@@ -7,12 +7,15 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
 
-import bear from '@/public/pets/bear.png';
-import bunny from '@/public/pets/bunny.png';
-import dino from '@/public/pets/dino.png';
-import duck from '@/public/pets/duck.png';
-import penguin from '@/public/pets/penguin.png';
-import pig from '@/public/pets/pig.png';
+// Pet images - using public paths for Next.js Image component
+const petImages = {
+  bear: '/pets/bear.png',
+  bunny: '/pets/bunny.png',
+  dino: '/pets/dino.png',
+  duck: '/pets/duck.png',
+  penguin: '/pets/penguin.png',
+  pig: '/pets/pig.png'
+};
 import Footer from '@/src/components/layout/Footer';
 
 const petCharacters = [
@@ -21,7 +24,7 @@ const petCharacters = [
     isTop: false,
     isRight: true,
     isMiddle: true,
-    src: pig,
+    src: petImages.pig,
     alt: 'pig',
     size: 167,
     top: 120,
@@ -33,7 +36,7 @@ const petCharacters = [
     isTop: true,
     isRight: false,
     isMiddle: false,
-    src: bunny,
+    src: petImages.bunny,
     alt: 'bunny',
     size: 163,
     top: 1,
@@ -45,7 +48,7 @@ const petCharacters = [
     isTop: true,
     isRight: true,
     isMiddle: false,
-    src: dino,
+    src: petImages.dino,
     alt: 'dino',
     size: 198,
     top: 10,
@@ -57,7 +60,7 @@ const petCharacters = [
     isTop: false,
     isRight: false,
     isMiddle: false,
-    src: duck,
+    src: petImages.duck,
     alt: 'duck',
     size: 185,
     top: 150,
@@ -69,7 +72,7 @@ const petCharacters = [
     isTop: false,
     isRight: true,
     isMiddle: false,
-    src: penguin,
+    src: petImages.penguin,
     alt: 'penguin',
     size: 152,
     top: 180,
@@ -81,7 +84,7 @@ const petCharacters = [
     isTop: false,
     isRight: false,
     isMiddle: true,
-    src: bear,
+    src: petImages.bear,
     alt: 'bear',
     size: 143,
     top: 100,

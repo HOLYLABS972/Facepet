@@ -1,18 +1,21 @@
 'use client';
 
-import bear from '@/public/pets/bear.png';
-import bunny from '@/public/pets/bunny.png';
-import dino from '@/public/pets/dino.png';
-import duck from '@/public/pets/duck.png';
-import penguin from '@/public/pets/penguin.png';
-import pig from '@/public/pets/pig.png';
+// Pet images - using public paths for Next.js Image component
+const petImages = {
+  bear: '/pets/bear.png',
+  bunny: '/pets/bunny.png',
+  dino: '/pets/dino.png',
+  duck: '/pets/duck.png',
+  penguin: '/pets/penguin.png',
+  pig: '/pets/pig.png'
+};
 import { motion } from 'framer-motion';
 import React from 'react';
 
 const petCharacters = [
   {
     id: 1,
-    src: bear,
+    src: petImages.bear,
     alt: 'bear',
     size: 143,
     top: 100,
@@ -21,7 +24,7 @@ const petCharacters = [
   },
   {
     id: 2,
-    src: bunny,
+    src: petImages.bunny,
     alt: 'bunny',
     size: 163,
     top: 1,
@@ -30,7 +33,7 @@ const petCharacters = [
   },
   {
     id: 3,
-    src: dino,
+    src: petImages.dino,
     alt: 'dino',
     size: 198,
     top: 10,
@@ -39,7 +42,7 @@ const petCharacters = [
   },
   {
     id: 4,
-    src: duck,
+    src: petImages.duck,
     alt: 'duck',
     size: 185,
     top: 150,
@@ -48,7 +51,7 @@ const petCharacters = [
   },
   {
     id: 5,
-    src: penguin,
+    src: petImages.penguin,
     alt: 'penguin',
     size: 152,
     top: 180,
@@ -57,7 +60,7 @@ const petCharacters = [
   },
   {
     id: 6,
-    src: pig,
+    src: petImages.pig,
     alt: 'pig',
     size: 167,
     top: 120,
