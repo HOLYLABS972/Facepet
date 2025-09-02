@@ -3,15 +3,17 @@
 import { motion } from 'motion/react';
 import { FileText, Calendar, Shield, AlertTriangle } from 'lucide-react';
 import Footer from '@/src/components/layout/Footer';
+import { useTranslations } from 'next-intl';
 
 export default function TermsPage() {
+  const t = useTranslations('pages.TermsPage');
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center">
-            <h1 className="text-2xl font-bold text-gray-900">Terms of Service</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           </div>
         </div>
       </div>
@@ -25,7 +27,7 @@ export default function TermsPage() {
             className="flex items-center justify-center gap-3 mb-4"
           >
             <FileText className="h-8 w-8" />
-            <h2 className="text-4xl font-bold">Terms of Service</h2>
+            <h2 className="text-4xl font-bold">{t('title')}</h2>
           </motion.div>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -33,7 +35,7 @@ export default function TermsPage() {
             transition={{ delay: 0.1 }}
             className="text-xl opacity-90 max-w-2xl mx-auto"
           >
-            Please read these terms carefully before using FacePet services.
+            {t('heroDescription')}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -42,7 +44,7 @@ export default function TermsPage() {
             className="flex items-center justify-center gap-2 mt-4 text-orange-200"
           >
             <Calendar className="h-4 w-4" />
-            <span>Last updated: {new Date().toLocaleDateString()}</span>
+            <span>{t('lastUpdated')}: {new Date().toLocaleDateString()}</span>
           </motion.div>
         </div>
       </div>

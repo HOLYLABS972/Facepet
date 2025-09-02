@@ -9,8 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import Footer from '@/src/components/layout/Footer';
+import { useTranslations } from 'next-intl';
 
 export default function ContactPage() {
+  const t = useTranslations('pages.ContactPage');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -74,7 +76,7 @@ export default function ContactPage() {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center">
-            <h1 className="text-2xl font-bold text-gray-900">Contact Us</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           </div>
         </div>
       </div>
@@ -87,7 +89,7 @@ export default function ContactPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-bold mb-4"
           >
-            Get in Touch
+            {t('heroTitle')}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -95,8 +97,7 @@ export default function ContactPage() {
             transition={{ delay: 0.1 }}
             className="text-xl opacity-90 max-w-2xl mx-auto"
           >
-            Have questions about FacePet? We're here to help! 
-            Send us a message and we'll get back to you as soon as possible.
+            {t('heroDescription')}
           </motion.p>
         </div>
       </div>
@@ -115,17 +116,17 @@ export default function ContactPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Send className="h-5 w-5" />
-                    Send us a Message
+                    {t('formTitle')}
                   </CardTitle>
                   <CardDescription>
-                    Fill out the form below and we'll get back to you within 24 hours.
+                    {t('formDescription')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Name *</Label>
+                        <Label htmlFor="name">{t('form.name')} *</Label>
                         <Input
                           id="name"
                           name="name"
@@ -133,11 +134,11 @@ export default function ContactPage() {
                           value={formData.name}
                           onChange={handleInputChange}
                           required
-                          placeholder="Your full name"
+                          placeholder={t('form.namePlaceholder')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
+                        <Label htmlFor="email">{t('form.email')} *</Label>
                         <Input
                           id="email"
                           name="email"
@@ -145,25 +146,25 @@ export default function ContactPage() {
                           value={formData.email}
                           onChange={handleInputChange}
                           required
-                          placeholder="your@email.com"
+                          placeholder={t('form.emailPlaceholder')}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
+                      <Label htmlFor="phone">{t('form.phone')}</Label>
                       <Input
                         id="phone"
                         name="phone"
                         type="tel"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        placeholder="Your phone number"
+                        placeholder={t('form.phonePlaceholder')}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="subject">Subject *</Label>
+                      <Label htmlFor="subject">{t('form.subject')} *</Label>
                       <Input
                         id="subject"
                         name="subject"
@@ -171,19 +172,19 @@ export default function ContactPage() {
                         value={formData.subject}
                         onChange={handleInputChange}
                         required
-                        placeholder="What's this about?"
+                        placeholder={t('form.subjectPlaceholder')}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message">Message *</Label>
+                      <Label htmlFor="message">{t('form.message')} *</Label>
                       <Textarea
                         id="message"
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
                         required
-                        placeholder="Tell us more about your question or concern..."
+                        placeholder={t('form.messagePlaceholder')}
                         rows={6}
                       />
                     </div>
@@ -195,7 +196,7 @@ export default function ContactPage() {
                         className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg"
                       >
                         <CheckCircle className="h-5 w-5" />
-                        <span>Message sent successfully! We'll get back to you soon.</span>
+                        <span>{t('form.successMessage')}</span>
                       </motion.div>
                     )}
 
@@ -214,7 +215,7 @@ export default function ContactPage() {
                       disabled={isSubmitting}
                       className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                     >
-                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                      {isSubmitting ? t('form.sending') : t('form.sendButton')}
                     </Button>
                   </form>
                 </CardContent>
@@ -229,16 +230,16 @@ export default function ContactPage() {
               className="space-y-8"
             >
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('contactInfo.title')}</h3>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Mail className="h-6 w-6 text-orange-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900">Email</h4>
+                      <h4 className="font-semibold text-gray-900">{t('contactInfo.email')}</h4>
                       <p className="text-gray-600">support@facepet.com</p>
-                      <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
+                      <p className="text-sm text-gray-500">{t('contactInfo.emailResponse')}</p>
                     </div>
                   </div>
 
@@ -247,9 +248,9 @@ export default function ContactPage() {
                       <Phone className="h-6 w-6 text-orange-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900">Phone</h4>
+                      <h4 className="font-semibold text-gray-900">{t('contactInfo.phone')}</h4>
                       <p className="text-gray-600">+1 (555) 123-4567</p>
-                      <p className="text-sm text-gray-500">Mon-Fri 9AM-6PM EST</p>
+                      <p className="text-sm text-gray-500">{t('contactInfo.phoneHours')}</p>
                     </div>
                   </div>
 
@@ -258,7 +259,7 @@ export default function ContactPage() {
                       <MapPin className="h-6 w-6 text-orange-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900">Address</h4>
+                      <h4 className="font-semibold text-gray-900">{t('contactInfo.address')}</h4>
                       <p className="text-gray-600">
                         123 Pet Street<br />
                         Animal City, AC 12345<br />
@@ -271,25 +272,25 @@ export default function ContactPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Frequently Asked Questions</CardTitle>
+                  <CardTitle>{t('faq.title')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900">How does FacePet work?</h4>
+                    <h4 className="font-semibold text-gray-900">{t('faq.question1')}</h4>
                     <p className="text-sm text-gray-600">
-                      FacePet uses NFC technology to store your pet's information on a chip that can be scanned by any smartphone.
+                      {t('faq.answer1')}
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">Is my pet's data secure?</h4>
+                    <h4 className="font-semibold text-gray-900">{t('faq.question2')}</h4>
                     <p className="text-sm text-gray-600">
-                      Yes, we use industry-standard encryption and privacy controls to protect your pet's information.
+                      {t('faq.answer2')}
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">What if my pet gets lost?</h4>
+                    <h4 className="font-semibold text-gray-900">{t('faq.question3')}</h4>
                     <p className="text-sm text-gray-600">
-                      Anyone who finds your pet can scan the NFC chip to access your contact information and help reunite you.
+                      {t('faq.answer3')}
                     </p>
                   </div>
                 </CardContent>

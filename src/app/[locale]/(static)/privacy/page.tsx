@@ -3,15 +3,17 @@
 import { motion } from 'motion/react';
 import { Shield, Eye, Lock, Database, UserCheck, Mail } from 'lucide-react';
 import Footer from '@/src/components/layout/Footer';
+import { useTranslations } from 'next-intl';
 
 export default function PrivacyPage() {
+  const t = useTranslations('pages.PrivacyPage');
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center">
-            <h1 className="text-2xl font-bold text-gray-900">Privacy Policy</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           </div>
         </div>
       </div>
@@ -25,7 +27,7 @@ export default function PrivacyPage() {
             className="flex items-center justify-center gap-3 mb-4"
           >
             <Shield className="h-8 w-8" />
-            <h2 className="text-4xl font-bold">Privacy Policy</h2>
+            <h2 className="text-4xl font-bold">{t('title')}</h2>
           </motion.div>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -33,7 +35,7 @@ export default function PrivacyPage() {
             transition={{ delay: 0.1 }}
             className="text-xl opacity-90 max-w-2xl mx-auto"
           >
-            Your privacy and your pet's safety are our top priorities.
+            {t('heroDescription')}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -42,7 +44,7 @@ export default function PrivacyPage() {
             className="flex items-center justify-center gap-2 mt-4 text-orange-200"
           >
             <Eye className="h-4 w-4" />
-            <span>Last updated: {new Date().toLocaleDateString()}</span>
+            <span>{t('lastUpdated')}: {new Date().toLocaleDateString()}</span>
           </motion.div>
         </div>
       </div>

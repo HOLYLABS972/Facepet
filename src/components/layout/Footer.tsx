@@ -1,6 +1,7 @@
 import { Heart } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 const Footer = () => {
   const t = useTranslations('components.Footer');

@@ -247,6 +247,55 @@
       "resendIn": "Resend in",
       "sending": "Sending...",
       "backToSignUp": "Back to Sign Up"
+    },
+    "ContactPage": {
+      "title": "Contact Us",
+      "heroTitle": "Get in Touch",
+      "heroDescription": "Have questions about FacePet? We're here to help! Send us a message and we'll get back to you as soon as possible.",
+      "formTitle": "Send us a Message",
+      "formDescription": "Fill out the form below and we'll get back to you within 24 hours.",
+      "form": {
+        "name": "Name",
+        "namePlaceholder": "Your full name",
+        "email": "Email",
+        "emailPlaceholder": "your@email.com",
+        "phone": "Phone",
+        "phonePlaceholder": "Your phone number",
+        "subject": "Subject",
+        "subjectPlaceholder": "What's this about?",
+        "message": "Message",
+        "messagePlaceholder": "Tell us more about your question or concern...",
+        "sendButton": "Send Message",
+        "sending": "Sending...",
+        "successMessage": "Message sent successfully! We'll get back to you soon."
+      },
+      "contactInfo": {
+        "title": "Contact Information",
+        "email": "Email",
+        "emailResponse": "We'll respond within 24 hours",
+        "phone": "Phone",
+        "phoneHours": "Mon-Fri 9AM-6PM EST",
+        "address": "Address"
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "question1": "How does FacePet work?",
+        "answer1": "FacePet uses NFC technology to store your pet's information on a chip that can be scanned by any smartphone.",
+        "question2": "Is my pet's data secure?",
+        "answer2": "Yes, we use industry-standard encryption and privacy controls to protect your pet's information.",
+        "question3": "What if my pet gets lost?",
+        "answer3": "Anyone who finds your pet can scan the NFC chip to access your contact information and help reunite you."
+      }
+    },
+    "PrivacyPage": {
+      "title": "Privacy Policy",
+      "heroDescription": "Your privacy and your pet's safety are our top priorities.",
+      "lastUpdated": "Last updated"
+    },
+    "TermsPage": {
+      "title": "Terms of Service",
+      "heroDescription": "Please read these terms carefully before using FacePet services.",
+      "lastUpdated": "Last updated"
     }
   },
   "errors": {
