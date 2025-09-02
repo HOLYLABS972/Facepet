@@ -22,7 +22,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose, onShareS
     const shareUrl = 'https://facepet-kappa.vercel.app';
     const shareData = {
       title: t('shareTitle'),
-      text: t('shareText'),
+      text: `${t('shareText')} ${shareUrl}`,
       url: shareUrl
     };
 

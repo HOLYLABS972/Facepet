@@ -17,7 +17,7 @@ const ShareMenu = () => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
     const shareData = {
       title: t('title'),
-      text: t('text'),
+      text: `${t('text')} ${shareUrl}`,
       url: shareUrl
     };
 

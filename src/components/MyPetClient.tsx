@@ -107,10 +107,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
             
             if (currentPetsCount > previousPetsCount) {
               // User added a new pet, award 10 points
-              setUserPoints(prev => prev + 10);
+              await addPoints('pet', 10);
               setHasAddedPet(true);
-              // Update points breakdown
-              setPointsBreakdown(prev => ({ ...prev, pet: prev.pet + 10 }));
               // Show individual pet earning notification
               setShowPetEarning(true);
               console.log('User added a pet! Awarded 10 points. Total points:', userPoints + 10);
@@ -293,9 +291,9 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         <div className="mb-4">
           <InviteFriendsCard 
             onClose={() => {}} 
-            onShareSuccess={() => {
+            onShareSuccess={async () => {
               // Award 5 points for sharing
-              addPoints('share', 5);
+              await addPoints('share', 5);
               // Show individual share earning notification
               setShowShareEarning(true);
               console.log('User shared the app! Awarded 5 points. Total points:', userPoints + 5);

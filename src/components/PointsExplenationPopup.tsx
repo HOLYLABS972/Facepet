@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Award, Share2, Star, X } from 'lucide-react';
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from './ui/button';
 
 /**
