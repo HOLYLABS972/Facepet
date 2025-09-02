@@ -133,14 +133,6 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Pet
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/nfc`)}>
-                  <Wifi className="mr-2 h-4 w-4" />
-                  Attach NFC
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDeletePet} className="text-red-600" disabled={isDeleting}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   {isDeleting ? 'Deleting...' : 'Delete Pet'}

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MoreVertical, Edit, X, Trash2, Wifi, Share2 } from 'lucide-react';
+import { MoreVertical, X, Trash2, Share2 } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -109,14 +109,6 @@ export default function PetDetailsBottomSheet({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Pet
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/nfc`)}>
-                  <Wifi className="mr-2 h-4 w-4" />
-                  Attach NFC
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSharePet}>
                   <Share2 className="mr-2 h-4 w-4" />
                   Share Pet
