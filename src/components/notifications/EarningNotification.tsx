@@ -60,7 +60,7 @@ const EarningNotification: React.FC<EarningNotificationProps> = ({
           )}
         >
           <div className="flex items-center justify-center">
-            <Coins className="stroke-green-600" size={25} />
+            <Coins className="stroke-black" size={25} />
           </div>
         </div>
 
