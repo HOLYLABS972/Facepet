@@ -10,6 +10,7 @@ import { ArrowLeft, Mail, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 const ForgotPasswordPage = () => {
   const t = useTranslations('pages.ForgotPasswordPage');
@@ -54,15 +55,19 @@ const ForgotPasswordPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            {/* Language Switcher */}
+            <div className="flex justify-end p-4">
+              <LocaleSwitcher />
+            </div>
             <CardHeader className="space-y-2 text-center pb-8">
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <Mail className="w-8 h-8 text-green-600" />
               </div>
               <CardTitle className="text-2xl font-bold text-gray-900">
-                Check Your Email
+                {t('title')}
               </CardTitle>
               <p className="text-gray-600">
-                We've sent a password reset link to
+                {t('subtitle')}
               </p>
               <p className="font-medium text-primary">{email}</p>
             </CardHeader>
@@ -70,7 +75,7 @@ const ForgotPasswordPage = () => {
             <CardContent className="space-y-6">
               <div className="text-center space-y-4">
                 <p className="text-sm text-gray-600">
-                  Didn't receive the email? Check your spam folder or try again.
+                  {t('form.resendText')}
                 </p>
                 
                 <Button
@@ -78,7 +83,7 @@ const ForgotPasswordPage = () => {
                   variant="outline"
                   className="w-full"
                 >
-                  Try Different Email
+                  {t('form.resendLink')}
                 </Button>
 
                 <Button
@@ -87,7 +92,7 @@ const ForgotPasswordPage = () => {
                   className="w-full text-gray-600 hover:text-gray-900"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Sign In
+                  {t('backToSignIn')}
                 </Button>
               </div>
             </CardContent>
@@ -101,15 +106,19 @@ const ForgotPasswordPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+          {/* Language Switcher */}
+          <div className="flex justify-end p-4">
+            <LocaleSwitcher />
+          </div>
           <CardHeader className="space-y-2 text-center pb-8">
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
-              Forgot Password?
+              {t('title')}
             </CardTitle>
             <p className="text-gray-600">
-              Enter your email address and we'll send you a link to reset your password.
+              {t('subtitle')}
             </p>
           </CardHeader>
 
@@ -117,7 +126,7 @@ const ForgotPasswordPage = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700">
-                  Email Address
+                  {t('form.email')}
                 </Label>
                 <Input
                   id="email"
@@ -126,7 +135,7 @@ const ForgotPasswordPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="h-12"
-                  placeholder="Enter your email address"
+                  placeholder={t('form.email')}
                 />
               </div>
 
@@ -138,10 +147,10 @@ const ForgotPasswordPage = () => {
                 {loading ? (
                   <div className="flex items-center space-x-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Sending...</span>
+                    <span>{t('sending')}</span>
                   </div>
                 ) : (
-                  'Send Reset Link'
+                  t('sendResetLink')
                 )}
               </Button>
             </form>
@@ -153,7 +162,7 @@ const ForgotPasswordPage = () => {
                 className="w-full text-gray-600 hover:text-gray-900"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Sign In
+                {t('backToSignIn')}
               </Button>
             </div>
           </CardContent>

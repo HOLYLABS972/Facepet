@@ -1,6 +1,7 @@
 'use client';
 
 import Navbar from '@/components/layout/Navbar';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/i18n/routing';
 import { motion, useScroll, useTransform } from 'motion/react';
@@ -132,6 +133,11 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
     <>
       {/* Main Welcome Content */}
       <section className="mt-16 px-7">
+        {/* Language Switcher */}
+        <div className="flex justify-end mb-4">
+          <LocaleSwitcher />
+        </div>
+        
         <h1 className="text-primary py-4 text-center font-['Lobster'] text-5xl tracking-wide lg:text-7xl">
           FacePet
         </h1>

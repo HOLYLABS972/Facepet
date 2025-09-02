@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 const AuthPage = () => {
   const t = useTranslations('pages.AuthPage');
@@ -118,9 +119,13 @@ const AuthPage = () => {
         {/* Right Side - Authentication Form */}
         <div className="w-full max-w-md mx-auto">
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            {/* Language Switcher */}
+            <div className="flex justify-end p-4">
+              <LocaleSwitcher />
+            </div>
             <CardHeader className="space-y-2 text-center pb-8">
               <CardTitle className="text-2xl font-bold text-gray-900">
-                {isSignUp ? 'Create Account' : 'Welcome Back'}
+                {isSignUp ? t('createAccount') : t('welcomeBack')}
               </CardTitle>
               <p className="text-gray-600">
                 {isSignUp 
@@ -156,7 +161,7 @@ const AuthPage = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continue with Google
+                {t('signInWithGoogle')}
               </Button>
 
               <div className="relative">
@@ -164,7 +169,7 @@ const AuthPage = () => {
                   <Separator className="w-full" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">Or continue with email</span>
+                  <span className="bg-white px-2 text-gray-500">{t('or')}</span>
                 </div>
               </div>
 
@@ -172,13 +177,13 @@ const AuthPage = () => {
               <form onSubmit={handleEmailAuth} className="space-y-4">
                 {isSignUp && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Full Name</label>
+                    <label className="text-sm font-medium text-gray-700">{t('fullName')}</label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <Input
                         name="fullName"
                         type="text"
-                        placeholder="Enter your full name"
+                        placeholder={t('fullNamePlaceholder')}
                         value={formData.fullName}
                         onChange={handleInputChange}
                         required={isSignUp}
@@ -189,13 +194,13 @@ const AuthPage = () => {
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Email</label>
+                  <label className="text-sm font-medium text-gray-700">{t('email')}</label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       name="email"
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder={t('emailPlaceholder')}
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -205,13 +210,13 @@ const AuthPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Password</label>
+                  <label className="text-sm font-medium text-gray-700">{t('password')}</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       name="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
+                      placeholder={t('passwordPlaceholder')}
                       value={formData.password}
                       onChange={handleInputChange}
                       required
@@ -238,7 +243,7 @@ const AuthPage = () => {
                       <span>Loading...</span>
                     </div>
                   ) : (
-                    isSignUp ? 'Create Account' : 'Sign In'
+                    isSignUp ? t('signUpButton') : t('signInButton')
                   )}
                 </Button>
 
@@ -249,7 +254,7 @@ const AuthPage = () => {
                       onClick={() => router.push('/auth/forgot')}
                       className="text-sm text-gray-600 hover:text-primary underline"
                     >
-                      Forgot your password?
+                      {t('forgotPassword')}
                     </button>
                   </div>
                 )}
@@ -258,12 +263,12 @@ const AuthPage = () => {
               {/* Toggle Sign In/Sign Up */}
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                  {isSignUp ? t('haveAccount') : t('noAccount')}
                   <button
                     onClick={() => setIsSignUp(!isSignUp)}
                     className="ml-1 text-primary hover:underline font-medium"
                   >
-                    {isSignUp ? 'Sign In' : 'Sign Up'}
+                    {isSignUp ? t('signInLink') : t('signUpLink')}
                   </button>
                 </p>
               </div>

@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 interface EmailVerificationPageProps {
   email: string;
@@ -96,15 +97,19 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+          {/* Language Switcher */}
+          <div className="flex justify-end p-4">
+            <LocaleSwitcher />
+          </div>
           <CardHeader className="space-y-2 text-center pb-8">
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
-              Verify Your Email
+              {t('title')}
             </CardTitle>
             <p className="text-gray-600">
-              We've sent a verification code to
+              {t('subtitle')}
             </p>
             <p className="font-medium text-primary">{email}</p>
           </CardHeader>
@@ -113,11 +118,11 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
             <form onSubmit={handleVerifyCode} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Verification Code
+                  {t('verificationCode')}
                 </label>
                 <Input
                   type="text"
-                  placeholder="Enter 6-digit code"
+                  placeholder={t('verificationCodePlaceholder')}
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                   maxLength={6}
@@ -134,17 +139,17 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
                 {loading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Verifying...</span>
+                    <span>{t('verifying')}</span>
                   </div>
                 ) : (
-                  'Verify Email'
+                  t('verifyButton')
                 )}
               </Button>
             </form>
 
             <div className="text-center space-y-4">
               <p className="text-sm text-gray-600">
-                Didn't receive the code?
+                {t('didntReceive')}
               </p>
               
               <Button
@@ -156,12 +161,12 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
                 {resendLoading ? (
                   <div className="flex items-center space-x-2">
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Sending...</span>
+                    <span>{t('sending')}</span>
                   </div>
                 ) : countdown > 0 ? (
-                  `Resend in ${countdown}s`
+                  `${t('resendIn')} ${countdown}s`
                 ) : (
-                  'Resend Code'
+                  t('resendButton')
                 )}
               </Button>
 
@@ -172,7 +177,7 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
                   className="w-full text-gray-600 hover:text-gray-900"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Sign Up
+                  {t('backToSignUp')}
                 </Button>
               )}
             </div>
