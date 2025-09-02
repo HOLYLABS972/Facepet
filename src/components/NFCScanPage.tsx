@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Wifi, Copy, Check, Smartphone, Tag, Share2 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -53,18 +53,42 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isRecorded, setIsRecorded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [nfcSupported, setNfcSupported] = useState(true);
+
+  // Check for NFC support when component mounts
+  useEffect(() => {
+    setNfcSupported('NDEFReader' in window);
+  }, []);
 
   const petShareUrl = `${window.location.origin}/pet/${pet.id}`;
 
   const handleRecordTag = async () => {
+    if (!('NDEFReader' in window)) {
+      toast.error('NFC is not supported on this device');
+      return;
+    }
+
     setIsRecording(true);
-    
-    // Simulate NFC recording process
-    setTimeout(() => {
-      setIsRecording(false);
+
+    try {
+      const ndef = new (window as any).NDEFReader();
+      await ndef.write({
+        records: [
+          {
+            recordType: "url",
+            data: petShareUrl
+          }
+        ]
+      });
+      
       setIsRecorded(true);
       toast.success('NFC tag recorded successfully!');
-    }, 2000);
+    } catch (error) {
+      console.error('Error writing to NFC tag:', error);
+      toast.error('Failed to write to NFC tag. Please try again.');
+    } finally {
+      setIsRecording(false);
+    }
   };
 
   const handleCopyLink = async () => {
@@ -193,12 +217,20 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-4">
-                Tap the button below and then tap your phone to the NFC tag to record {pet.name}'s information.
-              </p>
+              {!nfcSupported ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                  <p className="text-yellow-800">
+                    NFC is not supported on this device. Please use a device with NFC capabilities.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-gray-600 mb-4">
+                  Tap the button below and then tap your phone to the NFC tag to record {pet.name}'s information.
+                </p>
+              )}
               <Button
                 onClick={handleRecordTag}
-                disabled={isRecording || isRecorded}
+                disabled={isRecording || isRecorded || !nfcSupported}
                 className="w-full"
                 size="lg"
               >

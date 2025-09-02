@@ -136,11 +136,11 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
+                  <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/edit`)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Pet
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
+                  <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/tag`)}>
                     <Wifi className="mr-2 h-4 w-4" />
                     Attach Tag
                   </DropdownMenuItem>
