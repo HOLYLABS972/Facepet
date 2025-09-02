@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Check, Plus, X } from 'lucide-react';
+import { motion, PanInfo } from 'framer-motion';
+import { Check, Plus, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { cn } from '../lib/utils';
 import { useTranslations } from 'next-intl';
@@ -14,6 +14,7 @@ interface PhoneNumberCardProps {
 const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottomSheet }) => {
   const t = useTranslations('pages.MyPetsPage');
   const [isClosed, setIsClosed] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
 
   const handleAddPhone = () => {
@@ -22,11 +23,19 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
     }
   };
 
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the add phone action
-    setIsClosed(true);
-    if (onClose) {
-      onClose();
+  const handleClose = () => {
+    setIsDeleting(true);
+    setTimeout(() => {
+      setIsClosed(true);
+      if (onClose) {
+        onClose();
+      }
+    }, 300);
+  };
+
+  const handleDragEnd = (event: any, info: PanInfo) => {
+    if (info.offset.x < -100) {
+      handleClose();
     }
   };
 
@@ -35,21 +44,32 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
   }
 
   return (
-    <div
-      onClick={handleAddPhone}
-      className="relative h-22 cursor-pointer rounded-2xl transition duration-200 hover:shadow-lg active:shadow-lg"
-    >
-      {/* Glass morphism background */}
-      <div className="border-gray absolute inset-0 rounded-2xl border bg-white shadow-sm" />
-
-      {/* Close button */}
-      <button
-        onClick={handleClose}
-        className="absolute top-2 right-2 z-20 p-1 rounded-full hover:bg-gray-100 transition-colors"
-        aria-label="Close notification"
+    <div className="relative h-22 rounded-2xl overflow-hidden">
+      {/* Delete Background */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isDeleting ? 1 : 0 }}
+        className="absolute inset-0 bg-red-500 flex items-center justify-end pr-4"
       >
-        <X className="h-4 w-4 text-gray-500" />
-      </button>
+        <Trash2 className="w-6 h-6 text-white" />
+      </motion.div>
+
+      {/* Swipeable Card */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        animate={{ 
+          x: isDeleting ? -300 : 0,
+          opacity: isDeleting ? 0 : 1
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        onClick={handleAddPhone}
+        className="relative h-full cursor-pointer rounded-2xl transition duration-200 hover:shadow-lg active:shadow-lg"
+      >
+        {/* Glass morphism background */}
+        <div className="border-gray absolute inset-0 rounded-2xl border bg-white shadow-sm" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full">
@@ -86,6 +106,7 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
           </motion.div>
         </div>
       </div>
+      </motion.div>
     </div>
   );
 };

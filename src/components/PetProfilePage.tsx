@@ -290,36 +290,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Quick Actions */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button
-                    onClick={() => router.push(`/pet/${pet.id}/edit`)}
-                    className="w-full"
-                    variant="outline"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                  <Button
-                    onClick={() => router.push(`/pet/${pet.id}/nfc`)}
-                    className="w-full"
-                    variant="outline"
-                  >
-                    <Wifi className="w-4 h-4 mr-2" />
-                    Attach NFC
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
+
 
             {/* Share */}
             <motion.div

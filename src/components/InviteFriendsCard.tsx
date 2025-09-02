@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Check, Share2, X } from 'lucide-react';
+import { motion, PanInfo } from 'framer-motion';
+import { Check, Share2, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { cn } from '../lib/utils';
@@ -15,13 +15,22 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
   const t = useTranslations('pages.MyPetsPage');
   const [shared, setShared] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
 
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsClosed(true);
-    if (onClose) {
-      onClose();
+  const handleClose = () => {
+    setIsDeleting(true);
+    setTimeout(() => {
+      setIsClosed(true);
+      if (onClose) {
+        onClose();
+      }
+    }, 300);
+  };
+
+  const handleDragEnd = (event: any, info: PanInfo) => {
+    if (info.offset.x < -100) {
+      handleClose();
     }
   };
 
@@ -56,25 +65,35 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
   if (isClosed) return null;
 
   return (
-    <div
-      onClick={handleShare}
-      className={cn(
-        'relative h-22 cursor-pointer rounded-2xl transition duration-200 hover:shadow-lg active:shadow-lg',
-        shared && 'pointer-events-none'
-      )}
-    >
-      {/* Glass morphism background */}
-      <div className="border-gray absolute inset-0 rounded-2xl border bg-white shadow-sm" />
+    <div className="relative h-22 rounded-2xl overflow-hidden">
+      {/* Delete Background */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isDeleting ? 1 : 0 }}
+        className="absolute inset-0 bg-red-500 flex items-center justify-end pr-4"
+      >
+        <Trash2 className="w-6 h-6 text-white" />
+      </motion.div>
 
-      {/* Close Button */}
-      {onClose && (
-        <button
-          onClick={handleClose}
-          className="absolute top-2 right-2 z-20 p-1 rounded-full hover:bg-gray-100 transition-colors"
-        >
-          <X className="w-4 h-4 text-gray-500" />
-        </button>
-      )}
+      {/* Swipeable Card */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        animate={{ 
+          x: isDeleting ? -300 : 0,
+          opacity: isDeleting ? 0 : 1
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        onClick={handleShare}
+        className={cn(
+          'relative h-full cursor-pointer rounded-2xl transition duration-200 hover:shadow-lg active:shadow-lg',
+          shared && 'pointer-events-none'
+        )}
+      >
+        {/* Glass morphism background */}
+        <div className="border-gray absolute inset-0 rounded-2xl border bg-white shadow-sm" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full">
@@ -124,6 +143,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
           </motion.div>
         </div>
       </div>
+      </motion.div>
     </div>
   );
 };
