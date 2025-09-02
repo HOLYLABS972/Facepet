@@ -147,6 +147,19 @@ export async function getPetById(
         breedName = await getBreedName(data.breedId);
       }
       
+      // Debug date conversion
+      const createdAtDate = data.createdAt?.toDate() || new Date();
+      const updatedAtDate = data.updatedAt?.toDate() || new Date();
+      
+      console.log('Pet data from Firestore:', {
+        id: petSnap.id,
+        name: data.name,
+        createdAt: data.createdAt,
+        createdAtDate: createdAtDate,
+        updatedAt: data.updatedAt,
+        updatedAtDate: updatedAtDate
+      });
+
       const pet: SimplePet = {
         id: petSnap.id,
         name: data.name,
@@ -157,8 +170,8 @@ export async function getPetById(
         age: data.age,
         gender: data.gender,
         userEmail: data.userEmail,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate() || new Date()
+        createdAt: createdAtDate,
+        updatedAt: updatedAtDate
       };
 
       return { success: true, pet };
