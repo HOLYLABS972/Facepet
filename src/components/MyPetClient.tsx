@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import PhoneNumberCard from './PhoneNumberCard';
+import PhoneNumberBottomSheet from './PhoneNumberBottomSheet';
 import AdminNotificationCard from './AdminNotificationCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -36,6 +37,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [petsLoading, setPetsLoading] = useState(false);
   const [showPhoneNotification, setShowPhoneNotification] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
+  const [showPhoneBottomSheet, setShowPhoneBottomSheet] = useState(false);
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -113,6 +115,13 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     pet.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handlePhoneAdded = (phone: string) => {
+    // Hide the phone notification since user has added their phone
+    setShowPhoneNotification(false);
+    // Here you could also update the user's profile with the phone number
+    console.log('Phone number added:', phone);
+  };
+
   return (
     <div>
       {/* Welcome Section */}
@@ -166,7 +175,10 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         {/* Phone Number Notification - matching share style */}
         {showPhoneNotification && (
           <div className="mb-4">
-            <PhoneNumberCard onClose={() => setShowPhoneNotification(false)} />
+            <PhoneNumberCard 
+              onClose={() => setShowPhoneNotification(false)}
+              onOpenBottomSheet={() => setShowPhoneBottomSheet(true)}
+            />
           </div>
         )}
       </div>

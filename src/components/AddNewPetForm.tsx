@@ -243,7 +243,7 @@ export default function AddNewPetForm() {
                 petType={formData.type as PetType}
                 value={formData.breed}
                 onValueChange={(value) => handleInputChange('breed', value)}
-                placeholder="Select breed (optional)"
+                placeholder="Select breed"
               />
             </div>
 
