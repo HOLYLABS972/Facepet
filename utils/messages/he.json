@@ -43,7 +43,9 @@
       "notifications": "התראות",
       "noNotifications": "אין התראות חדשות",
       "addPhoneNumber": "הוסף מספר טלפון",
-      "phoneNumberDescription": "קבל את הניוזלטר שלנו עם טיפים ועדכונים לטיפול בחיות מחמד!"
+      "phoneNumberDescription": "קבל את הניוזלטר שלנו עם טיפים ועדכונים לטיפול בחיות מחמד!",
+      "shareWithFriends": "שתף עם חברים",
+      "shareDescription": "שתף וקבל 10 נקודות עבור כל חבר שמצטרף!"
     },
     "AddPetPage": {
       "back": "חזור",
