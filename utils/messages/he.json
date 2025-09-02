@@ -176,19 +176,25 @@
     }
   },
   "pages": {
-    "Admin": {
-      "dashboard": "לוח בקרה של מנהל",
-      "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
-      "loggedInAs": "אתה מחובר כ",
-      "adsManagement": "ניהול פרסומות",
-      "manageAdsDescription": "צרו, ערכו ונהלו פרסומות המוצגות בפלטפורמה.",
-      "manageAds": "נהל פרסומות",
-      "userManagement": "ניהול משתמשים",
-      "manageUsersDescription": "נהל חשבונות משתמשים, תפקידים והרשאות.",
-      "manageUsers": "נהל משתמשים",
-      "loading": "טוען...",
-      "uploading": "מעלה..."
-    },
+      "Admin": {
+    "dashboard": "לוח בקרה של מנהל",
+    "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
+    "loggedInAs": "אתה מחובר כ",
+    "adsManagement": "ניהול פרסומות",
+    "manageAdsDescription": "צרו, ערכו ונהלו פרסומות המוצגות בפלטפורמה.",
+    "manageAds": "נהל פרסומות",
+    "userManagement": "ניהול משתמשים",
+    "manageUsersDescription": "נהל חשבונות משתמשים, תפקידים והרשאות.",
+    "manageUsers": "נהל משתמשים",
+    "loading": "טוען...",
+    "uploading": "מעלה...",
+    "userActions": {
+      "confirmDeletion": "אישור מחיקה",
+      "deleteUserMessage": "האם אתה בטוח שברצונך למחוק את המשתמש הזה? פעולה זו לא ניתנת לביטול.",
+      "cancel": "ביטול",
+      "deleteUser": "מחק משתמש"
+    }
+  },
     "WelcomePage": {
       "upperTitle": "כל מה שחיית המחמד שלך צריכה",
       "lowerTitle": "במקום אחד.",
@@ -637,12 +643,12 @@
     },
     "ShareButton": {
       "title": "Share Your Pet!",
-      "text": "תראה את חיית המחמד שלי בFacepet!",
+      "text": "בדוק את אפליקציית FacePet לחיות!",
       "linkCopied": "הלינק הועתק בהצלחה!"
     },
     "InviteFriendsCard": {
       "shareTitle": "הצטרף ל-FacePet",
-      "shareText": "הגן על חיית המחמד שלך עם טכנולוגיית NFC! FacePet עוזר לך לשמור על החיות שלך בטוחות עם מעקב וזיהוי מתקדמים. שתף עם חברים וקבל נקודות!",
+      "shareText": "בדוק את אפליקציית FacePet לחיות!",
       "linkCopied": "הלינק הועתק ללוח!",
       "shareError": "משהו השתבש"
     },

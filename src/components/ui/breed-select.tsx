@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/src/lib/utils';
 import { Button } from './button';
 import {

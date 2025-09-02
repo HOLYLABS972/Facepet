@@ -27,7 +27,7 @@ const MenuShareMenu = () => {
         await navigator.share(shareData);
       } else {
         navigator.clipboard
-          .writeText(shareData.text + '\n' + shareData.url)
+          .writeText(shareData.text + ' ' + shareData.url)
           .then(() => {
             toast.success(t('linkCopied'));
           })

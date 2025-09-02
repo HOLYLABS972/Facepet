@@ -8,7 +8,13 @@
     "manageAds": "Manage Ads",
     "userManagement": "User Management",
     "manageUsersDescription": "Manage user accounts, roles, and permissions.",
-    "manageUsers": "Manage Users"
+    "manageUsers": "Manage Users",
+    "userActions": {
+      "confirmDeletion": "Confirm Deletion",
+      "deleteUserMessage": "Are you sure you want to delete this user? This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleteUser": "Delete User"
+    }
   },
   "pages": {
     "WelcomePage": {
@@ -431,12 +437,12 @@
     },
     "ShareButton": {
       "title": "שתף את חיית המחמד שלך!",
-      "text": "Check out my pet on FacePet!",
+      "text": "Check out FacePet app for pets!",
       "linkCopied": "Link copied successfully!"
     },
     "InviteFriendsCard": {
       "shareTitle": "Join FacePet",
-      "shareText": "Protect your pet with NFC technology! FacePet helps you keep your pets safe with advanced tracking and identification. Share with friends and earn points!",
+      "shareText": "Check out FacePet app for pets!",
       "linkCopied": "Link copied to clipboard!",
       "shareError": "Something went wrong"
     },

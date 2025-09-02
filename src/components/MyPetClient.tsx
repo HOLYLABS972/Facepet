@@ -35,7 +35,7 @@ interface MyPetsClientProps {
 const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const t = useTranslations('pages.MyPetsPage');
   const { user, loading } = useAuth();
-  const { userPoints, setUserPoints, pointsBreakdown, setPointsBreakdown, showPointsBreakdown, setShowPointsBreakdown } = usePoints();
+  const { userPoints, setUserPoints, pointsBreakdown, setPointsBreakdown, showPointsBreakdown, setShowPointsBreakdown, addPoints } = usePoints();
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [pets, setPets] = useState(initialPets);
@@ -295,9 +295,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
             onClose={() => {}} 
             onShareSuccess={() => {
               // Award 5 points for sharing
-              setUserPoints(prev => prev + 5);
-              // Update points breakdown
-              setPointsBreakdown(prev => ({ ...prev, share: (prev.share || 0) + 5 }));
+              addPoints('share', 5);
               // Show individual share earning notification
               setShowShareEarning(true);
               console.log('User shared the app! Awarded 5 points. Total points:', userPoints + 5);

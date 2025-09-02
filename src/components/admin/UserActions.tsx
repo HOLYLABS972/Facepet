@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -37,6 +38,7 @@ export default function UserActions({
   currentRole: string;
   isSuperAdmin: boolean;
 }) {
+  const t = useTranslations('Admin.userActions');
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [newRole, setNewRole] = useState(currentRole);
@@ -194,16 +196,15 @@ export default function UserActions({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>{t('confirmDeletion')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this user? This action cannot be
-              undone.
+              {t('deleteUserMessage')}
             </DialogDescription>
           </DialogHeader>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleting(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -212,7 +213,7 @@ export default function UserActions({
                 handleDelete();
               }}
             >
-              Delete User
+              {t('deleteUser')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -15,6 +15,7 @@ interface PointsContextType {
   setPointsBreakdown: (breakdown: any) => void;
   showPointsBreakdown: boolean;
   setShowPointsBreakdown: (show: boolean) => void;
+  addPoints: (category: 'registration' | 'phone' | 'pet' | 'share', points: number) => void;
 }
 
 const PointsContext = createContext<PointsContextType | undefined>(undefined);
@@ -33,7 +34,6 @@ interface PointsProviderProps {
 
 export const PointsProvider = ({ children }: PointsProviderProps) => {
   const { user } = useAuth();
-  const [userPoints, setUserPoints] = useState(30); // Start with 30 points (registration)
   const [pointsBreakdown, setPointsBreakdown] = useState({
     registration: 30,
     phone: 0,
@@ -42,10 +42,12 @@ export const PointsProvider = ({ children }: PointsProviderProps) => {
   });
   const [showPointsBreakdown, setShowPointsBreakdown] = useState(false);
 
+  // Calculate total points from breakdown
+  const userPoints = pointsBreakdown.registration + pointsBreakdown.phone + pointsBreakdown.pet + pointsBreakdown.share;
+
   // Reset points when user changes
   useEffect(() => {
     if (user) {
-      setUserPoints(30);
       setPointsBreakdown({
         registration: 30,
         phone: 0,
@@ -56,13 +58,39 @@ export const PointsProvider = ({ children }: PointsProviderProps) => {
     }
   }, [user]);
 
+  // Function to add points to a specific category
+  const addPoints = (category: 'registration' | 'phone' | 'pet' | 'share', points: number) => {
+    setPointsBreakdown(prev => ({
+      ...prev,
+      [category]: prev[category] + points
+    }));
+  };
+
+  // Keep setUserPoints for backward compatibility, but it now updates the breakdown
+  const setUserPoints = (points: number | ((prev: number) => number)) => {
+    if (typeof points === 'function') {
+      const newTotal = points(userPoints);
+      const difference = newTotal - userPoints;
+      // Add the difference to the share category (most common use case)
+      if (difference > 0) {
+        addPoints('share', difference);
+      }
+    } else {
+      const difference = points - userPoints;
+      if (difference > 0) {
+        addPoints('share', difference);
+      }
+    }
+  };
+
   const value = {
     userPoints,
     setUserPoints,
     pointsBreakdown,
     setPointsBreakdown,
     showPointsBreakdown,
-    setShowPointsBreakdown
+    setShowPointsBreakdown,
+    addPoints
   };
 
   return (

@@ -70,7 +70,7 @@ const EarningNotification: React.FC<EarningNotificationProps> = ({
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.2 }}
-            className="text-green-600 text-lg font-bold"
+            className="text-black text-lg font-bold"
           >
             {t('title')}
           </motion.div>

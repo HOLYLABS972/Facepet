@@ -31,7 +31,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose, onShareS
         await navigator.share(shareData);
       } else {
         // Fallback: copy the full share text with URL to clipboard
-        const fullShareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+        const fullShareText = `${shareData.text} ${shareData.url}`;
         await navigator.clipboard.writeText(fullShareText);
         toast.success(t('linkCopied'));
       }
