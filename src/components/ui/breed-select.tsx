@@ -19,7 +19,6 @@ import {
   PopoverTrigger,
 } from './popover';
 import { getBreedsForType, type PetType, type Breed } from '@/src/lib/data/breeds';
-import { useTranslations } from 'next-intl';
 
 interface BreedSelectProps {
   petType: PetType;
