@@ -7,8 +7,9 @@ import GetStartedFloatingActionButton from '@/components/get-started/ui/GetStart
 import GetStartedProgressDots from '@/components/get-started/ui/GetStartedProgressDots';
 import { useRouter } from '@/i18n/routing';
 import { usePetId } from '@/src/hooks/use-pet-id';
-import { createNewPet } from '@/src/lib/actions/pets';
+import { createPetInFirestore } from '@/src/lib/firebase/pets';
 import { getPetRegisterSchemas } from '@/utils/validation/petRegister';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
@@ -28,6 +29,7 @@ export default function ClientRegisterPetPage({
   const router = useRouter();
   const locale = useLocale() as 'en' | 'he';
   const t = useTranslations('');
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const { petId, clearPetId } = usePetId();
   const [loading, setLoading] = useState(false);
@@ -98,10 +100,10 @@ export default function ClientRegisterPetPage({
   });
 
   const handleSubmit = async (allFormData: typeof formData): Promise<void> => {
-    if (!petId) {
-      setError('No pet ID available');
-      toast.error('No pet ID available');
-      router.push('/pet/get-started');
+    if (!user) {
+      setError('User not authenticated');
+      toast.error('Please sign in to create a pet');
+      router.push('/auth/sign-in');
       return;
     }
 
@@ -109,11 +111,27 @@ export default function ClientRegisterPetPage({
     setError(null);
 
     try {
-      const result = await createNewPet(petId, allFormData as NewPetData);
+      // Transform form data to match PetData interface
+      const petData = {
+        name: allFormData.petName,
+        description: '',
+        imageUrl: allFormData.imageUrl,
+        genderId: allFormData.genderId,
+        breedId: allFormData.breedId,
+        birthDate: allFormData.birthDate?.toISOString(),
+        notes: allFormData.notes || '',
+        ownerName: allFormData.ownerFullName,
+        ownerPhone: allFormData.ownerPhoneNumber,
+        ownerEmail: allFormData.ownerEmailAddress,
+        ownerAddress: allFormData.ownerHomeAddress,
+        vetId: allFormData.vetName ? 'vet-id' : undefined
+      };
 
-      if (result.success) {
+      const result = await createPetInFirestore(petData, user);
+
+      if (result.success && result.petId) {
         clearPetId();
-        router.push(`/pet/${petId}/done`);
+        router.push(`/pet/${result.petId}/done`);
       } else {
         setError(result.error || 'An error occurred while creating your pet');
         toast.error(result.error || 'Failed to create pet profile');

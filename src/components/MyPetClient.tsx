@@ -10,8 +10,9 @@ import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
-import { getUserPets } from '@/lib/actions/pets';
 import { useRouter } from '@/i18n/routing';
+import { db } from '@/src/lib/firebase/config';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 
 interface Pet {
   id: string;
@@ -36,25 +37,37 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   // Fetch pets when user is authenticated
   useEffect(() => {
     const fetchPets = async () => {
-      if (user?.email && !loading) {
+      if (user?.uid && !loading) {
         setPetsLoading(true);
         try {
-          const result = await getUserPets(user.email);
+          // Query Firestore directly for user's pets
+          const petsRef = collection(db, 'pets');
+          const q = query(
+            petsRef, 
+            where('userEmail', '==', user.email),
+            orderBy('createdAt', 'desc')
+          );
           
-          if (result.success && result.pets) {
-            // Transform the database pets to match the expected interface
-            const transformedPets = result.pets.map(pet => ({
-              id: pet.id,
-              name: pet.name,
-              breed: pet.breedName || 'Unknown',
-              image: pet.imageUrl || '/default-pet.png'
-            }));
-            setPets(transformedPets);
+          const querySnapshot = await getDocs(q);
+          
+          if (!querySnapshot.empty) {
+            const petsData = querySnapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                name: data.name || 'Unknown Pet',
+                breed: data.breedName || 'Unknown Breed',
+                image: data.imageUrl || '/default-pet.png'
+              };
+            });
+            setPets(petsData);
           } else {
-            console.error('Error fetching pets:', result.error);
+            console.log('No pets found for user');
+            setPets([]);
           }
         } catch (error) {
-          console.error('Error fetching pets:', error);
+          console.log('Error fetching pets from Firestore:', error);
+          setPets([]);
         } finally {
           setPetsLoading(false);
         }
@@ -62,7 +75,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     };
 
     fetchPets();
-  }, [user?.email, loading]);
+  }, [user?.uid, user?.email, loading]);
 
   const filteredPets = pets.filter((pet) =>
     pet.name.toLowerCase().includes(search.toLowerCase())

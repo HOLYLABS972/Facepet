@@ -9,6 +9,8 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   updateProfile,
   fetchSignInMethodsForEmail
@@ -53,6 +55,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(user);
       setLoading(false);
     });
+
+    // Check for redirect result on component mount
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          console.log('Google sign-in redirect result:', result);
+        }
+      } catch (error) {
+        console.error('Error checking redirect result:', error);
+      }
+    };
+
+    checkRedirectResult();
 
     return unsubscribe;
   }, []);
