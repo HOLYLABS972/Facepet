@@ -158,6 +158,12 @@ const Navbar = () => {
                           <span>Profile</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/pages/services" className="flex items-center">
+                          <Stethoscope className="mr-2 h-4 w-4" />
+                          <span>Services</span>
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                         <LogOut className="mr-2 h-4 w-4" />

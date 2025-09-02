@@ -11,7 +11,7 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
-import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle, Trash2, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadProfileImage, testStorageConnection } from '@/src/lib/firebase/simple-upload';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
@@ -26,6 +26,8 @@ export default function SettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ progress: number; status: string; downloadURL?: string; error?: string } | null>(null);
   const [savingCookies, setSavingCookies] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -272,6 +274,59 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    
+    setDeletingAccount(true);
+    try {
+      // Delete user data from Firestore
+      const { deleteDoc, doc } = await import('firebase/firestore');
+      const { db } = await import('@/src/lib/firebase/config');
+      
+      // Delete user document
+      await deleteDoc(doc(db, 'users', user.uid));
+      
+      // Delete user's pets
+      const { collection, query, where, getDocs } = await import('firebase/firestore');
+      const petsQuery = query(collection(db, 'pets'), where('userEmail', '==', user.email));
+      const petsSnapshot = await getDocs(petsQuery);
+      
+      for (const petDoc of petsSnapshot.docs) {
+        await deleteDoc(petDoc.ref);
+      }
+      
+      // Delete user's owners
+      const ownersQuery = query(collection(db, 'owners'), where('email', '==', user.email));
+      const ownersSnapshot = await getDocs(ownersQuery);
+      
+      for (const ownerDoc of ownersSnapshot.docs) {
+        await deleteDoc(ownerDoc.ref);
+      }
+      
+      // Delete Firebase Auth user
+      const { deleteUser } = await import('firebase/auth');
+      const { auth } = await import('@/src/lib/firebase/config');
+      await deleteUser(auth.currentUser!);
+      
+      toast.success('Account deleted successfully');
+      
+      // Redirect to landing page
+      window.location.href = '/';
+      
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      
+      if (error.code === 'auth/requires-recent-login') {
+        toast.error('Please sign in again before deleting your account');
+      } else {
+        toast.error('Failed to delete account. Please try again.');
+      }
+    } finally {
+      setDeletingAccount(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-2xl mx-auto">
@@ -509,6 +564,80 @@ export default function SettingsPage() {
               <p className="text-sm text-gray-500">
                 {t('languageDescription')}
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Delete Account Section */}
+        <Card className="mb-6 shadow-xl border-red-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Danger Zone
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Delete Account</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Once you delete your account, there is no going back. This will permanently delete:
+                </p>
+                <ul className="text-sm text-gray-600 list-disc list-inside space-y-1 mb-4">
+                  <li>Your profile and personal information</li>
+                  <li>All your pets and their data</li>
+                  <li>All your account settings and preferences</li>
+                  <li>Your account cannot be recovered</li>
+                </ul>
+              </div>
+              
+              {!showDeleteConfirm ? (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Account
+                </Button>
+              ) : (
+                <div className="space-y-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-red-800">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span className="font-semibold">Are you absolutely sure?</span>
+                  </div>
+                  <p className="text-sm text-red-700">
+                    This action cannot be undone. Type <strong>DELETE</strong> to confirm.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="destructive"
+                      onClick={handleDeleteAccount}
+                      disabled={deletingAccount}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {deletingAccount ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Yes, Delete My Account
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      disabled={deletingAccount}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
