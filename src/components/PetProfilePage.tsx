@@ -1,233 +1,402 @@
 'use client';
 
-import AnimatedTabs, { TabName } from '@/components/AnimatedTabs';
-import PetCard from '@/components/PetCard';
-import TabContent from '@/components/TabContent';
-import { Ad, useRandomAd } from '@/hooks/useRandomAd';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star } from 'lucide-react';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
+import Image from 'next/image';
+import toast from 'react-hot-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
-import toast from 'react-hot-toast';
-import AdFullPage from './get-started/AdFullPage';
-import GiftPopup from './GiftPopup';
-import Navbar from './layout/Navbar';
-import ShareButton from './ShareButton';
 
-const computeAge = (birthDate: string) => {
-  const birth = new Date(birthDate);
-  const now = new Date();
-  const diff = now.getTime() - birth.getTime();
-  const ageYears = Math.floor(diff / (1000 * 3600 * 24 * 365));
-  return String(ageYears);
-};
+interface Pet {
+  id: string;
+  name: string;
+  type: string;
+  breedName: string;
+  imageUrl: string;
+  description?: string;
+  age?: string;
+  gender?: string;
+  userEmail: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export default function PetProfilePage({
-  pet,
-  initialAd
-}: {
+interface PetProfilePageProps {
   pet: Pet;
-  initialAd?: Ad | null;
-}) {
-  // Place all hook calls at the top level, unconditionally
-  const t = useTranslations('pages.PetProfilePage');
-  const locale = useLocale();
-  const [showPopup, setShowPopup] = useState(false);
-  const { showAd, adData, handleAdClose } = useRandomAd(initialAd);
-  const [activeTab, setActiveTab] = useState<TabName>('pet');
-  const prevTabRef = useRef<TabName>('pet');
+}
 
-  // Determine available tabs (exclude Vet if no vet data)
-  const availableTabs: TabName[] = ['pet', 'owner'];
-  if (
-    pet.vet?.name ||
-    pet.vet?.phoneNumber ||
-    pet.vet?.email ||
-    pet.vet?.address
-  ) {
-    availableTabs.push('vet');
-  }
+export default function PetProfilePage({ pet }: PetProfilePageProps) {
+  const router = useRouter();
+  const [copied, setCopied] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Memoized values
-  const petCardData = useMemo(
-    () => ({ name: pet.name, imageUrl: pet.imageUrl }),
-    [pet.name, pet.imageUrl]
-  );
+  const petShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/pet/${pet.id}` : '';
 
-  const lockedDirection = useMemo(() => {
-    const prevIndex = availableTabs.indexOf(prevTabRef.current);
-    const newIndex = availableTabs.indexOf(activeTab);
-    return newIndex > prevIndex ? 1 : -1;
-  }, [activeTab, availableTabs]);
-
-  // Build data arrays with privacy checks
-  // Pet name, breed, gender, and age are always public
-  const petInfo = [
-    {
-      label: t('labels.name'),
-      value: pet.name
-    },
-    {
-      label: t('labels.breed'),
-      value: pet.breed[locale as 'en' | 'he']
-    },
-    {
-      label: t('labels.gender'),
-      value: pet.gender[locale as 'en' | 'he']
-    },
-    {
-      label: t('labels.age'),
-      value: pet.birthDate
-        ? computeAge(pet.birthDate) + ' ' + t('labels.ageText')
-        : ''
-    },
-    {
-      label: t('labels.notes'),
-      value: pet.notes || ''
-    }
-  ];
-
-  const ownerInfo = pet.owner
-    ? [
-        {
-          // Owner name is always public
-          label: t('labels.name'),
-          value: pet.owner.fullName
-        },
-        {
-          label: t('labels.contact'),
-          value: pet.owner.isPhonePrivate
-            ? t('labels.private')
-            : pet.owner.phoneNumber,
-          link: pet.owner.isPhonePrivate
-            ? undefined
-            : `https://wa.me/${pet.owner.phoneNumber.replace(/[^0-9]/g, '')}`
-        },
-        {
-          label: t('labels.email'),
-          value: pet.owner.isEmailPrivate
-            ? t('labels.private')
-            : pet.owner.email,
-          link: pet.owner.isEmailPrivate
-            ? undefined
-            : `mailto:${pet.owner.email}`
-        },
-        {
-          label: t('labels.address'),
-          value: pet.owner.isAddressPrivate
-            ? t('labels.private')
-            : pet.owner.homeAddress
-        }
-      ]
-    : [];
-
-  const vetInfo = pet.vet
-    ? [
-        {
-          label: t('labels.name'),
-          value: pet.vet.isNamePrivate ? t('labels.private') : pet.vet.name
-        },
-        {
-          label: t('labels.contact'),
-          value: pet.vet.isPhonePrivate
-            ? t('labels.private')
-            : pet.vet.phoneNumber
-        },
-        {
-          label: t('labels.email'),
-          value: pet.vet.isEmailPrivate ? t('labels.private') : pet.vet.email
-        },
-        {
-          label: t('labels.address'),
-          value: pet.vet.isAddressPrivate
-            ? t('labels.private')
-            : pet.vet.address
-        }
-      ]
-    : [];
-
-  // Effect hooks
-  useEffect(() => {
-    prevTabRef.current = activeTab;
-  }, [activeTab]);
-
-  useEffect(() => {
-    const hasSeenGift = localStorage.getItem(`giftShown_${pet.id}`);
-
-    if (!hasSeenGift) {
-      const timer = setTimeout(() => {
-        setShowPopup(true);
-        localStorage.setItem(`giftShown_${pet.id}`, 'true');
-      }, 1000 * 5); // 5 seconds delay
-
-      return () => clearTimeout(timer);
-    }
-  }, [pet.id]);
-
-  // Event handlers
-  const handleTabChange = (tab: TabName) => {
-    if (tab !== activeTab) {
-      setActiveTab(tab);
+  const handleDeletePet = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteDoc(doc(db, 'pets', pet.id));
+      toast.success('Pet deleted successfully');
+      router.push('/pages/my-pets');
+    } catch (error) {
+      console.error('Error deleting pet:', error);
+      toast.error('Failed to delete pet');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  // Conditional rendering after all hooks
-  if (showAd && adData?.content) {
-    return (
-      <AdFullPage
-        type={adData.type}
-        time={adData.duration}
-        content={adData.content}
-        onClose={handleAdClose}
-      />
-    );
-  }
+  const handleCopyLink = async () => {
+    if (!petShareUrl) return;
+    try {
+      await navigator.clipboard.writeText(petShareUrl);
+      setCopied(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast.error('Failed to copy link');
+    }
+  };
 
-  // Main component render
+  const handleShare = async () => {
+    if (!petShareUrl) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${pet.name} - Pet Profile`,
+          text: `Check out ${pet.name}'s pet profile!`,
+          url: petShareUrl,
+        });
+      } catch (error) {
+        console.log('Share cancelled');
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
+  };
+
+  const getPetTypeEmoji = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'cat': return '🐱';
+      case 'dog': return '🐶';
+      default: return '🐾';
+    }
+  };
+
   return (
-    <>
-      <Navbar />
-      <div className="relative overflow-hidden">
-        <PetCard pet={petCardData} />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.back()}
+                className="p-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-xl font-bold">{pet.name}</h1>
+                <p className="text-sm text-gray-600">Pet Profile</p>
+              </div>
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                    <div className="w-1 h-1 bg-gray-600 rounded-full mx-1"></div>
+                    <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Pet
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/nfc`)}>
+                  <Wifi className="mr-2 h-4 w-4" />
+                  Attach NFC
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDeletePet} className="text-red-600" disabled={isDeleting}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {isDeleting ? 'Deleting...' : 'Delete Pet'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </div>
-      <motion.div
-        initial={{ y: '100%' }}
-        animate={{ y: '0%' }}
-        transition={{
-          type: 'spring',
-          bounce: 0.3,
-          duration: 0.7
-        }}
-        className="flex flex-grow flex-col"
-      >
-        <div className="mt-6 mb-2 flex justify-center">
-          <AnimatedTabs
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            showVetTab={availableTabs.includes('vet')}
-          />
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <Card className="overflow-hidden">
+            <div className="relative h-64 md:h-80">
+              {pet.imageUrl ? (
+                <Image
+                  src={pet.imageUrl}
+                  alt={pet.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                  <span className="text-8xl">{getPetTypeEmoji(pet.type)}</span>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              <div className="absolute bottom-4 left-4 text-white">
+                <h2 className="text-3xl font-bold mb-2">{pet.name}</h2>
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg">{getPetTypeEmoji(pet.type)}</span>
+                  <span className="text-lg">{pet.breedName}</span>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Information */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Basic Information */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Heart className="w-5 h-5 text-red-500" />
+                    <span>Basic Information</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium text-gray-600">Name</span>
+                      <span className="font-semibold">{pet.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium text-gray-600">Type</span>
+                      <span className="font-semibold capitalize">{pet.type}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium text-gray-600">Breed</span>
+                      <span className="font-semibold">{pet.breedName}</span>
+                    </div>
+                    {pet.age && (
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium text-gray-600">Age</span>
+                        <span className="font-semibold">{pet.age}</span>
+                      </div>
+                    )}
+                    {pet.gender && (
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium text-gray-600">Gender</span>
+                        <span className="font-semibold capitalize">{pet.gender}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Description */}
+            {pet.description && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Star className="w-5 h-5 text-yellow-500" />
+                      <span>About {pet.name}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 leading-relaxed">{pet.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Timeline */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Calendar className="w-5 h-5 text-blue-500" />
+                    <span>Timeline</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div>
+                      <p className="font-medium text-green-800">Profile Created</p>
+                      <p className="text-sm text-green-600">{formatDate(pet.createdAt)}</p>
+                    </div>
+                  </div>
+                  {pet.updatedAt.getTime() !== pet.createdAt.getTime() && (
+                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div>
+                        <p className="font-medium text-blue-800">Last Updated</p>
+                        <p className="text-sm text-blue-600">{formatDate(pet.updatedAt)}</p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => router.push(`/pet/${pet.id}/edit`)}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                  <Button
+                    onClick={() => router.push(`/pet/${pet.id}/nfc`)}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Wifi className="w-4 h-4 mr-2" />
+                    Attach NFC
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Share */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Share2 className="w-5 h-5" />
+                    <span>Share Profile</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-gray-600">
+                    Share {pet.name}'s profile with others
+                  </p>
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={handleCopyLink}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleShare}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Pet Stats */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Profile Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Profile Views</span>
+                    <span className="font-semibold">0</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Days Active</span>
+                    <span className="font-semibold">
+                      {Math.ceil((Date.now() - pet.createdAt.getTime()) / (1000 * 60 * 60 * 24))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Last Updated</span>
+                    <span className="font-semibold text-sm">
+                      {Math.ceil((Date.now() - pet.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} days ago
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </div>
-        <div className="to-background flex h-full w-full grow rounded-t-3xl bg-linear-to-b from-white">
-          <TabContent
-            activeTab={activeTab}
-            lockedDirection={lockedDirection}
-            petInfo={petInfo}
-            ownerInfo={ownerInfo}
-            vetInfo={vetInfo}
-          />
-        </div>
-      </motion.div>
-      <ShareButton />
-      {showPopup && (
-        <GiftPopup
-          onClose={() => setShowPopup(false)}
-          title={t('popup.title')}
-          text={t('popup.text')}
-          buttonText={t('popup.buttonLabel')}
-        />
-      )}
-    </>
+      </div>
+    </div>
   );
 }

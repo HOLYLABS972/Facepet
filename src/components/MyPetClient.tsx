@@ -127,11 +127,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   };
 
   const handlePetTap = (petId: string) => {
-    const pet = pets.find(p => p.id === petId);
-    if (pet) {
-      setSelectedPet(pet);
-      setShowPetBottomSheet(true);
-    }
+    router.push(`/pet/${petId}`);
   };
 
   const handleDeletePet = (petId: string) => {

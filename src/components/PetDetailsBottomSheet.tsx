@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MoreVertical, Edit, X, Trash2, Wifi } from 'lucide-react';
+import { MoreVertical, Edit, X, Trash2, Wifi, Share2 } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -59,6 +59,29 @@ export default function PetDetailsBottomSheet({
     }
   };
 
+  const handleSharePet = async () => {
+    const petShareUrl = `${window.location.origin}/pet/${pet.id}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${pet.name} - Pet Profile`,
+          text: `Check out ${pet.name}'s pet profile!`,
+          url: petShareUrl,
+        });
+      } catch (error) {
+        console.log('Share cancelled');
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(petShareUrl);
+        toast.success('Link copied to clipboard!');
+      } catch (error) {
+        toast.error('Failed to copy link');
+      }
+    }
+  };
+
 
 
   return (
@@ -93,6 +116,10 @@ export default function PetDetailsBottomSheet({
                 <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/nfc`)}>
                   <Wifi className="mr-2 h-4 w-4" />
                   Attach NFC
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSharePet}>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share Pet
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDeletePet} className="text-red-600">
                   <Trash2 className="mr-2 h-4 w-4" />
