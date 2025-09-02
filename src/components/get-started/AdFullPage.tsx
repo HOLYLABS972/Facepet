@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { IKVideo } from 'imagekitio-next';
+// Removed IKVideo import - using regular video element instead
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import process from 'process';
@@ -94,13 +94,13 @@ const AdFullPage = ({
           ) : null
         ) : type === 'video' ? (
           content ? (
-            <IKVideo
-              path={content}
-              urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
+            <video
+              src={content}
               className="w-full"
               autoPlay
               muted
               playsInline
+              loop
             />
           ) : null
         ) : null}

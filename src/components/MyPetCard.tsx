@@ -2,7 +2,7 @@
 
 import { useDirection } from '@radix-ui/react-direction';
 import { motion } from 'framer-motion';
-import { IKImage } from 'imagekitio-next';
+import Image from 'next/image';
 import { ArrowRight, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -125,26 +125,22 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         style={{ width: `${imageWidth}px` }}
       >
         <div className="flex items-center justify-end">
-          <IKImage
-            urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
+          <Image
+            src={image}
             alt={name}
-            path={image}
             width={imageWidth}
             height={cardHeight}
             loading="lazy"
-            transformation={[{ quality: '30', crop: 'maintain_ratio' }]}
             style={{ transform: 'scaleX(-1)' }}
             className="h-full w-full bg-gray-200 object-cover"
             onLoad={handleImageLoad}
           />
-          <IKImage
-            urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
+          <Image
+            src={image}
             alt={name}
-            path={image}
             width={imageWidth}
             height={cardHeight}
             loading="lazy"
-            transformation={[{ quality: '60', crop: 'maintain_ratio' }]}
             className="inset-0 h-full w-full rounded-e-2xl bg-gray-200 object-cover"
             onLoad={handleImageLoad}
           />

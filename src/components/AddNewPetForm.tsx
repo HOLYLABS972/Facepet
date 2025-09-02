@@ -17,7 +17,7 @@ import { useRouter } from '@/i18n/routing';
 interface PetFormData {
   name: string;
   description: string;
-  type: 'cat' | 'dog' | 'other';
+  type: 'cat' | 'dog' | 'bird' | 'fish' | 'rabbit' | 'hamster' | 'guinea-pig' | 'turtle' | 'snake' | 'lizard' | 'ferret' | 'other';
   image: File | null;
   imageUrl: string;
 }
@@ -200,14 +200,23 @@ export default function AddNewPetForm() {
             {/* Pet Type */}
             <div className="space-y-2">
               <Label htmlFor="type">Pet Type *</Label>
-              <Select value={formData.type} onValueChange={(value: 'cat' | 'dog' | 'other') => handleInputChange('type', value)}>
+              <Select value={formData.type} onValueChange={(value: any) => handleInputChange('type', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select pet type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cat">Cat</SelectItem>
-                  <SelectItem value="dog">Dog</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="cat">🐱 Cat</SelectItem>
+                  <SelectItem value="dog">🐶 Dog</SelectItem>
+                  <SelectItem value="bird">🐦 Bird</SelectItem>
+                  <SelectItem value="fish">🐠 Fish</SelectItem>
+                  <SelectItem value="rabbit">🐰 Rabbit</SelectItem>
+                  <SelectItem value="hamster">🐹 Hamster</SelectItem>
+                  <SelectItem value="guinea-pig">🐹 Guinea Pig</SelectItem>
+                  <SelectItem value="turtle">🐢 Turtle</SelectItem>
+                  <SelectItem value="snake">🐍 Snake</SelectItem>
+                  <SelectItem value="lizard">🦎 Lizard</SelectItem>
+                  <SelectItem value="ferret">🦦 Ferret</SelectItem>
+                  <SelectItem value="other">🐾 Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>

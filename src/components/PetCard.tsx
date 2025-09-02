@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { IKImage } from 'imagekitio-next';
+import Image from 'next/image';
 import React from 'react';
 import { cn } from '../lib/utils';
 
@@ -23,15 +23,13 @@ const PetCard = React.memo(({ pet }: PetCardProps) => {
     >
       <Card className="relative flex w-full flex-col overflow-hidden rounded-3xl border-none shadow-md">
         <CardContent className="relative p-0">
-          <IKImage
-            urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
+          <Image
+            src={pet.imageUrl}
             alt={pet.name}
-            path={pet.imageUrl}
             width={704}
             height={448}
             loading="lazy"
-            transformation={[{ quality: '60', crop: 'maintain_ratio' }]}
-            className="h-full w-full"
+            className="h-full w-full object-cover"
           />
 
           <div className="absolute bottom-0 w-full">
