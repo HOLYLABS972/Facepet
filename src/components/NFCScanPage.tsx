@@ -74,7 +74,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
     }
 
     if (!petShareUrl) {
-      toast.error('Unable to generate share URL');
+      toast.error(t('recordTag.errors.unableToGenerateUrl'));
       return;
     }
 
@@ -96,7 +96,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
     } catch (error) {
       console.error('Error writing to NFC tag:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      toast.error(`Failed to write to NFC tag: ${errorMessage}`);
+      toast.error(`${t('recordTag.errors.writeFailed')}: ${errorMessage}`);
     } finally {
       setIsRecording(false);
     }
@@ -104,7 +104,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
 
   const handleCopyLink = async () => {
     if (!petShareUrl) {
-      toast.error('Unable to generate share URL');
+      toast.error(t('recordTag.errors.unableToGenerateUrl'));
       return;
     }
 
@@ -120,7 +120,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
 
   const handleShare = async () => {
     if (!petShareUrl) {
-      toast.error('Unable to generate share URL');
+      toast.error(t('recordTag.errors.unableToGenerateUrl'));
       return;
     }
 

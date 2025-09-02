@@ -140,7 +140,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Pet
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/tag`)}>
+                  <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
                     <Wifi className="mr-2 h-4 w-4" />
                     Attach Tag
                   </DropdownMenuItem>

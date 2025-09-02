@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from './popover';
 import { getBreedsForType, type PetType, type Breed } from '@/src/lib/data/breeds';
+import { useTranslations } from 'next-intl';
 
 interface BreedSelectProps {
   petType: PetType;
@@ -31,9 +32,10 @@ export function BreedSelect({
   petType,
   value,
   onValueChange,
-  placeholder = "Select breed...",
+  placeholder,
   className
 }: BreedSelectProps) {
+  const t = useTranslations('Pet.add.form.breed');
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
@@ -57,7 +59,7 @@ export function BreedSelect({
           aria-expanded={open}
           className={cn("w-full justify-between", className)}
         >
-          {selectedBreed ? selectedBreed.name : placeholder}
+          {selectedBreed ? selectedBreed.name : (placeholder || t('placeholder'))}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -66,13 +68,13 @@ export function BreedSelect({
           <div className="flex items-center border-b px-3">
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <CommandInput
-              placeholder="Search breeds..."
+              placeholder={t('searchPlaceholder')}
               value={searchValue}
               onValueChange={setSearchValue}
             />
           </div>
           <CommandList>
-            <CommandEmpty>No breed found.</CommandEmpty>
+            <CommandEmpty>{t('noBreedFound')}</CommandEmpty>
             <CommandGroup>
               {filteredBreeds.map((breed) => (
                 <CommandItem

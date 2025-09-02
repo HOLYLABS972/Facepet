@@ -30,6 +30,154 @@
       ]
     }
   },
+  "Pet": {
+    "add": {
+      "title": "Add New Pet",
+      "subtitle": "Let's meet your new friend",
+      "steps": {
+        "type": {
+          "title": "Choose Pet Type",
+          "description": "What type of pet are you adding?"
+        },
+        "breed": {
+          "title": "Choose Breed",
+          "description": "Select the specific breed"
+        },
+        "name": {
+          "title": "Pet Name",
+          "description": "Give your pet a special name"
+        },
+        "photo": {
+          "title": "Add Photo",
+          "description": "Upload a cute photo of your pet"
+        },
+        "complete": {
+          "title": "Complete!",
+          "description": "Your pet is ready to join the family!"
+        }
+      },
+      "form": {
+        "petType": {
+          "title": "Pet Type",
+          "description": "Choose the appropriate type",
+          "options": {
+            "dog": "Dog",
+            "cat": "Cat",
+            "other": "Other"
+          }
+        },
+        "breed": {
+          "title": "Breed",
+          "placeholder": "Select breed",
+          "description": "Choose your pet's breed",
+          "searchPlaceholder": "Search breeds...",
+          "noBreedFound": "No breed found."
+        },
+        "name": {
+          "title": "Name",
+          "placeholder": "Enter your pet's name",
+          "description": "What's your pet's name?"
+        },
+        "photo": {
+          "title": "Photo",
+          "upload": "Upload Photo",
+          "dropzone": "Drag and drop image or click to upload",
+          "requirements": "PNG, JPG or GIF (max 5MB)"
+        }
+      },
+      "types": {
+        "cat": "Cat",
+        "dog": "Dog",
+        "other": "Other"
+      },
+      "welcome": "Welcome to Facepet!",
+      "login": "Login",
+      "breed": {
+        "title": "{pet} Breeds",
+        "placeholder": "Select breed"
+      },
+      "name": {
+        "title": "What's your pet's name?",
+        "description": "Choose a special name for your {pet}",
+        "label": "Pet Name",
+        "placeholder": "Enter your pet's name"
+      },
+      "photo": {
+        "title": "Add {name}'s photo",
+        "description": "Upload a cute photo of your pet",
+        "uploadPrompt": "Click to upload photo",
+        "uploading": "Uploading...",
+        "uploadComplete": "Photo uploaded successfully!",
+        "uploadFailed": "Photo upload failed"
+      },
+      "complete": {
+        "title": "Congratulations!",
+        "description": "{name} is now part of your pet family!",
+        "points": "+10 points earned!"
+      },
+      "navigation": {
+        "next": "Next",
+        "previous": "Previous",
+        "complete": "Complete",
+        "adding": "Adding..."
+      },
+      "success": {
+        "imageUploaded": "Image uploaded successfully!",
+        "petAdded": "Pet added successfully!"
+      },
+      "errors": {
+        "loginRequired": "Login required to add a pet",
+        "nameRequired": "Please enter a pet name",
+        "imageRequired": "Please upload an image",
+        "uploadFailed": "Image upload failed",
+        "addPetFailed": "Failed to add pet",
+        "photoSize": "Image size must be less than 5MB",
+        "photoType": "Please select a valid image file"
+      }
+    },
+    "nfcTag": {
+      "title": "NFC Tag Connection",
+      "subtitle": "Create a pet profile for sharing",
+      "backButton": "Back",
+      "steps": {
+        "prepareTag": {
+          "title": "Prepare NFC Tag",
+          "description": "Make sure your NFC tag is ready and within reach"
+        },
+        "enableNfc": {
+          "title": "Enable NFC on Phone",
+          "description": "Enable NFC in your phone settings"
+        },
+        "record": {
+          "title": "Tap to Record",
+          "description": "Tap your phone to the NFC tag to record the pet's information"
+        }
+      },
+      "recordTag": {
+        "title": "Record NFC Tag",
+        "description": "Click the button below and then tap your phone to the NFC tag to record {petName}'s information",
+        "button": {
+          "default": "Record Tag",
+          "recording": "Recording...",
+          "recorded": "Tag Recorded!"
+        },
+        "errors": {
+          "notSupported": "NFC is not supported on this device. Please use a device with NFC capabilities.",
+          "failed": "Failed to write to NFC tag. Please try again.",
+          "unableToGenerateUrl": "Unable to generate share URL",
+          "writeFailed": "Failed to write to NFC tag"
+        },
+        "success": "NFC tag recorded successfully!"
+      },
+      "shareableLink": {
+        "title": "Shareable Link",
+        "description": "Anyone with this link can view {petName}'s profile:",
+        "copied": "Link copied!",
+        "copy": "Copy Link",
+        "share": "Share"
+      }
+    }
+  },
   "pages": {
     "PetProfilePage": {
       "title": "Pet Profile",
@@ -125,6 +273,39 @@
       "authError": "Authentication failed",
       "authErrorGoogle": "Google authentication failed",
       "verificationCodeSent": "Verification code sent! Please check your email."
+    },
+    "UserSettingsPage": {
+      "back": "Back",
+      "title": "Settings",
+      "subtitle": "Manage your account and preferences",
+      "profileImage": "Profile Image",
+      "uploadImage": "Upload Image",
+      "imageRequirements": "PNG, JPG or GIF (max 5MB)",
+      "personalInfo": "Personal Information",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "phoneNumber": "Phone Number",
+      "phonePlaceholder": "Enter your phone number",
+      "emailAddress": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "emailNote": "Email cannot be changed",
+      "privacySettings": "Privacy Settings",
+      "acceptCookies": "Accept Cookies",
+      "acceptCookiesDescription": "Allow cookies to improve your experience",
+      "languageSettings": "Language Settings",
+      "preferredLanguage": "Preferred Language",
+      "selectLanguage": "Select language",
+      "languageDescription": "Choose your preferred language for the interface",
+      "deleteAccount": {
+        "button": "Delete Account",
+        "deleting": "Deleting...",
+        "confirmTitle": "Delete Account",
+        "confirmMessage": "Are you sure you want to delete your account? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete Account"
+      },
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
     },
     "EmailVerification": {
       "title": "Verify Your Email",
