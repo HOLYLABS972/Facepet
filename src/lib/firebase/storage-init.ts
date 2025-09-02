@@ -1,6 +1,6 @@
 // Firebase Storage initialization utility
 import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { app } from './config';
+import app from './config';
 
 let storageInstance: FirebaseStorage | null = null;
 

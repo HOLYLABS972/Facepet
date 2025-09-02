@@ -50,12 +50,12 @@ const Navbar = () => {
     try {
       console.log('Firebase logout...', { user });
       await signOut();
-      console.log('Firebase logout completed, redirecting...');
-      window.location.href = '/auth';
+      console.log('Firebase logout completed, redirecting to landing page...');
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback: force redirect even if signOut fails
-      window.location.href = '/auth';
+      window.location.href = '/';
     }
   };
 

@@ -75,11 +75,14 @@ export default function WelcomeGetStartedPage() {
             {user ? t('signOutText') : t('signInText')}
           </span>
           <Button
-            onClick={() =>
-              user
-                ? signOut()
-                : router.push(`/auth`)
-            }
+            onClick={async () => {
+              if (user) {
+                await signOut();
+                router.push('/');
+              } else {
+                router.push(`/auth`);
+              }
+            }}
             className="text-primary p-0 font-bold underline hover:bg-transparent"
             variant={'ghost'}
           >
