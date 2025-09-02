@@ -143,6 +143,9 @@
       "managePetsDescription": "Manage your pets and their information",
       "title": "My Pets",
       "notifications": "Notifications",
+      "noNotifications": "No new notifications",
+      "addPhoneNumber": "Add Phone Number",
+      "phoneNumberDescription": "Receive our newsletter with pet care tips and updates!",
       "loadingPets": "Loading pets...",
       "noResults": "No pets found",
       "addFirstPet": "Add your first pet to get started"

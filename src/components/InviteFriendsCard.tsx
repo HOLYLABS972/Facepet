@@ -1,14 +1,27 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Share2 } from 'lucide-react';
+import { Check, Share2, X } from 'lucide-react';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { cn } from '../lib/utils';
 
-const InviteFriendsCard: React.FC = () => {
+interface InviteFriendsCardProps {
+  onClose?: () => void;
+}
+
+const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
   const [shared, setShared] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsClosed(true);
+    if (onClose) {
+      onClose();
+    }
+  };
 
   const handleShare = async () => {
     // Get the current page URL and title safely
@@ -38,6 +51,8 @@ const InviteFriendsCard: React.FC = () => {
     }
   };
 
+  if (isClosed) return null;
+
   return (
     <div
       onClick={handleShare}
@@ -48,6 +63,16 @@ const InviteFriendsCard: React.FC = () => {
     >
       {/* Glass morphism background */}
       <div className="border-gray absolute inset-0 rounded-2xl border bg-white shadow-sm" />
+
+      {/* Close Button */}
+      {onClose && (
+        <button
+          onClick={handleClose}
+          className="absolute top-2 right-2 z-20 p-1 rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <X className="w-4 h-4 text-gray-500" />
+        </button>
+      )}
 
       {/* Content */}
       <div className="relative z-10 flex h-full">

@@ -40,7 +40,10 @@
       "managePetsDescription": "נהלו את החיות שלכם ושמרו עליהן בטוחות עם FacePet",
       "welcomeBack": "ברוכים השבים!",
       "loadingPets": "טוען חיות...",
-      "notifications": "התראות"
+      "notifications": "התראות",
+      "noNotifications": "אין התראות חדשות",
+      "addPhoneNumber": "הוסף מספר טלפון",
+      "phoneNumberDescription": "קבל את הניוזלטר שלנו עם טיפים ועדכונים לטיפול בחיות מחמד!"
     },
     "AddPetPage": {
       "back": "חזור",

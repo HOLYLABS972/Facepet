@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Phone, X } from 'lucide-react';
+import { Check, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { cn } from '../lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface PhoneNumberCardProps {
   onClose?: () => void;
@@ -11,6 +12,7 @@ interface PhoneNumberCardProps {
 }
 
 const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottomSheet }) => {
+  const t = useTranslations('pages.MyPetsPage');
   const [isClosed, setIsClosed] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
 
@@ -59,7 +61,7 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
             transition={{ duration: 0.2 }}
             className="text-primary text-lg font-bold"
           >
-            Add Phone Number
+            {t('addPhoneNumber')}
           </motion.div>
           {/* Subtitle with slight delay */}
           <motion.div
@@ -68,7 +70,7 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
             transition={{ duration: 0.2, delay: 0.1 }}
             className="text-sm text-black"
           >
-            Receive our newsletter with pet care tips and updates!
+            {t('phoneNumberDescription')}
           </motion.div>
         </div>
 
@@ -80,7 +82,7 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose, onOpenBottom
           )}
         >
           <div className="flex items-center justify-center">
-            <Phone className="stroke-black" size={25} />
+            <Plus className="stroke-black" size={25} />
           </div>
         </div>
       </div>
