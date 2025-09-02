@@ -104,6 +104,7 @@ export const pets = pgTable(
   {
     id: uuid('id').notNull().primaryKey().unique(),
     name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
     imageUrl: text('image_url').notNull(),
     genderId: integer('gender_id')
       .notNull()
@@ -113,15 +114,14 @@ export const pets = pgTable(
       .references(() => breeds.id, { onDelete: 'cascade' }),
     birthDate: date('birth_date'),
     notes: text('notes'),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+    userEmail: varchar('user_email', { length: 255 }).notNull(), // Use email instead of user ID
     ownerId: uuid('owner_id')
       .notNull()
       .references(() => owners.id, { onDelete: 'cascade' }),
     vetId: uuid('vet_id')
-      .notNull()
-      .references(() => vets.id, { onDelete: 'set null' })
+      .references(() => vets.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
     // All pet information is always public
   },
   (table) => {
@@ -129,7 +129,7 @@ export const pets = pgTable(
       // Primary lookup index (already exists)
       petIdIndex: index('idx_pets_id').on(table.id),
       // Foreign key indexes for JOIN optimization
-      petUserIdIndex: index('idx_pets_user_id').on(table.userId),
+      petUserEmailIndex: index('idx_pets_user_email').on(table.userEmail),
       petOwnerIdIndex: index('idx_pets_owner_id').on(table.ownerId),
       petVetIdIndex: index('idx_pets_vet_id').on(table.vetId),
       petGenderIdIndex: index('idx_pets_gender_id').on(table.genderId),

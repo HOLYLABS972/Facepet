@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verificationStore } from '@/src/lib/verification-store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,30 +11,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the stored verification code for this email
-    const storedData = verificationStore.get(email);
-
-    if (!storedData) {
-      return NextResponse.json({
-        success: false,
-        error: 'No verification code found for this email. Please request a new code.'
-      }, { status: 404 });
-    }
-
-    // Verify the code
-    if (storedData.code === code) {
-      // Remove the code after successful verification (one-time use)
-      verificationStore.delete(email);
-      return NextResponse.json({
-        success: true,
-        message: 'Email verified successfully',
-        verified: true
+    // Verify the code with the external OTP API
+    try {
+      const verifyResponse = await fetch(`https://api.theholylabs.com/global_auth/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          code: code
+        })
       });
-    } else {
+
+      if (!verifyResponse.ok) {
+        return NextResponse.json({
+          success: false,
+          error: 'Invalid verification code'
+        }, { status: 400 });
+      }
+
+      const verifyData = await verifyResponse.json();
+      
+      if (verifyData.verified) {
+        return NextResponse.json({
+          success: true,
+          message: 'Email verified successfully',
+          verified: true
+        });
+      } else {
+        return NextResponse.json({
+          success: false,
+          error: 'Invalid verification code'
+        }, { status: 400 });
+      }
+    } catch (verifyError) {
+      console.error('External verification API error:', verifyError);
       return NextResponse.json({
         success: false,
-        error: 'Invalid verification code'
-      }, { status: 400 });
+        error: 'Verification service temporarily unavailable'
+      }, { status: 503 });
     }
 
   } catch (error) {

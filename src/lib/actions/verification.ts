@@ -40,35 +40,23 @@ export async function generateVerificationCode(
   type: VerificationType = 'email_verification'
 ): Promise<{ success: boolean; code?: string; error?: string }> {
   try {
-    // Generate a random 6-digit code as a string
-    const code = await generateCode();
-    console.log(code);
-    // Set expiration date (e.g., 5 minutes from now)
-    const expires = new Date(new Date().getTime() + 5 * 60000);
-    console.log(expires);
-    // Insert into the verification_codes table
-    await db.insert(VerificationCode).values({
-      email,
-      code,
-      type,
-      expires
-    });
-
     // Send the verification code via external OTP API
-    try {
-      const otpResponse = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
-      if (!otpResponse.ok) {
-        console.error('Failed to send OTP via external API:', otpResponse.statusText);
-        // Don't fail the entire process if external API fails, but log it
-      }
-    } catch (error) {
-      console.error('Error calling external OTP API:', error);
-      // Don't fail the entire process if external API fails, but log it
+    const otpResponse = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
+    
+    if (!otpResponse.ok) {
+      console.error('Failed to send OTP via external API:', otpResponse.statusText);
+      return { success: false, error: 'Failed to send verification code' };
     }
 
-    return { success: true, code };
+    const responseData = await otpResponse.json();
+    console.log('OTP API Response:', responseData);
+
+    // The external API sends the code directly to the user's email
+    // We don't need to store it in our database
+    return { success: true, code: responseData.verification_code };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    console.error('Error calling external OTP API:', error);
+    return { success: false, error: 'Failed to send verification code' };
   }
 }
 

@@ -1,276 +1,303 @@
 'use server';
 
-// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import { db } from '@/utils/database/drizzle';
-import {
-  isPetIdAvailable,
-  markPetIdAsUsed
-} from '@/utils/database/queries/pets';
-import { breeds, owners, pets, vets } from '@/utils/database/schema';
-import { and, eq } from 'drizzle-orm';
+import { pets, owners, genders, breeds } from '@/utils/database/schema';
+import { eq, and, desc } from 'drizzle-orm';
+import { auth } from '@/lib/auth-server';
 
-// Helper function to format Date to 'YYYY-MM-DD' or return null
-const formatDateForDb = (
-  date: Date | string | null | undefined
-): string | null => {
-  if (!date) return null;
-  try {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    // Check if date is valid
-    if (isNaN(d.getTime())) {
-      return null;
-    }
-    // Format to YYYY-MM-DD
-    const year = d.getFullYear();
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const day = d.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  } catch {
-    return null;
-  }
-};
-
-export const checkPetIdAvailability = async (petId: string) => {
-  try {
-    const availablePet = await isPetIdAvailable(petId);
-    if (!availablePet) {
-      return {
-        success: false,
-        error: 'Pet ID is either already used or does not exist.'
-      };
-    }
-    return { success: true };
-  } catch {
-    return {
-      success: false,
-      error: 'Pet ID is either already used or does not exist.'
-    };
-  }
-};
-
-export async function getPets(
-  locale: string,
-  userId: string
-): Promise<{ id: string; name: string; breed: string; image: string }[]> {
-  const results = await db
-    .select({
-      id: pets.id,
-      name: pets.name,
-      breed: locale === 'he' ? breeds.he : breeds.en,
-      image: pets.imageUrl
-    })
-    .from(pets)
-    .leftJoin(breeds, eq(pets.breedId, breeds.id))
-    .where(eq(pets.userId, userId));
-
-  return results.map((result) => ({
-    ...result,
-    breed: result.breed || ''
-  }));
+export interface PetData {
+  name: string;
+  description?: string;
+  imageUrl: string;
+  genderId: number;
+  breedId: number;
+  birthDate?: string;
+  notes?: string;
+  ownerName: string;
+  ownerPhone: string;
+  ownerEmail: string;
+  ownerAddress: string;
+  vetId?: string;
 }
 
-// New function to check if a pet is linked to a given user
-export const isPetLinkedToUser = async (
-  petId: string,
-  userId: string
-): Promise<boolean> => {
-  const result = await db
-    .select()
-    .from(pets)
-    .where(and(eq(pets.id, petId), eq(pets.userId, userId)))
-    .limit(1);
-  return result.length > 0;
-};
+export interface Pet {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl: string;
+  genderId: number;
+  breedId: number;
+  birthDate?: string;
+  notes?: string;
+  userEmail: string;
+  ownerId: string;
+  vetId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  // Joined data
+  genderName?: string;
+  breedName?: string;
+  ownerName?: string;
+  ownerPhone?: string;
+  ownerEmail?: string;
+  ownerAddress?: string;
+}
 
-export const createNewPet = async (
-  petId: string | null,
-  params: NewPetData
-): Promise<{ success: boolean; error?: string; pet?: { id: string } }> => {
-  // Validate inputs
-  if (!petId) {
-    return { success: false, error: 'No Pet ID provided' };
-  }
-
-  // Authentication check
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: 'Unauthorized' };
-  }
-  const userId = session.user.id;
-
-  // Check pet ID availability
-  const petIdCheckResult = await checkPetIdAvailability(petId);
-  if (!petIdCheckResult.success) {
-    return petIdCheckResult;
-  }
-
+/**
+ * Create a new pet
+ */
+export async function createPet(petData: PetData): Promise<{ success: boolean; petId?: string; error?: string }> {
   try {
-    // 1. Insert owner
-    const ownerResult = await db
-      .insert(owners)
-      .values({
-        fullName: params.ownerFullName,
-        phoneNumber: params.ownerPhoneNumber,
-        email: params.ownerEmailAddress,
-        homeAddress: params.ownerHomeAddress,
-        // Privacy settings - name is always public
-        isPhonePrivate: params.isOwnerPhonePrivate || false,
-        isEmailPrivate: params.isOwnerEmailPrivate || false,
-        isAddressPrivate: params.isOwnerAddressPrivate || false
-      })
-      .returning({ id: owners.id });
-
-    if (!ownerResult[0]?.id) {
-      return { success: false, error: 'Failed to create owner record' };
-    }
-    const ownerId = ownerResult[0].id;
-
-    // 2. Insert vet
-    const vetResult = await db
-      .insert(vets)
-      .values({
-        name: params.vetName,
-        phoneNumber: params.vetPhoneNumber,
-        email: params.vetEmailAddress,
-        address: params.vetAddress,
-        // Privacy settings
-        isNamePrivate: params.isVetNamePrivate || false,
-        isPhonePrivate: params.isVetPhonePrivate || false,
-        isEmailPrivate: params.isVetEmailPrivate || false,
-        isAddressPrivate: params.isVetAddressPrivate || false
-      })
-      .returning({ id: vets.id });
-
-    if (!vetResult[0]?.id) {
-      // In a transaction, we would roll back. Here we need to manually clean up
-      await db.delete(owners).where(eq(owners.id, ownerId));
-      return { success: false, error: 'Failed to create vet record' };
-    }
-    const vetId = vetResult[0].id;
-
-    // 3. Insert pet
-    await db.insert(pets).values({
-      id: petId,
-      name: params.petName || '',
-      imageUrl: params.imageUrl || '',
-      breedId: params.breedId || 0,
-      genderId: params.genderId || 0,
-      birthDate: formatDateForDb(params.birthDate),
-      notes: params.notes || '',
-      userId,
-      ownerId,
-      vetId
-      // All pet information is always public
-    });
-
-    // 4. Mark pet ID as used
-    await markPetIdAsUsed(petId);
-
-    return { success: true, pet: { id: petId } };
-  } catch (error) {
-    console.error('Pet creation error:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Pet creation failed'
-    };
-  }
-};
-
-export const updatePet = async (petId: string, params: NewPetData) => {
-  const {
-    imageUrl,
-    petName,
-    breedId,
-    genderId,
-    birthDate,
-    notes,
-    ownerFullName,
-    ownerPhoneNumber,
-    ownerEmailAddress,
-    ownerHomeAddress,
-    vetName,
-    vetPhoneNumber,
-    vetEmailAddress,
-    vetAddress
-  } = params;
-
-  if (!petId) {
-    return { success: false, error: 'No Pet Id provided' };
-  }
-
-  try {
-    // Ensure the user is authenticated.
     const session = await auth();
-    if (!session || !session.user || !session.user?.id) {
+    if (!session?.user?.email) {
       return { success: false, error: 'Unauthorized' };
     }
 
-    const isLinked = await isPetLinkedToUser(petId, session.user.id);
-    if (!isLinked) {
+    // Create owner first
+    const [owner] = await db.insert(owners).values({
+      fullName: petData.ownerName,
+      phoneNumber: petData.ownerPhone,
+      email: petData.ownerEmail,
+      homeAddress: petData.ownerAddress,
+      isPhonePrivate: false,
+      isEmailPrivate: false,
+      isAddressPrivate: false
+    }).returning();
+
+    // Create pet
+    const [pet] = await db.insert(pets).values({
+      name: petData.name,
+      description: petData.description,
+      imageUrl: petData.imageUrl,
+      genderId: petData.genderId,
+      breedId: petData.breedId,
+      birthDate: petData.birthDate,
+      notes: petData.notes,
+      userEmail: session.user.email,
+      ownerId: owner.id,
+      vetId: petData.vetId
+    }).returning();
+
+    return { success: true, petId: pet.id };
+  } catch (error: any) {
+    console.error('Create pet error:', error);
+    return { success: false, error: 'Failed to create pet' };
+  }
+}
+
+/**
+ * Get all pets for the current user
+ */
+export async function getUserPets(): Promise<{ success: boolean; pets?: Pet[]; error?: string }> {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Retrieve the existing pet record to obtain ownerId and vetId.
-    const petRecords = await db
-      .select()
+    const userPets = await db
+      .select({
+        id: pets.id,
+        name: pets.name,
+        description: pets.description,
+        imageUrl: pets.imageUrl,
+        genderId: pets.genderId,
+        breedId: pets.breedId,
+        birthDate: pets.birthDate,
+        notes: pets.notes,
+        userEmail: pets.userEmail,
+        ownerId: pets.ownerId,
+        vetId: pets.vetId,
+        createdAt: pets.createdAt,
+        updatedAt: pets.updatedAt,
+        genderName: genders.en,
+        breedName: breeds.en,
+        ownerName: owners.fullName,
+        ownerPhone: owners.phoneNumber,
+        ownerEmail: owners.email,
+        ownerAddress: owners.homeAddress
+      })
       .from(pets)
-      .where(eq(pets.id, petId))
-      .limit(1);
-    if (!petRecords || petRecords.length === 0) {
-      return { success: false, error: 'Pet does not exist' };
+      .leftJoin(genders, eq(pets.genderId, genders.id))
+      .leftJoin(breeds, eq(pets.breedId, breeds.id))
+      .leftJoin(owners, eq(pets.ownerId, owners.id))
+      .where(eq(pets.userEmail, session.user.email))
+      .orderBy(desc(pets.createdAt));
+
+    return { success: true, pets: userPets };
+  } catch (error: any) {
+    console.error('Get user pets error:', error);
+    return { success: false, error: 'Failed to get pets' };
+  }
+}
+
+/**
+ * Get a specific pet by ID
+ */
+export async function getPetById(petId: string): Promise<{ success: boolean; pet?: Pet; error?: string }> {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return { success: false, error: 'Unauthorized' };
     }
 
-    const petRecord = petRecords[0];
-    const ownerId = petRecord.ownerId;
-    const vetId = petRecord.vetId;
+    const [pet] = await db
+      .select({
+        id: pets.id,
+        name: pets.name,
+        description: pets.description,
+        imageUrl: pets.imageUrl,
+        genderId: pets.genderId,
+        breedId: pets.breedId,
+        birthDate: pets.birthDate,
+        notes: pets.notes,
+        userEmail: pets.userEmail,
+        ownerId: pets.ownerId,
+        vetId: pets.vetId,
+        createdAt: pets.createdAt,
+        updatedAt: pets.updatedAt,
+        genderName: genders.en,
+        breedName: breeds.en,
+        ownerName: owners.fullName,
+        ownerPhone: owners.phoneNumber,
+        ownerEmail: owners.email,
+        ownerAddress: owners.homeAddress
+      })
+      .from(pets)
+      .leftJoin(genders, eq(pets.genderId, genders.id))
+      .leftJoin(breeds, eq(pets.breedId, breeds.id))
+      .leftJoin(owners, eq(pets.ownerId, owners.id))
+      .where(and(
+        eq(pets.id, petId),
+        eq(pets.userEmail, session.user.email)
+      ))
+      .limit(1);
 
-    // Update the pet record.
+    if (!pet) {
+      return { success: false, error: 'Pet not found' };
+    }
+
+    return { success: true, pet };
+  } catch (error: any) {
+    console.error('Get pet by ID error:', error);
+    return { success: false, error: 'Failed to get pet' };
+  }
+}
+
+/**
+ * Update a pet
+ */
+export async function updatePet(petId: string, petData: Partial<PetData>): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    // Check if pet exists and belongs to user
+    const existingPet = await getPetById(petId);
+    if (!existingPet.success || !existingPet.pet) {
+      return { success: false, error: 'Pet not found' };
+    }
+
+    // Update pet
     await db
       .update(pets)
       .set({
-        name: petName || '',
-        imageUrl: imageUrl || '',
-        breedId: breedId || 0,
-        genderId: genderId || 0,
-        birthDate: formatDateForDb(birthDate),
-        notes: notes || ''
-        // All pet information is always public
+        name: petData.name,
+        description: petData.description,
+        imageUrl: petData.imageUrl,
+        genderId: petData.genderId,
+        breedId: petData.breedId,
+        birthDate: petData.birthDate,
+        notes: petData.notes,
+        vetId: petData.vetId,
+        updatedAt: new Date()
       })
-      .where(eq(pets.id, petId));
+      .where(and(
+        eq(pets.id, petId),
+        eq(pets.userEmail, session.user.email)
+      ));
 
-    // Update the owner record.
-    await db
-      .update(owners)
-      .set({
-        fullName: ownerFullName,
-        phoneNumber: ownerPhoneNumber,
-        email: ownerEmailAddress,
-        homeAddress: ownerHomeAddress,
-        // Privacy settings - name is always public
-        isPhonePrivate: params.isOwnerPhonePrivate ?? false,
-        isEmailPrivate: params.isOwnerEmailPrivate ?? false,
-        isAddressPrivate: params.isOwnerAddressPrivate ?? false
-      })
-      .where(eq(owners.id, ownerId));
-
-    await db
-      .update(vets)
-      .set({
-        name: vetName,
-        phoneNumber: vetPhoneNumber,
-        email: vetEmailAddress,
-        address: vetAddress,
-        // Privacy settings
-        isNamePrivate: params.isVetNamePrivate ?? false,
-        isPhonePrivate: params.isVetPhonePrivate ?? false,
-        isEmailPrivate: params.isVetEmailPrivate ?? false,
-        isAddressPrivate: params.isVetAddressPrivate ?? false
-      })
-      .where(eq(vets.id, vetId));
+    // Update owner if provided
+    if (petData.ownerName || petData.ownerPhone || petData.ownerEmail || petData.ownerAddress) {
+      await db
+        .update(owners)
+        .set({
+          fullName: petData.ownerName,
+          phoneNumber: petData.ownerPhone,
+          email: petData.ownerEmail,
+          homeAddress: petData.ownerAddress
+        })
+        .where(eq(owners.id, existingPet.pet.ownerId));
+    }
 
     return { success: true };
-  } catch (error) {
-    console.error('Pet update error:', error);
-    return { success: false, error: 'Pet update error' };
+  } catch (error: any) {
+    console.error('Update pet error:', error);
+    return { success: false, error: 'Failed to update pet' };
   }
-};
+}
+
+/**
+ * Delete a pet
+ */
+export async function deletePet(petId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    // Check if pet exists and belongs to user
+    const existingPet = await getPetById(petId);
+    if (!existingPet.success || !existingPet.pet) {
+      return { success: false, error: 'Pet not found' };
+    }
+
+    // Delete pet (owner will be deleted due to cascade)
+    await db
+      .delete(pets)
+      .where(and(
+        eq(pets.id, petId),
+        eq(pets.userEmail, session.user.email)
+      ));
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Delete pet error:', error);
+    return { success: false, error: 'Failed to delete pet' };
+  }
+}
+
+/**
+ * Get all genders
+ */
+export async function getGenders(): Promise<{ success: boolean; genders?: Array<{ id: number; name: string }>; error?: string }> {
+  try {
+    const gendersList = await db.select().from(genders);
+    return { 
+      success: true, 
+      genders: gendersList.map(g => ({ id: g.id, name: g.en }))
+    };
+  } catch (error: any) {
+    console.error('Get genders error:', error);
+    return { success: false, error: 'Failed to get genders' };
+  }
+}
+
+/**
+ * Get all breeds
+ */
+export async function getBreeds(): Promise<{ success: boolean; breeds?: Array<{ id: number; name: string }>; error?: string }> {
+  try {
+    const breedsList = await db.select().from(breeds);
+    return { 
+      success: true, 
+      breeds: breedsList.map(b => ({ id: b.id, name: b.en }))
+    };
+  } catch (error: any) {
+    console.error('Get breeds error:', error);
+    return { success: false, error: 'Failed to get breeds' };
+  }
+}

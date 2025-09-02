@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const { email, fullName, emailVerified } = await request.json();
 
     if (!email) {
       return NextResponse.json(
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Set the user email cookie
+    // Set the user information cookies
     const response = NextResponse.json({ success: true });
     response.cookies.set('user_email', email, {
       maxAge: 60 * 60 * 24 * 5, // 5 days
@@ -19,6 +19,24 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax'
     });
+
+    if (fullName) {
+      response.cookies.set('user_fullname', fullName, {
+        maxAge: 60 * 60 * 24 * 5, // 5 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+    }
+
+    if (emailVerified !== undefined) {
+      response.cookies.set('user_email_verified', emailVerified.toString(), {
+        maxAge: 60 * 60 * 24 * 5, // 5 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+    }
 
     return response;
   } catch (error) {

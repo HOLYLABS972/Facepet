@@ -1,30 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPetsForUser } from '@/src/lib/firebase/queries/pets';
+import { createPet, getUserPets } from '@/lib/actions/pets';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const locale = searchParams.get('locale') || 'en';
-
-    if (!userId) {
+    const result = await getUserPets();
+    
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
+        { error: result.error },
+        { status: result.error === 'Unauthorized' ? 401 : 500 }
       );
     }
 
-    const pets = await getPetsForUser(userId, locale);
-
-    return NextResponse.json({
-      success: true,
-      pets
-    });
-
+    return NextResponse.json({ pets: result.pets });
   } catch (error) {
-    console.error('Error fetching pets:', error);
+    console.error('Get pets error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch pets' },
+      { error: 'Failed to get pets' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const petData = await request.json();
+    const result = await createPet(petData);
+    
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.error === 'Unauthorized' ? 401 : 500 }
+      );
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      petId: result.petId,
+      message: 'Pet created successfully' 
+    });
+  } catch (error) {
+    console.error('Create pet error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create pet' },
       { status: 500 }
     );
   }
