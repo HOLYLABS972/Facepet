@@ -137,7 +137,7 @@ export default function AddNewPetForm() {
       const petData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
-        breed: formData.breed, // Store the selected breed name
+        breedName: formData.breed, // Store the selected breed name
         imageUrl: formData.imageUrl,
         genderId: 1, // Default to first gender (you can make this configurable)
         breedId: 1,  // Default to first breed (you can make this configurable)

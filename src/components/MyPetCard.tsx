@@ -3,11 +3,17 @@
 import { useDirection } from '@radix-ui/react-direction';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { ArrowRight, Pencil } from 'lucide-react';
+import { ArrowRight, Pencil, MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 
 interface MyPetCardProps {
   id: string;
@@ -107,7 +113,30 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         transition={{ type: 'spring', stiffness: 200, damping: 10 }}
       >
         <div className="flex h-full flex-col justify-between p-4">
-          <div className="text-lg font-bold">{name}</div>
+          <div className="flex items-start justify-between">
+            <div className="text-lg font-bold">{name}</div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-white/20"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleEdit}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit Pet
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+                  Delete Pet
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <div className="text-sm text-gray-600">{breed}</div>
         </div>
 
