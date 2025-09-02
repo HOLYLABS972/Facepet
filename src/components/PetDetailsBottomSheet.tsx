@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { X, Trash2, MoreVertical, Edit } from 'lucide-react';
+import { MoreVertical, Edit } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -13,9 +13,6 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useRouter } from '@/i18n/routing';
-import { doc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/src/lib/firebase/config';
-import toast from 'react-hot-toast';
 import Image from 'next/image';
 
 interface Pet {
@@ -33,32 +30,18 @@ interface PetDetailsBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   pet: Pet | null;
-  onDeletePet?: (petId: string) => void;
 }
 
 export default function PetDetailsBottomSheet({
   isOpen,
   onClose,
-  pet,
-  onDeletePet
+  pet
 }: PetDetailsBottomSheetProps) {
   const router = useRouter();
 
   if (!pet) return null;
 
-  const handleDeletePet = async () => {
-    try {
-      await deleteDoc(doc(db, 'pets', pet.id));
-      toast.success('Pet deleted successfully');
-      if (onDeletePet) {
-        onDeletePet(pet.id);
-      }
-      onClose();
-    } catch (error) {
-      console.error('Error deleting pet:', error);
-      toast.error('Failed to delete pet');
-    }
-  };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -147,17 +130,7 @@ export default function PetDetailsBottomSheet({
             </CardContent>
           </Card>
 
-          {/* Delete Pet Button */}
-          <div className="pt-4 border-t">
-            <Button
-              variant="destructive"
-              onClick={handleDeletePet}
-              className="w-full"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete Pet
-            </Button>
-          </div>
+
         </div>
       </DialogContent>
     </Dialog>

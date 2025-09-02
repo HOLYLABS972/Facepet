@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { uploadPetImage } from '@/src/lib/firebase/simple-upload';
-import { createPetInFirestore } from '@/src/lib/firebase/pets';
+import { createPetInFirestore } from '@/src/lib/firebase/simple-pets';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
@@ -149,18 +149,13 @@ export default function AddNewPetForm() {
     try {
       const petData = {
         name: formData.name.trim(),
-        description: '', // Removed description as requested
+        type: formData.type,
         breedName: formData.breed,
         imageUrl: formData.imageUrl,
-        genderId: 1,
-        breedId: 1,
-        ownerName: user.displayName || 'Pet Owner',
-        ownerPhone: '',
-        ownerEmail: user.email || '',
-        ownerAddress: '',
-        birthDate: '',
-        notes: '',
-        vetId: ''
+        description: '',
+        age: '',
+        gender: '',
+        notes: ''
       };
 
       console.log('Creating pet with data:', petData);
