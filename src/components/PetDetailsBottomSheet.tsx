@@ -90,7 +90,7 @@ export default function PetDetailsBottomSheet({
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Pet
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {/* TODO: Implement NFC attachment */}}>
+                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/nfc`)}>
                   <Wifi className="mr-2 h-4 w-4" />
                   Attach NFC
                 </DropdownMenuItem>
