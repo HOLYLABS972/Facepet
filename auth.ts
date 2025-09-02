@@ -1,7 +1,8 @@
 import { compare } from 'bcryptjs';
 import NextAuth, { User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { getUserDetailsByEmail } from './src/lib/firebase/queries/users';
+// Note: We'll use the existing database queries for now to avoid Edge Runtime issues
+import { getUserDetailsByEmail } from './utils/database/queries/users';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {

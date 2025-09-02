@@ -6,6 +6,8 @@ import { useRouter } from '@/i18n/routing';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
+import { useSession } from 'next-auth/react';
+import { User, PawPrint, Settings, LogOut } from 'lucide-react';
 
 // Pet images - using public paths for Next.js Image component
 const petImages = {
@@ -96,12 +98,123 @@ const petCharacters = [
 export default function LandingHomePage() {
   const t = useTranslations('pages.HomePage');
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="flex grow flex-col">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     // This container is scrollable. Adjust the height as needed.
     <div className="flex grow flex-col">
       {/* Navbar */}
       <Navbar />
+      
+      {/* Conditional Content Based on Authentication */}
+      {session ? (
+        // Authenticated User Dashboard
+        <AuthenticatedDashboard session={session} router={router} />
+      ) : (
+        // Public Landing Page
+        <PublicLandingPage t={t} router={router} />
+      )}
+    </div>
+  );
+}
+
+// Authenticated User Dashboard Component
+const AuthenticatedDashboard = ({ session, router }: { session: any; router: any }) => {
+  return (
+    <>
+      {/* Welcome Section for Authenticated Users */}
+      <section className="mt-16 px-7">
+        <div className="text-center">
+          <h1 className="text-primary py-4 font-['Lobster'] text-4xl tracking-wide lg:text-6xl">
+            Welcome back!
+          </h1>
+          
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+              <User className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-left">
+              <p className="text-xl font-semibold text-gray-900">{session.user?.name}</p>
+              <p className="text-sm text-gray-500">{session.user?.email}</p>
+            </div>
+          </div>
+
+          <p className="text-lg text-gray-600 mb-8">
+            Manage your pets and keep them safe with FacePet
+          </p>
+        </div>
+      </section>
+
+      {/* Quick Actions */}
+      <section className="px-7 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+          <Button
+            onClick={() => router.push('/pages/my-pets')}
+            className="h-16 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg flex items-center gap-3"
+          >
+            <PawPrint className="h-6 w-6" />
+            <div className="text-left">
+              <p className="font-semibold">My Pets</p>
+              <p className="text-sm opacity-90">Manage your pet profiles</p>
+            </div>
+          </Button>
+
+          <Button
+            onClick={() => router.push('/user/settings')}
+            className="h-16 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl shadow-lg flex items-center gap-3"
+          >
+            <Settings className="h-6 w-6" />
+            <div className="text-left">
+              <p className="font-semibold">Settings</p>
+              <p className="text-sm opacity-70">Account preferences</p>
+            </div>
+          </Button>
+        </div>
+      </section>
+
+      {/* Pet Characters for Authenticated Users */}
+      <div className="relative min-h-[350px] w-full overflow-hidden md:overflow-visible">
+        <div className="mt-20 lg:mt-32">
+          <div className="hidden w-full items-center justify-center sm:flex">
+            <Button
+              onClick={() => router.push('/pages/my-pets')}
+              className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
+            >
+              View My Pets
+            </Button>
+          </div>
+        </div>
+        {petCharacters.map((pet, index) => (
+          <AnimatedPet key={pet.id} pet={pet} index={index} />
+        ))}
+      </div>
+
+      <div className="hidden sm:block">
+        <ProductHighlights />
+      </div>
+    </>
+  );
+};
+
+// Public Landing Page Component
+const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
+  return (
+    <>
       {/* Main Welcome Content */}
       <section className="mt-16 px-7">
         <h1 className="text-primary py-4 text-center font-['Lobster'] text-5xl tracking-wide lg:text-7xl">
@@ -113,14 +226,14 @@ export default function LandingHomePage() {
           <p className="text-black">{t('lowerTitle')}</p>
         </div>
 
-        {/* <div className="mt-12">
+        <div className="mt-12">
           <Button
-            onClick={() => router.push('/how-it-works')}
+            onClick={() => router.push('/auth/sign-up')}
             className="w-full h-[60px] bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg"
           >
-            {t('buttonLabel')}
+            Get Started
           </Button>
-        </div> */}
+        </div>
       </section>
 
       {/* Animated Pet Characters */}
@@ -147,9 +260,9 @@ export default function LandingHomePage() {
         <ProductHighlights />
       </div>
       <Footer />
-    </div>
+    </>
   );
-}
+};
 
 type Pet = {
   id: number;

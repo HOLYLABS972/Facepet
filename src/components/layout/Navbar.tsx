@@ -95,8 +95,60 @@ const Navbar = () => {
               </div>
             </Link>
 
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4">
+              {status === 'authenticated' ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    className="group active:bg-accent relative rounded-md p-2"
+                  >
+                    <Link href="/pages/my-gifts" className="relative">
+                      <span className="bg-primary border-background group-hover:border-accent absolute -top-1 -right-1 z-50 h-3 w-3 rounded-full border-3 transition-colors"></span>
+                      <Gift className="block h-6 w-6" />
+                    </Link>
+                  </Button>
+                  
+                  {/* User Avatar and Name */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                      <CircleUserRound className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-gray-900">{session?.user?.name}</p>
+                      <p className="text-xs text-gray-500">{session?.user?.email}</p>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    variant="ghost"
+                    onClick={() => signOut({ redirectTo: '/' })}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link href="/auth/sign-in">
+                    <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                      <LogIn className="h-5 w-5 mr-2" />
+                      {t('signIn')}
+                    </Button>
+                  </Link>
+                  <Link href="/auth/sign-up">
+                    <Button className="bg-primary hover:bg-primary/90 text-white">
+                      <UserRoundPlus className="h-5 w-5 mr-2" />
+                      {t('signUp')}
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+
             {/* Mobile Menu Button */}
-            <div className="flex rtl:flex-row-reverse">
+            <div className="flex md:hidden rtl:flex-row-reverse">
               {status === 'authenticated' && (
                 <div className="flex">
                   <Button
