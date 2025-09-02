@@ -42,18 +42,18 @@ const AuthPage = () => {
       if (isSignUp) {
         // Send verification code using your simple API
         await sendVerificationCode(formData.email);
-        toast.success('Verification code sent! Please check your email.');
+        toast.success(t('verificationCodeSent'));
         
         // Redirect to email verification page with simple parameters
         router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}&fullName=${encodeURIComponent(formData.fullName)}`);
       } else {
         await signIn(formData.email, formData.password);
-        toast.success('Signed in successfully!');
+        toast.success(t('signInSuccess'));
         router.push('/pages/my-pets');
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      toast.error(error.message || 'Authentication failed');
+      toast.error(error.message || t('authError'));
     } finally {
       setLoading(false);
     }
@@ -63,11 +63,11 @@ const AuthPage = () => {
     setLoading(true);
     try {
       await signInWithGoogle();
-      toast.success('Signed in with Google!');
+      toast.success(t('signInSuccessGoogle'));
       router.push('/pages/my-pets');
     } catch (error: any) {
       console.error('Google auth error:', error);
-      toast.error(error.message || 'Google authentication failed');
+      toast.error(error.message || t('authErrorGoogle'));
     } finally {
       setLoading(false);
     }

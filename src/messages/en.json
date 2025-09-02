@@ -123,7 +123,8 @@
       "signUpSuccess": "Account created successfully!",
       "signInSuccessGoogle": "Signed in with Google successfully!",
       "authError": "Authentication failed",
-      "authErrorGoogle": "Google authentication failed"
+      "authErrorGoogle": "Google authentication failed",
+      "verificationCodeSent": "Verification code sent! Please check your email."
     },
     "EmailVerification": {
       "title": "Verify Your Email",

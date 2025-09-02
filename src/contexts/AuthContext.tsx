@@ -62,6 +62,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log('Firebase Auth state changed:', user);
       setUser(user);
       setLoading(false);
+    }, (error) => {
+      console.error('Firebase Auth state change error:', error);
+      setLoading(false);
     });
 
     // No need for redirect result handling since we're using popup
@@ -90,7 +93,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Store user in Firestore collection with role assignment
         const userRole = getUserRole(email);
-        const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
+        const cookiePreference = typeof window !== 'undefined' ? localStorage.getItem('acceptCookies') === 'true' : false;
         console.log('🔍 Creating user (signUp) with role:', { email, userRole, cookiePreference });
         const userResult = await createUserInFirestore(userCredential.user, {
           acceptCookies: cookiePreference,
@@ -196,7 +199,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Store user in Firestore collection with role assignment
         const userRole = getUserRole(email);
-        const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
+        const cookiePreference = typeof window !== 'undefined' ? localStorage.getItem('acceptCookies') === 'true' : false;
         console.log('🔍 Creating user with role:', { email, userRole, cookiePreference });
         const userResult = await createUserInFirestore(userCredential.user, {
           phone: phone || '',

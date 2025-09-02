@@ -28,7 +28,8 @@ interface NFCScanPageProps {
   pet: Pet;
 }
 
-const t = useTranslations('Pet.nfcTag');
+export default function NFCScanPage({ pet }: NFCScanPageProps) {
+  const t = useTranslations('Pet.nfcTag');
 
   const STEPS = [
     {
@@ -50,8 +51,6 @@ const t = useTranslations('Pet.nfcTag');
       icon: Wifi,
     },
   ];
-
-export default function NFCScanPage({ pet }: NFCScanPageProps) {
   const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
   const [isRecorded, setIsRecorded] = useState(false);
@@ -60,15 +59,22 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
 
   // Check for NFC support when component mounts
   useEffect(() => {
-    setNfcSupported('NDEFReader' in window);
+    if (typeof window !== 'undefined') {
+      setNfcSupported('NDEFReader' in window);
+    }
   }, []);
 
-  const petShareUrl = `${window.location.origin}/pet/${pet.id}`;
+  const petShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/pet/${pet.id}` : '';
 
   const handleRecordTag = async () => {
-    if (!('NDEFReader' in window)) {
+    if (typeof window === 'undefined' || !('NDEFReader' in window)) {
       toast.error(t('recordTag.errors.notSupported'));
       setNfcSupported(false);
+      return;
+    }
+
+    if (!petShareUrl) {
+      toast.error('Unable to generate share URL');
       return;
     }
 
@@ -89,13 +95,19 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
       toast.success(t('recordTag.success'));
     } catch (error) {
       console.error('Error writing to NFC tag:', error);
-      toast.error('Failed to write to NFC tag. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to write to NFC tag: ${errorMessage}`);
     } finally {
       setIsRecording(false);
     }
   };
 
   const handleCopyLink = async () => {
+    if (!petShareUrl) {
+      toast.error('Unable to generate share URL');
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(petShareUrl);
       setCopied(true);
@@ -107,6 +119,11 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
   };
 
   const handleShare = async () => {
+    if (!petShareUrl) {
+      toast.error('Unable to generate share URL');
+      return;
+    }
+
     if (navigator.share) {
       try {
         await navigator.share({

@@ -80,6 +80,143 @@
         "confirm": "כן, מחק",
         "cancel": "ביטול"
       }
+    },
+    "add": {
+      "title": "הוספת חיית מחמד חדשה",
+      "subtitle": "בוא נכיר את החבר החדש שלך",
+      "steps": {
+        "type": {
+          "title": "בחירת סוג חיית מחמד",
+          "description": "איזה סוג חיית מחמד אתה מוסיף?"
+        },
+        "breed": {
+          "title": "בחירת גזע",
+          "description": "בחר את הגזע הספציפי"
+        },
+        "name": {
+          "title": "שם חיית המחמד",
+          "description": "תן שם מיוחד לחיית המחמד שלך"
+        },
+        "photo": {
+          "title": "הוספת תמונה",
+          "description": "העלה תמונה חמודה של חיית המחמד שלך"
+        },
+        "complete": {
+          "title": "הושלם!",
+          "description": "חיית המחמד שלך מוכנה להצטרף למשפחה!"
+        }
+      },
+      "form": {
+        "petType": {
+          "title": "סוג חיית מחמד",
+          "description": "בחר את הסוג המתאים",
+          "options": {
+            "dog": "כלב",
+            "cat": "חתול",
+            "other": "אחר"
+          }
+        },
+        "breed": {
+          "title": "גזע",
+          "placeholder": "בחר גזע",
+          "description": "בחר את הגזע של חיית המחמד שלך"
+        },
+        "name": {
+          "title": "שם",
+          "placeholder": "הכנס את שם חיית המחמד שלך",
+          "description": "איך קוראים לחיית המחמד שלך?"
+        },
+        "photo": {
+          "title": "תמונה",
+          "upload": "העלאת תמונה",
+          "dropzone": "גרור ושחרר תמונה או לחץ להעלאה",
+          "requirements": "PNG, JPG או GIF (מקסימום 5MB)"
+        }
+      },
+      "types": {
+        "cat": "חתול",
+        "dog": "כלב",
+        "other": "אחר"
+      },
+      "welcome": "ברוכים הבאים ל-Facepet!",
+      "login": "התחברות",
+      "breed": {
+        "title": "{pet} גזעים",
+        "placeholder": "בחר גזע"
+      },
+      "name": {
+        "title": "איך קוראים לחיית המחמד שלך?",
+        "description": "בחר שם מיוחד ל{pet} שלך",
+        "label": "שם חיית מחמד",
+        "placeholder": "הכנס את שם חיית המחמד שלך"
+      },
+      "photo": {
+        "title": "הוסף תמונה של {name}",
+        "description": "העלה תמונה חמודה של חיית המחמד שלך",
+        "uploadPrompt": "לחץ להעלאת תמונה",
+        "uploading": "מעלה...",
+        "uploadComplete": "התמונה הועלתה בהצלחה!",
+        "uploadFailed": "העלאת התמונה נכשלה"
+      },
+      "complete": {
+        "title": "מזל טוב!",
+        "description": "{name} הוא כעת חלק ממשפחת החיות שלך!",
+        "points": "+10 נקודות הרווחת!"
+      },
+      "navigation": {
+        "next": "הבא",
+        "previous": "הקודם",
+        "complete": "סיום",
+        "adding": "מוסיף..."
+      },
+      "success": {
+        "imageUploaded": "התמונה הועלתה בהצלחה!",
+        "petAdded": "חיית המחמד נוספה בהצלחה!"
+      },
+      "errors": {
+        "loginRequired": "נדרשת התחברות להוספת חיית מחמד",
+        "nameRequired": "נא להזין שם לחיית המחמד",
+        "imageRequired": "נא להעלות תמונה",
+        "uploadFailed": "העלאת התמונה נכשלה",
+        "addPetFailed": "הוספת חיית המחמד נכשלה",
+        "photoSize": "גודל התמונה חייב להיות פחות מ-5MB",
+        "photoType": "נא לבחור קובץ תמונה חוקי"
+      },
+      "success": {
+        "created": "חיית המחמד נוספה בהצלחה!",
+        "photoUploaded": "התמונה הועלתה בהצלחה!",
+        "pointsEarned": "נקודות הרווחת!"
+      }
+    }
+  },
+  "pages": {
+    "AuthPage": {
+      "welcomeBack": "ברוכים השבים!",
+      "createAccount": "צרו את החשבון שלכם",
+      "signInToAccount": "התחברו לחשבון FacePet שלכם",
+      "joinFacePet": "הצטרפו ל-FacePet והגנו על החיות שלכם",
+      "tagline": "שומרי חיות מחמד קטנים לשקט נפשי גדול. שמרו על החיות שלכם בטוחות ומחוברות.",
+      "fullName": "שם מלא",
+      "fullNamePlaceholder": "הזינו את השם המלא שלכם",
+      "email": "אימייל",
+      "emailPlaceholder": "הזינו את האימייל שלכם",
+      "password": "סיסמה",
+      "passwordPlaceholder": "הזינו את הסיסמה שלכם",
+      "signInButton": "התחברות",
+      "signUpButton": "צור חשבון",
+      "or": "או המשך עם אימייל",
+      "signInWithGoogle": "המשך עם Google",
+      "noAccount": "אין לכם חשבון?",
+      "haveAccount": "כבר יש לכם חשבון?",
+      "signUpLink": "הירשמו",
+      "signInLink": "התחברו",
+      "forgotPassword": "שכחתם סיסמה?",
+      "signInSuccess": "התחברתם בהצלחה!",
+      "signUpSuccess": "החשבון נוצר בהצלחה!",
+      "signInSuccessGoogle": "התחברתם עם Google בהצלחה!",
+      "authError": "האימות נכשל",
+      "authErrorGoogle": "אימות Google נכשל",
+      "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם."
     }
   }
 }

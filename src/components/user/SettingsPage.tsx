@@ -611,7 +611,7 @@ export default function SettingsPage() {
             className="w-full border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            {deletingAccount ? 'Deleting...' : 'Delete Account'}
+            {deletingAccount ? t('deleteAccount.deleting') : t('deleteAccount.button')}
           </Button>
         </div>
 
@@ -643,10 +643,10 @@ export default function SettingsPage() {
           <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
             <div className="flex items-center mb-4">
               <Trash2 className="w-6 h-6 text-gray-500 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-800">Delete Account</h3>
+              <h3 className="text-lg font-semibold text-gray-800">{t('deleteAccount.confirmTitle')}</h3>
             </div>
             <p className="text-gray-600 mb-6">
-              This will permanently delete your account and all data.
+              {t('deleteAccount.confirmMessage')}
             </p>
             <div className="flex space-x-3">
               <Button
@@ -654,7 +654,7 @@ export default function SettingsPage() {
                 onClick={() => setShowDeleteConfirm(false)}
                 className="flex-1"
               >
-                Cancel
+                {t('deleteAccount.cancel')}
               </Button>
               <Button
                 variant="destructive"
@@ -662,7 +662,7 @@ export default function SettingsPage() {
                 disabled={deletingAccount}
                 className="flex-1"
               >
-                {deletingAccount ? 'Deleting...' : 'Delete'}
+                {deletingAccount ? t('deleteAccount.deleting') : t('deleteAccount.confirm')}
               </Button>
             </div>
           </div>

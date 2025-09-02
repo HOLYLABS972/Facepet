@@ -14,6 +14,7 @@ import { useRouter } from '@/i18n/routing';
 import { BreedSelect } from './ui/breed-select';
 import { getBreedsForType, type PetType } from '@/src/lib/data/breeds';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 interface PetFormData {
   name: string;
@@ -28,21 +29,22 @@ interface UploadProgress {
   status: 'uploading' | 'completed' | 'error';
 }
 
-const PET_TYPES = [
-  { id: 'cat', name: 'Cat', emoji: '🐱', icon: '🐱' },
-  { id: 'dog', name: 'Dog', emoji: '🐶', icon: '🐶' },
-  { id: 'other', name: 'Other', emoji: '🐾', icon: '🐾' }
-];
-
-const STEPS = [
-  { id: 1, title: 'Choose Pet Type', description: 'What kind of pet are you adding?' },
-  { id: 2, title: 'Select Breed', description: 'Pick the specific breed' },
-  { id: 3, title: 'Name Your Pet', description: 'Give your pet a special name' },
-  { id: 4, title: 'Add Photo', description: 'Upload a cute photo of your pet' },
-  { id: 5, title: 'Complete!', description: 'Your pet is ready to join the family!' }
-];
-
 export default function AddNewPetForm() {
+  const t = useTranslations('Pet.add');
+  
+  const PET_TYPES = [
+    { id: 'cat', name: t('types.cat'), emoji: '🐱', icon: '🐱' },
+    { id: 'dog', name: t('types.dog'), emoji: '🐶', icon: '🐶' },
+    { id: 'other', name: t('types.other'), emoji: '🐾', icon: '🐾' }
+  ];
+  
+  const STEPS = [
+    { id: 1, title: t('steps.type.title'), description: t('steps.type.description') },
+    { id: 2, title: t('steps.breed.title'), description: t('steps.breed.description') },
+    { id: 3, title: t('steps.name.title'), description: t('steps.name.description') },
+    { id: 4, title: t('steps.photo.title'), description: t('steps.photo.description') },
+    { id: 5, title: t('steps.complete.title'), description: t('steps.complete.description') }
+  ];
   const { user } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -78,7 +80,7 @@ export default function AddNewPetForm() {
     if (!file) return;
 
     if (!user) {
-      toast.error('Please log in to upload images');
+      toast.error(t('errors.loginRequired'));
       return;
     }
 
@@ -99,15 +101,15 @@ export default function AddNewPetForm() {
           imageUrl: result.downloadURL || ''
         }));
         setUploadProgress({ progress: 100, status: 'completed' });
-        toast.success('Image uploaded successfully!');
+        toast.success(t('success.imageUploaded'));
       } else {
         setUploadProgress({ progress: 0, status: 'error' });
-        toast.error(result.error || 'Failed to upload image');
+        toast.error(result.error || t('errors.uploadFailed'));
       }
     } catch (error) {
       console.error('Upload error:', error);
       setUploadProgress({ progress: 0, status: 'error' });
-      toast.error('Failed to upload image');
+      toast.error(t('errors.uploadFailed'));
     } finally {
       setUploading(false);
       setTimeout(() => {
@@ -118,17 +120,17 @@ export default function AddNewPetForm() {
 
   const handleSubmit = async () => {
     if (!user) {
-      toast.error('Please log in to add a pet');
+      toast.error(t('errors.loginRequired'));
       return;
     }
 
     if (!formData.name.trim()) {
-      toast.error('Please enter a pet name');
+      toast.error(t('errors.nameRequired'));
       return;
     }
 
     if (!formData.imageUrl) {
-      toast.error('Please upload a pet image');
+      toast.error(t('errors.imageRequired'));
       return;
     }
 
@@ -153,14 +155,14 @@ export default function AddNewPetForm() {
       const result = await createPetInFirestore(petData, user);
 
       if (result.success) {
-        toast.success('Pet added successfully!');
+        toast.success(t('success.petAdded'));
         router.push('/pages/my-pets');
       } else {
-        toast.error(result.error || 'Failed to add pet');
+        toast.error(result.error || t('errors.addPetFailed'));
       }
     } catch (error) {
       console.error('Error adding pet:', error);
-      toast.error('Failed to add pet');
+      toast.error(t('errors.addPetFailed'));
     } finally {
       setLoading(false);
     }
@@ -232,14 +234,14 @@ export default function AddNewPetForm() {
                 {PET_TYPES.find(t => t.id === formData.type)?.icon}
               </div>
               <h3 className="text-xl font-semibold text-gray-800">
-                {PET_TYPES.find(t => t.id === formData.type)?.name} Breeds
+                {t('breed.title', { pet: PET_TYPES.find(t => t.id === formData.type)?.name })}
               </h3>
             </div>
             <BreedSelect
               petType={formData.type as PetType}
               value={formData.breed}
               onValueChange={(value) => handleInputChange('breed', value)}
-              placeholder="Select breed"
+              placeholder={t('breed.placeholder')}
             />
           </motion.div>
         );
@@ -256,15 +258,15 @@ export default function AddNewPetForm() {
               <div className="text-6xl mb-4">
                 {PET_TYPES.find(t => t.id === formData.type)?.icon}
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">What's your pet's name?</h3>
-              <p className="text-gray-600">Choose a special name for your {PET_TYPES.find(t => t.id === formData.type)?.name.toLowerCase()}</p>
+              <h3 className="text-xl font-semibold text-gray-800">{t('name.title')}</h3>
+              <p className="text-gray-600">{t('name.description', { pet: PET_TYPES.find(t => t.id === formData.type)?.name.toLowerCase() })}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="name">Pet Name</Label>
+              <Label htmlFor="name">{t('name.label')}</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="Enter your pet's name"
+                placeholder={t('name.placeholder')}
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 className="text-center text-lg"
@@ -285,8 +287,8 @@ export default function AddNewPetForm() {
               <div className="text-6xl mb-4">
                 {PET_TYPES.find(t => t.id === formData.type)?.icon}
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">Add a photo of {formData.name}</h3>
-              <p className="text-gray-600">Upload a cute picture of your pet</p>
+              <h3 className="text-xl font-semibold text-gray-800">{t('photo.title', { name: formData.name })}</h3>
+              <p className="text-gray-600">{t('photo.description')}</p>
             </div>
             
             <div className="flex justify-center">
@@ -312,7 +314,7 @@ export default function AddNewPetForm() {
                     ) : (
                       <>
                         <Camera className="w-12 h-12 text-gray-400 mb-4" />
-                        <p className="text-gray-500 text-center">Click to upload photo</p>
+                        <p className="text-gray-500 text-center">{t('photo.uploadPrompt')}</p>
                       </>
                     )}
                   </div>
@@ -327,9 +329,9 @@ export default function AddNewPetForm() {
                   {uploadProgress.status === 'completed' && <CheckCircle className="w-4 h-4 text-green-500" />}
                   {uploadProgress.status === 'error' && <XCircle className="w-4 h-4 text-red-500" />}
                   <span className="text-sm text-gray-600">
-                    {uploadProgress.status === 'uploading' && 'Uploading...'}
-                    {uploadProgress.status === 'completed' && 'Upload complete!'}
-                    {uploadProgress.status === 'error' && 'Upload failed'}
+                    {uploadProgress.status === 'uploading' && t('photo.uploading')}
+                    {uploadProgress.status === 'completed' && t('photo.uploadComplete')}
+                    {uploadProgress.status === 'error' && t('photo.uploadFailed')}
                   </span>
                 </div>
                 {uploadProgress.status === 'uploading' && (
@@ -354,13 +356,13 @@ export default function AddNewPetForm() {
             className="text-center space-y-6"
           >
             <div className="text-8xl mb-6">🎉</div>
-            <h3 className="text-2xl font-bold text-gray-800">Congratulations!</h3>
+            <h3 className="text-2xl font-bold text-gray-800">{t('complete.title')}</h3>
             <p className="text-gray-600">
-              <strong>{formData.name}</strong> is now part of your pet family!
+              {t('complete.description', { name: formData.name })}
             </p>
             <div className="flex items-center justify-center space-x-2 text-primary">
               <Star className="w-5 h-5 fill-current" />
-              <span className="font-semibold">+10 Points Earned!</span>
+              <span className="font-semibold">{t('complete.points')}</span>
             </div>
             <div className="bg-gray-50 rounded-2xl p-6">
               <div className="flex items-center justify-center space-x-4">
@@ -394,10 +396,10 @@ export default function AddNewPetForm() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Heart className="w-16 h-16 text-primary mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Welcome to Facepet!</h2>
-          <p className="text-gray-600 mb-4">Please log in to add your pet</p>
+          <h2 className="text-2xl font-bold mb-2">{t('welcome')}</h2>
+          <p className="text-gray-600 mb-4">{t('errors.loginRequired')}</p>
           <Button onClick={() => router.push('/login')}>
-            Log In
+            {t('login')}
           </Button>
         </div>
       </div>
@@ -408,7 +410,7 @@ export default function AddNewPetForm() {
     <div className="max-w-2xl mx-auto p-6">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Add New Pet</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('title')}</CardTitle>
           <div className="flex items-center justify-center space-x-2 mt-4">
             {STEPS.map((step, index) => (
               <div key={step.id} className="flex items-center">
@@ -450,7 +452,7 @@ export default function AddNewPetForm() {
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Previous</span>
+              <span>{t('navigation.previous')}</span>
             </Button>
 
             {currentStep < STEPS.length ? (
@@ -459,7 +461,7 @@ export default function AddNewPetForm() {
                 disabled={!canProceed()}
                 className="flex items-center space-x-2"
               >
-                <span>Next</span>
+                <span>{t('navigation.next')}</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             ) : (
@@ -473,7 +475,7 @@ export default function AddNewPetForm() {
                 ) : (
                   <Heart className="w-4 h-4" />
                 )}
-                <span>{loading ? 'Adding Pet...' : 'Complete!'}</span>
+                <span>{loading ? t('navigation.adding') : t('navigation.complete')}</span>
               </Button>
             )}
           </div>
