@@ -1,6 +1,5 @@
 // Firebase initialization check utility
 import { storage, auth, db } from './config';
-import { ref } from 'firebase/storage';
 
 export function checkFirebaseInitialization() {
   const issues: string[] = [];
@@ -15,11 +14,10 @@ export function checkFirebaseInitialization() {
   if (!storage) {
     issues.push('Firebase Storage is not initialized');
   } else {
+    // Simple check - just verify storage object exists and has expected properties
     try {
-      // Try to create a reference to test if storage is working
-      const testRef = ref(storage, 'test');
-      if (!testRef) {
-        issues.push('Firebase Storage reference creation failed');
+      if (typeof storage !== 'object' || !storage.app) {
+        issues.push('Firebase Storage object is invalid');
       }
     } catch (error) {
       issues.push(`Firebase Storage error: ${error}`);
