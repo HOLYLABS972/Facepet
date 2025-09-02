@@ -5,12 +5,14 @@ import { Check, Share2, X } from 'lucide-react';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { cn } from '../lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface InviteFriendsCardProps {
   onClose?: () => void;
 }
 
 const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
+  const t = useTranslations('pages.MyPetsPage');
   const [shared, setShared] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
@@ -84,7 +86,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
             transition={{ duration: 0.2 }}
             className="text-primary text-lg font-bold"
           >
-            שתף עם חברים
+            {t('shareWithFriends')}
           </motion.div>
           {/* Subtitle with slight delay */}
           <motion.div
@@ -93,7 +95,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
             transition={{ duration: 0.2, delay: 0.1 }}
             className="text-sm text-black"
           >
-            שתף וקבל 10 נקודות עבור כל חבר שמצטרף!
+            {t('shareDescription')}
           </motion.div>
         </div>
 
