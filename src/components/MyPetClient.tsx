@@ -6,6 +6,7 @@ import PetDetailsBottomSheet from '@/components/PetDetailsBottomSheet';
 import { User, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { usePoints } from '@/src/contexts/PointsContext';
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
@@ -33,6 +34,7 @@ interface MyPetsClientProps {
 const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const t = useTranslations('pages.MyPetsPage');
   const { user, loading } = useAuth();
+  const { userPoints, setUserPoints, pointsBreakdown, setPointsBreakdown, showPointsBreakdown, setShowPointsBreakdown } = usePoints();
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [pets, setPets] = useState(initialPets);
@@ -43,16 +45,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [showPetBottomSheet, setShowPetBottomSheet] = useState(false);
 
-  const [userPoints, setUserPoints] = useState(30); // Start with 30 points (registration)
   const [hasAddedPet, setHasAddedPet] = useState(false); // Track if user has added a pet
-  const [showPointsBreakdown, setShowPointsBreakdown] = useState(false);
   const [showPrizeNotification, setShowPrizeNotification] = useState(false);
-  const [pointsBreakdown, setPointsBreakdown] = useState({
-    registration: 30,
-    phone: 0,
-    pet: 0,
-    share: 0
-  });
   
   // Use ref to track previous pets count to avoid multiple point awards
   const previousPetsCountRef = useRef(0);
@@ -89,7 +83,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
             const previousPetsCount = previousPetsCountRef.current;
             const currentPetsCount = petsData.length;
             
-            if (currentPetsCount > previousPetsCount && previousPetsCount > 0) {
+            if (currentPetsCount > previousPetsCount) {
               // User added a new pet, award 10 points
               setUserPoints(prev => prev + 10);
               setHasAddedPet(true);

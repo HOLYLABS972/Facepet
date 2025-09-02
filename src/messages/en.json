@@ -66,6 +66,11 @@
       "shareText": "Protect your pet with NFC technology! FacePet helps you keep your pets safe with advanced tracking and identification. Share with friends and earn points!",
       "linkCopied": "Link copied to clipboard!",
       "shareError": "Something went wrong"
+    },
+    "Navbar": {
+      "signIn": "Sign In",
+      "myPets": "My Pets",
+      "services": "Services"
     }
   },
   "Pet": {

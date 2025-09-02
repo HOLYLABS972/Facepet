@@ -19,6 +19,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { usePoints } from '@/src/contexts/PointsContext';
 import PointsExplenationPopup from '../PointsExplenationPopup';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
@@ -42,6 +43,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { user, loading, signOut } = useAuth();
+  const { userPoints } = usePoints();
   const locale = useLocale();
   const router = useRouter();
 
@@ -267,7 +269,7 @@ const Navbar = () => {
                       className="active:text-primary m-0 flex gap-4 p-0 hover:bg-inherit active:bg-inherit"
                       onClick={() => setIsPopupOpen(true)}
                     >
-                      30 {/* user balance - 30 registration + 10 phone + 10 pet = 50 total */}
+                      {userPoints}
                       <Coins className="h-5 w-5" />
                     </Button>
                   </div>

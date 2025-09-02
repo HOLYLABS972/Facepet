@@ -5,6 +5,7 @@ import { getLocale, getMessages } from 'next-intl/server';
 import dynamic from 'next/dynamic';
 import { Lobster, Rubik } from 'next/font/google';
 import { AuthProvider } from '@/src/contexts/AuthContext';
+import { PointsProvider } from '@/src/contexts/PointsContext';
 import './globals.css';
 
 // Dynamically import analytics components
@@ -67,9 +68,11 @@ export default async function LocaleLayout({
     <html lang={locale} dir={direction}>
       <body className={`${rubik.className} antialiased`}>
         <AuthProvider>
-          <NextIntlClientProvider messages={messages}>
-            <MainLayout direction={direction}>{children}</MainLayout>
-          </NextIntlClientProvider>
+          <PointsProvider>
+            <NextIntlClientProvider messages={messages}>
+              <MainLayout direction={direction}>{children}</MainLayout>
+            </NextIntlClientProvider>
+          </PointsProvider>
         </AuthProvider>
         <Analytics />
         <SpeedInsights />
