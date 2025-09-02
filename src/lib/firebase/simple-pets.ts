@@ -183,21 +183,6 @@ export async function deletePetFromFirestore(
 }
 
 /**
- * Get breed name from breedId
- */
-async function getBreedName(breedId: number): Promise<string> {
-  try {
-    // Import the breeds data
-    const breedsData = await import('../../../utils/database/seeds/breeds.json');
-    const breed = breedsData.default.find((b: any) => b.id === breedId);
-    return breed ? breed.en : `Breed ${breedId}`;
-  } catch (error) {
-    console.error('Error getting breed name:', error);
-    return `Breed ${breedId}`;
-  }
-}
-
-/**
  * Get a pet by ID
  */
 export async function getPetById(
