@@ -151,7 +151,7 @@ export default function HowItWorksPage() {
             Join thousands of pet owners who trust FacePet to keep their furry friends safe.
           </p>
           <Button
-            onClick={() => router.push('/auth/sign-up')}
+            onClick={() => router.push('/auth')}
             className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full text-lg font-semibold"
           >
             Get Started Now
