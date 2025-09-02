@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn } from '@/auth';
+// import { signIn } from '@/auth'; // Removed - using Firebase Auth
 import { redirect } from '@/i18n/routing';
 import ratelimit from '@/lib/ratelimit';
 import { checkEmailExists, createUser } from '@/utils/database/queries/users';

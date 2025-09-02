@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import AddUserForm from '@/components/admin/AddUserForm';
 import { DataTablePagination } from '@/components/admin/DataTablePagination';
 import { LimitSelector } from '@/components/admin/LimitSelector';

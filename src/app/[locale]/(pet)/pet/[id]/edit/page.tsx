@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import EditPetPage from '@/src/components/EditPetPage';
 import { redirect } from '@/src/i18n/routing';
 import { isPetLinkedToUser } from '@/src/lib/actions/pets';

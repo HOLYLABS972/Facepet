@@ -6,7 +6,8 @@ import { useRouter } from '@/i18n/routing';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/src/contexts/AuthContext';
+import SessionDebug from '@/src/components/debug/SessionDebug';
 
 // Pet images - using public paths for Next.js Image component
 const petImages = {
@@ -97,10 +98,10 @@ const petCharacters = [
 export default function LandingHomePage() {
   const t = useTranslations('pages.HomePage');
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
 
   // Show loading state while checking authentication
-  if (status === 'loading') {
+  if (loading) {
     return (
       <div className="flex grow flex-col">
         <Navbar />
@@ -122,6 +123,9 @@ export default function LandingHomePage() {
       
       {/* Always show the public landing page */}
       <PublicLandingPage t={t} router={router} />
+      
+      {/* Debug Component - Remove this after testing */}
+      <SessionDebug />
     </div>
   );
 }

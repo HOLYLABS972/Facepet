@@ -4,7 +4,7 @@
 import MyPetCard from '@/components/MyPetCard';
 import { EditIcon, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/src/contexts/AuthContext';
 import React, { useState } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
@@ -24,7 +24,7 @@ interface MyPetsClientProps {
 
 const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets }) => {
   const t = useTranslations('pages.MyPetsPage');
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -46,8 +46,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets }) => {
               <User className="h-5 w-5 text-white" />
             </div>
             <div className="text-left">
-              <p className="text-lg font-semibold text-gray-900">{session?.user?.name}</p>
-              <p className="text-sm text-gray-500">{session?.user?.email}</p>
+              <p className="text-lg font-semibold text-gray-900">{user?.displayName || user?.email}</p>
+              <p className="text-sm text-gray-500">{user?.email}</p>
             </div>
           </div>
 

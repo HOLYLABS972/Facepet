@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import ConfirmationPage from '@/components/auth/ConfirmationPage';
 import { redirect } from '@/i18n/routing';
 import { isEmailVerified } from '@/src/middleware/email-verification';

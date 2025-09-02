@@ -1,11 +1,10 @@
-import { auth } from '@/auth';
 import MainLayout from '@/components/layout/MainLayout';
 import type { Metadata } from 'next';
-import { SessionProvider } from 'next-auth/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import dynamic from 'next/dynamic';
 import { Lobster, Rubik } from 'next/font/google';
+import { AuthProvider } from '@/src/contexts/AuthContext';
 import './globals.css';
 
 // Dynamically import analytics components
@@ -62,20 +61,19 @@ export default async function LocaleLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
-  const session = await auth();
   const direction = locale === 'he' ? 'rtl' : 'ltr';
 
   return (
     <html lang={locale} dir={direction}>
-      <SessionProvider session={session} key={session?.user?.id}>
-        <body className={`${rubik.className} antialiased`}>
+      <body className={`${rubik.className} antialiased`}>
+        <AuthProvider>
           <NextIntlClientProvider messages={messages}>
             <MainLayout direction={direction}>{children}</MainLayout>
           </NextIntlClientProvider>
-          <Analytics />
-          <SpeedInsights />
-        </body>
-      </SessionProvider>
+        </AuthProvider>
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }

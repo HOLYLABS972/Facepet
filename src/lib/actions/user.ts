@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import { redirect } from '@/src/i18n/routing';
 import { db } from '@/utils/database/drizzle';
 import { users } from '@/utils/database/schema';

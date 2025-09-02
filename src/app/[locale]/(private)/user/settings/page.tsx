@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import SettingsPage from '@/src/components/user/SettingsPage';
 import { redirect } from '@/src/i18n/routing';
 import { getUserDetails } from '@/utils/database/queries/users';

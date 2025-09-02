@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import { getUserDetailsByEmail } from '@/utils/database/queries/users';
 import { NextRequest, NextResponse } from 'next/server';
 

@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import ClientRegisterPetPage from '@/components/get-started/ClientRegisterPetPage';
 import { redirect } from '@/src/i18n/routing';
 import { checkPetIdAvailability } from '@/src/lib/actions/pets';

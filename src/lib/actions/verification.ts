@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import { db } from '@/utils/database/drizzle';
 import { users, VerificationCode } from '@/utils/database/schema';
 import { and, eq, lt } from 'drizzle-orm';

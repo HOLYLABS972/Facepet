@@ -14,11 +14,11 @@ import {
   UserRoundPlus,
   X
 } from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { useAuth } from '@/src/contexts/AuthContext';
 import PointsExplenationPopup from '../PointsExplenationPopup';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
@@ -34,23 +34,15 @@ const Navbar = () => {
   const t = useTranslations('components.Navbar');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const { user, loading, signOut } = useAuth();
   const locale = useLocale();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      console.log('Logging out...', { session, status });
-      
-      // Clear the session and redirect
-      await signOut({ 
-        redirect: false,
-        callbackUrl: '/auth/sign-in'
-      });
-      
-      console.log('SignOut completed, redirecting...');
-      
-      // Force a page refresh to clear any cached session data
+      console.log('Firebase logout...', { user });
+      await signOut();
+      console.log('Firebase logout completed, redirecting...');
       window.location.href = '/auth/sign-in';
     } catch (error) {
       console.error('Logout error:', error);
@@ -105,7 +97,7 @@ const Navbar = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between rtl:flex-row-reverse">
             {/* Brand / Logo */}
-            <Link href={status === 'authenticated' ? '/pages/my-pets' : '/'}>
+            <Link href={user ? '/pages/my-pets' : '/'}>
               <div
                 className="flex cursor-pointer items-center"
                 onClick={() => {
@@ -120,7 +112,7 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4">
-              {status === 'authenticated' ? (
+              {user ? (
                 <>
                   <Button
                     variant="ghost"
@@ -139,8 +131,8 @@ const Navbar = () => {
                       <CircleUserRound className="h-5 w-5 text-white" />
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-medium text-gray-900">{session?.user?.name}</p>
-                      <p className="text-xs text-gray-500">{session?.user?.email}</p>
+                      <p className="text-sm font-medium text-gray-900">{user?.displayName || user?.email}</p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                   </div>
                   
@@ -172,7 +164,7 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <div className="flex md:hidden rtl:flex-row-reverse">
-              {status === 'authenticated' && (
+              {user && (
                 <div className="flex">
                   <Button
                     variant="ghost"
@@ -229,7 +221,7 @@ const Navbar = () => {
               transition={{ duration: 0.1 }}
               className="overflow-hidden"
             >
-              {status === 'authenticated' ? (
+              {user ? (
                 <div className="border-b px-4 pb-2">
                   <div className="space-y-1">
                     {authPages.map((link) => (
@@ -269,7 +261,7 @@ const Navbar = () => {
                         className="active:text-primary m-0 flex gap-5 p-0 hover:bg-inherit active:bg-inherit"
                       >
                         <CircleUserRound className="h-5 w-5" />
-                        {session?.user?.name}
+                        {user?.displayName || user?.email}
                       </Button>
                     </Link>
                     <Button

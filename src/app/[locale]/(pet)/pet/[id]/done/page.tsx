@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+// import { auth } from '@/auth'; // Removed - using Firebase Auth
 import DonePage from '@/src/components/DonePage';
 import { redirect } from '@/src/i18n/routing';
 import { getPetDetailsById } from '@/utils/database/queries/pets';
