@@ -293,7 +293,7 @@ const Navbar = () => {
                       className="active:text-primary m-0 flex gap-4 p-0 hover:bg-inherit active:bg-inherit"
                       onClick={() => setIsPopupOpen(true)}
                     >
-                      50 {/* change to user balance  */}
+                      30 {/* user balance - 30 registration + 10 phone + 10 pet = 50 total */}
                       <Coins className="h-5 w-5" />
                     </Button>
                   </div>

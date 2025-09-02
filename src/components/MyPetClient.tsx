@@ -9,9 +9,10 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
-import PhoneNumberCard from './PhoneNumberCard';
 import PhoneNumberBottomSheet from './PhoneNumberBottomSheet';
 import AdminNotificationCard from './AdminNotificationCard';
+import PrizeClaimNotification from './PrizeClaimNotification';
+import PointsBreakdownNotification from './PointsBreakdownNotification';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useRouter } from '@/i18n/routing';
@@ -36,11 +37,20 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [search, setSearch] = useState('');
   const [pets, setPets] = useState(initialPets);
   const [petsLoading, setPetsLoading] = useState(false);
-  const [showPhoneNotification, setShowPhoneNotification] = useState(false);
+
   const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
   const [showPhoneBottomSheet, setShowPhoneBottomSheet] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [showPetBottomSheet, setShowPetBottomSheet] = useState(false);
+  const [showPrizeNotification, setShowPrizeNotification] = useState(false);
+  const [userPoints, setUserPoints] = useState(30); // Start with 30 points (registration)
+  const [hasAddedPet, setHasAddedPet] = useState(false); // Track if user has added a pet
+  const [showPointsBreakdown, setShowPointsBreakdown] = useState(false);
+  const [pointsBreakdown, setPointsBreakdown] = useState({
+    registration: 30,
+    phone: 0,
+    pet: 0
+  });
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -69,6 +79,22 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
                 image: data.imageUrl || '/default-pet.png'
               };
             });
+            
+            // Check if user just added a pet (pets count increased)
+            const previousPetsCount = pets.length;
+            const currentPetsCount = petsData.length;
+            
+            if (currentPetsCount > previousPetsCount && previousPetsCount > 0) {
+              // User added a new pet, award 10 points
+              setUserPoints(prev => prev + 10);
+              setHasAddedPet(true);
+              // Update points breakdown
+              setPointsBreakdown(prev => ({ ...prev, pet: prev.pet + 10 }));
+              // Show points breakdown notification
+              setShowPointsBreakdown(true);
+              console.log('User added a pet! Awarded 10 points. Total points:', userPoints + 10);
+            }
+            
             setPets(petsData);
           } else {
             console.log('No pets found for user');
@@ -86,16 +112,29 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     fetchPets();
   }, [user?.uid, user?.email, loading]);
 
-  // Check if user has phone number set
+
+
+  // Check if user has phone number set - show bottom sheet if not
   useEffect(() => {
     if (user && !loading) {
       // Check if user has phone number in their profile
-      // For now, we'll check if phoneNumber exists in user object
-      // You can modify this logic based on your user data structure
       const hasPhoneNumber = user.phoneNumber || user.phone;
-      setShowPhoneNotification(!hasPhoneNumber);
+      if (!hasPhoneNumber) {
+        // Show phone setup bottom sheet automatically
+        setShowPhoneBottomSheet(true);
+      }
     }
   }, [user, loading]);
+
+  // Check if user can claim prize (has 30+ points and hasn't claimed yet)
+  useEffect(() => {
+    if (user && !loading) {
+      // Show prize notification if user has 30+ points (registration points)
+      // In real implementation, you'd check if user has already claimed this prize
+      const canClaimPrize = userPoints >= 30;
+      setShowPrizeNotification(canClaimPrize);
+    }
+  }, [user, loading, userPoints]);
 
   // Fetch admin notifications (placeholder for future implementation)
   useEffect(() => {
@@ -119,12 +158,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     pet.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handlePhoneAdded = (phone: string) => {
-    // Hide the phone notification since user has added their phone
-    setShowPhoneNotification(false);
-    // Here you could also update the user's profile with the phone number
-    console.log('Phone number added:', phone);
-  };
+
 
   const handlePetTap = (petId: string) => {
     router.push(`/pet/${petId}`);
@@ -134,6 +168,26 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     setPets(prev => prev.filter(pet => pet.id !== petId));
     setShowPetBottomSheet(false);
     setSelectedPet(null);
+  };
+
+  const handlePrizeClaim = () => {
+    // Hide the prize notification since user has claimed it
+    setShowPrizeNotification(false);
+    // In real implementation, you'd update the user's claimed prizes in the database
+    console.log('Prize claimed!');
+  };
+
+  const handlePhoneAdded = (phone: string) => {
+    // Hide the phone bottom sheet since user has added their phone
+    setShowPhoneBottomSheet(false);
+    // Add 10 points for completing phone setup
+    setUserPoints(prev => prev + 10);
+    // Update points breakdown
+    setPointsBreakdown(prev => ({ ...prev, phone: 10 }));
+    // Show points breakdown notification
+    setShowPointsBreakdown(true);
+    // Here you could also update the user's profile with the phone number
+    console.log('Phone number added:', phone, 'User earned 10 points!');
   };
 
 
@@ -164,6 +218,29 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           <InviteFriendsCard onClose={() => {}} />
         </div>
         
+        {/* Points Breakdown Notification */}
+        {showPointsBreakdown && (
+          <div className="mb-4">
+            <PointsBreakdownNotification 
+              onClose={() => setShowPointsBreakdown(false)}
+              totalPoints={userPoints}
+              registrationPoints={pointsBreakdown.registration}
+              phonePoints={pointsBreakdown.phone}
+              petPoints={pointsBreakdown.pet}
+            />
+          </div>
+        )}
+
+        {/* Prize Claim Notification */}
+        {showPrizeNotification && (
+          <div className="mb-4">
+            <PrizeClaimNotification 
+              onClose={() => setShowPrizeNotification(false)}
+              onClaim={handlePrizeClaim}
+            />
+          </div>
+        )}
+        
         {/* Admin Notifications */}
         {adminNotifications.map((notification, index) => {
           const handleClose = () => {
@@ -192,18 +269,10 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           );
         })}
         
-        {/* Phone Number Notification - matching share style */}
-        {showPhoneNotification && (
-          <div className="mb-4">
-            <PhoneNumberCard 
-              onClose={() => setShowPhoneNotification(false)}
-              onOpenBottomSheet={() => setShowPhoneBottomSheet(true)}
-            />
-          </div>
-        )}
+
         
-        {/* Show "No new notifications" only when there are no admin notifications and no phone notification */}
-        {adminNotifications.length === 0 && !showPhoneNotification && (
+        {/* Show "No new notifications" only when there are no admin notifications */}
+        {adminNotifications.length === 0 && (
           <div className="text-center py-8">
             <div className="text-gray-400 text-4xl mb-2">🔔</div>
             <p className="text-gray-500">{t('noNotifications')}</p>
@@ -259,7 +328,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       <PhoneNumberBottomSheet
         isOpen={showPhoneBottomSheet}
         onClose={() => setShowPhoneBottomSheet(false)}
-        onSave={handlePhoneAdded}
+        onPhoneAdded={handlePhoneAdded}
       />
 
       <PetDetailsBottomSheet

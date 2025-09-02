@@ -57,7 +57,7 @@ const AdminNotificationCard: React.FC<AdminNotificationCardProps> = ({
     }
   };
 
-  const getTypeIcon = () => {
+    const getTypeIcon = () => {
     switch (type) {
       case 'warning':
         return '⚠️';
