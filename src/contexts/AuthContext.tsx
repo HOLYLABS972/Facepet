@@ -135,6 +135,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 if (userCredential.user) {
                   const userRole = getUserRole(userCredential.user.email || '');
                   const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
+                  console.log('🔍 Creating user (Google) with role:', { email: userCredential.user.email, userRole, cookiePreference });
                   const userResult = await createUserInFirestore(userCredential.user, {
                     acceptCookies: cookiePreference,
                     language: 'en',
