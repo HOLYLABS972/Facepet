@@ -12,7 +12,14 @@ const middleware = (req: NextRequest) => {
 };
 
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
+  matcher: [
+    // Match all pathnames except for
+    // - API routes
+    // - _next (Next.js internals)
+    // - _static (inside /public)
+    // - all root files inside /public (e.g. favicon.ico)
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'
+  ]
 };
 
 export default middleware;

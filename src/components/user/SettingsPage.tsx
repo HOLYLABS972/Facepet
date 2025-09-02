@@ -217,16 +217,35 @@ export default function SettingsPage() {
   };
 
   const handleLanguageChange = (newLanguage: string) => {
-    setFormData(prev => ({
-      ...prev,
-      language: newLanguage
-    }));
-    
-    // Save language preference
-    localStorage.setItem('preferredLanguage', newLanguage);
-    
-    // Navigate to the same page with new locale
-    router.push(router.asPath, { locale: newLanguage });
+    try {
+      setFormData(prev => ({
+        ...prev,
+        language: newLanguage
+      }));
+      
+      // Save language preference
+      localStorage.setItem('preferredLanguage', newLanguage);
+      
+      // Get current pathname and remove locale prefix
+      const currentPath = window.location.pathname;
+      console.log('Current path:', currentPath);
+      
+      // Remove locale prefix if it exists (e.g., /he/settings -> /settings)
+      const pathWithoutLocale = currentPath.replace(/^\/[a-z]{2}/, '') || '/';
+      console.log('Path without locale:', pathWithoutLocale);
+      console.log('New language:', newLanguage);
+      
+      // Use window.location to navigate to the new locale
+      // This ensures proper URL construction
+      const newUrl = `/${newLanguage}${pathWithoutLocale}`;
+      console.log('New URL:', newUrl);
+      
+      // Navigate to the new URL
+      window.location.href = newUrl;
+    } catch (error) {
+      console.error('Error changing language:', error);
+      toast.error('Failed to change language');
+    }
   };
 
   const handleSave = async () => {
