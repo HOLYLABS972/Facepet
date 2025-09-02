@@ -176,6 +176,30 @@
       "success": {
         "imageUploaded": "התמונה הועלתה בהצלחה!",
         "petAdded": "חיית המחמד נוספה בהצלחה!"
+      }
+    },
+    "edit": {
+      "title": "עריכת חיית מחמד",
+      "subtitle": "עדכון פרטי חיית המחמד",
+      "form": {
+        "name": "שם חיית מחמד",
+        "type": "סוג חיית מחמד",
+        "breed": "גזע",
+        "selectBreed": "בחר גזע",
+        "currentPhoto": "תמונה נוכחית",
+        "changePhoto": "שנה תמונה",
+        "uploadPhoto": "העלה תמונה",
+        "uploadPrompt": "לחץ להעלאה או גרור ושחרר",
+        "imageRequirements": "PNG, JPG או GIF (מקסימום 10MB)"
+      },
+      "buttons": {
+        "save": "שמור שינויים",
+        "saving": "שומר...",
+        "cancel": "ביטול"
+      },
+      "messages": {
+        "petUpdated": "חיית המחמד עודכנה בהצלחה!",
+        "updateFailed": "עדכון חיית המחמד נכשל"
       },
       "errors": {
         "loginRequired": "נדרשת התחברות להוספת חיית מחמד",
@@ -224,6 +248,52 @@
     }
   },
   "pages": {
+    "PetProfilePage": {
+      "title": "פרופיל חיית מחמד",
+      "subtitle": "פרופיל חיית מחמד",
+      "labels": {
+        "name": "שם",
+        "breed": "גזע",
+        "gender": "מין",
+        "age": "גיל",
+        "ageText": "שנים",
+        "notes": "הערות",
+        "contact": "קשר",
+        "email": "אימייל",
+        "address": "כתובת",
+        "private": "פרטי",
+        "type": "סוג"
+      },
+      "tabs": {
+        "pet": "חיית מחמד",
+        "owner": "בעלים",
+        "vet": "וטרינר"
+      },
+      "sections": {
+        "basicInformation": "מידע בסיסי",
+        "description": "תיאור",
+        "timeline": "ציר זמן",
+        "share": "שתף פרופיל חיית מחמד"
+      },
+      "actions": {
+        "editPet": "ערוך חיית מחמד",
+        "attachTag": "חבר תג",
+        "deletePet": "מחק חיית מחמד",
+        "deleting": "מוחק...",
+        "copyLink": "העתק קישור",
+        "share": "שתף"
+      },
+      "messages": {
+        "profileCreated": "הפרופיל נוצר",
+        "lastUpdated": "עודכן לאחרונה",
+        "shareDescription": "שתף פרופיל זה עם אחרים",
+        "deleteConfirm": "הסר לצמיתות את הפרופיל של {petName}",
+        "petDeleted": "חיית המחמד נמחקה בהצלחה",
+        "deleteFailed": "מחיקת חיית המחמד נכשלה",
+        "linkCopied": "הקישור הועתק ללוח!",
+        "copyFailed": "העתקת הקישור נכשלה"
+      }
+    },
     "UserSettingsPage": {
       "back": "חזור",
       "title": "הגדרות",

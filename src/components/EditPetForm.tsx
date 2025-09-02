@@ -224,7 +224,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {formData.imageUrl && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">
-                      Current Photo
+{t('form.currentPhoto')}
                     </Label>
                     <div className="relative w-32 h-32 mx-auto">
                       <Image
@@ -240,7 +240,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {/* Image Upload */}
                 <div className="space-y-2">
                   <Label htmlFor="image" className="text-sm font-medium text-gray-700">
-                    {formData.imageUrl ? 'Change Photo' : 'Upload Photo'}
+{formData.imageUrl ? t('form.changePhoto') : t('form.uploadPhoto')}
                   </Label>
                   <div className="flex items-center justify-center w-full">
                     <label
@@ -250,9 +250,9 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-8 h-8 mb-4 text-gray-500" />
                         <p className="mb-2 text-sm text-gray-500">
-                          <span className="font-semibold">Click to upload</span> or drag and drop
+                          <span className="font-semibold">{t('form.uploadPrompt')}</span>
                         </p>
-                        <p className="text-xs text-gray-500">PNG, JPG or GIF (MAX. 10MB)</p>
+                        <p className="text-xs text-gray-500">{t('form.imageRequirements')}</p>
                       </div>
                       <input
                         id="image"

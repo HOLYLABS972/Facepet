@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +40,7 @@ interface PetProfilePageProps {
 export default function PetProfilePage({ pet }: PetProfilePageProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const t = useTranslations('pages.PetProfilePage');
   const [copied, setCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -48,11 +50,11 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
     setIsDeleting(true);
     try {
       await deleteDoc(doc(db, 'pets', pet.id));
-      toast.success('Pet deleted successfully');
+      toast.success(t('messages.petDeleted'));
       router.push('/pages/my-pets');
     } catch (error) {
       console.error('Error deleting pet:', error);
-      toast.error('Failed to delete pet');
+      toast.error(t('messages.deleteFailed'));
     } finally {
       setIsDeleting(false);
     }
@@ -63,10 +65,10 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
     try {
       await navigator.clipboard.writeText(petShareUrl);
       setCopied(true);
-      toast.success('Link copied to clipboard!');
+      toast.success(t('messages.linkCopied'));
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error('Failed to copy link');
+      toast.error(t('messages.copyFailed'));
     }
   };
 
@@ -120,7 +122,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               </Button>
               <div>
                 <h1 className="text-xl font-bold">{pet.name}</h1>
-                <p className="text-sm text-gray-600">Pet Profile</p>
+                <p className="text-sm text-gray-600">{t('subtitle')}</p>
               </div>
             </div>
             
@@ -138,11 +140,11 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/edit`)}>
                     <Edit className="mr-2 h-4 w-4" />
-                    Edit Pet
+{t('actions.editPet')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
                     <Wifi className="mr-2 h-4 w-4" />
-                    Attach Tag
+{t('actions.attachTag')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -198,32 +200,32 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Heart className="w-5 h-5 text-red-500" />
-                    <span>Basic Information</span>
+                    <span>{t('sections.basicInformation')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium text-gray-600">Name</span>
+                      <span className="font-medium text-gray-600">{t('labels.name')}</span>
                       <span className="font-semibold">{pet.name}</span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium text-gray-600">Type</span>
+                      <span className="font-medium text-gray-600">{t('labels.type')}</span>
                       <span className="font-semibold capitalize">{pet.type}</span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium text-gray-600">Breed</span>
+                      <span className="font-medium text-gray-600">{t('labels.breed')}</span>
                       <span className="font-semibold">{pet.breedName}</span>
                     </div>
                     {pet.age && (
                       <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <span className="font-medium text-gray-600">Age</span>
+                        <span className="font-medium text-gray-600">{t('labels.age')}</span>
                         <span className="font-semibold">{pet.age}</span>
                       </div>
                     )}
                     {pet.gender && (
                       <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <span className="font-medium text-gray-600">Gender</span>
+                        <span className="font-medium text-gray-600">{t('labels.gender')}</span>
                         <span className="font-semibold capitalize">{pet.gender}</span>
                       </div>
                     )}
@@ -344,12 +346,12 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <Trash2 className="w-5 h-5 text-red-500" />
-                      <span>Delete Pet</span>
+                      <span>{t('actions.deletePet')}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <p className="text-sm text-gray-600">
-                      Permanently remove {pet.name}'s profile
+{t('messages.deleteConfirm', { petName: pet.name })}
                     </p>
                     <Button
                       onClick={handleDeletePet}
@@ -360,12 +362,12 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                       {isDeleting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Deleting...
+{t('actions.deleting')}
                         </>
                       ) : (
                         <>
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Pet
+{t('actions.deletePet')}
                         </>
                       )}
                     </Button>

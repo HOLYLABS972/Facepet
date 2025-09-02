@@ -135,6 +135,30 @@
         "photoType": "Please select a valid image file"
       }
     },
+    "edit": {
+      "title": "Edit Pet",
+      "subtitle": "Update your pet's information",
+      "form": {
+        "name": "Pet Name",
+        "type": "Pet Type",
+        "breed": "Breed",
+        "selectBreed": "Select breed",
+        "currentPhoto": "Current Photo",
+        "changePhoto": "Change Photo",
+        "uploadPhoto": "Upload Photo",
+        "uploadPrompt": "Click to upload or drag and drop",
+        "imageRequirements": "PNG, JPG or GIF (MAX 10MB)"
+      },
+      "buttons": {
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "petUpdated": "Pet updated successfully!",
+        "updateFailed": "Failed to update pet"
+      }
+    },
     "nfcTag": {
       "title": "NFC Tag Connection",
       "subtitle": "Create a pet profile for sharing",
@@ -191,12 +215,38 @@
         "contact": "Contact",
         "email": "Email",
         "address": "Address",
-        "private": "Private"
+        "private": "Private",
+        "type": "Type"
       },
       "tabs": {
         "pet": "Pet",
         "owner": "Owner",
         "vet": "Vet"
+      },
+      "subtitle": "Pet Profile",
+      "sections": {
+        "basicInformation": "Basic Information",
+        "description": "Description",
+        "timeline": "Timeline",
+        "share": "Share Pet Profile"
+      },
+      "actions": {
+        "editPet": "Edit Pet",
+        "attachTag": "Attach Tag",
+        "deletePet": "Delete Pet",
+        "deleting": "Deleting...",
+        "copyLink": "Copy Link",
+        "share": "Share"
+      },
+      "messages": {
+        "profileCreated": "Profile Created",
+        "lastUpdated": "Last Updated",
+        "shareDescription": "Share this profile with others",
+        "deleteConfirm": "Permanently remove {petName}'s profile",
+        "petDeleted": "Pet deleted successfully",
+        "deleteFailed": "Failed to delete pet",
+        "linkCopied": "Link copied to clipboard!",
+        "copyFailed": "Failed to copy link"
       },
       "popup": {
         "title": "Gift a FacePet",
