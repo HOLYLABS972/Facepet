@@ -7,7 +7,7 @@ import GetStartedProgressDots from '@/components/get-started/ui/GetStartedProgre
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from '@/i18n/routing';
-import { signUp } from '@/src/lib/actions/auth';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { SignUpSchema, getSignUpSchema } from '@/utils/validation/signUp';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
@@ -23,6 +23,7 @@ const SignUpPage = () => {
   const t = useTranslations('pages.SignUpPage');
   const locale = useLocale();
   const router = useRouter();
+  const { signUp } = useAuth();
   const signUpSchema = getSignUpSchema(t);
 
   const [loading, setLoading] = React.useState(false);
@@ -59,23 +60,19 @@ const SignUpPage = () => {
 
   const onSubmit = async (data: SignUpSchema) => {
     setLoading(true);
-    const authCredentials = {
-      email: data.emailAddress,
-      phone: data.phoneNumber,
-      password: data.password,
-      fullName: data.fullName
-    };
-
-    // Sign up the user (this now also generates the verification code)
-    const result = await signUp(authCredentials);
-    if (result.success) {
-      // Redirect to the confirmation page with the email in the query string.
-      router.push(`/auth/confirmation`);
-      toast.success('Signed up successfully');
-    } else {
-      onError(result.error || 'Verification failed');
+    try {
+      // Use Firebase Auth to sign up the user
+      await signUp(data.emailAddress, data.password, data.fullName);
+      
+      // Redirect to the dashboard after successful sign up
+      router.push('/pages/my-pets');
+      toast.success('Signed up successfully!');
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      onError(error.message || 'Sign up failed');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

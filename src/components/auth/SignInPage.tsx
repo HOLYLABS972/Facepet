@@ -6,7 +6,7 @@ import GetStartedInput from '@/components/get-started/ui/GetStartedInput';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from '@/i18n/routing';
 import { usePetId } from '@/src/hooks/use-pet-id';
-import { signInWithCredentials } from '@/src/lib/actions/auth';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { SignInSchema, signInSchema } from '@/utils/validation/signIn';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -19,6 +19,7 @@ const SignInPage = () => {
   const t = useTranslations('pages.SignInPage');
   const router = useRouter();
   const { petId } = usePetId();
+  const { signIn } = useAuth();
   const [loading, setLoading] = React.useState(false);
 
   const {
@@ -44,22 +45,18 @@ const SignInPage = () => {
   const onSubmit = async (data: SignInSchema) => {
     setLoading(true);
     try {
-      const authCredentials = {
-        email: data.emailAddress,
-        password: data.password
-      };
-
-      const result = await signInWithCredentials(authCredentials);
-      if (result.success) {
-        toast.success('Signed in successfully');
-        if (petId != null) {
-          router.push(`/pet/${petId}/get-started/register`);
-        } else {
-          router.push('/pages/my-pets');
-        }
+      // Use Firebase Auth to sign in the user
+      await signIn(data.emailAddress, data.password);
+      
+      toast.success('Signed in successfully');
+      if (petId != null) {
+        router.push(`/pet/${petId}/get-started/register`);
       } else {
-        toast.error(result.error || 'Verification failed');
+        router.push('/pages/my-pets');
       }
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      toast.error(error.message || 'Sign in failed');
     } finally {
       setLoading(false);
     }
