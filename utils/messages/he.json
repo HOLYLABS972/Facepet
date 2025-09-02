@@ -509,7 +509,9 @@
       "signUpSuccess": "החשבון נוצר בהצלחה!",
       "signInSuccessGoogle": "התחברתם עם Google בהצלחה!",
       "authError": "האימות נכשל",
-      "authErrorGoogle": "אימות Google נכשל"
+      "authErrorGoogle": "אימות Google נכשל",
+      "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם.",
+      "loading": "טוען..."
     },
     "EmailVerification": {
       "title": "אמתו את האימייל שלכם",

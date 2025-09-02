@@ -143,6 +143,14 @@
       "languageDescription": "Choose your preferred language for the interface",
       "saveChanges": "Save Changes",
       "saving": "Saving...",
+      "deleteAccount": {
+        "button": "Delete Account",
+        "deleting": "Deleting...",
+        "confirmTitle": "Delete Account",
+        "confirmMessage": "Are you sure you want to delete your account? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete Account"
+      },
       "form": {
         "FullName": "Full Name",
         "PhoneNumber": "Phone Number",
@@ -295,7 +303,9 @@
       "signUpSuccess": "Account created successfully!",
       "signInSuccessGoogle": "Signed in with Google successfully!",
       "authError": "Authentication failed",
-      "authErrorGoogle": "Google authentication failed"
+      "authErrorGoogle": "Google authentication failed",
+      "verificationCodeSent": "Verification code sent! Please check your email.",
+      "loading": "Loading..."
     },
     "EmailVerification": {
       "title": "Verify Your Email",
