@@ -13,6 +13,29 @@
       "total": "סה״כ",
       "points": "נקודות",
       "claimPrize": "קבל פרס"
+    },
+    "PointsExplenationPopup": {
+      "phases": {
+        "share": {
+          "title": "משתפים וצוברים נקודות",
+          "text": "שתפו את האפליקציה עם חברים וצברו נקודות."
+        },
+        "earn": {
+          "title": "צוברים 30 נקודות",
+          "text": "צברו 30 נקודות כדי לקבל פרסים."
+        },
+        "benefits": {
+          "title": "מקבלים הטבות",
+          "text": "השתמשו בנקודות שלכם כדי לקבל הטבות שוות."
+        }
+      },
+      "understood": "הבנתי"
+    },
+    "InviteFriendsCard": {
+      "shareTitle": "הצטרף ל-FacePet",
+      "shareText": "שתף עם חברים וקבל נקודות!",
+      "linkCopied": "הלינק הועתק ללוח!",
+      "shareError": "משהו השתבש"
     }
   },
   "Pet": {

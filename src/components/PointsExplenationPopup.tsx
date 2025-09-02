@@ -13,6 +13,8 @@ import { Button } from './ui/button';
 const PointsExplenationPopup: React.FC<{ onClose: () => void }> = ({
   onClose
 }) => {
+  const t = useTranslations('components.PointsExplenationPopup');
+  
   useEffect(() => {
     document.body.style.overflow = 'hidden';
 
@@ -24,20 +26,20 @@ const PointsExplenationPopup: React.FC<{ onClose: () => void }> = ({
   const phases = [
     {
       icon: <Share2 size={60} className="mx-auto block" />,
-      title: 'משתפים וצוברים נקודות',
-      text: 'שתפו את האפליקציה עם חברים וצברו נקודות.',
+      title: t('phases.share.title'),
+      text: t('phases.share.text'),
       position: 'right'
     },
     {
       icon: <Star size={60} className="mx-auto block" />,
-      title: 'צוברים 1000 נקודות',
-      text: 'צברו 1000 נקודות כדי להתקדם לשלב הבא.',
+      title: t('phases.earn.title'),
+      text: t('phases.earn.text'),
       position: 'left'
     },
     {
       icon: <Award size={60} className="mx-auto block" />,
-      title: 'מקבלים הטבות',
-      text: 'השתמשו בנקודות שלכם כדי לקבל הטבות שוות.',
+      title: t('phases.benefits.title'),
+      text: t('phases.benefits.text'),
       position: 'right'
     }
   ];
@@ -78,7 +80,7 @@ const PointsExplenationPopup: React.FC<{ onClose: () => void }> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: (phases.length + 1) * 0.5, duration: 0.5 }}
         >
-          <Button onClick={onClose}>הבנתי</Button>
+          <Button onClick={onClose}>{t('understood')}</Button>
         </motion.div>
       </motion.div>
     </div>

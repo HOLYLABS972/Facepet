@@ -42,6 +42,29 @@
       "total": "Total",
       "points": "points",
       "claimPrize": "Claim Prize"
+    },
+    "PointsExplenationPopup": {
+      "phases": {
+        "share": {
+          "title": "Share and Earn Points",
+          "text": "Share the app with friends and earn points."
+        },
+        "earn": {
+          "title": "Earn 30 Points",
+          "text": "Earn 30 points to get prizes."
+        },
+        "benefits": {
+          "title": "Get Benefits",
+          "text": "Use your points to get great benefits."
+        }
+      },
+      "understood": "Got it"
+    },
+    "InviteFriendsCard": {
+      "shareTitle": "Join FacePet",
+      "shareText": "Share with friends and earn points!",
+      "linkCopied": "Link copied to clipboard!",
+      "shareError": "Something went wrong"
     }
   },
   "Pet": {

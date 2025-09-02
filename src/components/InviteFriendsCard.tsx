@@ -12,35 +12,32 @@ interface InviteFriendsCardProps {
 }
 
 const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
-  const t = useTranslations('pages.MyPetsPage');
+  const t = useTranslations('components.InviteFriendsCard');
   const [shared, setShared] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
 
   const handleShare = async () => {
-    // Get the current page URL and title safely
-    const shareUrl = process.env.NEXT_PUBLIC_APP_URL!;
+    // Use the correct website URL
+    const shareUrl = 'https://facepet-kappa.vercel.app';
     const shareData = {
-      title: 'הצטרף ל-Facepet',
-      text: 'שתף עם חברים וקבל נקודות!',
+      title: t('shareTitle'),
+      text: t('shareText'),
       url: shareUrl
     };
 
     try {
-      if (navigator.canShare(shareData)) {
+      if (navigator.canShare && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
-        navigator.clipboard
-          .writeText(shareData.text + '\n' + shareData.url)
-          .then(() => {
-            toast.success('הלינק הועתק ללוח');
-          })
-          .catch(() => {
-            toast.error('something went wrong');
-          });
+        // Fallback: copy the full share text with URL to clipboard
+        const fullShareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+        await navigator.clipboard.writeText(fullShareText);
+        toast.success(t('linkCopied'));
       }
       setShared(true);
     } catch (err) {
-      console.error('Failed to copy link:', err);
+      console.error('Failed to share:', err);
+      toast.error(t('shareError'));
     }
   };
 
