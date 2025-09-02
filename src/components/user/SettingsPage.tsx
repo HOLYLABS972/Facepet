@@ -602,15 +602,18 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-                {/* Account Management Section */}
-        <Card className="mb-6 shadow-xl border-red-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">
-              <User className="h-5 w-5" />
-              Account Management
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        {/* Delete Account Button */}
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={deletingAccount}
+            className="w-full border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            {deletingAccount ? 'Deleting...' : 'Delete Account'}
+          </Button>
+        </div>
 
         {/* Save Button */}
         <div className="flex justify-end">
@@ -633,6 +636,38 @@ export default function SettingsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Delete Account Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+            <div className="flex items-center mb-4">
+              <Trash2 className="w-6 h-6 text-gray-500 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-800">Delete Account</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              This will permanently delete your account and all data.
+            </p>
+            <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="flex-1"
+              >
+                {deletingAccount ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
