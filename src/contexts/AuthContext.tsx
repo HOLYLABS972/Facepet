@@ -131,13 +131,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const sendVerificationCode = async (email: string) => {
     try {
-      // Call the external OTP API directly
+      // Call your external OTP API
       const response = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
       const data = await response.json();
       
       if (data.verification_code) {
-        // Store the OTP code in frontend state
+        // Store the OTP code in frontend state for comparison
         setStoredOTPCode(data.verification_code);
+        console.log('Verification code sent and stored:', data.verification_code);
+        return { success: true, message: data.message };
       } else {
         throw new Error('Failed to get verification code from API');
       }
