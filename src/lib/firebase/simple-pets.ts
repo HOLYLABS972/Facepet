@@ -1,14 +1,4 @@
-impointerface SimplePetData {
-  name?: string;
-  type?: string;
-  breedId?: string;
-  breedName?: string;
-  imageUrl?: string;
-  description?: string;
-  age?: string;
-  gender?: string;
-  updatedAt?: Date;
-} from './config';
+import { db } from './config';
 import { collection, addDoc, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 
@@ -16,10 +6,12 @@ export interface SimplePetData {
   name: string;
   type: string;
   breedName: string;
+  breedId?: string;
   imageUrl: string;
   description?: string;
   age?: string;
   gender?: string;
+  updatedAt?: Date;
 }
 
 export interface SimplePet {

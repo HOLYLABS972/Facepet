@@ -64,7 +64,8 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
 
   const handleRecordTag = async () => {
     if (!('NDEFReader' in window)) {
-      toast.error('NFC is not supported on this device');
+      toast.error('NFC is not supported on this device. Please use a device with NFC capabilities.');
+      setNfcSupported(false);
       return;
     }
 
@@ -217,20 +218,12 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {!nfcSupported ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                  <p className="text-yellow-800">
-                    NFC is not supported on this device. Please use a device with NFC capabilities.
-                  </p>
-                </div>
-              ) : (
-                <p className="text-gray-600 mb-4">
-                  Tap the button below and then tap your phone to the NFC tag to record {pet.name}'s information.
-                </p>
-              )}
+              <p className="text-gray-600 mb-4">
+                Tap the button below and then tap your phone to the NFC tag to record {pet.name}'s information.
+              </p>
               <Button
                 onClick={handleRecordTag}
-                disabled={isRecording || isRecorded || !nfcSupported}
+                disabled={isRecording || isRecorded}
                 className="w-full"
                 size="lg"
               >
