@@ -14,6 +14,7 @@ import PhoneNumberBottomSheet from './PhoneNumberBottomSheet';
 import AdminNotificationCard from './AdminNotificationCard';
 import PointsBreakdownNotification from './PointsBreakdownNotification';
 import PrizeClaimNotification from './PrizeClaimNotification';
+import EarningNotification from './notifications/EarningNotification';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useRouter } from '@/i18n/routing';
@@ -48,8 +49,29 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [hasAddedPet, setHasAddedPet] = useState(false); // Track if user has added a pet
   const [showPrizeNotification, setShowPrizeNotification] = useState(false);
   
+  // Individual earning notifications
+  const [showRegistrationEarning, setShowRegistrationEarning] = useState(false);
+  const [showPhoneEarning, setShowPhoneEarning] = useState(false);
+  const [showPetEarning, setShowPetEarning] = useState(false);
+  const [showShareEarning, setShowShareEarning] = useState(false);
+  
   // Use ref to track previous pets count to avoid multiple point awards
   const previousPetsCountRef = useRef(0);
+  
+  // Show registration earning notification for new users
+  useEffect(() => {
+    if (user && !loading) {
+      // Check if this is a new user (no pets and no phone number)
+      // You can add more sophisticated logic here to detect new users
+      const isNewUser = pets.length === 0 && !user.phoneNumber;
+      if (isNewUser) {
+        // Show registration earning notification after a short delay
+        setTimeout(() => {
+          setShowRegistrationEarning(true);
+        }, 1000);
+      }
+    }
+  }, [user, loading, pets.length]);
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -89,8 +111,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               setHasAddedPet(true);
               // Update points breakdown
               setPointsBreakdown(prev => ({ ...prev, pet: prev.pet + 10 }));
-              // Show points breakdown notification
-              setShowPointsBreakdown(true);
+              // Show individual pet earning notification
+              setShowPetEarning(true);
               console.log('User added a pet! Awarded 10 points. Total points:', userPoints + 10);
             }
             
@@ -188,14 +210,14 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const handlePhoneAdded = (phone: string) => {
     // Hide the phone bottom sheet since user has added their phone
     setShowPhoneBottomSheet(false);
-    // Add 10 points for completing phone setup
-    setUserPoints(prev => prev + 10);
+    // Add 5 points for completing phone setup
+    setUserPoints(prev => prev + 5);
     // Update points breakdown
-    setPointsBreakdown(prev => ({ ...prev, phone: 10 }));
-    // Show points breakdown notification
-    setShowPointsBreakdown(true);
+    setPointsBreakdown(prev => ({ ...prev, phone: 5 }));
+    // Show individual phone earning notification
+    setShowPhoneEarning(true);
     // Here you could also update the user's profile with the phone number
-    console.log('Phone number added:', phone, 'User earned 10 points!');
+    console.log('Phone number added:', phone, 'User earned 5 points!');
   };
 
   // Function to show prize notification (for external calls)
@@ -238,6 +260,35 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-4">{t('notifications')}</h2>
         
+        {/* Individual Earning Notifications */}
+        <EarningNotification
+          onClose={() => setShowRegistrationEarning(false)}
+          points={30}
+          action="registration"
+          isVisible={showRegistrationEarning}
+        />
+        
+        <EarningNotification
+          onClose={() => setShowPhoneEarning(false)}
+          points={5}
+          action="phoneSetup"
+          isVisible={showPhoneEarning}
+        />
+        
+        <EarningNotification
+          onClose={() => setShowPetEarning(false)}
+          points={10}
+          action="addPet"
+          isVisible={showPetEarning}
+        />
+        
+        <EarningNotification
+          onClose={() => setShowShareEarning(false)}
+          points={5}
+          action="share"
+          isVisible={showShareEarning}
+        />
+        
         {/* Share with Friends - always show */}
         <div className="mb-4">
           <InviteFriendsCard 
@@ -247,8 +298,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               setUserPoints(prev => prev + 5);
               // Update points breakdown
               setPointsBreakdown(prev => ({ ...prev, share: (prev.share || 0) + 5 }));
-              // Show points breakdown notification
-              setShowPointsBreakdown(true);
+              // Show individual share earning notification
+              setShowShareEarning(true);
               console.log('User shared the app! Awarded 5 points. Total points:', userPoints + 5);
             }}
           />

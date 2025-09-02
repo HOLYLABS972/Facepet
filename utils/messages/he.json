@@ -656,6 +656,15 @@
       "points": "נקודות",
       "claimPrize": "קבל פרס"
     },
+    "EarningNotification": {
+      "title": "🎉 נקודות הרווחת!",
+      "registration": "עבור הרשמה",
+      "phoneSetup": "עבור הגדרת טלפון",
+      "addPet": "עבור הוספת חיית מחמד",
+      "share": "עבור שיתוף האפליקציה",
+      "points": "נקודות",
+      "earned": "הרווחת"
+    },
     "GoBackButton": { "buttonLabel": "חזור אחורה" }
   }
 }

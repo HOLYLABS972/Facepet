@@ -450,6 +450,15 @@
       "points": "points",
       "claimPrize": "Claim Prize"
     },
+    "EarningNotification": {
+      "title": "🎉 Points Earned!",
+      "registration": "for registration",
+      "phoneSetup": "for phone setup",
+      "addPet": "for adding a pet",
+      "share": "for sharing the app",
+      "points": "points",
+      "earned": "earned"
+    },
     "GoBackButton": { "buttonLabel": "Go Back" }
   }
 }
