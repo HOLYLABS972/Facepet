@@ -142,8 +142,7 @@ export default function AddNewPetForm() {
         imageUrl: formData.imageUrl,
         description: '',
         age: '',
-        gender: '',
-        notes: ''
+        gender: ''
       };
 
       console.log('Creating pet with data:', petData);

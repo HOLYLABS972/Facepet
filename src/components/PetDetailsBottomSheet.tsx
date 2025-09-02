@@ -23,7 +23,6 @@ interface Pet {
   description?: string;
   age?: string;
   gender?: string;
-  notes?: string;
 }
 
 interface PetDetailsBottomSheetProps {
@@ -129,12 +128,7 @@ export default function PetDetailsBottomSheet({
                 </div>
               )}
               
-              {pet.notes && (
-                <div>
-                  <span className="font-medium text-gray-600 block mb-1">Notes:</span>
-                  <p className="text-sm text-gray-700">{pet.notes}</p>
-                </div>
-              )}
+
             </CardContent>
           </Card>
 

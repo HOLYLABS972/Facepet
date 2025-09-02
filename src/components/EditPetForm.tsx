@@ -25,7 +25,6 @@ interface Pet {
   description?: string;
   age?: string;
   gender?: string;
-  notes?: string;
 }
 
 interface EditPetFormProps {
@@ -41,7 +40,6 @@ interface PetFormData {
   description: string;
   age: string;
   gender: string;
-  notes: string;
 }
 
 interface UploadProgress {
@@ -67,7 +65,6 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     description: pet.description || '',
     age: pet.age || '',
     gender: pet.gender || '',
-    notes: pet.notes || '',
   });
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
     progress: 0,
@@ -138,7 +135,6 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
         description: formData.description,
         age: formData.age,
         gender: formData.gender,
-        notes: formData.notes,
       };
 
       await updatePetInFirestore(pet.id, petData);
@@ -346,20 +342,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                   </div>
                 </div>
 
-                {/* Notes */}
-                <div className="space-y-2">
-                  <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
-                    Notes
-                  </Label>
-                  <textarea
-                    id="notes"
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
-                    placeholder="Any additional notes about your pet..."
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  />
-                </div>
+
 
                 {/* Action Buttons - Leading and Opposite Side */}
                 <div className="flex justify-between items-center pt-6">

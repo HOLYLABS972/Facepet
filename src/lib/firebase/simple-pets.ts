@@ -10,7 +10,6 @@ export interface SimplePetData {
   description?: string;
   age?: string;
   gender?: string;
-  notes?: string;
 }
 
 export interface SimplePet {
@@ -22,7 +21,6 @@ export interface SimplePet {
   description?: string;
   age?: string;
   gender?: string;
-  notes?: string;
   userEmail: string;
   createdAt: Date;
   updatedAt: Date;
@@ -48,7 +46,6 @@ export async function createPetInFirestore(
       description: petData.description || '',
       age: petData.age || '',
       gender: petData.gender || '',
-      notes: petData.notes || '',
       userEmail: user.email,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -137,7 +134,6 @@ export async function getPetById(
         description: data.description,
         age: data.age,
         gender: data.gender,
-        notes: data.notes,
         userEmail: data.userEmail,
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date()
