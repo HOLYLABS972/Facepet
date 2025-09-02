@@ -350,8 +350,8 @@ function getActionMessage(actionType: Notification['actionType'], points: number
 }
 
 /**
- * Create notification and add points transaction
- * This function creates both the notification and the points transaction
+ * Create notification (without points transactions)
+ * This function creates only the notification
  */
 export async function createNotificationWithPoints(
   user: User,
@@ -362,37 +362,16 @@ export async function createNotificationWithPoints(
       return { success: false, error: 'User not authenticated' };
     }
 
-    // Import points functions
-    const { addPointsToCategory } = await import('./points');
-    
-    const points = 10; // Fixed 10 points per notification
-
-    // Create notification
+    // Create notification only (no points transactions)
     const notificationResult = await createActionNotification(user, actionType);
     if (!notificationResult.success) {
       return { success: false, error: 'Failed to create notification' };
     }
 
-    // Add points transaction
-    const pointsResult = await addPointsToCategory(
-      user, 
-      actionType === 'phone_setup' ? 'phone' : 
-      actionType === 'add_pet' ? 'pet' : 
-      actionType === 'share' ? 'share' : 'registration',
-      points,
-      `Notification: ${actionType}`,
-      { actionType }
-    );
-
-    if (!pointsResult.success) {
-      console.error('Failed to add points for notification:', pointsResult.error);
-      // Don't fail the whole operation if points fail
-    }
-
-    console.log(`Created notification with ${points} points for ${actionType}`);
+    console.log(`Created notification for ${actionType}`);
     return { success: true };
   } catch (error: any) {
-    console.error('Error creating notification with points:', error);
-    return { success: false, error: 'Failed to create notification with points' };
+    console.error('Error creating notification:', error);
+    return { success: false, error: 'Failed to create notification' };
   }
 }

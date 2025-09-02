@@ -3,41 +3,40 @@ import { createNotificationWithPoints } from './notifications';
 
 /**
  * Helper functions for common notification scenarios
- * Each notification gives 10 points
+ * Notifications are created without points transactions
  */
 
 /**
- * Create registration notification (10 points)
+ * Create registration notification
  */
 export async function createRegistrationNotification(user: User) {
   return await createNotificationWithPoints(user, 'registration');
 }
 
 /**
- * Create phone setup notification (10 points)
+ * Create phone setup notification
  */
 export async function createPhoneSetupNotification(user: User) {
   return await createNotificationWithPoints(user, 'phone_setup');
 }
 
 /**
- * Create add pet notification (10 points)
+ * Create add pet notification
  */
 export async function createAddPetNotification(user: User) {
   return await createNotificationWithPoints(user, 'add_pet');
 }
 
 /**
- * Create share notification (10 points)
+ * Create share notification
  * Note: This is for non-share-button sharing (like manual sharing)
- * Share button should still use hardcoded points as requested
  */
 export async function createShareNotification(user: User) {
   return await createNotificationWithPoints(user, 'share');
 }
 
 /**
- * Create prize claim notification (10 points)
+ * Create prize claim notification
  */
 export async function createPrizeClaimNotification(user: User) {
   return await createNotificationWithPoints(user, 'prize_claim');

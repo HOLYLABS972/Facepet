@@ -53,20 +53,24 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   
   // Use ref to track previous pets count to avoid multiple point awards
   const previousPetsCountRef = useRef(0);
+  // Use ref to track if we've already created registration notification
+  const registrationNotificationCreatedRef = useRef(false);
   
   // Create registration notification for new users
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && !registrationNotificationCreatedRef.current) {
       // Check if this is a new user (no pets and no phone number)
       const isNewUser = pets.length === 0 && !user.phoneNumber;
       if (isNewUser) {
-        // Create registration notification with 10 points
+        // Mark that we've created the notification to prevent loops
+        registrationNotificationCreatedRef.current = true;
+        // Create registration notification
         setTimeout(async () => {
           await createActionNotification('registration');
         }, 1000);
       }
     }
-  }, [user, loading, pets.length, createActionNotification]);
+  }, [user, loading, pets.length]);
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -201,10 +205,10 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const handlePhoneAdded = async (phone: string) => {
     // Hide the phone bottom sheet since user has added their phone
     setShowPhoneBottomSheet(false);
-    // Create phone setup notification with 10 points
+    // Create phone setup notification
     await createActionNotification('phone_setup');
     // Here you could also update the user's profile with the phone number
-    console.log('Phone number added:', phone, 'Created notification with 10 points!');
+    console.log('Phone number added:', phone, 'Created notification!');
   };
 
   // Function to show prize notification (for external calls)
