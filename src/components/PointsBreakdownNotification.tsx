@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Coins, X } from 'lucide-react';
-import React, { useState } from 'react';
+import { Coins } from 'lucide-react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '../lib/utils';
@@ -24,18 +24,9 @@ const PointsBreakdownNotification: React.FC<PointsBreakdownNotificationProps> = 
   petPoints,
   onClaimPrize
 }) => {
-  const [isClosed, setIsClosed] = useState(false);
   const router = useRouter();
   const t = useTranslations('components.PointsBreakdownNotification');
   const iconSectionWidth = 100; // width reserved for the icon
-
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsClosed(true);
-    if (onClose) {
-      onClose();
-    }
-  };
 
   const handleClaimPrize = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -46,23 +37,12 @@ const PointsBreakdownNotification: React.FC<PointsBreakdownNotificationProps> = 
     router.push('/pages/my-gifts');
   };
 
-  if (isClosed) {
-    return null;
-  }
-
   return (
     <div className="relative h-22 rounded-2xl overflow-hidden">
       {/* Glass morphism background - same as InviteFriendsCard */}
       <div className="border-gray absolute inset-0 rounded-2xl border bg-white shadow-sm" />
 
-      {/* Close button */}
-      <button
-        onClick={handleClose}
-        className="absolute top-2 right-2 z-20 p-1 rounded-full hover:bg-gray-100 transition-colors"
-        aria-label="Close notification"
-      >
-        <X className="h-4 w-4 text-gray-500" />
-      </button>
+
 
       {/* Content */}
       <div className="relative z-10 flex h-full">

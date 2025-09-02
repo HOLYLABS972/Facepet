@@ -6,7 +6,7 @@ import PetDetailsBottomSheet from '@/components/PetDetailsBottomSheet';
 import { User, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import PhoneNumberBottomSheet from './PhoneNumberBottomSheet';
@@ -52,6 +52,9 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     phone: 0,
     pet: 0
   });
+  
+  // Use ref to track previous pets count to avoid multiple point awards
+  const previousPetsCountRef = useRef(0);
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -82,7 +85,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
             });
             
             // Check if user just added a pet (pets count increased)
-            const previousPetsCount = pets.length;
+            const previousPetsCount = previousPetsCountRef.current;
             const currentPetsCount = petsData.length;
             
             if (currentPetsCount > previousPetsCount && previousPetsCount > 0) {
@@ -96,10 +99,14 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               console.log('User added a pet! Awarded 10 points. Total points:', userPoints + 10);
             }
             
+            // Update the ref with the current count
+            previousPetsCountRef.current = currentPetsCount;
+            
             setPets(petsData);
           } else {
             console.log('No pets found for user');
             setPets([]);
+            previousPetsCountRef.current = 0;
           }
         } catch (error) {
           console.log('Error fetching pets from Firestore:', error);
@@ -208,6 +215,11 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     }
   }, []);
 
+  // Debug: Log current points whenever they change
+  useEffect(() => {
+    console.log('Current user points:', userPoints);
+  }, [userPoints]);
+
 
 
   return (
@@ -298,13 +310,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         
 
         
-        {/* Show "No new notifications" only when there are no notifications at all */}
-        {adminNotifications.length === 0 && !showPointsBreakdown && !showPrizeNotification && (
-          <div className="text-center py-8">
-            <div className="text-gray-400 text-4xl mb-2">🔔</div>
-            <p className="text-gray-500">{t('noNotifications')}</p>
-          </div>
-        )}
+
       </div>
 
       {/* My Pets Header */}

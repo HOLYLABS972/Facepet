@@ -1,7 +1,7 @@
 'use client';
 
-import { motion, PanInfo } from 'framer-motion';
-import { Check, Share2, Trash2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Check, Share2 } from 'lucide-react';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { cn } from '../lib/utils';
@@ -14,25 +14,7 @@ interface InviteFriendsCardProps {
 const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
   const t = useTranslations('pages.MyPetsPage');
   const [shared, setShared] = useState(false);
-  const [isClosed, setIsClosed] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
-
-  const handleClose = () => {
-    setIsDeleting(true);
-    setTimeout(() => {
-      setIsClosed(true);
-      if (onClose) {
-        onClose();
-      }
-    }, 300);
-  };
-
-  const handleDragEnd = (event: any, info: PanInfo) => {
-    if (info.offset.x < -100) {
-      handleClose();
-    }
-  };
 
   const handleShare = async () => {
     // Get the current page URL and title safely
@@ -62,30 +44,10 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
     }
   };
 
-  if (isClosed) return null;
-
   return (
     <div className="relative h-22 rounded-2xl overflow-hidden">
-      {/* Delete Background */}
+      {/* Non-removable Card */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isDeleting ? 1 : 0 }}
-        className="absolute inset-0 bg-red-500 flex items-center justify-end pr-4"
-      >
-        <Trash2 className="w-6 h-6 text-white" />
-      </motion.div>
-
-      {/* Swipeable Card */}
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.2}
-        onDragEnd={handleDragEnd}
-        animate={{ 
-          x: isDeleting ? -300 : 0,
-          opacity: isDeleting ? 0 : 1
-        }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
         onClick={handleShare}
         className={cn(
           'relative h-full cursor-pointer rounded-2xl transition duration-200 hover:shadow-lg active:shadow-lg',
