@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { motion } from 'motion/react';
-import { ArrowLeft, Shield, Smartphone, Users, Heart } from 'lucide-react';
+import { Shield, Smartphone, Users, Heart } from 'lucide-react';
 import Footer from '@/src/components/layout/Footer';
 
 export default function HowItWorksPage() {
@@ -39,16 +39,7 @@ export default function HowItWorksPage() {
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+          <div className="flex items-center justify-center">
             <h1 className="text-2xl font-bold text-gray-900">How FacePet Works</h1>
           </div>
         </div>
@@ -151,12 +142,12 @@ export default function HowItWorksPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gray-900 text-white py-16">
+      <div className="bg-white text-gray-900 py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">
             Ready to Protect Your Pet?
           </h2>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
             Join thousands of pet owners who trust FacePet to keep their furry friends safe.
           </p>
           <Button

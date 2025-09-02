@@ -187,3 +187,16 @@ export const emailChangeRequests = pgTable('email_change_requests', {
   verified: boolean('verified').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
 });
+
+// Contact Form Submissions Table
+export const contactSubmissions = pgTable('contact_submissions', {
+  id: uuid('id').notNull().primaryKey().defaultRandom().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 50 }),
+  subject: varchar('subject', { length: 255 }).notNull(),
+  message: text('message').notNull(),
+  status: varchar('status', { length: 50 }).notNull().default('pending'), // pending, read, replied
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
+});
