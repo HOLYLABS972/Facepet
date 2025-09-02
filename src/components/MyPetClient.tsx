@@ -125,6 +125,20 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     console.log('Phone number added:', phone);
   };
 
+  const handlePetTap = (petId: string) => {
+    const pet = pets.find(p => p.id === petId);
+    if (pet) {
+      setSelectedPet(pet);
+      setShowPetBottomSheet(true);
+    }
+  };
+
+  const handleDeletePet = (petId: string) => {
+    setPets(prev => prev.filter(pet => pet.id !== petId));
+    setShowPetBottomSheet(false);
+    setSelectedPet(null);
+  };
+
   return (
     <div>
       {/* Welcome Section */}
@@ -164,7 +178,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           <>
             {/* Share with Friends - always show */}
             <div className="mb-4">
-              <InviteFriendsCard />
+              <InviteFriendsCard onClose={() => {}} />
             </div>
             
             {/* Admin Notifications */}
@@ -225,7 +239,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               name={pet.name}
               breed={pet.breed}
               image={pet.image}
-              isEditMode={false}
+              onTap={handlePetTap}
             />
           ))}
         </div>
@@ -239,6 +253,23 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       >
         <Plus className="h-6 w-6 text-white" />
       </Button>
+
+      {/* Bottom Sheets */}
+      <PhoneNumberBottomSheet
+        isOpen={showPhoneBottomSheet}
+        onClose={() => setShowPhoneBottomSheet(false)}
+        onSave={handlePhoneAdded}
+      />
+
+      <PetDetailsBottomSheet
+        isOpen={showPetBottomSheet}
+        onClose={() => {
+          setShowPetBottomSheet(false);
+          setSelectedPet(null);
+        }}
+        pet={selectedPet}
+        onDeletePet={handleDeletePet}
+      />
     </div>
   );
 };
