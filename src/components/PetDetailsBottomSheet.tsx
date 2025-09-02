@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MoreVertical, Edit, X } from 'lucide-react';
+import { MoreVertical, Edit, X, Trash2, Wifi } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -13,6 +13,9 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useRouter } from '@/i18n/routing';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/src/lib/firebase/config';
+import toast from 'react-hot-toast';
 import Image from 'next/image';
 
 interface Pet {
@@ -29,16 +32,32 @@ interface PetDetailsBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   pet: Pet | null;
+  onDeletePet?: (petId: string) => void;
 }
 
 export default function PetDetailsBottomSheet({
   isOpen,
   onClose,
-  pet
+  pet,
+  onDeletePet
 }: PetDetailsBottomSheetProps) {
   const router = useRouter();
 
   if (!pet) return null;
+
+  const handleDeletePet = async () => {
+    try {
+      await deleteDoc(doc(db, 'pets', pet.id));
+      toast.success('Pet deleted successfully');
+      if (onDeletePet) {
+        onDeletePet(pet.id);
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error deleting pet:', error);
+      toast.error('Failed to delete pet');
+    }
+  };
 
 
 
@@ -70,6 +89,14 @@ export default function PetDetailsBottomSheet({
                 <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Pet
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {/* TODO: Implement NFC attachment */}}>
+                  <Wifi className="mr-2 h-4 w-4" />
+                  Attach NFC
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDeletePet} className="text-red-600">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Pet
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -125,6 +152,20 @@ export default function PetDetailsBottomSheet({
                 <div>
                   <span className="font-medium text-gray-600 block mb-1">Description:</span>
                   <p className="text-sm text-gray-700">{pet.description}</p>
+                </div>
+              )}
+              
+              {pet.age && (
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600">Age:</span>
+                  <span>{pet.age}</span>
+                </div>
+              )}
+              
+              {pet.gender && (
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600">Gender:</span>
+                  <span className="capitalize">{pet.gender}</span>
                 </div>
               )}
               

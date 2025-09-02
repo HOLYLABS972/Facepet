@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { uploadPetImage } from '@/src/lib/firebase/simple-upload';
-import { updatePetInFirestore, deletePetFromFirestore } from '@/src/lib/firebase/simple-pets';
+import { updatePetInFirestore } from '@/src/lib/firebase/simple-pets';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Upload, Loader2, CheckCircle, XCircle, Trash2, Save } from 'lucide-react';
+import { Upload, Loader2, CheckCircle, XCircle, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
 import { BreedSelect } from './ui/breed-select';
@@ -71,7 +71,6 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     status: 'completed',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleInputChange = (field: keyof PetFormData, value: string) => {
     setFormData(prev => ({
@@ -149,22 +148,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     }
   };
 
-  const handleDelete = async () => {
-    if (!user) return;
 
-    setIsDeleting(true);
-
-    try {
-      await deletePetFromFirestore(pet.id);
-      toast.success('Pet deleted successfully!');
-      router.push('/pages/my-pets');
-    } catch (error) {
-      console.error('Error deleting pet:', error);
-      toast.error('Failed to delete pet. Please try again.');
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -344,28 +328,8 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
 
 
 
-                {/* Action Buttons - Leading and Opposite Side */}
-                <div className="flex justify-between items-center pt-6">
-                  <Button
-                    type="button"
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    variant="destructive"
-                    className="flex items-center"
-                  >
-                    {isDeleting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete Pet
-                      </>
-                    )}
-                  </Button>
-                  
+                {/* Action Button */}
+                <div className="flex justify-center pt-6">
                   <Button
                     type="submit"
                     disabled={isSubmitting || uploadProgress.status === 'uploading'}
