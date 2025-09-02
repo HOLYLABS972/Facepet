@@ -3,24 +3,16 @@
 import { useDirection } from '@radix-ui/react-direction';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { ArrowRight, Pencil, MoreVertical } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowRight } from 'lucide-react';
 import React from 'react';
 import { cn } from '../lib/utils';
-import { Button } from './ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
 
 interface MyPetCardProps {
   id: string;
   name: string;
   breed: string;
   image: string;
-  isEditMode: boolean;
+  onTap?: (petId: string) => void;
 }
 
 const MyPetCard: React.FC<MyPetCardProps> = ({
@@ -28,15 +20,13 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
   name,
   breed,
   image,
-  isEditMode
+  onTap
 }) => {
-  const router = useRouter();
   const direction = useDirection();
 
   // Fixed dimensions for consistent layout.
   const imageWidth = 100; // in pixels
   const cardHeight = 100; // in pixels
-  const optionsPanelWidth = 90; // width of the options panel (adjust as needed)
 
   // State to track if image has loaded.
   const [imageLoaded, setImageLoaded] = React.useState(false);
@@ -45,22 +35,11 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
     setImageLoaded(true);
   };
 
-  // Only navigate when not in edit mode.
+  // Handle card tap to open bottom sheet
   const handleCardClick = () => {
-    if (!isEditMode) {
-      router.push(`/pet/${id}`);
+    if (onTap) {
+      onTap(id);
     }
-  };
-
-  // Option button click handlers.
-  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    console.log('Delete pet', id);
-  };
-
-  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    router.push(`/pet/${id}/edit`);
   };
 
   return (
@@ -70,30 +49,6 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         `bg-primary relative h-[100px] cursor-pointer rounded-2xl shadow-md transition duration-200 hover:shadow-lg active:shadow-lg`
       )}
     >
-      {/* Options Panel (revealed in edit mode) */}
-      <div
-        className={cn(
-          'absolute top-0 bottom-0 z-10 flex items-center justify-evenly gap-1 rounded-s-2xl p-2.5 ltr:left-0 rtl:right-0'
-        )}
-        style={{ width: `${optionsPanelWidth}px` }}
-      >
-        <Button
-          variant={'secondary'}
-          onClick={handleEdit}
-          className="h-[70%] w-full font-medium shadow-none hover:bg-white/20 active:bg-white/20"
-        >
-          <Pencil className="h-6 w-6" />
-        </Button>
-        {/* <Separator orientation="vertical" className="h-[70%] bg-white/60" />
-        <Button
-          variant={'secondary'}
-          onClick={handleDelete}
-          className="h-[70%] w-3 font-medium shadow-none hover:bg-white/20 active:bg-white/20"
-        >
-          <Trash2 className="h-6 w-6" />
-        </Button> */}
-      </div>
-
       {/* Animated Text / Info Container */}
       <motion.div
         className="absolute top-0 bottom-0 z-10 rounded-2xl bg-white shadow-xs ltr:left-0 rtl:right-0"
@@ -102,41 +57,14 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
           imageLoaded
             ? {
                 width: `calc(100% - ${imageWidth}px + 10px)`,
-                x: isEditMode
-                  ? direction === 'rtl'
-                    ? -optionsPanelWidth
-                    : optionsPanelWidth
-                  : 0
+                x: 0
               }
             : { width: '100%', x: 0 }
         }
         transition={{ type: 'spring', stiffness: 200, damping: 10 }}
       >
         <div className="flex h-full flex-col justify-between p-4">
-          <div className="flex items-start justify-between">
-            <div className="text-lg font-bold">{name}</div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-white/20"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleEdit}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit Pet
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDelete} className="text-red-600">
-                  Delete Pet
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <div className="text-lg font-bold">{name}</div>
           <div className="text-sm text-gray-600">{breed}</div>
         </div>
 
@@ -151,15 +79,25 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         className="absolute top-0 bottom-0 ltr:right-0 rtl:left-0"
         style={{ width: `${imageWidth}px` }}
       >
-        <Image
-          src={image}
-          alt={name}
-          width={imageWidth}
-          height={cardHeight}
-          loading="lazy"
-          className="h-full w-full rounded-e-2xl bg-gray-200 object-cover"
-          onLoad={handleImageLoad}
-        />
+        {image && image !== '/default-pet.png' ? (
+          <Image
+            src={image}
+            alt={name}
+            width={imageWidth}
+            height={cardHeight}
+            loading="lazy"
+            className="h-full w-full rounded-e-2xl bg-gray-200 object-cover"
+            onLoad={handleImageLoad}
+            onError={() => {
+              console.log('Image failed to load:', image);
+              setImageLoaded(true); // Still show the card even if image fails
+            }}
+          />
+        ) : (
+          <div className="h-full w-full rounded-e-2xl bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400 text-2xl">🐾</span>
+          </div>
+        )}
       </div>
     </div>
   );

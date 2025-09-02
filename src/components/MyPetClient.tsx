@@ -2,6 +2,7 @@
 'use client';
 
 import MyPetCard from '@/components/MyPetCard';
+import PetDetailsBottomSheet from '@/components/PetDetailsBottomSheet';
 import { User, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
@@ -38,6 +39,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [showPhoneNotification, setShowPhoneNotification] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
   const [showPhoneBottomSheet, setShowPhoneBottomSheet] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [showPetBottomSheet, setShowPetBottomSheet] = useState(false);
 
   // Fetch pets when user is authenticated
   useEffect(() => {
