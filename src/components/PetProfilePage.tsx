@@ -44,6 +44,9 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
   const [copied, setCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showShareEarning, setShowShareEarning] = useState(false);
+  
+  // Check if current user is the pet owner
+  const isOwner = user?.email === pet.userEmail;
 
   const petShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/pet/${pet.id}` : '';
   const shareText = t('messages.shareText', { name: pet.name, url: petShareUrl });
@@ -141,10 +144,15 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               <div>
                 <h1 className="text-xl font-bold">{pet.name}</h1>
                 <p className="text-sm text-gray-600">{t('subtitle')}</p>
+                {!user && (
+                  <p className="text-xs text-blue-600 mt-1">
+                    {t('messages.publicView')}
+                  </p>
+                )}
               </div>
             </div>
             
-            {pet.userEmail === user?.email && (
+            {isOwner && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="p-2">
@@ -354,7 +362,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
             </motion.div>
 
             {/* Delete Section - Only visible to authenticated pet owners */}
-            {pet.userEmail === user?.email && (
+            {isOwner && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -388,6 +396,35 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                           {t('actions.deletePet')}
                         </>
                       )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Call to Action for Non-Authenticated Users */}
+            {!user && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+              >
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-blue-800">
+                      <Heart className="w-5 h-5 text-blue-600" />
+                      <span>{t('sections.createYourOwn')}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-blue-700">
+                      {t('messages.createProfileDescription')}
+                    </p>
+                    <Button
+                      onClick={() => router.push('/auth/signup')}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      {t('actions.createProfile')}
                     </Button>
                   </CardContent>
                 </Card>
