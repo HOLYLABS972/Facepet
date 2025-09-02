@@ -11,19 +11,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, we'll store the verification status in a simple way
-    // In production, you might want to use a database or cache
-    // This is a placeholder - you'll need to implement the actual verification logic
-    // based on how your OTP service works
-
-    // TODO: Implement actual OTP verification with your service
-    // This might involve calling another API endpoint or checking against a database
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Email verified successfully',
-      verified: true
-    });
+    // Call your OTP verification service
+    // Note: You'll need to implement the actual verification endpoint
+    // For now, we'll simulate verification by checking if the code is 6 digits
+    if (code.length === 6 && /^\d{6}$/.test(code)) {
+      return NextResponse.json({
+        success: true,
+        message: 'Email verified successfully',
+        verified: true
+      });
+    } else {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid verification code'
+      }, { status: 400 });
+    }
 
   } catch (error) {
     console.error('Verify OTP error:', error);

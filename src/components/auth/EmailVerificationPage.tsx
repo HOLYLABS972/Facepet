@@ -13,12 +13,14 @@ import Image from 'next/image';
 
 interface EmailVerificationPageProps {
   email: string;
+  password?: string;
+  fullName?: string;
   onBack?: () => void;
 }
 
-const EmailVerificationPage = ({ email, onBack }: EmailVerificationPageProps) => {
+const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerificationPageProps) => {
   const t = useTranslations('pages.EmailVerification');
-  const { user } = useAuth();
+  const { user, verifyCodeAndCreateAccount } = useAuth();
   const router = useRouter();
   
   const [verificationCode, setVerificationCode] = useState('');
@@ -39,28 +41,36 @@ const EmailVerificationPage = ({ email, onBack }: EmailVerificationPageProps) =>
     setLoading(true);
 
     try {
-      const response = await fetch('/api/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          code: verificationCode
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success('Email verified successfully!');
+      if (password && fullName) {
+        // This is a signup flow - verify code and create account
+        await verifyCodeAndCreateAccount(email, password, fullName, verificationCode);
+        toast.success('Account created successfully!');
         router.push('/pages/my-pets');
       } else {
-        toast.error(data.error || 'Verification failed');
+        // This is just email verification (for existing users)
+        const response = await fetch('/api/verify-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            code: verificationCode
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          toast.success('Email verified successfully!');
+          router.push('/pages/my-pets');
+        } else {
+          toast.error(data.error || 'Verification failed');
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Verification error:', error);
-      toast.error('Failed to verify code');
+      toast.error(error.message || 'Failed to verify code');
     } finally {
       setLoading(false);
     }

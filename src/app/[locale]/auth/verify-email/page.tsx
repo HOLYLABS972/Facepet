@@ -1,11 +1,17 @@
 import EmailVerificationPage from '@/src/components/auth/EmailVerificationPage';
 
 interface VerifyEmailPageProps {
-  searchParams: { email?: string };
+  searchParams: { 
+    email?: string;
+    password?: string;
+    fullName?: string;
+  };
 }
 
 export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
   const email = searchParams.email || '';
+  const password = searchParams.password || '';
+  const fullName = searchParams.fullName || '';
 
   if (!email) {
     return (
@@ -18,5 +24,11 @@ export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) 
     );
   }
 
-  return <EmailVerificationPage email={email} />;
+  return (
+    <EmailVerificationPage 
+      email={email} 
+      password={password}
+      fullName={fullName}
+    />
+  );
 }

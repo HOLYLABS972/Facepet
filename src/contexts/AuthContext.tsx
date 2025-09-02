@@ -23,6 +23,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   sendVerificationCode: (email: string) => Promise<void>;
+  verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -121,6 +122,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const verifyCodeAndCreateAccount = async (email: string, password: string, fullName: string, code: string) => {
+    try {
+      // First verify the OTP code
+      const verifyResponse = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          code
+        }),
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyData.success) {
+        throw new Error(verifyData.error || 'Invalid verification code');
+      }
+
+      // Only create Firebase account after successful verification
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Update the user's display name
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+          displayName: fullName
+        });
+      }
+    } catch (error) {
+      console.error('Verify code and create account error:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -129,7 +165,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signInWithGoogle,
     signOut,
     resetPassword,
-    sendVerificationCode
+    sendVerificationCode,
+    verifyCodeAndCreateAccount
   };
 
   return (

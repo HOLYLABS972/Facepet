@@ -39,12 +39,16 @@ const AuthPage = () => {
 
     try {
       if (isSignUp) {
-        await signUp(formData.email, formData.password, formData.fullName);
-        // Send verification code after successful signup
+        // Only send verification code, don't create account yet
         await sendVerificationCode(formData.email);
-        toast.success('Account created! Please verify your email.');
-        // Redirect to email verification page
-        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}`);
+        toast.success('Verification code sent! Please check your email.');
+        // Redirect to email verification page with form data
+        const params = new URLSearchParams({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName
+        });
+        router.push(`/auth/verify-email?${params.toString()}`);
       } else {
         await signIn(formData.email, formData.password);
         toast.success('Signed in successfully!');

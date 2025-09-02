@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Call your OTP service
-    const response = await fetch(`https://api.teholylabs.com/global_auth?email=${encodeURIComponent(email)}`, {
+    const response = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
