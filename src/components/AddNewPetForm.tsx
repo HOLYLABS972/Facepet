@@ -96,7 +96,7 @@ export default function AddNewPetForm() {
       if (result.success && result.downloadURL) {
         setFormData(prev => ({
           ...prev,
-          imageUrl: result.downloadURL
+          imageUrl: result.downloadURL || ''
         }));
         setUploadProgress({ progress: 100, status: 'completed' });
         toast.success('Image uploaded successfully!');
@@ -135,10 +135,13 @@ export default function AddNewPetForm() {
     setLoading(true);
 
     try {
+      const breeds = getBreedsForType(formData.type as PetType);
+      const selectedBreed = breeds.find(breed => breed.id === formData.breed);
+      
       const petData = {
         name: formData.name.trim(),
         type: formData.type,
-        breedName: formData.breed,
+        breedName: selectedBreed ? selectedBreed.name : '',
         imageUrl: formData.imageUrl,
         description: '',
         age: '',

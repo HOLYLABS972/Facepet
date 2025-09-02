@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, List } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
@@ -133,9 +133,13 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDeletePet} className="text-red-600" disabled={isDeleting}>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {isDeleting ? 'Deleting...' : 'Delete Pet'}
+                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Pet
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
+                  <Wifi className="mr-2 h-4 w-4" />
+                  Attach Tag
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -319,13 +323,17 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem
-                        onClick={handleDeletePet}
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                        disabled={isDeleting}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {isDeleting ? 'Deleting...' : 'Delete Pet'}
+                      <DropdownMenuItem onClick={() => router.push('/pages/my-pets')}>
+                        <List className="mr-2 h-4 w-4" />
+                        List Pets
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Pet
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
+                        <Wifi className="mr-2 h-4 w-4" />
+                        Attach Tag
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
