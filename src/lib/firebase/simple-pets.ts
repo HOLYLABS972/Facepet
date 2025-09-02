@@ -1,4 +1,14 @@
-import { db } from './config';
+impointerface SimplePetData {
+  name?: string;
+  type?: string;
+  breedId?: string;
+  breedName?: string;
+  imageUrl?: string;
+  description?: string;
+  age?: string;
+  gender?: string;
+  updatedAt?: Date;
+} from './config';
 import { collection, addDoc, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 
@@ -69,16 +79,10 @@ export async function createPetInFirestore(
 /**
  * Get breed name from breedId
  */
-async function getBreedName(breedId: number): Promise<string> {
-  try {
-    // Import the breeds data
-    const breedsData = await import('../../../utils/database/seeds/breeds.json');
-    const breed = breedsData.default.find((b: any) => b.id === breedId);
-    return breed ? breed.en : `Breed ${breedId}`;
-  } catch (error) {
-    console.error('Error getting breed name:', error);
-    return `Breed ${breedId}`;
-  }
+import { getBreedNameFromId } from './breed-utils';
+
+async function getBreedName(breedId: string): Promise<string> {
+  return getBreedNameFromId(breedId);
 }
 
 /**
