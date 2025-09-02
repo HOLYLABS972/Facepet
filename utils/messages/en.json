@@ -43,7 +43,11 @@
     "MyPetsPage": {
       "title": "My Pets",
       "searchPlaceholder": "Search pets...",
-      "noResults": "No pets found."
+      "noResults": "No pets found.",
+      "addFirstPet": "Start by adding your first pet to keep them safe!",
+      "managePetsDescription": "Manage your pets and keep them safe with FacePet",
+      "welcomeBack": "Welcome back!",
+      "loadingPets": "Loading pets..."
     },
     "MyGiftsPage": {
       "title": "My Gifts",
@@ -172,7 +176,8 @@
       "signInText": "Already have an account?",
       "signInLink": "Sign In",
       "brand": "FacePet",
-      "menuButton": "Open main menu"
+      "menuButton": "Open main menu",
+      "loading": "Loading..."
     },
     "PetDetailsPage": {
       "title": "Pet Details",

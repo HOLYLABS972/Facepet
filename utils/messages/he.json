@@ -35,7 +35,11 @@
     "MyPetsPage": {
       "title": "החיות שלי",
       "searchPlaceholder": "חפש חיות...",
-      "noResults": "לא נמצאו חיות."
+      "noResults": "לא נמצאו חיות.",
+      "addFirstPet": "התחילו בהוספת חיית המחמד הראשונה שלכם כדי לשמור עליה!",
+      "managePetsDescription": "נהלו את החיות שלכם ושמרו עליהן בטוחות עם FacePet",
+      "welcomeBack": "ברוכים השבים!",
+      "loadingPets": "טוען חיות..."
     },
     "MyGiftsPage": {
       "title": "המתנות שלי",
@@ -203,7 +207,8 @@
       "signInText": "כבר יש לכם חשבון?",
       "signInLink": "התחברות",
       "brand": "FacePet",
-      "menuButton": "פתחו את התפריט הראשי"
+      "menuButton": "פתחו את התפריט הראשי",
+      "loading": "טוען..."
     },
     "AuthPage": {
       "welcomeBack": "ברוכים השבים!",

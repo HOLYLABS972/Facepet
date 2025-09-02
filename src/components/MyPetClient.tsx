@@ -72,7 +72,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       <div className="mb-6">
         <div className="text-center">
           <h1 className="text-primary py-2 font-['Lobster'] text-3xl tracking-wide lg:text-4xl">
-            Welcome back!
+            {t('welcomeBack')}
           </h1>
           
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -86,7 +86,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           </div>
 
           <p className="text-base text-gray-600">
-            Manage your pets and keep them safe with FacePet
+            {t('managePetsDescription')}
           </p>
         </div>
       </div>
@@ -115,13 +115,13 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       {petsLoading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="ml-2 text-gray-600">Loading pets...</span>
+          <span className="ml-2 text-gray-600">{t('loadingPets')}</span>
         </div>
       ) : filteredPets.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-600 mb-4">{t('noResults')}</p>
           <p className="text-sm text-gray-500">
-            Start by adding your first pet to keep them safe!
+            {t('addFirstPet')}
           </p>
         </div>
       ) : (
