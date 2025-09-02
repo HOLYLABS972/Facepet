@@ -80,6 +80,39 @@ export async function uploadProfileImage(
   }
 }
 
+// Alternative upload function using uploadBytes (simpler, might avoid CORS issues)
+export async function uploadProfileImageSimple(
+  file: File,
+  user: User
+): Promise<{ success: boolean; downloadURL?: string; error?: string }> {
+  try {
+    if (!user.uid) {
+      throw new Error('User ID is required');
+    }
+
+    // Get storage instance
+    const storage = getStorageInstance();
+    if (!storage) {
+      throw new Error('Firebase Storage is not initialized. Please check your Firebase configuration.');
+    }
+
+    // Create a reference to the file location
+    const fileName = `profile-images/${user.uid}/${Date.now()}-${file.name}`;
+    const storageRef = ref(storage, fileName);
+
+    // Upload the file using uploadBytes (simpler method)
+    const snapshot = await uploadBytes(storageRef, file);
+    
+    // Get the download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return { success: true, downloadURL };
+  } catch (error: any) {
+    console.error('Error uploading profile image:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function deleteProfileImage(imageURL: string): Promise<{ success: boolean; error?: string }> {
   try {
     // Get storage instance

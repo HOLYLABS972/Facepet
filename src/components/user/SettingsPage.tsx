@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../ui/separator';
 import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { uploadProfileImage, UploadProgress } from '@/src/lib/firebase/storage';
+import { uploadProfileImage, uploadProfileImageSimple, UploadProgress } from '@/src/lib/firebase/storage';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
 import { debugFirebaseStatus } from '@/src/lib/firebase/init-check';
 import { testStorageConnection } from '@/src/lib/firebase/storage-init';
@@ -186,9 +186,14 @@ export default function SettingsPage() {
       setUploadProgress({ progress: 0, status: 'uploading' });
 
       try {
-        const result = await uploadProfileImage(file, user, (progress) => {
-          setUploadProgress(progress);
-        });
+        // Try simple upload first (might avoid CORS issues)
+        const result = await uploadProfileImageSimple(file, user);
+        
+        if (result.success) {
+          setUploadProgress({ progress: 100, status: 'completed', downloadURL: result.downloadURL });
+        } else {
+          setUploadProgress({ progress: 0, status: 'error', error: result.error });
+        }
 
         if (result.success && result.downloadURL) {
           setFormData(prev => ({
