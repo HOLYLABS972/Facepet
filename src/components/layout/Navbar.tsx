@@ -15,6 +15,7 @@ import {
   X
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -35,6 +36,28 @@ const Navbar = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { data: session, status } = useSession();
   const locale = useLocale();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      console.log('Logging out...', { session, status });
+      
+      // Clear the session and redirect
+      await signOut({ 
+        redirect: false,
+        callbackUrl: '/auth/sign-in'
+      });
+      
+      console.log('SignOut completed, redirecting...');
+      
+      // Force a page refresh to clear any cached session data
+      window.location.href = '/auth/sign-in';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: force redirect even if signOut fails
+      window.location.href = '/auth/sign-in';
+    }
+  };
 
   const publicPages: NavLink[] = [
     {
@@ -123,7 +146,7 @@ const Navbar = () => {
                   
                   <Button
                     variant="ghost"
-                    onClick={() => signOut({ redirectTo: '/' })}
+                    onClick={handleLogout}
                     className="text-gray-600 hover:text-gray-900"
                   >
                     <LogOut className="h-5 w-5" />
@@ -225,7 +248,7 @@ const Navbar = () => {
                     variant={'ghost'}
                     type="button"
                     onClick={() => {
-                      signOut({ redirectTo: '/' });
+                      handleLogout();
                       setIsMenuOpen(false);
                     }}
                     className="active:bg-accent flex w-full justify-start gap-5 rounded-md p-2 text-left text-base font-medium text-black transition-colors rtl:text-right"

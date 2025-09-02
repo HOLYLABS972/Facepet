@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
 import { useSession } from 'next-auth/react';
 import { User, PawPrint, Settings, LogOut } from 'lucide-react';
+import AuthDebug from '@/src/components/debug/AuthDebug';
 
 // Pet images - using public paths for Next.js Image component
 const petImages = {
@@ -121,14 +122,11 @@ export default function LandingHomePage() {
       {/* Navbar */}
       <Navbar />
       
-      {/* Conditional Content Based on Authentication */}
-      {session ? (
-        // Authenticated User Dashboard
-        <AuthenticatedDashboard session={session} router={router} t={t} />
-      ) : (
-        // Public Landing Page
-        <PublicLandingPage t={t} router={router} />
-      )}
+      {/* Always show the public landing page */}
+      <PublicLandingPage t={t} router={router} />
+      
+      {/* Debug Component - Remove this after testing */}
+      <AuthDebug />
     </div>
   );
 }
