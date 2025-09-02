@@ -29,6 +29,18 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose }) => {
     }
   };
 
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the add phone action
+    setIsClosed(true);
+    if (onClose) {
+      onClose();
+    }
+  };
+
+  if (isClosed) {
+    return null;
+  }
+
   return (
     <div
       onClick={handleAddPhone}
@@ -39,6 +51,15 @@ const PhoneNumberCard: React.FC<PhoneNumberCardProps> = ({ onClose }) => {
     >
       {/* Glass morphism background */}
       <div className="border-gray absolute inset-0 rounded-2xl border bg-white shadow-sm" />
+
+      {/* Close button */}
+      <button
+        onClick={handleClose}
+        className="absolute top-2 right-2 z-20 p-1 rounded-full hover:bg-gray-100 transition-colors"
+        aria-label="Close notification"
+      >
+        <X className="h-4 w-4 text-gray-500" />
+      </button>
 
       {/* Content */}
       <div className="relative z-10 flex h-full">

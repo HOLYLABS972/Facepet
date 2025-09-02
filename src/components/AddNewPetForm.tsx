@@ -13,11 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Upload, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
+import { BreedSelect } from './ui/breed-select';
+import { getBreedsForType, type PetType } from '@/src/lib/data/breeds';
 
 interface PetFormData {
   name: string;
   description: string;
   type: 'cat' | 'dog' | 'bird' | 'fish' | 'rabbit' | 'hamster' | 'guinea-pig' | 'turtle' | 'snake' | 'lizard' | 'ferret' | 'other';
+  breed: string;
   image: File | null;
   imageUrl: string;
 }
@@ -33,15 +36,25 @@ export default function AddNewPetForm() {
     name: '',
     description: '',
     type: 'cat',
+    breed: '',
     image: null,
     imageUrl: ''
   });
 
   const handleInputChange = (field: keyof PetFormData, value: string | File) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      };
+      
+      // If type changes, reset breed selection
+      if (field === 'type') {
+        newData.breed = '';
+      }
+      
+      return newData;
+    });
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,6 +137,7 @@ export default function AddNewPetForm() {
       const petData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
+        breed: formData.breed, // Store the selected breed name
         imageUrl: formData.imageUrl,
         genderId: 1, // Default to first gender (you can make this configurable)
         breedId: 1,  // Default to first breed (you can make this configurable)
@@ -145,6 +159,7 @@ export default function AddNewPetForm() {
           name: '',
           description: '',
           type: 'cat',
+          breed: '',
           image: null,
           imageUrl: ''
         });
@@ -219,6 +234,17 @@ export default function AddNewPetForm() {
                   <SelectItem value="other">🐾 Other</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Breed Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="breed">Breed</Label>
+              <BreedSelect
+                petType={formData.type as PetType}
+                value={formData.breed}
+                onValueChange={(value) => handleInputChange('breed', value)}
+                placeholder="Select breed (optional)"
+              />
             </div>
 
             {/* Description */}

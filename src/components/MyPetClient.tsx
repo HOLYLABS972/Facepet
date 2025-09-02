@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import PhoneNumberCard from './PhoneNumberCard';
+import AdminNotificationCard from './AdminNotificationCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useRouter } from '@/i18n/routing';
@@ -33,6 +34,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [search, setSearch] = useState('');
   const [pets, setPets] = useState(initialPets);
   const [petsLoading, setPetsLoading] = useState(false);
+  const [showPhoneNotification, setShowPhoneNotification] = useState(false);
+  const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -77,6 +80,35 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     fetchPets();
   }, [user?.uid, user?.email, loading]);
 
+  // Check if user has phone number set
+  useEffect(() => {
+    if (user && !loading) {
+      // Check if user has phone number in their profile
+      // For now, we'll check if phoneNumber exists in user object
+      // You can modify this logic based on your user data structure
+      const hasPhoneNumber = user.phoneNumber || user.phone;
+      setShowPhoneNotification(!hasPhoneNumber);
+    }
+  }, [user, loading]);
+
+  // Fetch admin notifications (placeholder for future implementation)
+  useEffect(() => {
+    const fetchAdminNotifications = async () => {
+      if (user && !loading) {
+        try {
+          // TODO: Implement admin notifications fetching from Firestore
+          // For now, we'll use empty array
+          setAdminNotifications([]);
+        } catch (error) {
+          console.log('Error fetching admin notifications:', error);
+          setAdminNotifications([]);
+        }
+      }
+    };
+
+    fetchAdminNotifications();
+  }, [user, loading]);
+
   const filteredPets = pets.filter((pet) =>
     pet.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -115,10 +147,28 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-4">{t('notifications')}</h2>
         
+        {/* Admin Notifications */}
+        {adminNotifications.map((notification, index) => (
+          <div key={index} className="mb-4">
+            <AdminNotificationCard
+              title={notification.title}
+              message={notification.message}
+              type={notification.type}
+              actionText={notification.actionText}
+              onAction={notification.onAction}
+              onClose={() => {
+                setAdminNotifications(prev => prev.filter((_, i) => i !== index));
+              }}
+            />
+          </div>
+        ))}
+        
         {/* Phone Number Notification - matching share style */}
-        <div className="mb-4">
-          <PhoneNumberCard />
-        </div>
+        {showPhoneNotification && (
+          <div className="mb-4">
+            <PhoneNumberCard onClose={() => setShowPhoneNotification(false)} />
+          </div>
+        )}
       </div>
 
       {/* My Pets Header */}

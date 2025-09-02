@@ -32,13 +32,11 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
   const cardHeight = 100; // in pixels
   const optionsPanelWidth = 90; // width of the options panel (adjust as needed)
 
-  // State to track how many images have loaded.
-  const [imagesLoaded, setImagesLoaded] = React.useState(0);
-  const totalImages = 2;
-  const allImagesLoaded = imagesLoaded === totalImages;
+  // State to track if image has loaded.
+  const [imageLoaded, setImageLoaded] = React.useState(false);
 
   const handleImageLoad = () => {
-    setImagesLoaded((prev) => prev + 1);
+    setImageLoaded(true);
   };
 
   // Only navigate when not in edit mode.
@@ -95,7 +93,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         className="absolute top-0 bottom-0 z-10 rounded-2xl bg-white shadow-xs ltr:left-0 rtl:right-0"
         initial={{ width: '100%', x: 0 }}
         animate={
-          allImagesLoaded
+          imageLoaded
             ? {
                 width: `calc(100% - ${imageWidth}px + 10px)`,
                 x: isEditMode
@@ -119,32 +117,20 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         </div>
       </motion.div>
 
-      {/* Static Image Container */}
+      {/* Pet Image Container */}
       <div
         className="absolute top-0 bottom-0 ltr:right-0 rtl:left-0"
         style={{ width: `${imageWidth}px` }}
       >
-        <div className="flex items-center justify-end">
-          <Image
-            src={image}
-            alt={name}
-            width={imageWidth}
-            height={cardHeight}
-            loading="lazy"
-            style={{ transform: 'scaleX(-1)' }}
-            className="h-full w-full bg-gray-200 object-cover"
-            onLoad={handleImageLoad}
-          />
-          <Image
-            src={image}
-            alt={name}
-            width={imageWidth}
-            height={cardHeight}
-            loading="lazy"
-            className="inset-0 h-full w-full rounded-e-2xl bg-gray-200 object-cover"
-            onLoad={handleImageLoad}
-          />
-        </div>
+        <Image
+          src={image}
+          alt={name}
+          width={imageWidth}
+          height={cardHeight}
+          loading="lazy"
+          className="h-full w-full rounded-e-2xl bg-gray-200 object-cover"
+          onLoad={handleImageLoad}
+        />
       </div>
     </div>
   );
