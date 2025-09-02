@@ -8,6 +8,8 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { updateUserInFirestore } from '@/src/lib/firebase/users';
 
 interface PhoneNumberBottomSheetProps {
   isOpen: boolean;
@@ -21,11 +23,17 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
   onPhoneAdded
 }) => {
   const t = useTranslations('pages.MyPetsPage');
+  const { user } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast.error('User not authenticated');
+      return;
+    }
     
     if (!phoneNumber.trim()) {
       toast.error(t('phoneNumberBottomSheet.errors.phoneRequired'));
@@ -42,13 +50,18 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Here you would implement the actual phone number saving logic
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save phone number to Firestore
+      const result = await updateUserInFirestore(user.uid, {
+        phone: phoneNumber.trim()
+      });
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save phone number');
+      }
       
       // Call the callback if provided
       if (onPhoneAdded) {
-        onPhoneAdded(phoneNumber);
+        onPhoneAdded(phoneNumber.trim());
       }
       
       toast.success(t('phoneNumberBottomSheet.success'));

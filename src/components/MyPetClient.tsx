@@ -42,7 +42,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [showPhoneBottomSheet, setShowPhoneBottomSheet] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [showPetBottomSheet, setShowPetBottomSheet] = useState(false);
-  const [showPrizeNotification, setShowPrizeNotification] = useState(false);
+
   const [userPoints, setUserPoints] = useState(30); // Start with 30 points (registration)
   const [hasAddedPet, setHasAddedPet] = useState(false); // Track if user has added a pet
   const [showPointsBreakdown, setShowPointsBreakdown] = useState(false);
@@ -116,25 +116,35 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
 
   // Check if user has phone number set - show bottom sheet if not
   useEffect(() => {
-    if (user && !loading) {
-      // Check if user has phone number in their profile
-      const hasPhoneNumber = user.phoneNumber || user.phone;
-      if (!hasPhoneNumber) {
-        // Show phone setup bottom sheet automatically
-        setShowPhoneBottomSheet(true);
+    const checkUserPhoneNumber = async () => {
+      if (user && !loading) {
+        try {
+          // Get user data from Firestore to check phone number
+          const { getUserFromFirestore } = await import('@/src/lib/firebase/users');
+          const userResult = await getUserFromFirestore(user.uid);
+          
+          if (userResult.success && userResult.user) {
+            const hasPhoneNumber = userResult.user.phone && userResult.user.phone.trim() !== '';
+            if (!hasPhoneNumber) {
+              // Show phone setup bottom sheet automatically
+              setShowPhoneBottomSheet(true);
+            }
+          } else {
+            // If we can't get user data, show phone setup as fallback
+            setShowPhoneBottomSheet(true);
+          }
+        } catch (error) {
+          console.error('Error checking user phone number:', error);
+          // Show phone setup as fallback
+          setShowPhoneBottomSheet(true);
+        }
       }
-    }
+    };
+
+    checkUserPhoneNumber();
   }, [user, loading]);
 
-  // Check if user can claim prize (has 30+ points and hasn't claimed yet)
-  useEffect(() => {
-    if (user && !loading) {
-      // Show prize notification if user has 30+ points (registration points)
-      // In real implementation, you'd check if user has already claimed this prize
-      const canClaimPrize = userPoints >= 30;
-      setShowPrizeNotification(canClaimPrize);
-    }
-  }, [user, loading, userPoints]);
+
 
   // Fetch admin notifications (placeholder for future implementation)
   useEffect(() => {
@@ -231,14 +241,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           </div>
         )}
 
-        {/* Prize Claim Notification */}
-        {showPrizeNotification && (
-          <div className="mb-4">
-            <PrizeClaimNotification 
-              onClaim={handlePrizeClaim}
-            />
-          </div>
-        )}
+
         
         {/* Admin Notifications */}
         {adminNotifications.map((notification, index) => {
