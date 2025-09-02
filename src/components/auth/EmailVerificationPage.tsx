@@ -73,17 +73,16 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
     setCountdown(60); // 60 second countdown
 
     try {
-      const response = await fetch(`/api/send-verification?email=${encodeURIComponent(email)}`);
+      // Call the external OTP API directly
+      const response = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
       const data = await response.json();
 
-      if (data.success) {
+      if (data.verification_code) {
         // Store the new OTP code in frontend state
-        if (data.verification_code) {
-          setStoredOTPCode(data.verification_code);
-        }
+        setStoredOTPCode(data.verification_code);
         toast.success('Verification code sent!');
       } else {
-        toast.error(data.error || 'Failed to resend code');
+        toast.error('Failed to get verification code');
       }
     } catch (error) {
       console.error('Resend error:', error);

@@ -10,6 +10,7 @@ import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
+import { getUserPets } from '@/lib/actions/pets';
 
 interface Pet {
   id: string;
@@ -33,16 +34,22 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   // Fetch pets when user is authenticated
   useEffect(() => {
     const fetchPets = async () => {
-      if (user?.uid && !loading) {
+      if (user?.email && !loading) {
         setPetsLoading(true);
         try {
-          const response = await fetch(`/api/pets?userId=${user.uid}&locale=en`);
-          const data = await response.json();
+          const result = await getUserPets(user.email);
           
-          if (data.success) {
-            setPets(data.pets);
+          if (result.success && result.pets) {
+            // Transform the database pets to match the expected interface
+            const transformedPets = result.pets.map(pet => ({
+              id: pet.id,
+              name: pet.name,
+              breed: pet.breedName || 'Unknown',
+              image: pet.imageUrl || '/default-pet.png'
+            }));
+            setPets(transformedPets);
           } else {
-            console.error('Error fetching pets:', data.error);
+            console.error('Error fetching pets:', result.error);
           }
         } catch (error) {
           console.error('Error fetching pets:', error);
@@ -53,7 +60,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     };
 
     fetchPets();
-  }, [user?.uid, loading]);
+  }, [user?.email, loading]);
 
   const filteredPets = pets.filter((pet) =>
     pet.name.toLowerCase().includes(search.toLowerCase())

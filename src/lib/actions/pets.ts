@@ -3,7 +3,6 @@
 import { db } from '@/utils/database/drizzle';
 import { pets, owners, genders, breeds } from '@/utils/database/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { auth } from '@/lib/auth-server';
 
 export interface PetData {
   name: string;
@@ -88,11 +87,10 @@ export async function createPet(petData: PetData): Promise<{ success: boolean; p
 /**
  * Get all pets for the current user
  */
-export async function getUserPets(): Promise<{ success: boolean; pets?: Pet[]; error?: string }> {
+export async function getUserPets(userEmail: string): Promise<{ success: boolean; pets?: Pet[]; error?: string }> {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return { success: false, error: 'Unauthorized' };
+    if (!userEmail) {
+      return { success: false, error: 'User email is required' };
     }
 
     const userPets = await db
@@ -121,7 +119,7 @@ export async function getUserPets(): Promise<{ success: boolean; pets?: Pet[]; e
       .leftJoin(genders, eq(pets.genderId, genders.id))
       .leftJoin(breeds, eq(pets.breedId, breeds.id))
       .leftJoin(owners, eq(pets.ownerId, owners.id))
-      .where(eq(pets.userEmail, session.user.email))
+      .where(eq(pets.userEmail, userEmail))
       .orderBy(desc(pets.createdAt));
 
     return { success: true, pets: userPets };

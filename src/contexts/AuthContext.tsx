@@ -60,31 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signIn = async (email: string, password: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Get user information from database
-      const userInfoResponse = await fetch('/api/auth/user-info', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: userCredential.user.email }),
-      });
-
-      const userInfoData = await userInfoResponse.json();
-      
-      // Set session cookie with user information including role
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email: userCredential.user.email,
-          fullName: userInfoData.success ? userInfoData.user.fullName : userCredential.user.displayName || '',
-          emailVerified: userCredential.user.emailVerified,
-          role: userInfoData.success ? userInfoData.user.role : 'user'
-        }),
-      });
+      // Firebase handles the authentication, no need for additional API calls
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
@@ -99,19 +75,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         await updateProfile(userCredential.user, {
           displayName: fullName
         });
-        
-        // Set session cookie with user information
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            email: userCredential.user.email,
-            fullName: fullName,
-            emailVerified: userCredential.user.emailVerified
-          }),
-        });
       }
     } catch (error) {
       console.error('Sign up error:', error);
@@ -122,12 +85,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signOut = async () => {
     try {
       console.log('Firebase sign out...');
-      
-      // Clear session cookie
-      await fetch('/api/auth/session', {
-        method: 'DELETE',
-      });
-      
       await firebaseSignOut(auth);
       console.log('Firebase sign out completed');
     } catch (error) {
@@ -140,31 +97,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
-      
-      // Get user information from database
-      const userInfoResponse = await fetch('/api/auth/user-info', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: userCredential.user.email }),
-      });
-
-      const userInfoData = await userInfoResponse.json();
-      
-      // Set session cookie with user information including role
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email: userCredential.user.email,
-          fullName: userInfoData.success ? userInfoData.user.fullName : userCredential.user.displayName || '',
-          emailVerified: userCredential.user.emailVerified,
-          role: userInfoData.success ? userInfoData.user.role : 'user'
-        }),
-      });
+      // Firebase handles the authentication, no need for additional API calls
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;
@@ -182,16 +115,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const sendVerificationCode = async (email: string) => {
     try {
-      const response = await fetch(`/api/send-verification?email=${encodeURIComponent(email)}`);
+      // Call the external OTP API directly
+      const response = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
       const data = await response.json();
       
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to send verification code');
-      }
-
-      // Store the OTP code in frontend state
       if (data.verification_code) {
+        // Store the OTP code in frontend state
         setStoredOTPCode(data.verification_code);
+      } else {
+        throw new Error('Failed to get verification code from API');
       }
     } catch (error) {
       console.error('Send verification code error:', error);
@@ -209,47 +141,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Clear the stored OTP code after successful verification
       setStoredOTPCode(null);
 
-      // Create user in database first
-      const registerResponse = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          fullName,
-          phone: phone || '', // Default empty phone if not provided
-          password,
-          role: 'user' // Default role
-        }),
-      });
-
-      const registerData = await registerResponse.json();
-      if (!registerData.success) {
-        throw new Error(registerData.error || 'Failed to create user account');
-      }
-
-      // Create Firebase account after successful database registration
+      // Create Firebase account
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
       // Update the user's display name
       if (userCredential.user) {
         await updateProfile(userCredential.user, {
           displayName: fullName
-        });
-        
-        // Set session cookie with user information including role
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            email: userCredential.user.email,
-            fullName: fullName,
-            emailVerified: userCredential.user.emailVerified,
-            role: registerData.user.role
-          }),
         });
       }
     } catch (error) {

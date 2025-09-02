@@ -1,7 +1,5 @@
 'use server';
 
-import { cookies } from 'next/headers';
-
 export interface ServerSession {
   user: {
     email: string;
@@ -24,45 +22,15 @@ const userRestrictions: Record<string, boolean> = {
   // 'banned@example.com': true,
 };
 
-const userProfiles: Record<string, { fullName: string; emailVerified: boolean }> = {
-  // User profiles will be populated from Firebase Auth
-};
-
 /**
- * Get the current user session from cookies
- * This function gets user info from Firebase Auth and our role management
+ * Get user role for server-side checks
+ * Since we're using client-side Firebase auth, this is mainly for admin routes
  */
 export async function auth(): Promise<ServerSession | null> {
-  try {
-    const cookieStore = await cookies();
-    const userEmail = cookieStore.get('user_email')?.value;
-    const userFullName = cookieStore.get('user_fullname')?.value;
-    const userEmailVerified = cookieStore.get('user_email_verified')?.value === 'true';
-    const userRoleFromCookie = cookieStore.get('user_role')?.value;
-    
-    if (!userEmail) {
-      return null;
-    }
-
-    // Check if user is restricted
-    const isRestricted = userRestrictions[userEmail] || false;
-    
-    // Get user role from cookie first, then from in-memory store, default to 'user'
-    const role = (userRoleFromCookie as 'user' | 'admin' | 'super_admin') || userRoles[userEmail] || 'user';
-
-    return {
-      user: {
-        email: userEmail,
-        role,
-        fullName: userFullName || 'User',
-        emailVerified: userEmailVerified,
-        isRestricted
-      }
-    };
-  } catch (error) {
-    console.error('Auth error:', error);
-    return null;
-  }
+  // Since we're using client-side Firebase authentication,
+  // server-side auth checks should be minimal
+  // Most authentication should be handled on the client side
+  return null;
 }
 
 /**
