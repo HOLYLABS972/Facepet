@@ -51,7 +51,8 @@
           "title": "תמונה",
           "upload": "העלאת תמונה",
           "dropzone": "גרור ושחרר תמונה או לחץ להעלאה",
-          "requirements": "PNG, JPG או GIF (מקסימום 5MB)"
+          "requirements": "PNG, JPG או GIF (מקסימום 5MB)",
+          "preview": "תצוגה מקדימה של חיית המחמד"
         }
       },
       "types": {
@@ -136,6 +137,7 @@
       "title": "חיבור תג NFC",
       "subtitle": "יצירת פרופיל חיית מחמד לשיתוף",
       "backButton": "חזרה",
+      "howToAttach": "איך לחבר תג NFC:",
       "steps": {
         "prepareTag": {
           "title": "הכנת תג NFC",

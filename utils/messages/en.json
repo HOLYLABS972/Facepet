@@ -1,4 +1,182 @@
 {
+  "Pet": {
+    "add": {
+      "title": "Add New Pet",
+      "subtitle": "Let's meet your new friend",
+      "steps": {
+        "type": {
+          "title": "Choose Pet Type",
+          "description": "What type of pet are you adding?"
+        },
+        "breed": {
+          "title": "Choose Breed",
+          "description": "Select the specific breed"
+        },
+        "name": {
+          "title": "Pet Name",
+          "description": "Give your pet a special name"
+        },
+        "photo": {
+          "title": "Add Photo",
+          "description": "Upload a cute photo of your pet"
+        },
+        "complete": {
+          "title": "Complete!",
+          "description": "Your pet is ready to join the family!"
+        }
+      },
+      "form": {
+        "petType": {
+          "title": "Pet Type",
+          "description": "Choose the appropriate type",
+          "options": {
+            "dog": "Dog",
+            "cat": "Cat",
+            "other": "Other"
+          }
+        },
+        "breed": {
+          "title": "Breed",
+          "placeholder": "Select breed",
+          "description": "Choose your pet's breed",
+          "searchPlaceholder": "Search breeds...",
+          "noBreedFound": "No breed found."
+        },
+        "name": {
+          "title": "Name",
+          "placeholder": "Enter your pet's name",
+          "description": "What's your pet's name?"
+        },
+        "photo": {
+          "title": "Photo",
+          "upload": "Upload Photo",
+          "dropzone": "Drag and drop image or click to upload",
+          "requirements": "PNG, JPG or GIF (max 5MB)",
+          "preview": "Pet preview"
+        }
+      },
+      "types": {
+        "cat": "Cat",
+        "dog": "Dog",
+        "other": "Other"
+      },
+      "welcome": "Welcome to Facepet!",
+      "login": "Login",
+      "breed": {
+        "title": "{pet} Breeds",
+        "placeholder": "Select breed"
+      },
+      "name": {
+        "title": "What's your pet's name?",
+        "description": "Choose a special name for your {pet}",
+        "label": "Pet Name",
+        "placeholder": "Enter your pet's name"
+      },
+      "photo": {
+        "title": "Add photo of {name}",
+        "description": "Upload a cute photo of your pet",
+        "uploadPrompt": "Click to upload photo",
+        "uploading": "Uploading...",
+        "uploadComplete": "Photo uploaded successfully!",
+        "uploadFailed": "Photo upload failed"
+      },
+      "complete": {
+        "title": "Congratulations!",
+        "description": "{name} is now part of your pet family!",
+        "points": "+10 points earned!"
+      },
+      "navigation": {
+        "next": "Next",
+        "previous": "Previous",
+        "complete": "Complete",
+        "adding": "Adding..."
+      },
+      "success": {
+        "imageUploaded": "Photo uploaded successfully!",
+        "petAdded": "Pet added successfully!"
+      },
+      "errors": {
+        "loginRequired": "Login required to add pet",
+        "nameRequired": "Please enter pet name",
+        "imageRequired": "Please upload photo",
+        "uploadFailed": "Photo upload failed",
+        "addPetFailed": "Failed to add pet",
+        "photoSize": "Photo size must be less than 5MB",
+        "photoType": "Please select a valid image file"
+      }
+    },
+    "edit": {
+      "title": "Edit Pet",
+      "subtitle": "Update pet details",
+      "form": {
+        "name": "Pet Name",
+        "type": "Pet Type",
+        "selectType": "Select Type",
+        "breed": "Breed",
+        "selectBreed": "Select Breed",
+        "currentPhoto": "Current Photo",
+        "changePhoto": "Change Photo",
+        "uploadPhoto": "Upload Photo",
+        "uploadPrompt": "Click to upload or drag and drop",
+        "imageRequirements": "PNG, JPG or GIF (max 10MB)",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe your pet...",
+        "age": "Age",
+        "agePlaceholder": "Enter age",
+        "gender": "Gender",
+        "selectGender": "Select Gender",
+        "genderMale": "Male",
+        "genderFemale": "Female",
+        "updating": "Updating...",
+        "save": "Save Changes"
+      },
+      "success": "Pet updated successfully!",
+      "error": "Error updating pet"
+    },
+    "nfcTag": {
+      "title": "Connect NFC Tag",
+      "subtitle": "Create pet profile for sharing",
+      "backButton": "Back",
+      "howToAttach": "How to attach NFC tag:",
+      "steps": {
+        "prepareTag": {
+          "title": "Prepare NFC Tag",
+          "description": "Make sure your NFC tag is ready and within reach"
+        },
+        "enableNfc": {
+          "title": "Enable NFC on Phone",
+          "description": "Enable NFC in your phone settings"
+        },
+        "record": {
+          "title": "Tap to Record",
+          "description": "Tap your phone to the NFC tag to record your pet's details"
+        }
+      },
+      "recordTag": {
+        "title": "Record NFC Tag",
+        "description": "Tap the button below and then tap your phone to the NFC tag to record {petName}'s information",
+        "button": {
+          "default": "Record Tag",
+          "recording": "Recording...",
+          "recorded": "Tag Recorded!"
+        },
+        "errors": {
+          "notSupported": "NFC is not supported on this device. Please use a device with NFC capabilities.",
+          "failed": "Recording to NFC tag failed. Please try again.",
+          "unableToGenerateUrl": "Unable to generate share link",
+          "writeFailed": "Writing to NFC tag failed"
+        },
+        "success": "NFC tag recorded successfully!"
+      },
+      "shareableLink": {
+        "title": "Shareable Link",
+        "description": "Anyone with this link can view {petName}'s profile:",
+        "copied": "Link copied!",
+        "copy": "Copy Link",
+        "share": "Share"
+      }
+    }
+  },
   "Admin": {
     "dashboard": "Admin Dashboard",
     "welcome": "Welcome to the Admin Dashboard",
@@ -219,6 +397,8 @@
       "subtitle": "Now you can scan the charm to see how it works."
     },
     "PetProfilePage": {
+      "title": "Pet Profile",
+      "subtitle": "Pet Profile",
       "tabs": {
         "pet": "Pet",
         "owner": "Owner",
@@ -234,7 +414,32 @@
         "contact": "Contact",
         "email": "Email",
         "address": "Address",
-        "private": "Private"
+        "private": "Private",
+        "type": "Type"
+      },
+      "sections": {
+        "basicInformation": "Basic Information",
+        "description": "Description",
+        "timeline": "Timeline",
+        "share": "Share Pet Profile"
+      },
+      "actions": {
+        "editPet": "Edit Pet",
+        "attachTag": "Attach Tag",
+        "deletePet": "Delete Pet",
+        "deleting": "Deleting...",
+        "copyLink": "Copy Link",
+        "share": "Share"
+      },
+      "messages": {
+        "profileCreated": "Profile Created",
+        "lastUpdated": "Last Updated",
+        "shareDescription": "Share this profile with others",
+        "deleteConfirm": "Permanently remove {petName}'s profile",
+        "petDeleted": "Pet deleted successfully",
+        "deleteFailed": "Failed to delete pet",
+        "linkCopied": "Link copied to clipboard!",
+        "copyFailed": "Failed to copy link"
       },
       "popup": {
         "title": "You Got a New Gift!",

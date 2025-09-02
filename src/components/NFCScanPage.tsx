@@ -201,7 +201,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-8"
         >
-          <h3 className="text-lg font-semibold mb-4">How to attach NFC tag:</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('howToAttach')}</h3>
           <div className="space-y-4">
             {STEPS.map((step, index) => (
               <motion.div

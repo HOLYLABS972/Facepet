@@ -308,7 +308,7 @@ export default function AddNewPetForm() {
                     {formData.imageUrl ? (
                       <img
                         src={formData.imageUrl}
-                        alt="Pet preview"
+                        alt={t('form.photo.preview')}
                         className="w-full h-full object-cover rounded-2xl"
                       />
                     ) : (
