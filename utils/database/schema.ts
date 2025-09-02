@@ -189,3 +189,48 @@ export const contactSubmissions = pgTable('contact_submissions', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 });
+
+// Points Transaction Types Enum
+export const transactionTypeEnum = pgEnum('transaction_type', [
+  'registration',
+  'phone_verification',
+  'pet_creation',
+  'pet_share',
+  'app_share',
+  'admin_adjustment',
+  'prize_claim'
+]);
+
+// Points Transactions Table
+export const pointsTransactions = pgTable('points_transactions', {
+  id: uuid('id').notNull().primaryKey().defaultRandom().unique(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: transactionTypeEnum('type').notNull(),
+  points: integer('points').notNull(), // Can be positive or negative
+  description: text('description'), // Optional description of the transaction
+  metadata: text('metadata'), // JSON string for additional data
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
+}, (table) => {
+  return {
+    userIdIndex: index('idx_points_transactions_user_id').on(table.userId),
+    typeIndex: index('idx_points_transactions_type').on(table.type),
+    createdAtIndex: index('idx_points_transactions_created_at').on(table.createdAt)
+  };
+});
+
+// User Points Summary Table (for quick access)
+export const userPointsSummary = pgTable('user_points_summary', {
+  id: uuid('id').notNull().primaryKey().defaultRandom().unique(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  totalPoints: integer('total_points').notNull().default(0),
+  registrationPoints: integer('registration_points').notNull().default(0),
+  phonePoints: integer('phone_points').notNull().default(0),
+  petPoints: integer('pet_points').notNull().default(0),
+  sharePoints: integer('share_points').notNull().default(0),
+  lastUpdated: timestamp('last_updated', { withTimezone: true }).defaultNow()
+}, (table) => {
+  return {
+    userIdIndex: index('idx_user_points_summary_user_id').on(table.userId),
+    totalPointsIndex: index('idx_user_points_summary_total_points').on(table.totalPoints)
+  };
+});

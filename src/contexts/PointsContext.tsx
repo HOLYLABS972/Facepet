@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { getUserPoints, updateUserPoints, addPointsToCategory } from '../lib/firebase/points';
+import { getUserPoints, updateUserPoints, addPointsToCategory, recalculateUserPoints, getUserTransactions } from '../lib/firebase/points';
 
 interface PointsContextType {
   userPoints: number;
@@ -16,7 +16,8 @@ interface PointsContextType {
   setPointsBreakdown: (breakdown: any) => void;
   showPointsBreakdown: boolean;
   setShowPointsBreakdown: (show: boolean) => void;
-  addPoints: (category: 'registration' | 'phone' | 'pet' | 'share', points: number) => void;
+  addPoints: (category: 'registration' | 'phone' | 'pet' | 'share', points: number, description?: string) => void;
+  recalculatePoints: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -54,10 +55,13 @@ export const PointsProvider = ({ children }: PointsProviderProps) => {
       if (user) {
         setIsLoading(true);
         try {
+          // Force fresh data by adding timestamp to prevent caching issues
           const result = await getUserPoints(user);
           if (result.success && result.points) {
+            console.log('Loaded points for user:', user.uid, result.points);
             setPointsBreakdown(result.points.pointsBreakdown);
           } else {
+            console.log('No points found, setting defaults for user:', user.uid);
             // Set default points if loading fails
             setPointsBreakdown({
               registration: 30,
@@ -79,41 +83,68 @@ export const PointsProvider = ({ children }: PointsProviderProps) => {
           setIsLoading(false);
         }
         setShowPointsBreakdown(false);
+      } else {
+        // Reset points when user logs out
+        setPointsBreakdown({
+          registration: 30,
+          phone: 0,
+          pet: 0,
+          share: 0
+        });
       }
     };
 
     loadUserPoints();
   }, [user]);
 
-  // Function to add points to a specific category
-  const addPoints = async (category: 'registration' | 'phone' | 'pet' | 'share', points: number) => {
+  // Function to add points to a specific category with transaction logging
+  const addPoints = async (category: 'registration' | 'phone' | 'pet' | 'share', points: number, description?: string) => {
     if (!user) {
       console.error('No user found when trying to add points');
       return;
     }
 
-    console.log(`Adding ${points} points to ${category} category`);
+    console.log(`Adding ${points} points to ${category} category for user ${user.uid}`);
     console.log('Current breakdown:', pointsBreakdown);
 
-    const newBreakdown = {
-      ...pointsBreakdown,
-      [category]: pointsBreakdown[category] + points
-    };
-
-    console.log('New breakdown:', newBreakdown);
-
-    // Update local state immediately for UI responsiveness
-    setPointsBreakdown(newBreakdown);
-
-    // Persist to Firestore
     try {
-      console.log('Updating points in Firestore...');
-      const result = await updateUserPoints(user, newBreakdown);
-      console.log('Firestore update result:', result);
+      // Use the new transaction-based system
+      const result = await addPointsToCategory(user, category, points, description);
+      
+      if (result.success) {
+        // Reload points from Firestore to ensure consistency
+        const freshPointsResult = await getUserPoints(user);
+        if (freshPointsResult.success && freshPointsResult.points) {
+          setPointsBreakdown(freshPointsResult.points.pointsBreakdown);
+          console.log('Points updated successfully:', freshPointsResult.points);
+        }
+      } else {
+        console.error('Failed to add points:', result.error);
+      }
     } catch (error) {
-      console.error('Error updating points in Firestore:', error);
-      // Revert local state if Firestore update fails
-      setPointsBreakdown(pointsBreakdown);
+      console.error('Error adding points:', error);
+    }
+  };
+
+  // Function to recalculate points from transaction history
+  const recalculatePoints = async () => {
+    if (!user) {
+      console.error('No user found when trying to recalculate points');
+      return;
+    }
+
+    try {
+      console.log('Recalculating points for user:', user.uid);
+      const result = await recalculateUserPoints(user);
+      
+      if (result.success && result.points) {
+        setPointsBreakdown(result.points.pointsBreakdown);
+        console.log('Points recalculated successfully:', result.points);
+      } else {
+        console.error('Failed to recalculate points:', result.error);
+      }
+    } catch (error) {
+      console.error('Error recalculating points:', error);
     }
   };
 
@@ -144,6 +175,7 @@ export const PointsProvider = ({ children }: PointsProviderProps) => {
     showPointsBreakdown,
     setShowPointsBreakdown,
     addPoints,
+    recalculatePoints,
     isLoading
   };
 
