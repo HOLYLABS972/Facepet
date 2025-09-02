@@ -45,7 +45,6 @@ const SignUpPage = () => {
       phoneNumber: '',
       emailAddress: '',
       password: '',
-      confirmPassword: '',
       termsAccepted: false
     }
   });
@@ -139,19 +138,7 @@ const SignUpPage = () => {
                 />
               )}
             />
-            <Controller
-              name="confirmPassword"
-              control={control}
-              render={({ field }) => (
-                <GetStartedInput
-                  label={t('form.ConfirmPassword')}
-                  id="confirmPassword"
-                  type="password"
-                  {...field}
-                  hasError={!!errors.confirmPassword}
-                />
-              )}
-            />
+
           </CardContent>
           {/* Terms and Conditions Checkbox */}
           <div className="flex items-center">

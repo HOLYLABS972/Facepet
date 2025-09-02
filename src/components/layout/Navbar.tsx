@@ -43,11 +43,11 @@ const Navbar = () => {
       console.log('Firebase logout...', { user });
       await signOut();
       console.log('Firebase logout completed, redirecting...');
-      window.location.href = '/auth/sign-in';
+      window.location.href = '/auth';
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback: force redirect even if signOut fails
-      window.location.href = '/auth/sign-in';
+      window.location.href = '/auth';
     }
   };
 
@@ -55,14 +55,8 @@ const Navbar = () => {
     {
       label: t('signIn'),
       key: 'login',
-      path: '/auth/sign-in',
+      path: '/auth',
       icon: <LogIn className="h-5 w-5" />
-    },
-    {
-      label: t('signUp'),
-      key: 'signup',
-      path: '/auth/sign-up',
-      icon: <UserRoundPlus className="h-5 w-5" />
     }
   ];
 
@@ -146,16 +140,10 @@ const Navbar = () => {
                 </>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link href="/auth/sign-in">
-                    <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                  <Link href="/auth">
+                    <Button className="bg-primary hover:bg-primary/90 text-white">
                       <LogIn className="h-5 w-5 mr-2" />
                       {t('signIn')}
-                    </Button>
-                  </Link>
-                  <Link href="/auth/sign-up">
-                    <Button className="bg-primary hover:bg-primary/90 text-white">
-                      <UserRoundPlus className="h-5 w-5 mr-2" />
-                      {t('signUp')}
                     </Button>
                   </Link>
                 </div>
