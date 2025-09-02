@@ -29,7 +29,13 @@ const ForgotPasswordPage = () => {
       toast.success('Password reset email sent!');
     } catch (error: any) {
       console.error('Password reset error:', error);
-      toast.error(error.message || 'Failed to send reset email');
+      
+      // Check if the error is because the email doesn't exist
+      if (error.code === 'auth/user-not-found') {
+        toast.error('This email address is not registered with us.');
+      } else {
+        toast.error(error.message || 'Failed to send reset email');
+      }
     } finally {
       setLoading(false);
     }

@@ -5,7 +5,7 @@ import MyPetCard from '@/components/MyPetCard';
 import { EditIcon, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import { Button } from './ui/button';
@@ -22,11 +22,38 @@ interface MyPetsClientProps {
   pets: Pet[];
 }
 
-const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets }) => {
+const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const t = useTranslations('pages.MyPetsPage');
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [search, setSearch] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
+  const [pets, setPets] = useState(initialPets);
+  const [petsLoading, setPetsLoading] = useState(false);
+
+  // Fetch pets when user is authenticated
+  useEffect(() => {
+    const fetchPets = async () => {
+      if (user?.uid && !loading) {
+        setPetsLoading(true);
+        try {
+          const response = await fetch(`/api/pets?userId=${user.uid}&locale=en`);
+          const data = await response.json();
+          
+          if (data.success) {
+            setPets(data.pets);
+          } else {
+            console.error('Error fetching pets:', data.error);
+          }
+        } catch (error) {
+          console.error('Error fetching pets:', error);
+        } finally {
+          setPetsLoading(false);
+        }
+      }
+    };
+
+    fetchPets();
+  }, [user?.uid, loading]);
 
   const filteredPets = pets.filter((pet) =>
     pet.name.toLowerCase().includes(search.toLowerCase())
@@ -78,8 +105,18 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets }) => {
       <Separator className="mb-4 h-0.5" />
 
       {/* Pet Cards */}
-      {filteredPets.length === 0 ? (
-        <p>{t('noResults')}</p>
+      {petsLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2 text-gray-600">Loading pets...</span>
+        </div>
+      ) : filteredPets.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-600 mb-4">{t('noResults')}</p>
+          <p className="text-sm text-gray-500">
+            Start by adding your first pet to keep them safe!
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {filteredPets.map((pet) => (
