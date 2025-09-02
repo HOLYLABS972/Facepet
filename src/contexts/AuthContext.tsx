@@ -45,6 +45,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [storedOTPCode, setStoredOTPCode] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -60,7 +61,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
-      // Set session cookie with user information
+      // Get user information from database
+      const userInfoResponse = await fetch('/api/auth/user-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: userCredential.user.email }),
+      });
+
+      const userInfoData = await userInfoResponse.json();
+      
+      // Set session cookie with user information including role
       await fetch('/api/auth/session', {
         method: 'POST',
         headers: {
@@ -68,8 +80,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         },
         body: JSON.stringify({ 
           email: userCredential.user.email,
-          fullName: userCredential.user.displayName || '',
-          emailVerified: userCredential.user.emailVerified
+          fullName: userInfoData.success ? userInfoData.user.fullName : userCredential.user.displayName || '',
+          emailVerified: userCredential.user.emailVerified,
+          role: userInfoData.success ? userInfoData.user.role : 'user'
         }),
       });
     } catch (error) {
@@ -87,14 +100,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           displayName: fullName
         });
         
-        // Get the ID token and set session cookie
-        const idToken = await userCredential.user.getIdToken();
+        // Set session cookie with user information
         await fetch('/api/auth/session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ idToken }),
+          body: JSON.stringify({ 
+            email: userCredential.user.email,
+            fullName: fullName,
+            emailVerified: userCredential.user.emailVerified
+          }),
         });
       }
     } catch (error) {
@@ -125,7 +141,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       
-      // Set session cookie with user information
+      // Get user information from database
+      const userInfoResponse = await fetch('/api/auth/user-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: userCredential.user.email }),
+      });
+
+      const userInfoData = await userInfoResponse.json();
+      
+      // Set session cookie with user information including role
       await fetch('/api/auth/session', {
         method: 'POST',
         headers: {
@@ -133,8 +160,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         },
         body: JSON.stringify({ 
           email: userCredential.user.email,
-          fullName: userCredential.user.displayName || '',
-          emailVerified: userCredential.user.emailVerified
+          fullName: userInfoData.success ? userInfoData.user.fullName : userCredential.user.displayName || '',
+          emailVerified: userCredential.user.emailVerified,
+          role: userInfoData.success ? userInfoData.user.role : 'user'
         }),
       });
     } catch (error) {
@@ -160,33 +188,48 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (!data.success) {
         throw new Error(data.error || 'Failed to send verification code');
       }
+
+      // Store the OTP code in frontend state
+      if (data.verification_code) {
+        setStoredOTPCode(data.verification_code);
+      }
     } catch (error) {
       console.error('Send verification code error:', error);
       throw error;
     }
   };
 
-  const verifyCodeAndCreateAccount = async (email: string, password: string, fullName: string, code: string) => {
+  const verifyCodeAndCreateAccount = async (email: string, password: string, fullName: string, code: string, phone?: string) => {
     try {
-      // First verify the OTP code
-      const verifyResponse = await fetch('/api/verify-otp', {
+      // Validate the OTP code against the stored frontend code
+      if (!storedOTPCode || storedOTPCode !== code) {
+        throw new Error('Invalid verification code');
+      }
+
+      // Clear the stored OTP code after successful verification
+      setStoredOTPCode(null);
+
+      // Create user in database first
+      const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email,
-          code
+          fullName,
+          phone: phone || '', // Default empty phone if not provided
+          password,
+          role: 'user' // Default role
         }),
       });
 
-      const verifyData = await verifyResponse.json();
-
-      if (!verifyData.success) {
-        throw new Error(verifyData.error || 'Invalid verification code');
+      const registerData = await registerResponse.json();
+      if (!registerData.success) {
+        throw new Error(registerData.error || 'Failed to create user account');
       }
 
-      // Only create Firebase account after successful verification
+      // Create Firebase account after successful database registration
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
       // Update the user's display name
@@ -195,14 +238,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           displayName: fullName
         });
         
-        // Get the ID token and set session cookie
-        const idToken = await userCredential.user.getIdToken();
+        // Set session cookie with user information including role
         await fetch('/api/auth/session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ idToken }),
+          body: JSON.stringify({ 
+            email: userCredential.user.email,
+            fullName: fullName,
+            emailVerified: userCredential.user.emailVerified,
+            role: registerData.user.role
+          }),
         });
       }
     } catch (error) {

@@ -12,7 +12,8 @@ import {
   PawPrint,
   Stethoscope,
   UserRoundPlus,
-  X
+  X,
+  LayoutDashboard
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -22,6 +23,13 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import PointsExplenationPopup from '../PointsExplenationPopup';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 type NavLink = {
   label: string;
@@ -119,24 +127,44 @@ const Navbar = () => {
                     </Link>
                   </Button>
                   
-                  {/* User Avatar and Name */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                      <CircleUserRound className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-gray-900">{user?.displayName || user?.email}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    variant="ghost"
-                    onClick={handleLogout}
-                    className="text-gray-600 hover:text-gray-900"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </Button>
+                  {/* User Dropdown Menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                          <CircleUserRound className="h-5 w-5 text-white" />
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                      <div className="flex items-center justify-start gap-2 p-2">
+                        <div className="flex flex-col space-y-1 leading-none">
+                          <p className="font-medium">{user?.displayName || user?.email}</p>
+                          <p className="w-[200px] truncate text-sm text-muted-foreground">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/pages/my-pets" className="flex items-center">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/user/settings" className="flex items-center">
+                          <CircleUserRound className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               ) : (
                 <div className="flex items-center gap-2">

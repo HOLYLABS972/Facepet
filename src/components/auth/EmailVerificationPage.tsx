@@ -20,13 +20,14 @@ interface EmailVerificationPageProps {
 
 const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerificationPageProps) => {
   const t = useTranslations('pages.EmailVerification');
-  const { user, verifyCodeAndCreateAccount } = useAuth();
+  const { user, verifyCodeAndCreateAccount, sendVerificationCode } = useAuth();
   const router = useRouter();
   
   const [verificationCode, setVerificationCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [storedOTPCode, setStoredOTPCode] = useState<string | null>(null);
 
   // Countdown timer for resend button
   useEffect(() => {
@@ -48,25 +49,16 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
         router.push('/pages/my-pets');
       } else {
         // This is just email verification (for existing users)
-        const response = await fetch('/api/verify-otp', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            code: verificationCode
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          toast.success('Email verified successfully!');
-          router.push('/pages/my-pets');
-        } else {
-          toast.error(data.error || 'Verification failed');
+        // Validate the OTP code against the stored frontend code
+        if (!storedOTPCode || storedOTPCode !== verificationCode) {
+          toast.error('Invalid verification code');
+          return;
         }
+
+        // Clear the stored OTP code after successful verification
+        setStoredOTPCode(null);
+        toast.success('Email verified successfully!');
+        router.push('/pages/my-pets');
       }
     } catch (error: any) {
       console.error('Verification error:', error);
@@ -85,6 +77,10 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
       const data = await response.json();
 
       if (data.success) {
+        // Store the new OTP code in frontend state
+        if (data.verification_code) {
+          setStoredOTPCode(data.verification_code);
+        }
         toast.success('Verification code sent!');
       } else {
         toast.error(data.error || 'Failed to resend code');

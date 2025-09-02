@@ -38,6 +38,7 @@ export async function auth(): Promise<ServerSession | null> {
     const userEmail = cookieStore.get('user_email')?.value;
     const userFullName = cookieStore.get('user_fullname')?.value;
     const userEmailVerified = cookieStore.get('user_email_verified')?.value === 'true';
+    const userRoleFromCookie = cookieStore.get('user_role')?.value;
     
     if (!userEmail) {
       return null;
@@ -46,8 +47,8 @@ export async function auth(): Promise<ServerSession | null> {
     // Check if user is restricted
     const isRestricted = userRestrictions[userEmail] || false;
     
-    // Get user role (default to 'user' if not specified)
-    const role = userRoles[userEmail] || 'user';
+    // Get user role from cookie first, then from in-memory store, default to 'user'
+    const role = (userRoleFromCookie as 'user' | 'admin' | 'super_admin') || userRoles[userEmail] || 'user';
 
     return {
       user: {

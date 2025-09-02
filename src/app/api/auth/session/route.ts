@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, fullName, emailVerified } = await request.json();
+    const { email, fullName, emailVerified, role } = await request.json();
 
     if (!email) {
       return NextResponse.json(
@@ -38,6 +38,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    if (role) {
+      response.cookies.set('user_role', role, {
+        maxAge: 60 * 60 * 24 * 5, // 5 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+    }
+
     return response;
   } catch (error) {
     console.error('Session creation error:', error);
@@ -52,6 +61,9 @@ export async function DELETE() {
   try {
     const response = NextResponse.json({ success: true });
     response.cookies.delete('user_email');
+    response.cookies.delete('user_fullname');
+    response.cookies.delete('user_email_verified');
+    response.cookies.delete('user_role');
     return response;
   } catch (error) {
     console.error('Session deletion error:', error);
