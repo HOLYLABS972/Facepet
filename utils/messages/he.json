@@ -124,6 +124,14 @@
       "preferredLanguage": "שפה מועדפת",
       "selectLanguage": "בחרו שפה",
       "languageDescription": "בחרו את השפה המועדפת שלכם לממשק",
+      "deleteAccount": {
+        "button": "מחק חשבון",
+        "deleting": "מוחק...",
+        "confirmTitle": "מחיקת חשבון",
+        "confirmMessage": "האם אתה בטוח שברצונך למחוק את החשבון שלך? פעולה זו לא ניתנת לביטול.",
+        "cancel": "ביטול",
+        "confirm": "מחק חשבון"
+      },
       "saveChanges": "שמור שינויים",
       "saving": "שומר...",
       "form": {
