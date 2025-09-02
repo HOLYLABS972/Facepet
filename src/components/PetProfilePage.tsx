@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, List } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, List, Loader2 } from 'lucide-react';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
@@ -37,6 +38,7 @@ interface PetProfilePageProps {
 
 export default function PetProfilePage({ pet }: PetProfilePageProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -122,27 +124,29 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               </div>
             </div>
             
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-2">
-                  <div className="w-6 h-6 flex items-center justify-center">
-                    <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                    <div className="w-1 h-1 bg-gray-600 rounded-full mx-1"></div>
-                    <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Pet
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
-                  <Wifi className="mr-2 h-4 w-4" />
-                  Attach Tag
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {pet.userEmail === user?.email && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="p-2">
+                    <div className="w-6 h-6 flex items-center justify-center">
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full mx-1"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Pet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
+                    <Wifi className="mr-2 h-4 w-4" />
+                    Attach Tag
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
@@ -286,60 +290,46 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Quick Actions */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Edit className="w-5 h-5 text-blue-500" />
-                    <span>Quick Actions</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-gray-600">
-                    Manage {pet.name}'s profile
-                  </p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
-                        Actions
-                        <svg
-                          className="ml-2 h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={() => router.push('/pages/my-pets')}>
-                        <List className="mr-2 h-4 w-4" />
-                        List Pets
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Pet
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
-                        <Wifi className="mr-2 h-4 w-4" />
-                        Attach Tag
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardContent>
-              </Card>
-            </motion.div>
+            {/* Delete Section - Only visible to authenticated pet owners */}
+            {pet.userEmail === user?.email && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                      <span>Delete Pet</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-gray-600">
+                      Permanently remove {pet.name}'s profile
+                    </p>
+                    <Button
+                      onClick={handleDeletePet}
+                      variant="destructive"
+                      disabled={isDeleting}
+                      className="w-full"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Pet
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
             {/* Share */}
             <motion.div
