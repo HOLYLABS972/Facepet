@@ -18,6 +18,7 @@ const petImages = {
   pig: '/pets/pig.png'
 };
 import Footer from '@/src/components/layout/Footer';
+import CookieConsent from '@/src/components/CookieConsent';
 
 const petCharacters = [
   {
@@ -114,6 +115,14 @@ export default function LandingHomePage() {
     );
   }
 
+  const handleCookieAccept = () => {
+    console.log('Cookies accepted');
+  };
+
+  const handleCookieReject = () => {
+    console.log('Cookies rejected');
+  };
+
   return (
     // This container is scrollable. Adjust the height as needed.
     <div className="flex grow flex-col">
@@ -122,6 +131,12 @@ export default function LandingHomePage() {
       
       {/* Always show the public landing page */}
       <PublicLandingPage t={t} router={router} />
+      
+      {/* Cookie Consent */}
+      <CookieConsent 
+        onAccept={handleCookieAccept}
+        onReject={handleCookieReject}
+      />
     </div>
   );
 }

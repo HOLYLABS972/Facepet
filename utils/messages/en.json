@@ -351,6 +351,15 @@
     }
   },
   "components": {
+    "CookieConsent": {
+      "title": "We use cookies to enhance your experience",
+      "description": "We use cookies to improve your browsing experience, serve personalized content, and analyze our traffic. By clicking 'Accept All', you consent to our use of cookies. You can also choose to reject non-essential cookies.",
+      "acceptAll": "Accept All",
+      "rejectAll": "Reject All",
+      "accepting": "Accepting...",
+      "rejecting": "Rejecting...",
+      "privacyNote": "You can change your cookie preferences at any time in your account settings."
+    },
     "searchbar": {
       "search": "Search...",
       "noResult": "No results found"

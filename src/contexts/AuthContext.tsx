@@ -94,8 +94,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Store user in Firestore collection with role assignment
         const userRole = getUserRole(email);
+        const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
         const userResult = await createUserInFirestore(userCredential.user, {
-          acceptCookies: false,
+          acceptCookies: cookiePreference,
           language: 'en',
           role: userRole
         });
@@ -130,8 +131,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                       // Store user in Firestore collection after Google sign-in
                 if (userCredential.user) {
                   const userRole = getUserRole(userCredential.user.email || '');
+                  const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
                   const userResult = await createUserInFirestore(userCredential.user, {
-                    acceptCookies: false,
+                    acceptCookies: cookiePreference,
                     language: 'en',
                     role: userRole
                   });
@@ -196,9 +198,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Store user in Firestore collection with role assignment
         const userRole = getUserRole(email);
+        const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
         const userResult = await createUserInFirestore(userCredential.user, {
           phone: phone || '',
-          acceptCookies: false,
+          acceptCookies: cookiePreference,
           language: 'en',
           role: userRole
         });
