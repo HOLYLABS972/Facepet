@@ -31,18 +31,6 @@ interface UploadProgress {
 const PET_TYPES = [
   { id: 'cat', name: 'Cat', emoji: '🐱', icon: '🐱' },
   { id: 'dog', name: 'Dog', emoji: '🐶', icon: '🐶' },
-  { id: 'bird', name: 'Bird', emoji: '🐦', icon: '🐦' },
-  { id: 'fish', name: 'Fish', emoji: '🐠', icon: '🐠' },
-  { id: 'hamster', name: 'Hamster', emoji: '🐹', icon: '🐹' },
-  { id: 'rabbit', name: 'Rabbit', emoji: '🐰', icon: '🐰' },
-  { id: 'turtle', name: 'Turtle', emoji: '🐢', icon: '🐢' },
-  { id: 'snake', name: 'Snake', emoji: '🐍', icon: '🐍' },
-  { id: 'lizard', name: 'Lizard', emoji: '🦎', icon: '🦎' },
-  { id: 'ferret', name: 'Ferret', emoji: '🦦', icon: '🦦' },
-  { id: 'guinea-pig', name: 'Guinea Pig', emoji: '🐹', icon: '🐹' },
-  { id: 'chinchilla', name: 'Chinchilla', emoji: '🐭', icon: '🐭' },
-  { id: 'hedgehog', name: 'Hedgehog', emoji: '🦔', icon: '🦔' },
-  { id: 'parrot', name: 'Parrot', emoji: '🦜', icon: '🦜' },
   { id: 'other', name: 'Other', emoji: '🐾', icon: '🐾' }
 ];
 
