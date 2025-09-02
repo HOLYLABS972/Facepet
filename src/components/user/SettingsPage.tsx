@@ -70,7 +70,7 @@ export default function SettingsPage() {
               phone: userResult.user.phone || '',
               profileImageURL: userResult.user.profileImage || user.photoURL || '',
               acceptCookies: userResult.user.acceptCookies || false,
-              language: userResult.user.language || locale
+              language: locale // Always use current locale, not stored preference
             }));
           } else {
             // Fallback to localStorage and Firebase Auth data
@@ -79,7 +79,8 @@ export default function SettingsPage() {
               fullName: user.displayName || '',
               email: user.email || '',
               profileImageURL: user.photoURL || '',
-              acceptCookies: localStorage.getItem('acceptCookies') === 'true'
+              acceptCookies: localStorage.getItem('acceptCookies') === 'true',
+              language: locale // Always use current locale
             }));
           }
         } catch (error) {
@@ -90,7 +91,8 @@ export default function SettingsPage() {
             fullName: user.displayName || '',
             email: user.email || '',
             profileImageURL: user.photoURL || '',
-            acceptCookies: localStorage.getItem('acceptCookies') === 'true'
+            acceptCookies: localStorage.getItem('acceptCookies') === 'true',
+            language: locale // Always use current locale
           }));
         }
       };
@@ -98,6 +100,15 @@ export default function SettingsPage() {
       loadUserData();
     }
   }, [user, locale]);
+
+  // Update language when locale changes
+  useEffect(() => {
+    console.log('Locale changed to:', locale);
+    setFormData(prev => ({
+      ...prev,
+      language: locale
+    }));
+  }, [locale]);
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -218,6 +229,10 @@ export default function SettingsPage() {
 
   const handleLanguageChange = (newLanguage: string) => {
     try {
+      console.log('Language change requested:', newLanguage);
+      console.log('Current locale:', locale);
+      console.log('Current formData.language:', formData.language);
+      
       setFormData(prev => ({
         ...prev,
         language: newLanguage
