@@ -47,7 +47,13 @@
       "addFirstPet": "Start by adding your first pet to keep them safe!",
       "managePetsDescription": "Manage your pets and keep them safe with FacePet",
       "welcomeBack": "Welcome back!",
-      "loadingPets": "Loading pets..."
+      "loadingPets": "Loading pets...",
+      "notifications": "Notifications",
+      "noNotifications": "No new notifications",
+      "addPhoneNumber": "Add Phone Number",
+      "phoneNumberDescription": "Receive our newsletter with pet care tips and updates!",
+      "shareWithFriends": "Share with Friends",
+      "shareDescription": "Share and get 10 points for every friend who joins!"
     },
     "AddPetPage": {
       "back": "Back",

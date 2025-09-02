@@ -263,7 +263,6 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           setSelectedPet(null);
         }}
         pet={selectedPet}
-        onDeletePet={handleDeletePet}
       />
     </div>
   );
