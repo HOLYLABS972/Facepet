@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
 import { BreedSelect } from './ui/breed-select';
 import { getBreedsForType, type PetType } from '@/src/lib/data/breeds';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -56,6 +57,7 @@ const petTypes: { value: PetType; label: string; emoji: string }[] = [
 export default function EditPetForm({ pet }: EditPetFormProps) {
   const { user } = useAuth();
   const router = useRouter();
+  const t = useTranslations('Pet.edit');
   const [formData, setFormData] = useState<PetFormData>({
     name: pet.name || '',
     type: pet.type || '',
@@ -137,11 +139,11 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
       };
 
       await updatePetInFirestore(pet.id, petData);
-      toast.success('Pet updated successfully!');
+      toast.success(t('success'));
       router.push('/pages/my-pets');
     } catch (error) {
       console.error('Error updating pet:', error);
-      toast.error('Failed to update pet. Please try again.');
+      toast.error(t('error'));
       setUploadProgress({ progress: 0, status: 'error' });
     } finally {
       setIsSubmitting(false);
@@ -161,7 +163,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
           <Card className="shadow-lg">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-gray-800">
-                Edit Pet
+                {t('title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -169,14 +171,14 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {/* Pet Name */}
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                    Pet Name *
+                    {t('form.name')} *
                   </Label>
                   <Input
                     id="name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="Enter your pet's name"
+                    placeholder={t('form.name')}
                     required
                     className="w-full"
                   />
@@ -185,7 +187,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {/* Pet Type */}
                 <div className="space-y-2">
                   <Label htmlFor="type" className="text-sm font-medium text-gray-700">
-                    Pet Type *
+                    {t('form.type')} *
                   </Label>
                   <select
                     id="type"
@@ -194,7 +196,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">Select pet type</option>
+                    <option value="">{t('form.selectType')}</option>
                     {petTypes.map((type) => (
                       <option key={type.value} value={type.value}>
                         {type.emoji} {type.label}
@@ -207,13 +209,13 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {formData.type && (
                   <div className="space-y-2">
                     <Label htmlFor="breed" className="text-sm font-medium text-gray-700">
-                      Breed
+                      {t('form.breed')}
                     </Label>
                     <BreedSelect
                       petType={formData.type as PetType}
                       value={formData.breed}
                       onValueChange={(value) => handleInputChange('breed', value)}
-                      placeholder="Select breed"
+                      placeholder={t('form.selectBreed')}
                     />
                   </div>
                 )}
@@ -282,13 +284,13 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {/* Description */}
                 <div className="space-y-2">
                   <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                    Description
+                    {t('form.description')}
                   </Label>
                   <textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Tell us about your pet..."
+                    placeholder={t('form.descriptionPlaceholder')}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   />
@@ -298,20 +300,20 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="age" className="text-sm font-medium text-gray-700">
-                      Age
+                      {t('form.age')}
                     </Label>
                     <Input
                       id="age"
                       type="text"
                       value={formData.age}
                       onChange={(e) => handleInputChange('age', e.target.value)}
-                      placeholder="e.g., 2 years old"
+                      placeholder={t('form.agePlaceholder')}
                       className="w-full"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="gender" className="text-sm font-medium text-gray-700">
-                      Gender
+                      {t('form.gender')}
                     </Label>
                     <select
                       id="gender"
@@ -319,9 +321,9 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                       onChange={(e) => handleInputChange('gender', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">Select gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
+                      <option value="">{t('form.selectGender')}</option>
+                      <option value="male">{t('form.genderMale')}</option>
+                      <option value="female">{t('form.genderFemale')}</option>
                     </select>
                   </div>
                 </div>
@@ -338,12 +340,12 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Updating...
+                        {t('form.updating')}
                       </>
                     ) : (
                       <>
                         <Save className="w-4 h-4 mr-2" />
-                        Update Pet
+                        {t('form.save')}
                       </>
                     )}
                   </Button>

@@ -1,0 +1,85 @@
+{
+  "Pet": {
+    "nfcTag": {
+      "title": "חיבור תג NFC",
+      "subtitle": "יצירת פרופיל חיית מחמד לשיתוף",
+      "backButton": "חזרה",
+      "steps": {
+        "prepareTag": {
+          "title": "הכנת תג NFC",
+          "description": "ודא שתג ה-NFC שלך מוכן ובהישג יד"
+        },
+        "enableNfc": {
+          "title": "הפעלת NFC בטלפון",
+          "description": "הפעל NFC בהגדרות הטלפון שלך"
+        },
+        "record": {
+          "title": "הקש להקלטה",
+          "description": "הקש את הטלפון שלך לתג ה-NFC כדי להקליט את פרטי חיית המחמד"
+        }
+      },
+      "recordTag": {
+        "title": "הקלטת תג NFC",
+        "description": "הקש על הכפתור למטה ואז הקש את הטלפון שלך לתג ה-NFC כדי להקליט את המידע של {petName}",
+        "button": {
+          "default": "הקלטת תג",
+          "recording": "מקליט...",
+          "recorded": "התג הוקלט!"
+        },
+        "errors": {
+          "notSupported": "NFC לא נתמך במכשיר זה. אנא השתמש במכשיר עם יכולות NFC.",
+          "failed": "ההקלטה לתג NFC נכשלה. אנא נסה שוב."
+        },
+        "success": "תג ה-NFC הוקלט בהצלחה!"
+      },
+      "shareableLink": {
+        "title": "קישור לשיתוף",
+        "description": "כל מי שיש לו קישור זה יכול לצפות בפרופיל של {petName}:",
+        "copied": "הקישור הועתק!",
+        "copy": "העתק קישור",
+        "share": "שתף"
+      }
+    },
+    "edit": {
+      "title": "עריכת חיית מחמד",
+      "subtitle": "עדכון פרטי חיית המחמד",
+      "form": {
+        "name": "שם",
+        "type": "סוג",
+        "breed": "גזע",
+        "gender": "מין",
+        "birthDate": "תאריך לידה",
+        "description": "תיאור",
+        "image": "תמונה",
+        "uploadImage": "העלאת תמונה",
+        "save": "שמור שינויים",
+        "cancel": "ביטול"
+      },
+      "success": "חיית המחמד עודכנה בהצלחה!",
+      "error": "שגיאה בעדכון חיית המחמד"
+    },
+    "info": {
+      "title": "פרטי חיית מחמד",
+      "details": {
+        "name": "שם",
+        "type": "סוג",
+        "breed": "גזע",
+        "gender": "מין",
+        "age": "גיל",
+        "owner": "בעלים",
+        "contact": "פרטי קשר"
+      },
+      "actions": {
+        "edit": "עריכה",
+        "delete": "מחיקה",
+        "attachTag": "חיבור תג NFC"
+      },
+      "deleteConfirm": {
+        "title": "מחיקת חיית מחמד",
+        "message": "האם אתה בטוח שברצונך למחוק את {petName}?",
+        "confirm": "כן, מחק",
+        "cancel": "ביטול"
+      }
+    }
+  }
+}

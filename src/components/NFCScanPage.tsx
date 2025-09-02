@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 interface Pet {
   id: string;
@@ -27,26 +28,28 @@ interface NFCScanPageProps {
   pet: Pet;
 }
 
-const STEPS = [
-  {
-    id: 1,
-    title: 'Prepare Your NFC Tag',
-    description: 'Make sure your NFC tag is ready and within reach',
-    icon: Tag,
-  },
-  {
-    id: 2,
-    title: 'Enable NFC on Your Phone',
-    description: 'Turn on NFC in your phone settings',
-    icon: Smartphone,
-  },
-  {
-    id: 3,
-    title: 'Tap to Record',
-    description: 'Tap your phone to the NFC tag to record the pet information',
-    icon: Wifi,
-  },
-];
+const t = useTranslations('Pet.nfcTag');
+
+  const STEPS = [
+    {
+      id: 1,
+      title: t('steps.prepareTag.title'),
+      description: t('steps.prepareTag.description'),
+      icon: Tag,
+    },
+    {
+      id: 2,
+      title: t('steps.enableNfc.title'),
+      description: t('steps.enableNfc.description'),
+      icon: Smartphone,
+    },
+    {
+      id: 3,
+      title: t('steps.record.title'),
+      description: t('steps.record.description'),
+      icon: Wifi,
+    },
+  ];
 
 export default function NFCScanPage({ pet }: NFCScanPageProps) {
   const router = useRouter();
@@ -64,7 +67,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
 
   const handleRecordTag = async () => {
     if (!('NDEFReader' in window)) {
-      toast.error('NFC is not supported on this device. Please use a device with NFC capabilities.');
+      toast.error(t('recordTag.errors.notSupported'));
       setNfcSupported(false);
       return;
     }
@@ -83,7 +86,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
       });
       
       setIsRecorded(true);
-      toast.success('NFC tag recorded successfully!');
+      toast.success(t('recordTag.success'));
     } catch (error) {
       console.error('Error writing to NFC tag:', error);
       toast.error('Failed to write to NFC tag. Please try again.');
@@ -96,10 +99,10 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
     try {
       await navigator.clipboard.writeText(petShareUrl);
       setCopied(true);
-      toast.success('Link copied to clipboard!');
+      toast.success(t('shareableLink.copied'));
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error('Failed to copy link');
+      toast.error(t('shareableLink.error'));
     }
   };
 
@@ -134,8 +137,8 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold">Attach NFC Tag</h1>
-              <p className="text-sm text-gray-600">Create a shareable pet profile</p>
+              <h1 className="text-xl font-bold">{t('title')}</h1>
+              <p className="text-sm text-gray-600">{t('subtitle')}</p>
             </div>
           </div>
         </div>
@@ -214,12 +217,12 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Wifi className="w-5 h-5" />
-                <span>Record NFC Tag</span>
+                <span>{t('recordTag.title')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-4">
-                Tap the button below and then tap your phone to the NFC tag to record {pet.name}'s information.
+                {t('recordTag.description', { petName: pet.name })}
               </p>
               <Button
                 onClick={handleRecordTag}
@@ -230,17 +233,17 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
                 {isRecording ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Recording...
+                    {t('recordTag.button.recording')}
                   </>
                 ) : isRecorded ? (
                   <>
                     <Check className="w-4 h-4 mr-2" />
-                    Tag Recorded!
+                    {t('recordTag.button.recorded')}
                   </>
                 ) : (
                   <>
                     <Wifi className="w-4 h-4 mr-2" />
-                    Record Tag
+                    {t('recordTag.button.default')}
                   </>
                 )}
               </Button>
@@ -258,12 +261,12 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Share2 className="w-5 h-5" />
-                <span>Shareable Link</span>
+                <span>{t('shareableLink.title')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-4">
-                Anyone with this link can view {pet.name}'s profile:
+                {t('shareableLink.description', { petName: pet.name })}
               </p>
               <div className="flex space-x-2">
                 <div className="flex-1 p-3 bg-gray-100 rounded-lg text-sm font-mono break-all">
