@@ -13,10 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../ui/separator';
 import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { uploadProfileImage, uploadProfileImageSimple, UploadProgress } from '@/src/lib/firebase/storage';
+import { uploadProfileImage, testStorageConnection } from '@/src/lib/firebase/simple-upload';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
-import { debugFirebaseStatus } from '@/src/lib/firebase/init-check';
-import { testStorageConnection } from '@/src/lib/firebase/storage-init';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -26,7 +24,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ progress: number; status: string; downloadURL?: string; error?: string } | null>(null);
   const [savingCookies, setSavingCookies] = useState(false);
   
   // Form state
@@ -167,14 +165,7 @@ export default function SettingsPage() {
         profileImage: file
       }));
 
-      // Debug Firebase status before upload
-      const firebaseStatus = debugFirebaseStatus();
-      if (!firebaseStatus.success) {
-        toast.error('Firebase not properly initialized. Check console for details.');
-        return;
-      }
-
-      // Test storage connection specifically
+      // Test storage connection
       const storageTest = await testStorageConnection();
       if (!storageTest.success) {
         toast.error(`Storage connection failed: ${storageTest.error}`);
@@ -186,8 +177,8 @@ export default function SettingsPage() {
       setUploadProgress({ progress: 0, status: 'uploading' });
 
       try {
-        // Try simple upload first (might avoid CORS issues)
-        const result = await uploadProfileImageSimple(file, user);
+        // Use the new simple upload function
+        const result = await uploadProfileImage(file, user);
         
         if (result.success) {
           setUploadProgress({ progress: 100, status: 'completed', downloadURL: result.downloadURL });
