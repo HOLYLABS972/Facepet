@@ -124,7 +124,7 @@ export default function LandingHomePage() {
       {/* Conditional Content Based on Authentication */}
       {session ? (
         // Authenticated User Dashboard
-        <AuthenticatedDashboard session={session} router={router} />
+        <AuthenticatedDashboard session={session} router={router} t={t} />
       ) : (
         // Public Landing Page
         <PublicLandingPage t={t} router={router} />
@@ -134,7 +134,7 @@ export default function LandingHomePage() {
 }
 
 // Authenticated User Dashboard Component
-const AuthenticatedDashboard = ({ session, router }: { session: any; router: any }) => {
+const AuthenticatedDashboard = ({ session, router, t }: { session: any; router: any; t: any }) => {
   return (
     <>
       {/* Welcome Section for Authenticated Users */}
@@ -155,35 +155,8 @@ const AuthenticatedDashboard = ({ session, router }: { session: any; router: any
           </div>
 
           <p className="text-lg text-gray-600 mb-8">
-            Manage your pets and keep them safe with FacePet
+            Your pets are safe and protected with FacePet
           </p>
-        </div>
-      </section>
-
-      {/* Quick Actions */}
-      <section className="px-7 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-          <Button
-            onClick={() => router.push('/pages/my-pets')}
-            className="h-16 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg flex items-center gap-3"
-          >
-            <PawPrint className="h-6 w-6" />
-            <div className="text-left">
-              <p className="font-semibold">My Pets</p>
-              <p className="text-sm opacity-90">Manage your pet profiles</p>
-            </div>
-          </Button>
-
-          <Button
-            onClick={() => router.push('/user/settings')}
-            className="h-16 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl shadow-lg flex items-center gap-3"
-          >
-            <Settings className="h-6 w-6" />
-            <div className="text-left">
-              <p className="font-semibold">Settings</p>
-              <p className="text-sm opacity-70">Account preferences</p>
-            </div>
-          </Button>
         </div>
       </section>
 
@@ -195,7 +168,7 @@ const AuthenticatedDashboard = ({ session, router }: { session: any; router: any
               onClick={() => router.push('/pages/my-pets')}
               className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
             >
-              View My Pets
+              {t('buttonLabel')}
             </Button>
           </div>
         </div>
@@ -226,14 +199,14 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           <p className="text-black">{t('lowerTitle')}</p>
         </div>
 
-        <div className="mt-12">
+        {/* <div className="mt-12">
           <Button
             onClick={() => router.push('/auth/sign-up')}
             className="w-full h-[60px] bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg"
           >
             Get Started
           </Button>
-        </div>
+        </div> */}
       </section>
 
       {/* Animated Pet Characters */}
