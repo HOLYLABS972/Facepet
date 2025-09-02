@@ -81,9 +81,6 @@ export default function PetDetailsBottomSheet({
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Pet
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={onClose} className="text-gray-500">
-                  Close
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </DialogTitle>
