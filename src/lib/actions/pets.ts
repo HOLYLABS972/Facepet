@@ -301,3 +301,51 @@ export async function getBreeds(): Promise<{ success: boolean; breeds?: Array<{ 
     return { success: false, error: 'Failed to get breeds' };
   }
 }
+
+/**
+ * Check if pet ID is available (for pet registration)
+ */
+export async function checkPetIdAvailability(petId: string): Promise<boolean> {
+  try {
+    const existingPet = await db
+      .select()
+      .from(pets)
+      .where(eq(pets.id, petId))
+      .limit(1);
+
+    return existingPet.length === 0;
+  } catch (error) {
+    console.error('Check pet ID availability error:', error);
+    return false;
+  }
+}
+
+/**
+ * Check if pet is linked to the current user
+ */
+export async function isPetLinkedToUser(petId: string, userEmail: string): Promise<boolean> {
+  try {
+    const pet = await db
+      .select()
+      .from(pets)
+      .where(and(
+        eq(pets.id, petId),
+        eq(pets.userEmail, userEmail)
+      ))
+      .limit(1);
+
+    return pet.length > 0;
+  } catch (error) {
+    console.error('Check pet linked to user error:', error);
+    return false;
+  }
+}
+
+/**
+ * Create new pet (alias for createPet for backward compatibility)
+ */
+export async function createNewPet(petId: string, petData: PetData): Promise<{ success: boolean; petId?: string; error?: string }> {
+  // For now, we'll ignore the petId parameter and let the database generate a new ID
+  // You can modify this if you want to use specific pet IDs
+  return await createPet(petData);
+}

@@ -88,64 +88,59 @@ export async function isUserRestricted(email: string): Promise<boolean> {
 }
 
 /**
- * Admin functions for user management
+ * Set user role
  */
-export const adminFunctions = {
-  /**
-   * Set user role
-   */
-  setUserRole(email: string, role: 'user' | 'admin' | 'super_admin'): void {
-    userRoles[email] = role;
-  },
+export async function setUserRole(email: string, role: 'user' | 'admin' | 'super_admin'): Promise<void> {
+  userRoles[email] = role;
+}
 
-  /**
-   * Remove user role (defaults to 'user')
-   */
-  removeUserRole(email: string): void {
-    delete userRoles[email];
-  },
+/**
+ * Remove user role (defaults to 'user')
+ */
+export async function removeUserRole(email: string): Promise<void> {
+  delete userRoles[email];
+}
 
-  /**
-   * Restrict user from signing in
-   */
-  restrictUser(email: string): void {
-    userRestrictions[email] = true;
-  },
+/**
+ * Restrict user from signing in
+ */
+export async function restrictUser(email: string): Promise<void> {
+  userRestrictions[email] = true;
+}
 
-  /**
-   * Unrestrict user
-   */
-  unrestrictUser(email: string): void {
-    delete userRestrictions[email];
-  },
+/**
+ * Unrestrict user
+ */
+export async function unrestrictUser(email: string): Promise<void> {
+  delete userRestrictions[email];
+}
 
-  /**
-   * Get all users with their roles and restrictions
-   */
-  getAllUsers(): Array<{ email: string; role: string; isRestricted: boolean }> {
-    const allEmails = new Set([
-      ...Object.keys(userRoles),
-      ...Object.keys(userRestrictions)
-    ]);
+/**
+ * Get all users with their roles and restrictions
+ */
+export async function getAllUsers(): Promise<Array<{ email: string; role: string; isRestricted: boolean }>> {
+  const allEmails = new Set([
+    ...Object.keys(userRoles),
+    ...Object.keys(userRestrictions)
+  ]);
 
-    return Array.from(allEmails).map(email => ({
-      email,
-      role: userRoles[email] || 'user',
-      isRestricted: userRestrictions[email] || false
-    }));
-  },
+  return Array.from(allEmails).map(email => ({
+    email,
+    role: userRoles[email] || 'user',
+    isRestricted: userRestrictions[email] || false
+  }));
+}
 
-  /**
-   * Send password reset email using Firebase
-   */
-  async sendPasswordReset(email: string): Promise<{ success: boolean; error?: string }> {
-    try {
-      // Firebase handles password reset automatically
-      // This is just a placeholder - the actual password reset should be done
-      // through Firebase client-side authentication
-      return { success: true, error: 'Use Firebase client-side password reset' };
-    } catch (error) {
-      return { success: false, error: 'Failed to send password reset' };
-    }
+/**
+ * Send password reset email using Firebase
+ */
+export async function sendPasswordReset(email: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Firebase handles password reset automatically
+    // This is just a placeholder - the actual password reset should be done
+    // through Firebase client-side authentication
+    return { success: true, error: 'Use Firebase client-side password reset' };
+  } catch (error) {
+    return { success: false, error: 'Failed to send password reset' };
   }
-};
+}

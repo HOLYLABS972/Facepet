@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, adminFunctions } from '@/lib/auth-server';
+import { auth, setUserRole, removeUserRole, restrictUser, unrestrictUser, getAllUsers, sendPasswordReset } from '@/lib/auth-server';
 
 export async function GET() {
   try {
@@ -11,7 +11,7 @@ export async function GET() {
       );
     }
 
-    const users = adminFunctions.getAllUsers();
+    const users = await getAllUsers();
     return NextResponse.json({ users });
   } catch (error) {
     console.error('Get users error:', error);
@@ -49,19 +49,19 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        adminFunctions.setUserRole(email, role);
+        await setUserRole(email, role);
         break;
       
       case 'removeRole':
-        adminFunctions.removeUserRole(email);
+        await removeUserRole(email);
         break;
       
       case 'restrict':
-        adminFunctions.restrictUser(email);
+        await restrictUser(email);
         break;
       
       case 'unrestrict':
-        adminFunctions.unrestrictUser(email);
+        await unrestrictUser(email);
         break;
       
       case 'sendPasswordReset':
