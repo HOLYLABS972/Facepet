@@ -33,6 +33,15 @@
       "title": "🎉 Prize Available!",
       "message": "You have 30 points! Claim your welcome gift now.",
       "claimButton": "Claim Prize"
+    },
+    "PointsBreakdownNotification": {
+      "title": "🎯 Points Breakdown",
+      "registration": "Registration",
+      "phoneSetup": "Phone Setup",
+      "addPet": "Add Pet",
+      "total": "Total",
+      "points": "points",
+      "claimPrize": "Claim Prize"
     }
   },
   "Pet": {

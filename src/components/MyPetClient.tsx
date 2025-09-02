@@ -11,8 +11,8 @@ import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import PhoneNumberBottomSheet from './PhoneNumberBottomSheet';
 import AdminNotificationCard from './AdminNotificationCard';
-import PrizeClaimNotification from './PrizeClaimNotification';
 import PointsBreakdownNotification from './PointsBreakdownNotification';
+import PrizeClaimNotification from './PrizeClaimNotification';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useRouter } from '@/i18n/routing';
@@ -46,6 +46,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [userPoints, setUserPoints] = useState(30); // Start with 30 points (registration)
   const [hasAddedPet, setHasAddedPet] = useState(false); // Track if user has added a pet
   const [showPointsBreakdown, setShowPointsBreakdown] = useState(false);
+  const [showPrizeNotification, setShowPrizeNotification] = useState(false);
   const [pointsBreakdown, setPointsBreakdown] = useState({
     registration: 30,
     phone: 0,
@@ -180,12 +181,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     setSelectedPet(null);
   };
 
-  const handlePrizeClaim = () => {
-    // Hide the prize notification since user has claimed it
-    setShowPrizeNotification(false);
-    // In real implementation, you'd update the user's claimed prizes in the database
-    console.log('Prize claimed!');
-  };
+
 
   const handlePhoneAdded = (phone: string) => {
     // Hide the phone bottom sheet since user has added their phone
@@ -199,6 +195,18 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     // Here you could also update the user's profile with the phone number
     console.log('Phone number added:', phone, 'User earned 10 points!');
   };
+
+  // Function to show prize notification (for external calls)
+  const showPrizeNotificationFunc = () => {
+    setShowPrizeNotification(true);
+  };
+
+  // Make the function available globally for debugging/development
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).showPrizeNotification = showPrizeNotificationFunc;
+    }
+  }, []);
 
 
 
@@ -237,6 +245,23 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               registrationPoints={pointsBreakdown.registration}
               phonePoints={pointsBreakdown.phone}
               petPoints={pointsBreakdown.pet}
+              onClaimPrize={() => {
+                // Hide the points breakdown notification after claiming
+                setShowPointsBreakdown(false);
+                console.log('Prize claimed!');
+              }}
+            />
+          </div>
+        )}
+
+        {/* Prize Claim Notification */}
+        {showPrizeNotification && (
+          <div className="mb-4">
+            <PrizeClaimNotification 
+              onClaim={() => {
+                setShowPrizeNotification(false);
+                console.log('Prize claimed from notification!');
+              }}
             />
           </div>
         )}

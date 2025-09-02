@@ -4,6 +4,15 @@
       "title": "🎉 פרס זמין!",
       "message": "יש לך 30 נקודות! קבל את מתנת ההצטרפות שלך עכשיו.",
       "claimButton": "קבל פרס"
+    },
+    "PointsBreakdownNotification": {
+      "title": "🎯 פירוט נקודות",
+      "registration": "הרשמה",
+      "phoneSetup": "הגדרת טלפון",
+      "addPet": "הוספת חיית מחמד",
+      "total": "סה״כ",
+      "points": "נקודות",
+      "claimPrize": "קבל פרס"
     }
   },
   "Pet": {
@@ -272,9 +281,7 @@
       "authErrorGoogle": "אימות Google נכשל",
       "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם.",
       "loading": "טוען..."
-    }
-  },
-  "pages": {
+    },
     "Admin": {
       "dashboard": "לוח בקרה של מנהל",
       "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
