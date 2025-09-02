@@ -16,6 +16,7 @@ import {
   fetchSignInMethodsForEmail
 } from 'firebase/auth';
 import { auth } from '@/src/lib/firebase/config';
+import { createUserInFirestore } from '@/src/lib/firebase/users';
 
 interface AuthContextType {
   user: User | null;
@@ -60,8 +61,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const checkRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
-        if (result) {
+        if (result && result.user) {
           console.log('Google sign-in redirect result:', result);
+          
+          // Store user in Firestore collection after Google sign-in
+          const userResult = await createUserInFirestore(result.user, {
+            acceptCookies: false,
+            language: 'en'
+          });
+
+          if (!userResult.success) {
+            console.error('Failed to store Google user in Firestore:', userResult.error);
+          }
         }
       } catch (error) {
         console.error('Error checking redirect result:', error);
@@ -91,6 +102,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         await updateProfile(userCredential.user, {
           displayName: fullName
         });
+
+        // Store user in Firestore collection
+        const userResult = await createUserInFirestore(userCredential.user, {
+          acceptCookies: false,
+          language: 'en'
+        });
+
+        if (!userResult.success) {
+          console.error('Failed to store user in Firestore:', userResult.error);
+        }
       }
     } catch (error) {
       console.error('Sign up error:', error);
@@ -112,8 +133,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      // Firebase handles the authentication, no need for additional API calls
+      // Use redirect instead of popup to avoid COOP issues
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;
@@ -167,7 +188,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         await updateProfile(userCredential.user, {
           displayName: fullName
         });
+
+        // Store user in Firestore collection
+        const userResult = await createUserInFirestore(userCredential.user, {
+          phone: phone || '',
+          acceptCookies: false,
+          language: 'en'
+        });
+
+        if (!userResult.success) {
+          console.error('Failed to store user in Firestore:', userResult.error);
+          // Don't throw error here, user is still created in Firebase Auth
+        }
       }
+
+      return { success: true, user: userCredential.user };
     } catch (error) {
       console.error('Verify code and create account error:', error);
       throw error;
