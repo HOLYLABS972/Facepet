@@ -15,10 +15,10 @@ export function checkFirebaseInitialization() {
     issues.push('Firebase Storage is not initialized');
   } else {
     try {
-      // Try to access storage properties to see if it's properly initialized
-      const storageApp = (storage as any)._delegate?._location;
-      if (!storageApp) {
-        issues.push('Firebase Storage location is not accessible');
+      // Try to create a reference to test if storage is working
+      const testRef = storage.ref('test');
+      if (!testRef) {
+        issues.push('Firebase Storage reference creation failed');
       }
     } catch (error) {
       issues.push(`Firebase Storage error: ${error}`);

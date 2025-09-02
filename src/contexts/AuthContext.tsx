@@ -16,6 +16,19 @@ import {
 import { auth } from '@/src/lib/firebase/config';
 import { createUserInFirestore } from '@/src/lib/firebase/users';
 
+// Define admin emails that should get admin/super_admin roles
+const adminEmails: Record<string, 'admin' | 'super_admin'> = {
+  'admin@facepet.com': 'super_admin',
+  'polskoydm@gmail.com': 'super_admin', // Add your email as super admin
+  // Add more admin emails as needed
+};
+
+// Function to determine user role based on email
+const getUserRole = (email: string): 'user' | 'admin' | 'super_admin' => {
+  const emailLower = email.toLowerCase();
+  return adminEmails[emailLower] || 'user';
+};
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -79,10 +92,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           displayName: fullName
         });
 
-        // Store user in Firestore collection
+        // Store user in Firestore collection with role assignment
+        const userRole = getUserRole(email);
         const userResult = await createUserInFirestore(userCredential.user, {
           acceptCookies: false,
-          language: 'en'
+          language: 'en',
+          role: userRole
         });
 
         if (!userResult.success) {
@@ -112,17 +127,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Use popup for in-frame experience
       const userCredential = await signInWithPopup(auth, provider);
       
-      // Store user in Firestore collection after Google sign-in
-      if (userCredential.user) {
-        const userResult = await createUserInFirestore(userCredential.user, {
-          acceptCookies: false,
-          language: 'en'
-        });
+                      // Store user in Firestore collection after Google sign-in
+                if (userCredential.user) {
+                  const userRole = getUserRole(userCredential.user.email || '');
+                  const userResult = await createUserInFirestore(userCredential.user, {
+                    acceptCookies: false,
+                    language: 'en',
+                    role: userRole
+                  });
 
-        if (!userResult.success) {
-          console.error('Failed to store Google user in Firestore:', userResult.error);
-        }
-      }
+                  if (!userResult.success) {
+                    console.error('Failed to store Google user in Firestore:', userResult.error);
+                  }
+                }
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;
@@ -177,11 +194,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           displayName: fullName
         });
 
-        // Store user in Firestore collection
+        // Store user in Firestore collection with role assignment
+        const userRole = getUserRole(email);
         const userResult = await createUserInFirestore(userCredential.user, {
           phone: phone || '',
           acceptCookies: false,
-          language: 'en'
+          language: 'en',
+          role: userRole
         });
 
         if (!userResult.success) {

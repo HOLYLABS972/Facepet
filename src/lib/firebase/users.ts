@@ -10,6 +10,7 @@ interface UserData {
   profileImage?: string;
   acceptCookies?: boolean;
   language?: string;
+  role?: 'user' | 'admin' | 'super_admin';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,7 @@ export async function createUserInFirestore(
     profileImage?: string;
     acceptCookies?: boolean;
     language?: string;
+    role?: 'user' | 'admin' | 'super_admin';
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -36,6 +38,7 @@ export async function createUserInFirestore(
       profileImage: additionalData?.profileImage || '',
       acceptCookies: additionalData?.acceptCookies || false,
       language: additionalData?.language || 'en',
+      role: additionalData?.role || 'user', // Default role is 'user'
       createdAt: new Date(),
       updatedAt: new Date(),
     };
