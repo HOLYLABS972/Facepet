@@ -138,7 +138,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         </div>
       </div>
 
-      {/* Share with Friends - moved above title */}
+      {/* Share with Friends - separate from notifications */}
       <div className="mb-4">
         <InviteFriendsCard />
       </div>
@@ -200,6 +200,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               name={pet.name}
               breed={pet.breed}
               image={pet.image}
+              isEditMode={false}
             />
           ))}
         </div>

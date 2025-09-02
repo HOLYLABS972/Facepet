@@ -39,7 +39,8 @@
       "addFirstPet": "התחילו בהוספת חיית המחמד הראשונה שלכם כדי לשמור עליה!",
       "managePetsDescription": "נהלו את החיות שלכם ושמרו עליהן בטוחות עם FacePet",
       "welcomeBack": "ברוכים השבים!",
-      "loadingPets": "טוען חיות..."
+      "loadingPets": "טוען חיות...",
+      "notifications": "התראות"
     },
     "AddPetPage": {
       "back": "חזור",
