@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { Lobster, Rubik } from 'next/font/google';
 import { AuthProvider } from '@/src/contexts/AuthContext';
 import { PointsProvider } from '@/src/contexts/PointsContext';
+import { NotificationsProvider } from '@/src/contexts/NotificationsContext';
 import './globals.css';
 
 // Dynamically import analytics components
@@ -69,9 +70,11 @@ export default async function LocaleLayout({
       <body className={`${rubik.className} antialiased`}>
         <AuthProvider>
           <PointsProvider>
-            <NextIntlClientProvider messages={messages}>
-              <MainLayout direction={direction}>{children}</MainLayout>
-            </NextIntlClientProvider>
+            <NotificationsProvider>
+              <NextIntlClientProvider messages={messages}>
+                <MainLayout direction={direction}>{children}</MainLayout>
+              </NextIntlClientProvider>
+            </NotificationsProvider>
           </PointsProvider>
         </AuthProvider>
         <Analytics />
