@@ -14,7 +14,7 @@ import { Separator } from '../ui/separator';
 import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadProfileImage, UploadProgress } from '@/src/lib/firebase/storage';
-import { updateUserInFirestore } from '@/src/lib/firebase/users';
+import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
 import { debugFirebaseStatus } from '@/src/lib/firebase/init-check';
 
 export default function SettingsPage() {
@@ -26,6 +26,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [savingCookies, setSavingCookies] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -54,15 +55,48 @@ export default function SettingsPage() {
   // Initialize form data when user loads
   useEffect(() => {
     if (user) {
-      setFormData(prev => ({
-        ...prev,
-        fullName: user.displayName || '',
-        email: user.email || '',
-        profileImageURL: user.photoURL || '',
-        acceptCookies: localStorage.getItem('acceptCookies') === 'true'
-      }));
+      const loadUserData = async () => {
+        try {
+          // Try to get user data from Firestore first
+          const userResult = await getUserFromFirestore(user.uid);
+          
+          if (userResult.success && userResult.user) {
+            // Use Firestore data if available
+            setFormData(prev => ({
+              ...prev,
+              fullName: user.displayName || userResult.user.displayName || '',
+              email: user.email || '',
+              phone: userResult.user.phone || '',
+              profileImageURL: userResult.user.profileImage || user.photoURL || '',
+              acceptCookies: userResult.user.acceptCookies || false,
+              language: userResult.user.language || locale
+            }));
+          } else {
+            // Fallback to localStorage and Firebase Auth data
+            setFormData(prev => ({
+              ...prev,
+              fullName: user.displayName || '',
+              email: user.email || '',
+              profileImageURL: user.photoURL || '',
+              acceptCookies: localStorage.getItem('acceptCookies') === 'true'
+            }));
+          }
+        } catch (error) {
+          console.error('Error loading user data:', error);
+          // Fallback to basic data
+          setFormData(prev => ({
+            ...prev,
+            fullName: user.displayName || '',
+            email: user.email || '',
+            profileImageURL: user.photoURL || '',
+            acceptCookies: localStorage.getItem('acceptCookies') === 'true'
+          }));
+        }
+      };
+
+      loadUserData();
     }
-  }, [user]);
+  }, [user, locale]);
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -86,6 +120,29 @@ export default function SettingsPage() {
       ...prev,
       [field]: value
     }));
+
+    // Auto-save cookie preference immediately
+    if (field === 'acceptCookies' && user) {
+      localStorage.setItem('acceptCookies', value.toString());
+      setSavingCookies(true);
+      
+      // Also save to Firestore immediately
+      updateUserInFirestore(user.uid, { acceptCookies: value })
+        .then(result => {
+          if (result.success) {
+            toast.success('Cookie preference saved!');
+          } else {
+            toast.error('Failed to save cookie preference');
+          }
+        })
+        .catch(error => {
+          console.error('Failed to save cookie preference:', error);
+          toast.error('Failed to save cookie preference');
+        })
+        .finally(() => {
+          setSavingCookies(false);
+        });
+    }
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,22 +226,40 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Here you would typically save to your backend/database
-      // For now, we'll just save to localStorage and show success
-      
-      // Save cookies preference
+      if (!user) {
+        toast.error('User not authenticated');
+        return;
+      }
+
+      // Save to localStorage for immediate access
       localStorage.setItem('acceptCookies', formData.acceptCookies.toString());
-      
-      // Save language preference
       localStorage.setItem('preferredLanguage', formData.language);
       
-      // Update Firebase user profile if name changed
-      if (formData.fullName !== user?.displayName) {
-        // You would call Firebase updateProfile here
-        console.log('Updating display name to:', formData.fullName);
+      // Update user profile in Firestore
+      const updateData: any = {
+        acceptCookies: formData.acceptCookies,
+        language: formData.language
+      };
+
+      // Add phone if provided
+      if (formData.phone) {
+        updateData.phone = formData.phone;
+      }
+
+      // Add profile image if uploaded
+      if (formData.profileImageURL) {
+        updateData.profileImage = formData.profileImageURL;
+      }
+
+      const userResult = await updateUserInFirestore(user.uid, updateData);
+      
+      if (!userResult.success) {
+        console.error('Failed to update user in Firestore:', userResult.error);
+        toast.error('Failed to save some preferences');
+      } else {
+        toast.success('Profile updated successfully!');
       }
       
-      toast.success('Profile updated successfully!');
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error('Failed to save profile');
@@ -386,11 +461,17 @@ export default function SettingsPage() {
                   {t('acceptCookiesDescription')}
                 </p>
               </div>
-              <Switch
-                id="acceptCookies"
-                checked={formData.acceptCookies}
-                onCheckedChange={(checked) => handleInputChange('acceptCookies', checked)}
-              />
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="acceptCookies"
+                  checked={formData.acceptCookies}
+                  onCheckedChange={(checked) => handleInputChange('acceptCookies', checked)}
+                  disabled={savingCookies}
+                />
+                {savingCookies && (
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
