@@ -18,10 +18,9 @@ import { User } from 'firebase/auth';
 export interface Notification {
   id: string;
   userId: string;
-  type: 'points_earned' | 'prize_available' | 'admin_message' | 'system_update' | 'pet_reminder';
+  type: 'action' | 'prize_available' | 'admin_message' | 'system_update' | 'pet_reminder';
   title: string;
   message: string;
-  points?: number;
   actionType?: 'registration' | 'phone_setup' | 'add_pet' | 'share' | 'prize_claim';
   isRead: boolean;
   isActive: boolean;
@@ -122,7 +121,6 @@ export async function getUserNotifications(
         type: data.type,
         title: data.title,
         message: data.message,
-        points: data.points,
         actionType: data.actionType,
         isRead: data.isRead,
         isActive: data.isActive,
@@ -280,7 +278,6 @@ export async function getNotificationTemplates(): Promise<{
 
 /**
  * Auto-create notifications based on user actions
- * Every notification is worth 10 points
  */
 export async function createActionNotification(
   user: User,
@@ -291,13 +288,10 @@ export async function createActionNotification(
       return { success: false, error: 'User not authenticated' };
     }
 
-    const points = 10; // Fixed 10 points per notification
-
     const notificationData = {
-      type: 'points_earned' as const,
+      type: 'action' as const,
       title: getActionTitle(actionType),
-      message: getActionMessage(actionType, points),
-      points,
+      message: getActionMessage(actionType, 0), // No points
       actionType,
       isRead: false,
       isActive: true,
@@ -335,17 +329,17 @@ function getActionTitle(actionType: Notification['actionType']): string {
 function getActionMessage(actionType: Notification['actionType'], points: number): string {
   switch (actionType) {
     case 'registration':
-      return `Welcome to FacePet! You earned ${points} points for joining us.`;
+      return `Welcome to FacePet! Thanks for joining our community.`;
     case 'phone_setup':
-      return `Great! You verified your phone number and earned ${points} points.`;
+      return `Great! You verified your phone number.`;
     case 'add_pet':
-      return `Awesome! You added a pet to your profile and earned ${points} points.`;
+      return `Awesome! You added a pet to your profile.`;
     case 'share':
-      return `Thanks for sharing FacePet! You earned ${points} points.`;
+      return `Thanks for sharing FacePet!`;
     case 'prize_claim':
-      return `Congratulations! You claimed your prize using ${points} points.`;
+      return `Congratulations! You claimed your prize.`;
     default:
-      return `You earned ${points} points!`;
+      return `Action completed successfully!`;
   }
 }
 

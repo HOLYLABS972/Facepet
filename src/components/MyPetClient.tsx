@@ -206,7 +206,9 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     // Hide the phone bottom sheet since user has added their phone
     setShowPhoneBottomSheet(false);
     // Create phone setup notification
-    await createActionNotification('phone_setup');
+    console.log('Creating phone setup notification...');
+    const result = await createActionNotification('phone_setup');
+    console.log('Phone setup notification result:', result);
     // Here you could also update the user's profile with the phone number
     console.log('Phone number added:', phone, 'Created notification!');
   };

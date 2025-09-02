@@ -48,19 +48,24 @@ export const NotificationsProvider = ({ children }: NotificationsProviderProps) 
   useEffect(() => {
     const loadNotifications = async () => {
       if (user) {
+        console.log('NotificationsContext: Loading notifications for user:', user.uid);
         setIsLoading(true);
         try {
           const result = await getUserNotifications(user, 50, true); // Get all notifications
+          console.log('NotificationsContext: getUserNotifications result:', result);
           if (result.success && result.notifications) {
             setNotifications(result.notifications);
-            console.log('Loaded notifications for user:', user.uid, result.notifications.length);
+            console.log('NotificationsContext: Loaded notifications for user:', user.uid, result.notifications.length);
+          } else {
+            console.log('NotificationsContext: No notifications found or error:', result.error);
           }
         } catch (error) {
-          console.error('Error loading notifications:', error);
+          console.error('NotificationsContext: Error loading notifications:', error);
         } finally {
           setIsLoading(false);
         }
       } else {
+        console.log('NotificationsContext: No user, clearing notifications');
         setNotifications([]);
       }
     };
@@ -136,10 +141,14 @@ export const NotificationsProvider = ({ children }: NotificationsProviderProps) 
     if (!user) return;
     
     try {
+      console.log('NotificationsContext: Creating notification for action:', actionType);
       const result = await createNotificationWithPoints(user, actionType);
+      console.log('NotificationsContext: Notification creation result:', result);
       if (result.success) {
         // Refresh notifications to show the new one
+        console.log('NotificationsContext: Refreshing notifications...');
         await refreshNotifications();
+        console.log('NotificationsContext: Notifications refreshed, current count:', notifications.length);
       }
     } catch (error) {
       console.error('Error creating action notification:', error);

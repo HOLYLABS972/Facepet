@@ -14,6 +14,12 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ className = '' })
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
 
+  // Debug: Log notifications whenever they change
+  React.useEffect(() => {
+    console.log('NotificationsList: Current notifications:', notifications);
+    console.log('NotificationsList: Unread count:', unreadCount);
+  }, [notifications, unreadCount]);
+
   const handleMarkAsRead = async (notificationId: string) => {
     await markAsRead(notificationId);
   };
