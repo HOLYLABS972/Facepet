@@ -74,7 +74,7 @@ const AnimatedPetCharacters: React.FC = () => {
     <div className="relative min-h-[350px] w-full overflow-hidden">
       {petCharacters.map((pet) => (
         <motion.img
-          src={pet.src.src}
+          src={pet.src}
           alt={pet.alt}
           width={pet.size}
           height={pet.size}

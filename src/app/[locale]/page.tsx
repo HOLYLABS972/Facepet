@@ -190,7 +190,7 @@ const AnimatedPet = ({ pet }: AnimatedPetProps) => {
 
   return (
     <motion.img
-      src={pet.src.src} // Ensure you're providing the proper image source.
+      src={pet.src} // Fixed: removed extra .src
       alt={pet.alt}
       width={pet.size}
       height={pet.size}

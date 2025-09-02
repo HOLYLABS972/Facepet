@@ -127,7 +127,7 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
           {petCharacters.map((pet) => (
             <motion.img
               key={pet.id}
-              src={pet.src.src} // Image source
+              src={pet.src} // Fixed: removed extra .src
               alt={pet.alt}
               width={pet.size}
               height={pet.size}
