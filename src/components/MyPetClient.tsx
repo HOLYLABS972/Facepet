@@ -2,7 +2,7 @@
 'use client';
 
 import MyPetCard from '@/components/MyPetCard';
-import { EditIcon, User } from 'lucide-react';
+import { EditIcon, User, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
 import React, { useState, useEffect } from 'react';
@@ -11,6 +11,7 @@ import InviteFriendsCard from './InviteFriendsCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { getUserPets } from '@/lib/actions/pets';
+import { useRouter } from '@/i18n/routing';
 
 interface Pet {
   id: string;
@@ -26,6 +27,7 @@ interface MyPetsClientProps {
 const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const t = useTranslations('pages.MyPetsPage');
   const { user, loading } = useAuth();
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [pets, setPets] = useState(initialPets);
@@ -138,6 +140,15 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           ))}
         </div>
       )}
+
+      {/* Floating Add Button */}
+      <Button
+        onClick={() => router.push('/add-pet')}
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg z-50"
+        size="icon"
+      >
+        <Plus className="h-6 w-6 text-white" />
+      </Button>
     </div>
   );
 };

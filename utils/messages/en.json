@@ -49,6 +49,21 @@
       "welcomeBack": "Welcome back!",
       "loadingPets": "Loading pets..."
     },
+    "AddPetPage": {
+      "back": "Back",
+      "title": "Add New Pet",
+      "subtitle": "Create a digital profile for your pet to keep them safe and connected.",
+      "cardTitle": "Let's get started!",
+      "cardDescription": "We'll help you create a complete profile for your pet in just a few steps.",
+      "feature1Title": "Digital Pet Profile",
+      "feature1Description": "Create a comprehensive profile with photos, medical info, and contact details.",
+      "feature2Title": "NFC Chip Integration",
+      "feature2Description": "Link your pet's profile to an NFC chip for instant identification.",
+      "feature3Title": "Emergency Contact",
+      "feature3Description": "Ensure your pet can be quickly returned if they get lost.",
+      "addPetButton": "Add My Pet",
+      "creating": "Creating..."
+    },
     "MyGiftsPage": {
       "title": "My Gifts",
       "searchPlaceholder": "Search gifts...",
