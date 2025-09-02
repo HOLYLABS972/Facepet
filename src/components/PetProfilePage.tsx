@@ -335,36 +335,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               </Card>
             </motion.div>
 
-            {/* Pet Stats */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Stats</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Profile Views</span>
-                    <span className="font-semibold">0</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Days Active</span>
-                    <span className="font-semibold">
-                      {Math.ceil((Date.now() - pet.createdAt.getTime()) / (1000 * 60 * 60 * 24))}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Last Updated</span>
-                    <span className="font-semibold text-sm">
-                      {Math.ceil((Date.now() - pet.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} days ago
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+
           </div>
         </div>
       </div>
