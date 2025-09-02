@@ -64,7 +64,7 @@ export default function WelcomeGetStartedPage() {
           onClick={() =>
             status === 'authenticated'
               ? router.push(`/pet/${petId}/get-started/register`)
-              : router.push(`/auth/sign-up`)
+              : router.push(`/auth`)
           }
           className="bg-primary hover:bg-primary mt-12 h-[60px] w-full rounded-full text-sm font-normal shadow-xl hover:opacity-70"
         >
@@ -78,7 +78,7 @@ export default function WelcomeGetStartedPage() {
             onClick={() =>
               status === 'authenticated'
                 ? signOut({ redirect: false })
-                : router.push(`/auth/sign-in`)
+                : router.push(`/auth`)
             }
             className="text-primary p-0 font-bold underline hover:bg-transparent"
             variant={'ghost'}

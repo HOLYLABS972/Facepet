@@ -11,8 +11,10 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
-import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { uploadProfileImage, UploadProgress } from '@/src/lib/firebase/storage';
+import { updateUserInFirestore } from '@/src/lib/firebase/users';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -21,6 +23,8 @@ export default function SettingsPage() {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -28,6 +32,7 @@ export default function SettingsPage() {
     phone: '',
     email: '',
     profileImage: null as File | null,
+    profileImageURL: '',
     acceptCookies: false,
     language: locale
   });
@@ -41,7 +46,7 @@ export default function SettingsPage() {
   // Redirect to sign in if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/auth/sign-in');
+      router.push('/auth');
     }
   }, [user, authLoading, router]);
 
@@ -52,6 +57,7 @@ export default function SettingsPage() {
         ...prev,
         fullName: user.displayName || '',
         email: user.email || '',
+        profileImageURL: user.photoURL || '',
         acceptCookies: localStorage.getItem('acceptCookies') === 'true'
       }));
     }
@@ -81,9 +87,9 @@ export default function SettingsPage() {
     }));
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && user) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
         toast.error('Please select a valid image file');
@@ -96,10 +102,46 @@ export default function SettingsPage() {
         return;
       }
       
+      // Set the file for preview
       setFormData(prev => ({
         ...prev,
         profileImage: file
       }));
+
+      // Auto-upload the image
+      setUploading(true);
+      setUploadProgress({ progress: 0, status: 'uploading' });
+
+      try {
+        const result = await uploadProfileImage(file, user, (progress) => {
+          setUploadProgress(progress);
+        });
+
+        if (result.success && result.downloadURL) {
+          setFormData(prev => ({
+            ...prev,
+            profileImageURL: result.downloadURL
+          }));
+          
+          // Update user profile in Firestore
+          await updateUserInFirestore(user.uid, {
+            profileImage: result.downloadURL
+          });
+          
+          toast.success('Profile image uploaded successfully!');
+        } else {
+          toast.error(result.error || 'Failed to upload image');
+        }
+      } catch (error: any) {
+        console.error('Upload error:', error);
+        toast.error('Failed to upload image');
+      } finally {
+        setUploading(false);
+        // Clear progress after 2 seconds
+        setTimeout(() => {
+          setUploadProgress(null);
+        }, 2000);
+      }
     }
   };
 
@@ -183,6 +225,12 @@ export default function SettingsPage() {
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
+                  ) : formData.profileImageURL ? (
+                    <img
+                      src={formData.profileImageURL}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
                   ) : user?.photoURL ? (
                     <img
                       src={user.photoURL}
@@ -193,12 +241,21 @@ export default function SettingsPage() {
                     <User className="h-8 w-8 text-gray-400" />
                   )}
                 </div>
+                {uploading && (
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  </div>
+                )}
               </div>
               <div className="flex-1">
                 <Label htmlFor="profile-image" className="cursor-pointer">
                   <div className="flex items-center gap-2 text-primary hover:text-primary/80">
-                    <Camera className="h-4 w-4" />
-                    {t('uploadImage')}
+                    {uploading ? (
+                      <Upload className="h-4 w-4 animate-pulse" />
+                    ) : (
+                      <Camera className="h-4 w-4" />
+                    )}
+                    {uploading ? 'Uploading...' : t('uploadImage')}
                   </div>
                 </Label>
                 <Input
@@ -207,10 +264,49 @@ export default function SettingsPage() {
                   accept="image/*"
                   onChange={handleImageUpload}
                   className="hidden"
+                  disabled={uploading}
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   {t('imageRequirements')}
                 </p>
+                
+                {/* Upload Progress Bar */}
+                {uploadProgress && (
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">
+                        {uploadProgress.status === 'uploading' && 'Uploading...'}
+                        {uploadProgress.status === 'completed' && 'Upload completed!'}
+                        {uploadProgress.status === 'error' && 'Upload failed'}
+                      </span>
+                      <span className="text-gray-500">
+                        {Math.round(uploadProgress.progress)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          uploadProgress.status === 'completed' ? 'bg-green-500' :
+                          uploadProgress.status === 'error' ? 'bg-red-500' :
+                          'bg-primary'
+                        }`}
+                        style={{ width: `${uploadProgress.progress}%` }}
+                      />
+                    </div>
+                    {uploadProgress.status === 'completed' && (
+                      <div className="flex items-center gap-1 text-green-600 text-sm">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Image uploaded successfully!</span>
+                      </div>
+                    )}
+                    {uploadProgress.status === 'error' && (
+                      <div className="flex items-center gap-1 text-red-600 text-sm">
+                        <XCircle className="h-4 w-4" />
+                        <span>{uploadProgress.error || 'Upload failed'}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

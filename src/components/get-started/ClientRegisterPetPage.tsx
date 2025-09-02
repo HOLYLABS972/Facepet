@@ -103,7 +103,7 @@ export default function ClientRegisterPetPage({
     if (!user) {
       setError('User not authenticated');
       toast.error('Please sign in to create a pet');
-      router.push('/auth/sign-in');
+      router.push('/auth');
       return;
     }
 

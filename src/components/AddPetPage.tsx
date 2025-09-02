@@ -18,7 +18,7 @@ export default function AddPetPage() {
   // Redirect to sign in if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/auth/sign-in');
+      router.push('/auth');
     }
   }, [user, authLoading, router]);
 

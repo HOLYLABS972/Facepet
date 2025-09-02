@@ -146,7 +146,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
 
         {/* <div className="mt-12">
           <Button
-            onClick={() => router.push('/auth/sign-up')}
+            onClick={() => router.push('/auth')}
             className="w-full h-[60px] bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg"
           >
             Get Started

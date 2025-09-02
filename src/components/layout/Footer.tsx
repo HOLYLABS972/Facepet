@@ -26,18 +26,15 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Language Switcher and Love Message Row */}
-          <div className="flex items-center gap-6">
-            {/* Language Switcher */}
-            <div className="flex items-center gap-2">
-              <LocaleSwitcher />
-            </div>
+          {/* Language Switcher Row */}
+          <div className="flex items-center justify-center">
+            <LocaleSwitcher />
+          </div>
 
-            {/* Love Message */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="opacity-90">{t('madeWithLove')}</span>
-              <Heart className="text-primary m-1 h-4 w-4" />
-            </div>
+          {/* Love Message Row */}
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <span className="opacity-90">{t('madeWithLove')}</span>
+            <Heart className="text-primary m-1 h-4 w-4" />
           </div>
         </div>
       </div>
