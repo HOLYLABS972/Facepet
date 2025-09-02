@@ -1,8 +1,8 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, AlertTriangle } from 'lucide-react';
-import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { X, Trash2 } from 'lucide-react';
+import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
@@ -37,7 +37,6 @@ export default function PetDetailsBottomSheet({
   onDeletePet
 }: PetDetailsBottomSheetProps) {
   const router = useRouter();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   if (!pet) return null;
 
@@ -137,7 +136,7 @@ export default function PetDetailsBottomSheet({
           <div className="pt-4 border-t">
             <Button
               variant="destructive"
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={handleDeletePet}
               className="w-full"
             >
               <Trash2 className="w-4 h-4 mr-2" />
@@ -145,49 +144,6 @@ export default function PetDetailsBottomSheet({
             </Button>
           </div>
         </div>
-
-        {/* Delete Confirmation */}
-        <AnimatePresence>
-          {showDeleteConfirm && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            >
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.9 }}
-                className="bg-white rounded-lg p-6 max-w-sm mx-4"
-              >
-                <div className="flex items-center mb-4">
-                  <AlertTriangle className="w-6 h-6 text-red-500 mr-2" />
-                  <h3 className="text-lg font-semibold">Delete Pet</h3>
-                </div>
-                <p className="text-gray-600 mb-6">
-                  Are you sure you want to delete <strong>{pet.name}</strong>? This action cannot be undone.
-                </p>
-                <div className="flex space-x-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowDeleteConfirm(false)}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={handleDeletePet}
-                    className="flex-1"
-                  >
-                    Yes, Delete
-                  </Button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );

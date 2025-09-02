@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { TabName } from './AnimatedTabs';
 import toast from 'react-hot-toast';
 
@@ -85,7 +85,6 @@ const renderDetails = (
 
 // Delete Pet Button Component
 const DeletePetButton = ({ petId, onDelete }: { petId: string; onDelete: (petId: string) => void }) => {
-  const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -98,51 +97,19 @@ const DeletePetButton = ({ petId, onDelete }: { petId: string; onDelete: (petId:
       toast.error('Failed to delete pet');
     } finally {
       setDeleting(false);
-      setShowConfirm(false);
     }
   };
 
-  if (!showConfirm) {
-    return (
-      <Button
-        variant="outline"
-        onClick={() => setShowConfirm(true)}
-        className="w-full border-red-300 text-red-600 hover:bg-red-50"
-      >
-        <Trash2 className="h-4 w-4 mr-2" />
-        Delete Pet
-      </Button>
-    );
-  }
-
   return (
-    <div className="space-y-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-      <div className="flex items-center gap-2 text-red-800">
-        <AlertTriangle className="h-5 w-5" />
-        <span className="font-semibold">Confirm Deletion</span>
-      </div>
-      <p className="text-sm text-red-700">
-        Are you sure you want to delete this pet? This action cannot be undone.
-      </p>
-      <div className="flex gap-2">
-        <Button
-          variant="destructive"
-          onClick={handleDelete}
-          disabled={deleting}
-          className="bg-red-600 hover:bg-red-700"
-        >
-          {deleting ? 'Deleting...' : 'Yes, Delete'}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setShowConfirm(false)}
-          disabled={deleting}
-          className="border-gray-300"
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
+    <Button
+      variant="destructive"
+      onClick={handleDelete}
+      disabled={deleting}
+      className="w-full"
+    >
+      <Trash2 className="h-4 w-4 mr-2" />
+      {deleting ? 'Deleting...' : 'Delete Pet'}
+    </Button>
   );
 };
 
