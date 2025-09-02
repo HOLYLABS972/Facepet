@@ -232,7 +232,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     <BreedSelect
                       petType={formData.type as PetType}
                       value={formData.breed}
-                      onChange={(value) => handleInputChange('breed', value)}
+                      onValueChange={(value) => handleInputChange('breed', value)}
                       placeholder="Select breed"
                     />
                   </div>

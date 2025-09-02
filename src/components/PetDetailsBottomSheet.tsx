@@ -45,10 +45,18 @@ export default function PetDetailsBottomSheet({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>{pet.name}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={onClose}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <span className="flex-1 text-center">{pet.name}</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
