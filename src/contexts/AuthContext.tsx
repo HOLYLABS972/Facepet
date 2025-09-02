@@ -9,7 +9,8 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithPopup,
-  GoogleAuthProvider
+  GoogleAuthProvider,
+  updateProfile
 } from 'firebase/auth';
 import { auth } from '@/src/lib/firebase/config';
 
@@ -64,9 +65,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       // Update the user's display name
-      await userCredential.user.updateProfile({
-        displayName: fullName
-      });
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+          displayName: fullName
+        });
+      }
     } catch (error) {
       console.error('Sign up error:', error);
       throw error;

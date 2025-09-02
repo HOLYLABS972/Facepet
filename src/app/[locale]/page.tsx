@@ -7,7 +7,6 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
 import { useAuth } from '@/src/contexts/AuthContext';
-import SessionDebug from '@/src/components/debug/SessionDebug';
 
 // Pet images - using public paths for Next.js Image component
 const petImages = {
@@ -123,9 +122,6 @@ export default function LandingHomePage() {
       
       {/* Always show the public landing page */}
       <PublicLandingPage t={t} router={router} />
-      
-      {/* Debug Component - Remove this after testing */}
-      <SessionDebug />
     </div>
   );
 }
