@@ -5,6 +5,7 @@ import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { motion } from 'motion/react';
 import { ArrowLeft, Shield, Smartphone, Users, Heart } from 'lucide-react';
+import Footer from '@/src/components/layout/Footer';
 
 export default function HowItWorksPage() {
   const t = useTranslations('pages.HowItWorks');
@@ -34,7 +35,7 @@ export default function HowItWorksPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
@@ -166,6 +167,9 @@ export default function HowItWorksPage() {
           </Button>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

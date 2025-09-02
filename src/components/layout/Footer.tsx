@@ -1,5 +1,6 @@
 import { Heart } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 const Footer = () => {
   const t = useTranslations('components.Footer');
@@ -10,9 +11,15 @@ const Footer = () => {
         <div className="flex flex-col items-center gap-6">
           {/* Links */}
           <div className="flex gap-6 text-sm">
-            <p>{t('privacyPolicy')}</p> {/* TODO: Add link */}
-            <p>{t('termsOfService')}</p>
-            <p>{t('contact')}</p>
+            <Link href="/terms" className="hover:text-primary transition-colors">
+              {t('termsOfService')}
+            </Link>
+            <Link href="/contact" className="hover:text-primary transition-colors">
+              {t('contact')}
+            </Link>
+            <Link href="/privacy" className="hover:text-primary transition-colors">
+              {t('privacyPolicy')}
+            </Link>
           </div>
 
           {/* Love Message */}

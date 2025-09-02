@@ -1,5 +1,11 @@
 {
   "components": {
+    "Footer": {
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service", 
+      "contact": "Contact",
+      "madeWithLove": "Made with love for pets"
+    },
     "PrivacyLockToggle": {
       "alwaysPublic": "This information is always public",
       "currentlyPrivate": "This information is private (click to make public)",
