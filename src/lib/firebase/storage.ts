@@ -1,4 +1,4 @@
-import { storage } from './config';
+import { getStorageInstance } from './storage-init';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { User } from 'firebase/auth';
 
@@ -19,9 +19,10 @@ export async function uploadProfileImage(
       throw new Error('User ID is required');
     }
 
-    // Check if storage is properly initialized
+    // Get storage instance
+    const storage = getStorageInstance();
     if (!storage) {
-      throw new Error('Firebase Storage is not initialized');
+      throw new Error('Firebase Storage is not initialized. Please check your Firebase configuration.');
     }
 
     // Create a reference to the file location

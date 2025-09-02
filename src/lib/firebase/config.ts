@@ -20,7 +20,17 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 // Initialize Firebase services
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const storage = getStorage(app);
+
+// Initialize Storage with error handling
+let storage: any = null;
+try {
+  storage = getStorage(app);
+  console.log('✅ Firebase Storage initialized successfully');
+} catch (error) {
+  console.error('❌ Firebase Storage initialization failed:', error);
+}
+
+export { storage };
 
 // Initialize Analytics (only in browser environment)
 export const analytics = typeof window !== 'undefined' && isSupported() ? getAnalytics(app) : null;

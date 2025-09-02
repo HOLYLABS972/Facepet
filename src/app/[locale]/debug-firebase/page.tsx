@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { debugFirebaseStatus } from '@/src/lib/firebase/init-check';
-import { storage } from '@/src/lib/firebase/config';
+import { testStorageConnection } from '@/src/lib/firebase/storage-init';
+import { getStorageInstance } from '@/src/lib/firebase/storage-init';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function DebugFirebasePage() {
@@ -19,6 +20,20 @@ export default function DebugFirebasePage() {
   const testStorage = async () => {
     try {
       console.log('Testing Firebase Storage...');
+      
+      // First test storage connection
+      const connectionTest = await testStorageConnection();
+      if (!connectionTest.success) {
+        setTestResult({ success: false, error: connectionTest.error });
+        return;
+      }
+      
+      // Get storage instance
+      const storage = getStorageInstance();
+      if (!storage) {
+        setTestResult({ success: false, error: 'Storage instance not available' });
+        return;
+      }
       
       // Create a simple test file
       const testContent = 'Hello, Firebase Storage!';

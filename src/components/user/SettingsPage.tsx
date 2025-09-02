@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 import { uploadProfileImage, UploadProgress } from '@/src/lib/firebase/storage';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
 import { debugFirebaseStatus } from '@/src/lib/firebase/init-check';
+import { testStorageConnection } from '@/src/lib/firebase/storage-init';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -170,6 +171,13 @@ export default function SettingsPage() {
       const firebaseStatus = debugFirebaseStatus();
       if (!firebaseStatus.success) {
         toast.error('Firebase not properly initialized. Check console for details.');
+        return;
+      }
+
+      // Test storage connection specifically
+      const storageTest = await testStorageConnection();
+      if (!storageTest.success) {
+        toast.error(`Storage connection failed: ${storageTest.error}`);
         return;
       }
 
