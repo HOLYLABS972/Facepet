@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, List, Loader2 } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
@@ -43,8 +43,10 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
   const t = useTranslations('pages.PetProfilePage');
   const [copied, setCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showShareEarning, setShowShareEarning] = useState(false);
 
   const petShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/pet/${pet.id}` : '';
+  const shareText = t('messages.shareText', { name: pet.name, url: petShareUrl });
 
   const handleDeletePet = async () => {
     setIsDeleting(true);
@@ -78,14 +80,17 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
       try {
         await navigator.share({
           title: `${pet.name} - Pet Profile`,
-          text: `Check out ${pet.name}'s pet profile!`,
+          text: shareText,
           url: petShareUrl,
         });
       } catch (error) {
         console.log('Share cancelled');
       }
     } else {
-      handleCopyLink();
+      await navigator.clipboard.writeText(shareText);
+      setCopied(true);
+      toast.success(t('messages.linkCopied'));
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -104,6 +109,19 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
       default: return '🐾';
     }
   };
+
+  useEffect(() => {
+    if (showShareEarning) {
+      localStorage.setItem('showShareEarning', 'true');
+    }
+  }, [showShareEarning]);
+
+  useEffect(() => {
+    if (localStorage.getItem('showShareEarning') === 'true') {
+      setShowShareEarning(true);
+      localStorage.removeItem('showShareEarning');
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -140,11 +158,11 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/edit`)}>
                     <Edit className="mr-2 h-4 w-4" />
-{t('actions.editPet')}
+                    {t('actions.editPet')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
                     <Wifi className="mr-2 h-4 w-4" />
-{t('actions.attachTag')}
+                    {t('actions.attachTag')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -351,7 +369,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <p className="text-sm text-gray-600">
-{t('messages.deleteConfirm', { petName: pet.name })}
+                      {t('messages.deleteConfirm', { petName: pet.name })}
                     </p>
                     <Button
                       onClick={handleDeletePet}
@@ -362,12 +380,12 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                       {isDeleting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-{t('actions.deleting')}
+                          {t('actions.deleting')}
                         </>
                       ) : (
                         <>
                           <Trash2 className="mr-2 h-4 w-4" />
-{t('actions.deletePet')}
+                          {t('actions.deletePet')}
                         </>
                       )}
                     </Button>
@@ -375,7 +393,6 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 </Card>
               </motion.div>
             )}
-
           </div>
         </div>
       </div>

@@ -363,6 +363,7 @@
         "profileCreated": "הפרופיל נוצר",
         "lastUpdated": "עודכן לאחרונה",
         "shareDescription": "שתף פרופיל זה עם אחרים",
+        "shareText": "הכירו את הפרופיל של {name}! {url}",
         "deleteConfirm": "הסר לצמיתות את הפרופיל של {petName}",
         "petDeleted": "חיית המחמד נמחקה בהצלחה",
         "deleteFailed": "מחיקת חיית המחמד נכשלה",

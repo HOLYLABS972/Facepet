@@ -1,4 +1,11 @@
 {
+  "pages": {
+    "PetProfilePage": {
+      "messages": {
+        "shareText": "Check out {name}'s pet profile! {url}"
+      }
+    }
+  },
   "Admin": {
     "dashboard": "Admin Dashboard",
     "welcome": "Welcome to the Admin Dashboard",
