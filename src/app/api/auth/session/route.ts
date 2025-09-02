@@ -1,45 +1,20 @@
-import { adminAuth } from '@/lib/firebase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if adminAuth is available
-    if (!adminAuth) {
-      return NextResponse.json(
-        { error: 'Authentication service not available' },
-        { status: 503 }
-      );
-    }
+    const { email } = await request.json();
 
-    const { idToken } = await request.json();
-
-    if (!idToken) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'ID token is required' },
+        { error: 'Email is required' },
         { status: 400 }
       );
     }
 
-    // Verify the Firebase ID token
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
-    if (!decodedToken) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
-    }
-
-    // Create session cookie
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-      expiresIn
-    });
-
-    // Set the session cookie
+    // Set the user email cookie
     const response = NextResponse.json({ success: true });
-    response.cookies.set('session', sessionCookie, {
-      maxAge: expiresIn,
+    response.cookies.set('user_email', email, {
+      maxAge: 60 * 60 * 24 * 5, // 5 days
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax'
@@ -58,7 +33,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE() {
   try {
     const response = NextResponse.json({ success: true });
-    response.cookies.delete('session');
+    response.cookies.delete('user_email');
     return response;
   } catch (error) {
     console.error('Session deletion error:', error);

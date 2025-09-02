@@ -1,6 +1,5 @@
 'use server';
 
-import { adminAuth } from '@/lib/firebase/admin';
 import { db } from '@/utils/database/drizzle';
 import { users } from '@/utils/database/schema';
 import { eq } from 'drizzle-orm';
@@ -17,28 +16,15 @@ export interface ServerSession {
 }
 
 /**
- * Get the current user session from Firebase Admin Auth
- * This function verifies the Firebase ID token from cookies
+ * Get the current user session from cookies
+ * This function gets user info from our database based on email from cookies
  */
 export async function auth(): Promise<ServerSession | null> {
   try {
-    // Check if adminAuth is available
-    if (!adminAuth) {
-      console.warn('Firebase Admin Auth not available');
-      return null;
-    }
-
     const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('session')?.value;
+    const userEmail = cookieStore.get('user_email')?.value;
     
-    if (!sessionCookie) {
-      return null;
-    }
-
-    // Verify the Firebase ID token
-    const decodedToken = await adminAuth.verifyIdToken(sessionCookie);
-    
-    if (!decodedToken) {
+    if (!userEmail) {
       return null;
     }
 
@@ -46,7 +32,7 @@ export async function auth(): Promise<ServerSession | null> {
     const userRecord = await db
       .select()
       .from(users)
-      .where(eq(users.email, decodedToken.email!))
+      .where(eq(users.email, userEmail))
       .limit(1);
 
     if (!userRecord.length) {

@@ -60,14 +60,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
-      // Get the ID token and set session cookie
-      const idToken = await userCredential.user.getIdToken();
+      // Set session cookie with user email
       await fetch('/api/auth/session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ email: userCredential.user.email }),
       });
     } catch (error) {
       console.error('Sign in error:', error);
@@ -122,14 +121,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       
-      // Get the ID token and set session cookie
-      const idToken = await userCredential.user.getIdToken();
+      // Set session cookie with user email
       await fetch('/api/auth/session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ email: userCredential.user.email }),
       });
     } catch (error) {
       console.error('Google sign in error:', error);
