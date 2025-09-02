@@ -1,7 +1,7 @@
 import { compare } from 'bcryptjs';
 import NextAuth, { User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { getUserDetailsByEmail } from './utils/database/queries/users';
+import { getUserDetailsByEmail } from './src/lib/firebase/queries/users';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
