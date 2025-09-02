@@ -378,6 +378,24 @@
       "noNotifications": "No new notifications",
       "addPhoneNumber": "Add Phone Number",
       "phoneNumberDescription": "Receive our newsletter with pet care tips and updates!",
+      "phoneNumberBottomSheet": {
+        "form": {
+          "phoneLabel": "Phone Number",
+          "phonePlaceholder": "Enter your phone number",
+          "countryCodeNote": "Include country code (e.g., +1 for US, +972 for Israel)"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "addPhone": "Add Phone",
+          "adding": "Adding..."
+        },
+        "success": "Phone number added successfully!",
+        "errors": {
+          "phoneRequired": "Please enter a phone number",
+          "phoneInvalid": "Please enter a valid phone number",
+          "addFailed": "Failed to add phone number. Please try again."
+        }
+      },
       "shareWithFriends": "Share with Friends",
       "shareDescription": "Share and get 10 points for every friend who joins!",
       "loadingPets": "Loading pets...",

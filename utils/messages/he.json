@@ -1,5 +1,109 @@
 {
   "Pet": {
+    "add": {
+      "title": "הוספת חיית מחמד חדשה",
+      "subtitle": "בוא נכיר את החבר החדש שלך",
+      "steps": {
+        "type": {
+          "title": "בחירת סוג חיית מחמד",
+          "description": "איזה סוג חיית מחמד אתה מוסיף?"
+        },
+        "breed": {
+          "title": "בחירת גזע",
+          "description": "בחר את הגזע הספציפי"
+        },
+        "name": {
+          "title": "שם חיית המחמד",
+          "description": "תן שם מיוחד לחיית המחמד שלך"
+        },
+        "photo": {
+          "title": "הוספת תמונה",
+          "description": "העלה תמונה חמודה של חיית המחמד שלך"
+        },
+        "complete": {
+          "title": "הושלם!",
+          "description": "חיית המחמד שלך מוכנה להצטרף למשפחה!"
+        }
+      },
+      "form": {
+        "petType": {
+          "title": "סוג חיית מחמד",
+          "description": "בחר את הסוג המתאים",
+          "options": {
+            "dog": "כלב",
+            "cat": "חתול",
+            "other": "אחר"
+          }
+        },
+        "breed": {
+          "title": "גזע",
+          "placeholder": "בחר גזע",
+          "description": "בחר את הגזע של חיית המחמד שלך",
+          "searchPlaceholder": "חפש גזעים...",
+          "noBreedFound": "לא נמצא גזע."
+        },
+        "name": {
+          "title": "שם",
+          "placeholder": "הכנס את שם חיית המחמד שלך",
+          "description": "איך קוראים לחיית המחמד שלך?"
+        },
+        "photo": {
+          "title": "תמונה",
+          "upload": "העלאת תמונה",
+          "dropzone": "גרור ושחרר תמונה או לחץ להעלאה",
+          "requirements": "PNG, JPG או GIF (מקסימום 5MB)"
+        }
+      },
+      "types": {
+        "cat": "חתול",
+        "dog": "כלב",
+        "other": "אחר"
+      },
+      "welcome": "ברוכים הבאים ל-Facepet!",
+      "login": "התחברות",
+      "breed": {
+        "title": "{pet} גזעים",
+        "placeholder": "בחר גזע"
+      },
+      "name": {
+        "title": "איך קוראים לחיית המחמד שלך?",
+        "description": "בחר שם מיוחד ל{pet} שלך",
+        "label": "שם חיית מחמד",
+        "placeholder": "הכנס את שם חיית המחמד שלך"
+      },
+      "photo": {
+        "title": "הוסף תמונה של {name}",
+        "description": "העלה תמונה חמודה של חיית המחמד שלך",
+        "uploadPrompt": "לחץ להעלאת תמונה",
+        "uploading": "מעלה...",
+        "uploadComplete": "התמונה הועלתה בהצלחה!",
+        "uploadFailed": "העלאת התמונה נכשלה"
+      },
+      "complete": {
+        "title": "מזל טוב!",
+        "description": "{name} הוא כעת חלק ממשפחת החיות שלך!",
+        "points": "+10 נקודות הרווחת!"
+      },
+      "navigation": {
+        "next": "הבא",
+        "previous": "הקודם",
+        "complete": "סיום",
+        "adding": "מוסיף..."
+      },
+      "success": {
+        "imageUploaded": "התמונה הועלתה בהצלחה!",
+        "petAdded": "חיית המחמד נוספה בהצלחה!"
+      },
+      "errors": {
+        "loginRequired": "נדרשת התחברות להוספת חיית מחמד",
+        "nameRequired": "נא להזין שם לחיית המחמד",
+        "imageRequired": "נא להעלות תמונה",
+        "uploadFailed": "העלאת התמונה נכשלה",
+        "addPetFailed": "הוספת חיית המחמד נכשלה",
+        "photoSize": "גודל התמונה חייב להיות פחות מ-5MB",
+        "photoType": "נא לבחור קובץ תמונה חוקי"
+      }
+    },
     "edit": {
       "title": "עריכת חיית מחמד",
       "subtitle": "עדכון פרטי חיית המחמד",
@@ -116,6 +220,24 @@
       "noNotifications": "אין התראות חדשות",
       "addPhoneNumber": "הוסף מספר טלפון",
       "phoneNumberDescription": "קבל את הניוזלטר שלנו עם טיפים ועדכונים לטיפול בחיות מחמד!",
+      "phoneNumberBottomSheet": {
+        "form": {
+          "phoneLabel": "מספר טלפון",
+          "phonePlaceholder": "הזן את מספר הטלפון שלך",
+          "countryCodeNote": "כלול קוד מדינה (למשל, +972 עבור ישראל, +1 עבור ארה\"ב)"
+        },
+        "buttons": {
+          "cancel": "ביטול",
+          "addPhone": "הוסף טלפון",
+          "adding": "מוסיף..."
+        },
+        "success": "מספר הטלפון נוסף בהצלחה!",
+        "errors": {
+          "phoneRequired": "אנא הזן מספר טלפון",
+          "phoneInvalid": "אנא הזן מספר טלפון תקין",
+          "addFailed": "הוספת מספר הטלפון נכשלה. אנא נסה שוב."
+        }
+      },
       "shareWithFriends": "שתף עם חברים",
       "shareDescription": "שתף וקבל 10 נקודות עבור כל חבר שמצטרף!"
     },

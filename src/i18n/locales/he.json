@@ -186,6 +186,15 @@
       "success": {
         "imageUploaded": "התמונה הועלתה בהצלחה!",
         "petAdded": "חיית המחמד נוספה בהצלחה!"
+      },
+      "errors": {
+        "loginRequired": "נדרשת התחברות להוספת חיית מחמד",
+        "nameRequired": "נא להזין שם לחיית המחמד",
+        "imageRequired": "נא להעלות תמונה",
+        "uploadFailed": "העלאת התמונה נכשלה",
+        "addPetFailed": "הוספת חיית המחמד נכשלה",
+        "photoSize": "גודל התמונה חייב להיות פחות מ-5MB",
+        "photoType": "נא לבחור קובץ תמונה חוקי"
       }
     },
     "edit": {

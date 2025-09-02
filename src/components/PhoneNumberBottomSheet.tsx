@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 interface PhoneNumberBottomSheetProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
   onClose,
   onPhoneAdded
 }) => {
+  const t = useTranslations('pages.MyPetsPage');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,14 +28,14 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
     e.preventDefault();
     
     if (!phoneNumber.trim()) {
-      toast.error('Please enter a phone number');
+      toast.error(t('phoneNumberBottomSheet.errors.phoneRequired'));
       return;
     }
 
     // Basic phone number validation
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
     if (!phoneRegex.test(phoneNumber.replace(/[\s\-\(\)]/g, ''))) {
-      toast.error('Please enter a valid phone number');
+      toast.error(t('phoneNumberBottomSheet.errors.phoneInvalid'));
       return;
     }
 
@@ -49,12 +51,12 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
         onPhoneAdded(phoneNumber);
       }
       
-      toast.success('Phone number added successfully!');
+      toast.success(t('phoneNumberBottomSheet.success'));
       setPhoneNumber('');
       onClose();
     } catch (error) {
       console.error('Error adding phone number:', error);
-      toast.error('Failed to add phone number. Please try again.');
+      toast.error(t('phoneNumberBottomSheet.errors.addFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -101,8 +103,8 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
                     <Phone className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Add Phone Number</h2>
-                    <p className="text-sm text-gray-600">Receive our newsletter with pet care tips</p>
+                    <h2 className="text-xl font-bold text-gray-900">{t('addPhoneNumber')}</h2>
+                    <p className="text-sm text-gray-600">{t('phoneNumberDescription')}</p>
                   </div>
                 </div>
                 <button
@@ -119,19 +121,19 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
             <form onSubmit={handleSubmit} className="px-6 pb-8">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">{t('phoneNumberBottomSheet.form.phoneLabel')}</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="Enter your phone number"
+                    placeholder={t('phoneNumberBottomSheet.form.phonePlaceholder')}
                     disabled={isSubmitting}
                     className="text-lg"
                     autoFocus
                   />
                   <p className="text-xs text-gray-500">
-                    Include country code (e.g., +1 for US, +972 for Israel)
+                    {t('phoneNumberBottomSheet.form.countryCodeNote')}
                   </p>
                 </div>
 
@@ -143,7 +145,7 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
                     disabled={isSubmitting}
                     className="flex-1"
                   >
-                    Cancel
+                    {t('phoneNumberBottomSheet.buttons.cancel')}
                   </Button>
                   <Button
                     type="submit"
@@ -153,12 +155,12 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
                     {isSubmitting ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Adding...
+                        {t('phoneNumberBottomSheet.buttons.adding')}
                       </>
                     ) : (
                       <>
                         <Check className="h-4 w-4 mr-2" />
-                        Add Phone
+                        {t('phoneNumberBottomSheet.buttons.addPhone')}
                       </>
                     )}
                   </Button>

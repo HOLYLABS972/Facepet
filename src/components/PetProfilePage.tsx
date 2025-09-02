@@ -245,7 +245,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <Star className="w-5 h-5 text-yellow-500" />
-                      <span>About {pet.name}</span>
+                      <span>{t('sections.description')} {pet.name}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -265,14 +265,14 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Calendar className="w-5 h-5 text-blue-500" />
-                    <span>Timeline</span>
+                    <span>{t('sections.timeline')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div>
-                      <p className="font-medium text-green-800">Profile Created</p>
+                      <p className="font-medium text-green-800">{t('messages.profileCreated')}</p>
                       <p className="text-sm text-green-600">{formatDate(pet.createdAt)}</p>
                     </div>
                   </div>
@@ -280,7 +280,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                     <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       <div>
-                        <p className="font-medium text-blue-800">Last Updated</p>
+                        <p className="font-medium text-blue-800">{t('messages.lastUpdated')}</p>
                         <p className="text-sm text-blue-600">{formatDate(pet.updatedAt)}</p>
                       </div>
                     </div>
@@ -302,12 +302,12 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Share2 className="w-5 h-5" />
-                    <span>Share Profile</span>
+                    <span>{t('sections.share')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-gray-600">
-                    Share {pet.name}'s profile with others
+                    {t('messages.shareDescription')}
                   </p>
                   <div className="flex space-x-2">
                     <Button
