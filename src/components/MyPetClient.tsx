@@ -2,7 +2,7 @@
 'use client';
 
 import MyPetCard from '@/components/MyPetCard';
-import { EditIcon, User, Plus } from 'lucide-react';
+import { User, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
 import React, { useState, useEffect } from 'react';
@@ -30,7 +30,6 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [isEditMode, setIsEditMode] = useState(false);
   const [pets, setPets] = useState(initialPets);
   const [petsLoading, setPetsLoading] = useState(false);
 
@@ -107,17 +106,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       </div>
 
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4">
         <h2 className="text-2xl font-bold">{t('title')}</h2>
-        <Button
-          variant={isEditMode ? 'default' : 'ghost'}
-          className="h-9 w-9"
-          onClick={() => setIsEditMode(!isEditMode)}
-        >
-          <EditIcon
-            className={cn('h-6 w-6', isEditMode ? '' : 'text-gray-400')}
-          />
-        </Button>
       </div>
 
       <div className="mb-4">
@@ -148,7 +138,6 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               name={pet.name}
               breed={pet.breed}
               image={pet.image}
-              isEditMode={isEditMode}
             />
           ))}
         </div>

@@ -1,5 +1,5 @@
 import { getStorageInstance } from './storage-init';
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytesResumable, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { User } from 'firebase/auth';
 
 export interface UploadProgress {
@@ -82,6 +82,12 @@ export async function uploadProfileImage(
 
 export async function deleteProfileImage(imageURL: string): Promise<{ success: boolean; error?: string }> {
   try {
+    // Get storage instance
+    const storage = getStorageInstance();
+    if (!storage) {
+      throw new Error('Firebase Storage is not initialized');
+    }
+
     // Extract the file path from the URL
     const url = new URL(imageURL);
     const pathMatch = url.pathname.match(/\/o\/(.+)\?/);
