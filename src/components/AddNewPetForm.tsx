@@ -8,71 +8,89 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Upload, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Upload, Loader2, CheckCircle, XCircle, ArrowRight, ArrowLeft, Heart, Star, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
 import { BreedSelect } from './ui/breed-select';
 import { getBreedsForType, type PetType } from '@/src/lib/data/breeds';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface PetFormData {
   name: string;
-  description: string;
-  type: 'cat' | 'dog' | 'bird' | 'fish' | 'rabbit' | 'hamster' | 'guinea-pig' | 'turtle' | 'snake' | 'lizard' | 'ferret' | 'other';
+  type: string;
   breed: string;
   image: File | null;
   imageUrl: string;
 }
 
+interface UploadProgress {
+  progress: number;
+  status: 'uploading' | 'completed' | 'error';
+}
+
+const PET_TYPES = [
+  { id: 'cat', name: 'Cat', emoji: '🐱', icon: '🐱' },
+  { id: 'dog', name: 'Dog', emoji: '🐶', icon: '🐶' },
+  { id: 'bird', name: 'Bird', emoji: '🐦', icon: '🐦' },
+  { id: 'fish', name: 'Fish', emoji: '🐠', icon: '🐠' },
+  { id: 'hamster', name: 'Hamster', emoji: '🐹', icon: '🐹' },
+  { id: 'rabbit', name: 'Rabbit', emoji: '🐰', icon: '🐰' },
+  { id: 'turtle', name: 'Turtle', emoji: '🐢', icon: '🐢' },
+  { id: 'snake', name: 'Snake', emoji: '🐍', icon: '🐍' },
+  { id: 'lizard', name: 'Lizard', emoji: '🦎', icon: '🦎' },
+  { id: 'ferret', name: 'Ferret', emoji: '🦦', icon: '🦦' },
+  { id: 'guinea-pig', name: 'Guinea Pig', emoji: '🐹', icon: '🐹' },
+  { id: 'chinchilla', name: 'Chinchilla', emoji: '🐭', icon: '🐭' },
+  { id: 'hedgehog', name: 'Hedgehog', emoji: '🦔', icon: '🦔' },
+  { id: 'parrot', name: 'Parrot', emoji: '🦜', icon: '🦜' },
+  { id: 'other', name: 'Other', emoji: '🐾', icon: '🐾' }
+];
+
+const STEPS = [
+  { id: 1, title: 'Choose Pet Type', description: 'What kind of pet are you adding?' },
+  { id: 2, title: 'Select Breed', description: 'Pick the specific breed' },
+  { id: 3, title: 'Name Your Pet', description: 'Give your pet a special name' },
+  { id: 4, title: 'Add Photo', description: 'Upload a cute photo of your pet' },
+  { id: 5, title: 'Complete!', description: 'Your pet is ready to join the family!' }
+];
+
 export default function AddNewPetForm() {
   const { user } = useAuth();
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ progress: number; status: string } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   
   const [formData, setFormData] = useState<PetFormData>({
     name: '',
-    description: '',
-    type: 'cat',
+    type: '',
     breed: '',
     image: null,
     imageUrl: ''
   });
 
-  const handleInputChange = (field: keyof PetFormData, value: string | File) => {
-    setFormData(prev => {
-      const newData = {
+  const handleInputChange = (field: keyof PetFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+
+    // Reset breed when type changes
+    if (field === 'type') {
+      setFormData(prev => ({
         ...prev,
-        [field]: value
-      };
-      
-      // If type changes, reset breed selection
-      if (field === 'type') {
-        newData.breed = '';
-      }
-      
-      return newData;
-    });
+        breed: ''
+      }));
+    }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !user) {
-      toast.error('Please select an image file and make sure you are logged in');
-      return;
-    }
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select a valid image file');
-      return;
-    }
-
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image size must be less than 10MB');
+    if (!user) {
+      toast.error('Please log in to upload images');
       return;
     }
 
@@ -81,7 +99,6 @@ export default function AddNewPetForm() {
       image: file
     }));
 
-    // Upload image
     setUploading(true);
     setUploadProgress({ progress: 0, status: 'uploading' });
 
@@ -105,16 +122,13 @@ export default function AddNewPetForm() {
       toast.error('Failed to upload image');
     } finally {
       setUploading(false);
-      // Clear progress after 2 seconds
       setTimeout(() => {
         setUploadProgress(null);
       }, 2000);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async () => {
     if (!user) {
       toast.error('Please log in to add a pet');
       return;
@@ -133,14 +147,13 @@ export default function AddNewPetForm() {
     setLoading(true);
 
     try {
-      // Create pet data
       const petData = {
         name: formData.name.trim(),
-        description: formData.description.trim(),
-        breedName: formData.breed, // Store the selected breed name
+        description: '', // Removed description as requested
+        breedName: formData.breed,
         imageUrl: formData.imageUrl,
-        genderId: 1, // Default to first gender (you can make this configurable)
-        breedId: 1,  // Default to first breed (you can make this configurable)
+        genderId: 1,
+        breedId: 1,
         ownerName: user.displayName || 'Pet Owner',
         ownerPhone: '',
         ownerEmail: user.email || '',
@@ -154,16 +167,6 @@ export default function AddNewPetForm() {
 
       if (result.success) {
         toast.success('Pet added successfully!');
-        // Reset form
-        setFormData({
-          name: '',
-          description: '',
-          type: 'cat',
-          breed: '',
-          image: null,
-          imageUrl: ''
-        });
-        // Redirect to pets page
         router.push('/pages/my-pets');
       } else {
         toast.error(result.error || 'Failed to add pet');
@@ -176,177 +179,311 @@ export default function AddNewPetForm() {
     }
   };
 
+  const nextStep = () => {
+    if (currentStep < STEPS.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1: return formData.type !== '';
+      case 2: return formData.breed !== '';
+      case 3: return formData.name.trim() !== '';
+      case 4: return formData.imageUrl !== '';
+      default: return true;
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-3 gap-4">
+              {PET_TYPES.map((type) => (
+                <motion.button
+                  key={type.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleInputChange('type', type.id)}
+                  className={`p-6 rounded-2xl border-2 transition-all duration-200 ${
+                    formData.type === type.id
+                      ? 'border-primary bg-primary/10 shadow-lg'
+                      : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="text-4xl mb-2">{type.icon}</div>
+                  <div className="text-sm font-medium text-gray-700">{type.name}</div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        );
+
+      case 2:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-4"
+          >
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">
+                {PET_TYPES.find(t => t.id === formData.type)?.icon}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800">
+                {PET_TYPES.find(t => t.id === formData.type)?.name} Breeds
+              </h3>
+            </div>
+            <BreedSelect
+              petType={formData.type as PetType}
+              value={formData.breed}
+              onValueChange={(value) => handleInputChange('breed', value)}
+              placeholder="Select breed"
+            />
+          </motion.div>
+        );
+
+      case 3:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">
+                {PET_TYPES.find(t => t.id === formData.type)?.icon}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800">What's your pet's name?</h3>
+              <p className="text-gray-600">Choose a special name for your {PET_TYPES.find(t => t.id === formData.type)?.name.toLowerCase()}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Pet Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Enter your pet's name"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className="text-center text-lg"
+              />
+            </div>
+          </motion.div>
+        );
+
+      case 4:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">
+                {PET_TYPES.find(t => t.id === formData.type)?.icon}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800">Add a photo of {formData.name}</h3>
+              <p className="text-gray-600">Upload a cute picture of your pet</p>
+            </div>
+            
+            <div className="flex justify-center">
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer"
+                >
+                  <div className="w-48 h-48 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center hover:border-primary transition-colors">
+                    {formData.imageUrl ? (
+                      <img
+                        src={formData.imageUrl}
+                        alt="Pet preview"
+                        className="w-full h-full object-cover rounded-2xl"
+                      />
+                    ) : (
+                      <>
+                        <Camera className="w-12 h-12 text-gray-400 mb-4" />
+                        <p className="text-gray-500 text-center">Click to upload photo</p>
+                      </>
+                    )}
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {uploadProgress && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-center space-x-2">
+                  {uploadProgress.status === 'uploading' && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {uploadProgress.status === 'completed' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                  {uploadProgress.status === 'error' && <XCircle className="w-4 h-4 text-red-500" />}
+                  <span className="text-sm text-gray-600">
+                    {uploadProgress.status === 'uploading' && 'Uploading...'}
+                    {uploadProgress.status === 'completed' && 'Upload complete!'}
+                    {uploadProgress.status === 'error' && 'Upload failed'}
+                  </span>
+                </div>
+                {uploadProgress.status === 'uploading' && (
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress.progress}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        );
+
+      case 5:
+        return (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="text-center space-y-6"
+          >
+            <div className="text-8xl mb-6">🎉</div>
+            <h3 className="text-2xl font-bold text-gray-800">Congratulations!</h3>
+            <p className="text-gray-600">
+              <strong>{formData.name}</strong> is now part of your pet family!
+            </p>
+            <div className="flex items-center justify-center space-x-2 text-primary">
+              <Star className="w-5 h-5 fill-current" />
+              <span className="font-semibold">+10 Points Earned!</span>
+            </div>
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="flex items-center justify-center space-x-4">
+                <img
+                  src={formData.imageUrl}
+                  alt={formData.name}
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+                <div className="text-left">
+                  <h4 className="font-semibold text-lg">{formData.name}</h4>
+                  <p className="text-gray-600">{formData.breed}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   if (!user) {
     return (
-      <div className="container mx-auto p-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Add New Pet</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Please log in to add a new pet.</p>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Heart className="w-16 h-16 text-primary mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Welcome to Facepet!</h2>
+          <p className="text-gray-600 mb-4">Please log in to add your pet</p>
+          <Button onClick={() => router.push('/login')}>
+            Log In
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-8 max-w-2xl">
+    <div className="max-w-2xl mx-auto p-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Add New Pet</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Pet Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Pet Name *</Label>
-              <Input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Enter your pet's name"
-                required
-              />
-            </div>
-
-            {/* Pet Type */}
-            <div className="space-y-2">
-              <Label htmlFor="type">Pet Type *</Label>
-              <Select value={formData.type} onValueChange={(value: any) => handleInputChange('type', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select pet type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cat">🐱 Cat</SelectItem>
-                  <SelectItem value="dog">🐶 Dog</SelectItem>
-                  <SelectItem value="bird">🐦 Bird</SelectItem>
-                  <SelectItem value="fish">🐠 Fish</SelectItem>
-                  <SelectItem value="rabbit">🐰 Rabbit</SelectItem>
-                  <SelectItem value="hamster">🐹 Hamster</SelectItem>
-                  <SelectItem value="guinea-pig">🐹 Guinea Pig</SelectItem>
-                  <SelectItem value="turtle">🐢 Turtle</SelectItem>
-                  <SelectItem value="snake">🐍 Snake</SelectItem>
-                  <SelectItem value="lizard">🦎 Lizard</SelectItem>
-                  <SelectItem value="ferret">🦦 Ferret</SelectItem>
-                  <SelectItem value="other">🐾 Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Breed Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="breed">Breed</Label>
-              <BreedSelect
-                petType={formData.type as PetType}
-                value={formData.breed}
-                onValueChange={(value) => handleInputChange('breed', value)}
-                placeholder="Select breed"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Tell us about your pet..."
-                rows={4}
-              />
-            </div>
-
-            {/* Image Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="image">Pet Image *</Label>
-              <div className="space-y-4">
-                <input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-                
-                {uploading && (
-                  <div className="flex items-center space-x-2 text-sm text-blue-600">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Uploading image...</span>
-                  </div>
-                )}
-
-                {uploadProgress && (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 text-sm">
-                      {uploadProgress.status === 'completed' && (
-                        <>
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="text-green-600">Image uploaded successfully!</span>
-                        </>
-                      )}
-                      {uploadProgress.status === 'error' && (
-                        <>
-                          <XCircle className="h-4 w-4 text-red-600" />
-                          <span className="text-red-600">Upload failed</span>
-                        </>
-                      )}
-                    </div>
-                    {uploadProgress.status === 'uploading' && (
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${uploadProgress.progress}%` }}
-                        ></div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {formData.imageUrl && (
-                  <div className="mt-4">
-                    <img 
-                      src={formData.imageUrl} 
-                      alt="Pet preview" 
-                      className="w-32 h-32 object-cover rounded-lg border"
-                    />
-                  </div>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Add New Pet</CardTitle>
+          <div className="flex items-center justify-center space-x-2 mt-4">
+            {STEPS.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                    currentStep >= step.id
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-200 text-gray-500'
+                  }`}
+                >
+                  {currentStep > step.id ? <CheckCircle className="w-4 h-4" /> : step.id}
+                </div>
+                {index < STEPS.length - 1 && (
+                  <div
+                    className={`w-8 h-0.5 mx-2 ${
+                      currentStep > step.id ? 'bg-primary' : 'bg-gray-200'
+                    }`}
+                  />
                 )}
               </div>
-            </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">{STEPS[currentStep - 1].title}</h3>
+            <p className="text-gray-600">{STEPS[currentStep - 1].description}</p>
+          </div>
+        </CardHeader>
+        
+        <CardContent>
+          <AnimatePresence mode="wait">
+            {renderStepContent()}
+          </AnimatePresence>
 
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4">
+          <div className="flex justify-between mt-8">
+            <Button
+              variant="outline"
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Previous</span>
+            </Button>
+
+            {currentStep < STEPS.length ? (
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push('/pages/my-pets')}
-                disabled={loading}
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="flex items-center space-x-2"
               >
-                Cancel
+                <span>Next</span>
+                <ArrowRight className="w-4 h-4" />
               </Button>
+            ) : (
               <Button
-                type="submit"
-                disabled={loading || uploading || !formData.name.trim() || !formData.imageUrl}
-                className="min-w-[120px]"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700"
               >
                 {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Adding...
-                  </>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Add Pet
-                  </>
+                  <Heart className="w-4 h-4" />
                 )}
+                <span>{loading ? 'Adding Pet...' : 'Complete!'}</span>
               </Button>
-            </div>
-          </form>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
