@@ -30,7 +30,6 @@ const Footer = () => {
           <div className="flex items-center gap-6">
             {/* Language Switcher */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">{t('language')}:</span>
               <LocaleSwitcher />
             </div>
 

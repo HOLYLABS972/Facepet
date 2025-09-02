@@ -111,7 +111,7 @@ const AuthPage = () => {
               FacePet
             </h1>
             <p className="text-xl text-gray-600 max-w-md">
-              Tiny pet guardians for big peace of mind. Keep your pets safe and connected.
+              {t('tagline')}
             </p>
           </div>
         </div>
