@@ -9,8 +9,6 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   GoogleAuthProvider,
   updateProfile,
   fetchSignInMethodsForEmail
@@ -57,29 +55,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setLoading(false);
     });
 
-    // Check for redirect result on component mount
-    const checkRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
-          console.log('Google sign-in redirect result:', result);
-          
-          // Store user in Firestore collection after Google sign-in
-          const userResult = await createUserInFirestore(result.user, {
-            acceptCookies: false,
-            language: 'en'
-          });
-
-          if (!userResult.success) {
-            console.error('Failed to store Google user in Firestore:', userResult.error);
-          }
-        }
-      } catch (error) {
-        console.error('Error checking redirect result:', error);
-      }
-    };
-
-    checkRedirectResult();
+    // No need for redirect result handling since we're using popup
 
     return unsubscribe;
   }, []);
@@ -133,8 +109,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      // Use redirect instead of popup to avoid COOP issues
-      await signInWithRedirect(auth, provider);
+      // Use popup for in-frame experience
+      const userCredential = await signInWithPopup(auth, provider);
+      
+      // Store user in Firestore collection after Google sign-in
+      if (userCredential.user) {
+        const userResult = await createUserInFirestore(userCredential.user, {
+          acceptCookies: false,
+          language: 'en'
+        });
+
+        if (!userResult.success) {
+          console.error('Failed to store Google user in Firestore:', userResult.error);
+        }
+      }
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;

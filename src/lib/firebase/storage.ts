@@ -19,6 +19,11 @@ export async function uploadProfileImage(
       throw new Error('User ID is required');
     }
 
+    // Check if storage is properly initialized
+    if (!storage) {
+      throw new Error('Firebase Storage is not initialized');
+    }
+
     // Create a reference to the file location
     const fileName = `profile-images/${user.uid}/${Date.now()}-${file.name}`;
     const storageRef = ref(storage, fileName);

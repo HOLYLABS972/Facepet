@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow users to upload profile images to their own folder
+    match /profile-images/{userId}/{allPaths=**} {
+      // Allow read access to anyone (for displaying profile images)
+      allow read: if true;
+      
+      // Allow write access only to authenticated users for their own folder
+      allow write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.size < 5 * 1024 * 1024 // 5MB limit
+        && request.resource.contentType.matches('image/.*'); // Only images
+    }
+    
+    // Allow users to upload pet images
+    match /pet-images/{userId}/{allPaths=**} {
+      // Allow read access to anyone (for displaying pet images)
+      allow read: if true;
+      
+      // Allow write access only to authenticated users for their own folder
+      allow write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.size < 10 * 1024 * 1024 // 10MB limit for pet images
+        && request.resource.contentType.matches('image/.*'); // Only images
+    }
+    
+    // Default rule: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -15,6 +15,7 @@ import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, Che
 import toast from 'react-hot-toast';
 import { uploadProfileImage, UploadProgress } from '@/src/lib/firebase/storage';
 import { updateUserInFirestore } from '@/src/lib/firebase/users';
+import { debugFirebaseStatus } from '@/src/lib/firebase/init-check';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -107,6 +108,13 @@ export default function SettingsPage() {
         ...prev,
         profileImage: file
       }));
+
+      // Debug Firebase status before upload
+      const firebaseStatus = debugFirebaseStatus();
+      if (!firebaseStatus.success) {
+        toast.error('Firebase not properly initialized. Check console for details.');
+        return;
+      }
 
       // Auto-upload the image
       setUploading(true);
