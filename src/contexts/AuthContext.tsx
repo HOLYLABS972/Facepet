@@ -22,6 +22,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  sendVerificationCode: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -106,6 +107,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const sendVerificationCode = async (email: string) => {
+    try {
+      const response = await fetch(`/api/send-verification?email=${encodeURIComponent(email)}`);
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to send verification code');
+      }
+    } catch (error) {
+      console.error('Send verification code error:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -113,7 +128,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signUp,
     signInWithGoogle,
     signOut,
-    resetPassword
+    resetPassword,
+    sendVerificationCode
   };
 
   return (

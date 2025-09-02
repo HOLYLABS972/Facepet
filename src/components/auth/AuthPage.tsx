@@ -14,7 +14,7 @@ import Image from 'next/image';
 
 const AuthPage = () => {
   const t = useTranslations('pages.AuthPage');
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, sendVerificationCode } = useAuth();
   const router = useRouter();
   
   const [isSignUp, setIsSignUp] = useState(false);
@@ -40,12 +40,16 @@ const AuthPage = () => {
     try {
       if (isSignUp) {
         await signUp(formData.email, formData.password, formData.fullName);
-        toast.success('Account created successfully!');
+        // Send verification code after successful signup
+        await sendVerificationCode(formData.email);
+        toast.success('Account created! Please verify your email.');
+        // Redirect to email verification page
+        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}`);
       } else {
         await signIn(formData.email, formData.password);
         toast.success('Signed in successfully!');
+        router.push('/pages/my-pets');
       }
-      router.push('/pages/my-pets');
     } catch (error: any) {
       console.error('Auth error:', error);
       toast.error(error.message || 'Authentication failed');
