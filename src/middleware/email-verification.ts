@@ -54,7 +54,7 @@ export async function emailVerificationMiddleware(request: NextRequest) {
     
     if (!session || !session.user || !session.user.email) {
       // Redirect to sign in if not authenticated
-      const signInUrl = new URL('/auth/sign-in', request.url);
+      const signInUrl = new URL('/auth', request.url);
       signInUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(signInUrl);
     }
@@ -75,7 +75,7 @@ export async function emailVerificationMiddleware(request: NextRequest) {
     console.error('Email verification middleware error:', error);
     
     // On error, redirect to sign in
-    const signInUrl = new URL('/auth/sign-in', request.url);
+    const signInUrl = new URL('/auth', request.url);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
   }
