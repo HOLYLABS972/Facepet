@@ -54,19 +54,16 @@ export async function generateVerificationCode(
       expires
     });
 
-    // Send the verification code via email
-    const { sendVerificationEmail } = await import('@/src/lib/email');
-    const { getUserDetailsByEmail } = await import(
-      '@/utils/database/queries/users'
-    );
-
-    const user = await getUserDetailsByEmail(email);
-    const userFirstname = user?.fullName?.split(' ')[0] || 'User';
-
-    const emailResult = await sendVerificationEmail(email, code, userFirstname);
-    if (!emailResult.success) {
-      console.error('Failed to send verification email:', emailResult.error);
-      // Don't fail the entire process if email fails, but log it
+    // Send the verification code via external OTP API
+    try {
+      const otpResponse = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
+      if (!otpResponse.ok) {
+        console.error('Failed to send OTP via external API:', otpResponse.statusText);
+        // Don't fail the entire process if external API fails, but log it
+      }
+    } catch (error) {
+      console.error('Error calling external OTP API:', error);
+      // Don't fail the entire process if external API fails, but log it
     }
 
     return { success: true, code };
@@ -591,7 +588,7 @@ export async function cleanupExpiredTokens(): Promise<number> {
 
     const result = await db
       .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.expires, new Date()));
+      .where(lt(passwordResetTokens.expires, new Date()));
 
     return result.rowCount || 0;
   } catch (error) {
@@ -621,26 +618,34 @@ export async function cleanupExpiredPendingPasswordChanges(): Promise<number> {
   }
 }
 
-// Clean up expired pending changes and tokens every hour
+// Clean up expired verification codes every hour
 if (typeof window === 'undefined') {
   setInterval(
     async () => {
-      // Clean up expired pending password changes
-      const cleanedPending = await cleanupExpiredPendingPasswordChanges();
-      if (cleanedPending > 0) {
+      // Clean up expired verification codes
+      const cleanedCodes = await cleanupExpiredVerificationCodes();
+      if (cleanedCodes > 0) {
         console.log(
-          `Cleaned up ${cleanedPending} expired pending password changes`
-        );
-      }
-
-      // Clean up expired password reset tokens
-      const cleanedTokens = await cleanupExpiredTokens();
-      if (cleanedTokens > 0) {
-        console.log(
-          `Cleaned up ${cleanedTokens} expired password reset tokens`
+          `Cleaned up ${cleanedCodes} expired verification codes`
         );
       }
     },
     60 * 60 * 1000
   );
+}
+
+/**
+ * Clean up expired verification codes
+ */
+export async function cleanupExpiredVerificationCodes(): Promise<number> {
+  try {
+    const result = await db
+      .delete(VerificationCode)
+      .where(lt(VerificationCode.expires, new Date()));
+
+    return result.rowCount || 0;
+  } catch (error) {
+    console.error('Error cleaning up expired verification codes:', error);
+    return 0;
+  }
 }

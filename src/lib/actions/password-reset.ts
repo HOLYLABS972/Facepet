@@ -4,14 +4,14 @@ import { db } from '@/utils/database/drizzle';
 import { users } from '@/utils/database/schema';
 import { eq } from 'drizzle-orm';
 import {
-  cleanupExpiredTokens as cleanupTokens,
-  deletePasswordResetTokens,
   generateResetToken,
   hashPassword,
   markResetTokenAsUsed,
   storePasswordResetToken,
   updateUserPassword,
-  validateResetToken as validateToken
+  validateResetToken,
+  deletePasswordResetTokens,
+  cleanupExpiredTokens
 } from './verification';
 
 /**
@@ -74,7 +74,7 @@ export async function requestPasswordReset(
     );
     if (!emailResult.success) {
       console.error('Failed to send password reset email:', emailResult.error);
-      // Don't fail the entire process, but log the error
+      return { success: false, error: emailResult.error };
     }
 
     return { success: true };
@@ -90,16 +90,16 @@ export async function requestPasswordReset(
 /**
  * Validate password reset token
  */
-export async function validateResetToken(
+export async function validateResetTokenCode(
   token: string
 ): Promise<{ success: boolean; email?: string; error?: string }> {
-  return await validateToken(token);
+  return await validateResetToken(token);
 }
 
 /**
  * Reset password using valid token
  */
-export async function resetPassword(
+export async function resetPasswordWithToken(
   token: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -162,7 +162,7 @@ export async function resetPassword(
  * Clean up expired password reset tokens
  */
 export async function cleanupExpiredTokens(): Promise<number> {
-  return await cleanupTokens();
+  return await cleanupExpiredTokens();
 }
 
 // Clean up expired tokens every hour

@@ -159,10 +159,12 @@ export const VerificationCode = pgTable('verification_codes', {
   expires: timestamp('expire_date').notNull(),
   used: boolean('used').notNull().default(false),
   hashedPassword: text('hashed_password'), // For password change requests
+  newEmail: varchar('new_email', { length: 255 }), // For email change requests
+  hashedNewPassword: text('hashed_new_password'), // For password reset requests
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
 });
 
-// Password Reset Tokens Table
+// Password Reset Tokens Table (still needed for password reset links)
 export const passwordResetTokens = pgTable('password_reset_tokens', {
   id: uuid('id').notNull().primaryKey().defaultRandom().unique(),
   email: varchar('email', { length: 255 }).notNull(),
@@ -172,21 +174,8 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
 });
 
-// Email Change Requests Table
-export const emailChangeRequests = pgTable('email_change_requests', {
-  id: uuid('id').notNull().primaryKey().defaultRandom().unique(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, {
-      onDelete: 'cascade'
-    }),
-  currentEmail: varchar('current_email', { length: 255 }).notNull(),
-  newEmail: varchar('new_email', { length: 255 }).notNull(),
-  token: varchar('token', { length: 255 }).notNull().unique(),
-  expires: timestamp('expires').notNull(),
-  verified: boolean('verified').notNull().default(false),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
-});
+// Note: emailChangeRequests table has been removed
+// Email change now uses OTP codes through the VerificationCode table
 
 // Contact Form Submissions Table
 export const contactSubmissions = pgTable('contact_submissions', {

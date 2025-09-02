@@ -1,4 +1,4 @@
-// import { auth } from '@/auth'; // Removed - using Firebase Auth
+import { auth } from '@/lib/auth-server';
 import { redirect } from '@/i18n/routing';
 import { getDashboardStats, getRecentActivity } from '@/lib/actions/admin';
 import { format } from 'date-fns';

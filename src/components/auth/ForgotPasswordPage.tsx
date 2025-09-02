@@ -24,15 +24,23 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
+      console.log('Attempting to send password reset email to:', email);
       await resetPassword(email);
+      console.log('Password reset email sent successfully');
       setEmailSent(true);
       toast.success('Password reset email sent!');
     } catch (error: any) {
       console.error('Password reset error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       
       // Check if the error is because the email doesn't exist
       if (error.code === 'auth/user-not-found') {
         toast.error('This email address is not registered with us.');
+      } else if (error.code === 'auth/invalid-email') {
+        toast.error('Please enter a valid email address.');
+      } else if (error.code === 'auth/too-many-requests') {
+        toast.error('Too many requests. Please try again later.');
       } else {
         toast.error(error.message || 'Failed to send reset email');
       }

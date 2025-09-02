@@ -109,7 +109,7 @@ export async function sendVerificationEmail(
 }
 
 /**
- * Send password reset email
+ * Send password reset email with reset link
  */
 export async function sendPasswordResetEmail(
   email: string,
@@ -118,7 +118,6 @@ export async function sendPasswordResetEmail(
 ): Promise<EmailResult> {
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
 
-  // We'll create this template next
   const { default: PasswordResetEmailContent } = await import(
     '../../emails/password-reset'
   );

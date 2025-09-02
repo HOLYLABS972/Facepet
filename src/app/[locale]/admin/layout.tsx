@@ -1,4 +1,4 @@
-// import { auth } from '@/auth'; // Removed - using Firebase Auth
+import { auth } from '@/lib/auth-server';
 import { redirect } from '@/i18n/routing';
 import { Button } from '@/src/components/ui/button';
 import { AppWindow, ArrowLeft, LayoutDashboard, Users } from 'lucide-react';

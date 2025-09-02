@@ -1,16 +1,17 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { 
-  User, 
-  signInWithEmailAndPassword, 
+import {
+  User,
+  signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithPopup,
   GoogleAuthProvider,
-  updateProfile
+  updateProfile,
+  fetchSignInMethodsForEmail
 } from 'firebase/auth';
 import { auth } from '@/src/lib/firebase/config';
 
@@ -22,6 +23,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  checkEmailExists: (email: string) => Promise<boolean>;
   sendVerificationCode: (email: string) => Promise<void>;
   verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string) => Promise<void>;
 }
@@ -56,7 +58,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Get the ID token and set session cookie
+      const idToken = await userCredential.user.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      });
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
@@ -71,6 +83,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         await updateProfile(userCredential.user, {
           displayName: fullName
         });
+        
+        // Get the ID token and set session cookie
+        const idToken = await userCredential.user.getIdToken();
+        await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ idToken }),
+        });
       }
     } catch (error) {
       console.error('Sign up error:', error);
@@ -81,6 +103,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signOut = async () => {
     try {
       console.log('Firebase sign out...');
+      
+      // Clear session cookie
+      await fetch('/api/auth/session', {
+        method: 'DELETE',
+      });
+      
       await firebaseSignOut(auth);
       console.log('Firebase sign out completed');
     } catch (error) {
@@ -92,7 +120,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, provider);
+      
+      // Get the ID token and set session cookie
+      const idToken = await userCredential.user.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      });
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;
@@ -149,6 +187,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (userCredential.user) {
         await updateProfile(userCredential.user, {
           displayName: fullName
+        });
+        
+        // Get the ID token and set session cookie
+        const idToken = await userCredential.user.getIdToken();
+        await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ idToken }),
         });
       }
     } catch (error) {
