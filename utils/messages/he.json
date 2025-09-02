@@ -193,7 +193,7 @@
     },
     "HomePage": {
       "upperTitle": "כל מה שחיית המחמד שלך צריכה,",
-      "lowerTitle": "במקום אחד.",
+      "lowerTitle": "במקום אחד.",
       "buttonLabel": "התחילו עכשיו",
       "signOutText": "כבר מחוברים?",
       "signOutLink": "התנתקות",
@@ -201,6 +201,42 @@
       "signInLink": "התחברות",
       "brand": "FacePet",
       "menuButton": "פתחו את התפריט הראשי"
+    },
+    "AuthPage": {
+      "welcomeBack": "ברוכים השבים!",
+      "createAccount": "צרו את החשבון שלכם",
+      "fullName": "שם מלא",
+      "fullNamePlaceholder": "הזינו את השם המלא שלכם",
+      "email": "אימייל",
+      "emailPlaceholder": "הזינו את האימייל שלכם",
+      "password": "סיסמה",
+      "passwordPlaceholder": "הזינו את הסיסמה שלכם",
+      "signInButton": "התחברות",
+      "signUpButton": "צור חשבון",
+      "or": "או",
+      "signInWithGoogle": "המשך עם Google",
+      "noAccount": "אין לכם חשבון?",
+      "haveAccount": "כבר יש לכם חשבון?",
+      "signUpLink": "הירשמו",
+      "signInLink": "התחברו",
+      "signInSuccess": "התחברתם בהצלחה!",
+      "signUpSuccess": "החשבון נוצר בהצלחה!",
+      "signInSuccessGoogle": "התחברתם עם Google בהצלחה!",
+      "authError": "האימות נכשל",
+      "authErrorGoogle": "אימות Google נכשל"
+    },
+    "EmailVerification": {
+      "title": "אמתו את האימייל שלכם",
+      "subtitle": "שלחנו קוד אימות לכתובת",
+      "verificationCode": "קוד אימות",
+      "verificationCodePlaceholder": "הזינו קוד בן 6 ספרות",
+      "verifyButton": "אמתו אימייל",
+      "verifying": "מאמתים...",
+      "didntReceive": "לא קיבלתם את הקוד?",
+      "resendButton": "שלחו קוד שוב",
+      "resendIn": "שלחו שוב בעוד",
+      "sending": "שולחים...",
+      "backToSignUp": "חזרה להרשמה"
     }
   },
   "errors": {

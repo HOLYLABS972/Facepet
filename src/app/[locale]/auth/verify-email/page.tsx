@@ -1,11 +1,11 @@
-'use client';
-
-import { useSearchParams } from 'next/navigation';
 import EmailVerificationPage from '@/src/components/auth/EmailVerificationPage';
 
-export default function VerifyEmailPage() {
-  const searchParams = useSearchParams();
-  const email = searchParams.get('email') || '';
+interface VerifyEmailPageProps {
+  searchParams: { email?: string };
+}
+
+export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+  const email = searchParams.email || '';
 
   if (!email) {
     return (
