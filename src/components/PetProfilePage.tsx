@@ -290,47 +290,6 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Delete Section - Only visible to authenticated pet owners */}
-            {pet.userEmail === user?.email && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Trash2 className="w-5 h-5 text-red-500" />
-                      <span>Delete Pet</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-sm text-gray-600">
-                      Permanently remove {pet.name}'s profile
-                    </p>
-                    <Button
-                      onClick={handleDeletePet}
-                      variant="destructive"
-                      disabled={isDeleting}
-                      className="w-full"
-                    >
-                      {isDeleting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Pet
-                        </>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
             {/* Share */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -374,6 +333,46 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               </Card>
             </motion.div>
 
+            {/* Delete Section - Only visible to authenticated pet owners */}
+            {pet.userEmail === user?.email && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                      <span>Delete Pet</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-gray-600">
+                      Permanently remove {pet.name}'s profile
+                    </p>
+                    <Button
+                      onClick={handleDeletePet}
+                      variant="outline"
+                      disabled={isDeleting}
+                      className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Pet
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
           </div>
         </div>
