@@ -569,53 +569,47 @@ export default function SettingsPage() {
         </Card>
 
         {/* Account Management Section */}
-        <Card className="mb-6 shadow-xl border-orange-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-600">
-              <User className="h-5 w-5" />
-              Account Management
-            </CardTitle>
-          </CardHeader>
+               <Card className="mb-6 shadow-xl border-red-200">
+         <CardHeader>
+           <CardTitle className="flex items-center gap-2 text-red-600">
+             <User className="h-5 w-5" />
+             Account Management
+           </CardTitle>
+         </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Delete Account</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  If you no longer wish to use FacePet, you can delete your account. Please note that this action will remove:
-                </p>
-                <ul className="text-sm text-gray-600 list-disc list-inside space-y-1 mb-4">
-                  <li>Your profile and personal information</li>
-                  <li>All your pets and their data</li>
-                  <li>All your account settings and preferences</li>
-                  <li>This action cannot be undone</li>
-                </ul>
-              </div>
+                           <div>
+               <h3 className="font-semibold text-gray-900 mb-2">Delete Account</h3>
+               <p className="text-sm text-gray-600 mb-4">
+                 This will permanently delete your account and all data.
+               </p>
+             </div>
               
               {!showDeleteConfirm ? (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="border-orange-300 text-orange-600 hover:bg-orange-50"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Account
-                </Button>
+                               <Button
+                 variant="outline"
+                 onClick={() => setShowDeleteConfirm(true)}
+                 className="border-red-300 text-red-600 hover:bg-red-50"
+               >
+                 <Trash2 className="h-4 w-4 mr-2" />
+                 Delete Account
+               </Button>
               ) : (
-                <div className="space-y-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-orange-800">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span className="font-semibold">Please confirm your decision</span>
-                  </div>
-                  <p className="text-sm text-orange-700">
-                    Are you sure you want to delete your account? This action cannot be undone.
-                  </p>
+                               <div className="space-y-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                 <div className="flex items-center gap-2 text-red-800">
+                   <AlertTriangle className="h-5 w-5" />
+                   <span className="font-semibold">Please confirm your decision</span>
+                 </div>
+                 <p className="text-sm text-red-700">
+                   Are you sure you want to delete your account? This action cannot be undone.
+                 </p>
                   <div className="flex gap-2">
-                    <Button
-                      variant="destructive"
-                      onClick={handleDeleteAccount}
-                      disabled={deletingAccount}
-                      className="bg-orange-600 hover:bg-orange-700"
-                    >
+                                       <Button
+                     variant="destructive"
+                     onClick={handleDeleteAccount}
+                     disabled={deletingAccount}
+                     className="bg-red-600 hover:bg-red-700"
+                   >
                       {deletingAccount ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
