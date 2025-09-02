@@ -172,7 +172,12 @@
       "signInText": "Already have an account?",
       "signInLink": "Sign In",
       "brand": "FacePet",
-      "menuButton": "Open main menu"
+      "menuButton": "Open main menu",
+      "options": "Options",
+      "language": "Language",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contactUs": "Contact Us"
     },
     "PetDetailsPage": {
       "title": "Pet Details",
@@ -207,6 +212,8 @@
     "AuthPage": {
       "welcomeBack": "Welcome back!",
       "createAccount": "Create your account",
+      "signInToAccount": "Sign in to your FacePet account",
+      "joinFacePet": "Join FacePet and protect your pets",
       "fullName": "Full Name",
       "fullNamePlaceholder": "Enter your full name",
       "email": "Email",

@@ -203,11 +203,18 @@
       "signInText": "כבר יש לכם חשבון?",
       "signInLink": "התחברות",
       "brand": "FacePet",
-      "menuButton": "פתחו את התפריט הראשי"
+      "menuButton": "פתחו את התפריט הראשי",
+      "options": "אפשרויות",
+      "language": "שפה",
+      "privacyPolicy": "מדיניות פרטיות",
+      "termsOfService": "תנאי שימוש",
+      "contactUs": "צרו קשר"
     },
     "AuthPage": {
       "welcomeBack": "ברוכים השבים!",
       "createAccount": "צרו את החשבון שלכם",
+      "signInToAccount": "התחברו לחשבון FacePet שלכם",
+      "joinFacePet": "הצטרפו ל-FacePet והגנו על החיות שלכם",
       "fullName": "שם מלא",
       "fullNamePlaceholder": "הזינו את השם המלא שלכם",
       "email": "אימייל",

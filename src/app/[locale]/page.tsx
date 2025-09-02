@@ -8,6 +8,14 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator 
+} from '@/components/ui/dropdown-menu';
+import { Globe, Shield, FileText, Mail } from 'lucide-react';
 
 // Pet images - using public paths for Next.js Image component
 const petImages = {
@@ -129,13 +137,51 @@ export default function LandingHomePage() {
 
 // Public Landing Page Component
 const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
+  const tHome = useTranslations('pages.HomePage');
   return (
     <>
       {/* Main Welcome Content */}
       <section className="mt-16 px-7">
-        {/* Language Switcher */}
+        {/* Options Dropdown */}
         <div className="flex justify-end mb-4">
-          <LocaleSwitcher />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                <span>{tHome('options')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuItem asChild>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <span>{tHome('language')}</span>
+                  </div>
+                  <LocaleSwitcher />
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <a href="/privacy" className="flex items-center gap-2 w-full">
+                  <Shield className="h-4 w-4" />
+                  <span>{tHome('privacyPolicy')}</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="/terms" className="flex items-center gap-2 w-full">
+                  <FileText className="h-4 w-4" />
+                  <span>{tHome('termsOfService')}</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="/contact" className="flex items-center gap-2 w-full">
+                  <Mail className="h-4 w-4" />
+                  <span>{tHome('contactUs')}</span>
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         
         <h1 className="text-primary py-4 text-center font-['Lobster'] text-5xl tracking-wide lg:text-7xl">

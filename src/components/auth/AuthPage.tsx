@@ -129,8 +129,8 @@ const AuthPage = () => {
               </CardTitle>
               <p className="text-gray-600">
                 {isSignUp 
-                  ? 'Join FacePet and protect your pets' 
-                  : 'Sign in to your FacePet account'
+                  ? t('joinFacePet') 
+                  : t('signInToAccount')
                 }
               </p>
             </CardHeader>
