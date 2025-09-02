@@ -2,8 +2,9 @@
 'use client';
 
 import MyPetCard from '@/components/MyPetCard';
-import { EditIcon } from 'lucide-react';
+import { EditIcon, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
@@ -23,6 +24,7 @@ interface MyPetsClientProps {
 
 const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets }) => {
   const t = useTranslations('pages.MyPetsPage');
+  const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -32,9 +34,32 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets }) => {
 
   return (
     <div>
+      {/* Welcome Section */}
+      <div className="mb-6">
+        <div className="text-center">
+          <h1 className="text-primary py-2 font-['Lobster'] text-3xl tracking-wide lg:text-4xl">
+            Welcome back!
+          </h1>
+          
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <User className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-left">
+              <p className="text-lg font-semibold text-gray-900">{session?.user?.name}</p>
+              <p className="text-sm text-gray-500">{session?.user?.email}</p>
+            </div>
+          </div>
+
+          <p className="text-base text-gray-600">
+            Manage your pets and keep them safe with FacePet
+          </p>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <h2 className="text-2xl font-bold">{t('title')}</h2>
         <Button
           variant={isEditMode ? 'default' : 'ghost'}
           className="h-9 w-9"

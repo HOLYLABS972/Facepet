@@ -7,8 +7,6 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
 import { useSession } from 'next-auth/react';
-import { User, PawPrint, Settings, LogOut } from 'lucide-react';
-import AuthDebug from '@/src/components/debug/AuthDebug';
 
 // Pet images - using public paths for Next.js Image component
 const petImages = {
@@ -124,63 +122,9 @@ export default function LandingHomePage() {
       
       {/* Always show the public landing page */}
       <PublicLandingPage t={t} router={router} />
-      
-      {/* Debug Component - Remove this after testing */}
-      <AuthDebug />
     </div>
   );
 }
-
-// Authenticated User Dashboard Component
-const AuthenticatedDashboard = ({ session, router, t }: { session: any; router: any; t: any }) => {
-  return (
-    <>
-      {/* Welcome Section for Authenticated Users */}
-      <section className="mt-16 px-7">
-        <div className="text-center">
-          <h1 className="text-primary py-4 font-['Lobster'] text-4xl tracking-wide lg:text-6xl">
-            Welcome back!
-          </h1>
-          
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-              <User className="h-6 w-6 text-white" />
-            </div>
-            <div className="text-left">
-              <p className="text-xl font-semibold text-gray-900">{session.user?.name}</p>
-              <p className="text-sm text-gray-500">{session.user?.email}</p>
-            </div>
-          </div>
-
-          <p className="text-lg text-gray-600 mb-8">
-            Your pets are safe and protected with FacePet
-          </p>
-        </div>
-      </section>
-
-      {/* Pet Characters for Authenticated Users */}
-      <div className="relative min-h-[350px] w-full overflow-hidden md:overflow-visible">
-        <div className="mt-20 lg:mt-32">
-          <div className="hidden w-full items-center justify-center sm:flex">
-            <Button
-              onClick={() => router.push('/pages/my-pets')}
-              className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
-            >
-              {t('buttonLabel')}
-            </Button>
-          </div>
-        </div>
-        {petCharacters.map((pet, index) => (
-          <AnimatedPet key={pet.id} pet={pet} index={index} />
-        ))}
-      </div>
-
-      <div className="hidden sm:block">
-        <ProductHighlights />
-      </div>
-    </>
-  );
-};
 
 // Public Landing Page Component
 const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
