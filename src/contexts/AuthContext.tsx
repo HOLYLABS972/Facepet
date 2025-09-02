@@ -16,19 +16,13 @@ import {
 import { auth } from '@/src/lib/firebase/config';
 import { createUserInFirestore } from '@/src/lib/firebase/users';
 
-// Define admin emails that should get admin/super_admin roles
-const adminEmails: Record<string, 'admin' | 'super_admin'> = {
-  'admin@facepet.com': 'super_admin',
-  'polskoydm@gmail.com': 'super_admin', // Add your email as super admin
-  // Add more admin emails as needed
-};
-
-// Function to determine user role based on email
+// Function to determine user role - all users get 'user' role by default
+// Admin roles must be assigned manually through the admin panel
 const getUserRole = (email: string): 'user' | 'admin' | 'super_admin' => {
-  const emailLower = email.toLowerCase();
-  const role = adminEmails[emailLower] || 'user';
-  console.log('🔍 Role assignment:', { email, emailLower, role, adminEmails });
-  return role;
+  // All users get 'user' role by default
+  // Admin roles are assigned manually through the admin interface
+  console.log('🔍 Role assignment: All users get default "user" role');
+  return 'user';
 };
 
 interface AuthContextType {

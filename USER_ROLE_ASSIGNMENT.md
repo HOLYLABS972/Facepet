@@ -1,7 +1,7 @@
 # User Role Assignment Implementation
 
 ## Overview
-Added automatic role assignment functionality to the user registration system. Users are now assigned roles based on their email address during registration.
+User registration system with manual role assignment. All users are assigned the default 'user' role during registration. Admin roles must be assigned manually through the admin panel.
 
 ## Role Types
 - **`user`** - Default role for all new users
@@ -51,17 +51,15 @@ const userData: UserData = {
 
 ### 3. Role Assignment Logic (`src/contexts/AuthContext.tsx`)
 
-**Admin Email Configuration:**
+**Manual Role Assignment:**
 ```typescript
-const adminEmails: Record<string, 'admin' | 'super_admin'> = {
-  'admin@facepet.com': 'super_admin',
-  'polskoydm@gmail.com': 'super_admin', // ✅ Your email as super admin
-  // Add more admin emails as needed
-};
-
+// Function to determine user role - all users get 'user' role by default
+// Admin roles must be assigned manually through the admin panel
 const getUserRole = (email: string): 'user' | 'admin' | 'super_admin' => {
-  const emailLower = email.toLowerCase();
-  return adminEmails[emailLower] || 'user'; // ✅ Default to 'user'
+  // All users get 'user' role by default
+  // Admin roles are assigned manually through the admin interface
+  console.log('🔍 Role assignment: All users get default "user" role');
+  return 'user';
 };
 ```
 
@@ -101,48 +99,39 @@ const userResult = await createUserInFirestore(userCredential.user, {
 ## How It Works
 
 1. **User Registration**: When a user registers (via email/password, Google, or direct signup)
-2. **Email Check**: System checks if the user's email is in the `adminEmails` configuration
-3. **Role Assignment**: 
-   - If email is found in `adminEmails` → assigns the specified admin role
-   - If email is not found → assigns default `'user'` role
+2. **Default Role Assignment**: All users are assigned the default `'user'` role
+3. **Manual Admin Assignment**: Admin roles (`admin` or `super_admin`) must be assigned manually through the admin panel
 4. **Firestore Storage**: User data is stored in Firestore with the assigned role
 
-## Admin Email Configuration
+## Manual Admin Assignment
 
-To add new admin users, update the `adminEmails` object in `src/contexts/AuthContext.tsx`:
+To assign admin roles to users:
 
-```typescript
-const adminEmails: Record<string, 'admin' | 'super_admin'> = {
-  'admin@facepet.com': 'super_admin',
-  'polskoydm@gmail.com': 'super_admin',
-  'newadmin@example.com': 'admin',        // ✅ Add new admin
-  'superadmin@example.com': 'super_admin' // ✅ Add new super admin
-};
-```
+1. **Access Admin Panel**: Log in as a super_admin user
+2. **User Management**: Go to the user management section
+3. **Edit User Role**: Select a user and change their role to `admin` or `super_admin`
+4. **Save Changes**: The role will be updated in Firestore
 
 ## Testing
 
-### Current Admin Users
-- **`polskoydm@gmail.com`** → `super_admin` role
-- **`admin@facepet.com`** → `super_admin` role
-
 ### Test Registration
-1. Register with `polskoydm@gmail.com` → Should get `super_admin` role
-2. Register with any other email → Should get `user` role
-3. Check Firestore `users` collection to verify role assignment
+1. Register with any email → Should get `user` role
+2. Check Firestore `users` collection to verify role assignment
+3. Manually assign admin role through admin panel
+4. Verify admin access is granted
 
 ## Benefits
 
-✅ **Automatic Role Assignment**: No manual intervention needed
-✅ **Email-Based**: Simple configuration using email addresses
+✅ **Manual Control**: Full control over who gets admin access
 ✅ **Default Safety**: All users default to `'user'` role
-✅ **Flexible**: Easy to add/remove admin users
+✅ **Secure**: Admin roles are assigned manually through admin panel
+✅ **Flexible**: Easy to promote/demote users as needed
 ✅ **Consistent**: Works across all registration methods
-✅ **Secure**: Admin roles are assigned at registration time
+✅ **Audit Trail**: All role changes are tracked through admin actions
 
 ## Next Steps
 
-1. **Test Registration**: Register with your email to verify super_admin role
-2. **Add More Admins**: Update `adminEmails` as needed
-3. **Admin Panel Access**: Users with admin roles can now access admin features
+1. **Test Registration**: Register with any email to verify `user` role assignment
+2. **Manual Admin Assignment**: Use admin panel to assign admin roles as needed
+3. **Admin Panel Access**: Users with admin roles can access admin features
 4. **Role-Based UI**: Implement role-based UI elements and permissions
