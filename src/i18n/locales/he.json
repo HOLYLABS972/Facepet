@@ -10,6 +10,7 @@
       "registration": "הרשמה",
       "phoneSetup": "הגדרת טלפון",
       "addPet": "הוספת חיית מחמד",
+      "share": "שיתוף אפליקציה",
       "total": "סה״כ",
       "points": "נקודות",
       "claimPrize": "קבל פרס"
@@ -33,7 +34,7 @@
     },
     "InviteFriendsCard": {
       "shareTitle": "הצטרף ל-FacePet",
-      "shareText": "שתף עם חברים וקבל נקודות!",
+      "shareText": "הגן על חיית המחמד שלך עם טכנולוגיית NFC! FacePet עוזר לך לשמור על החיות שלך בטוחות עם מעקב וזיהוי מתקדמים. שתף עם חברים וקבל נקודות!",
       "linkCopied": "הלינק הועתק ללוח!",
       "shareError": "משהו השתבש"
     }

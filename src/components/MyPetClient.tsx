@@ -50,7 +50,8 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const [pointsBreakdown, setPointsBreakdown] = useState({
     registration: 30,
     phone: 0,
-    pet: 0
+    pet: 0,
+    share: 0
   });
   
   // Use ref to track previous pets count to avoid multiple point awards
@@ -245,7 +246,18 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         
         {/* Share with Friends - always show */}
         <div className="mb-4">
-          <InviteFriendsCard onClose={() => {}} />
+          <InviteFriendsCard 
+            onClose={() => {}} 
+            onShareSuccess={() => {
+              // Award 5 points for sharing
+              setUserPoints(prev => prev + 5);
+              // Update points breakdown
+              setPointsBreakdown(prev => ({ ...prev, share: (prev.share || 0) + 5 }));
+              // Show points breakdown notification
+              setShowPointsBreakdown(true);
+              console.log('User shared the app! Awarded 5 points. Total points:', userPoints + 5);
+            }}
+          />
         </div>
         
         {/* Points Breakdown Notification */}
@@ -257,6 +269,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               registrationPoints={pointsBreakdown.registration}
               phonePoints={pointsBreakdown.phone}
               petPoints={pointsBreakdown.pet}
+              sharePoints={pointsBreakdown.share}
               onClaimPrize={() => {
                 // Hide the points breakdown notification after claiming
                 setShowPointsBreakdown(false);

@@ -39,6 +39,7 @@
       "registration": "Registration",
       "phoneSetup": "Phone Setup",
       "addPet": "Add Pet",
+      "share": "Share App",
       "total": "Total",
       "points": "points",
       "claimPrize": "Claim Prize"
@@ -62,7 +63,7 @@
     },
     "InviteFriendsCard": {
       "shareTitle": "Join FacePet",
-      "shareText": "Share with friends and earn points!",
+      "shareText": "Protect your pet with NFC technology! FacePet helps you keep your pets safe with advanced tracking and identification. Share with friends and earn points!",
       "linkCopied": "Link copied to clipboard!",
       "shareError": "Something went wrong"
     }

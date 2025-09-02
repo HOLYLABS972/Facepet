@@ -13,6 +13,7 @@ interface PointsBreakdownNotificationProps {
   registrationPoints: number;
   phonePoints: number;
   petPoints: number;
+  sharePoints?: number;
   onClaimPrize?: () => void;
 }
 
@@ -22,6 +23,7 @@ const PointsBreakdownNotification: React.FC<PointsBreakdownNotificationProps> = 
   registrationPoints,
   phonePoints,
   petPoints,
+  sharePoints = 0,
   onClaimPrize
 }) => {
   const router = useRouter();
@@ -78,6 +80,7 @@ const PointsBreakdownNotification: React.FC<PointsBreakdownNotificationProps> = 
             <div>{t('registration')}: +{registrationPoints} {t('points')}</div>
             {phonePoints > 0 && <div>{t('phoneSetup')}: +{phonePoints} {t('points')}</div>}
             {petPoints > 0 && <div>{t('addPet')}: +{petPoints} {t('points')}</div>}
+            {sharePoints > 0 && <div>{t('share')}: +{sharePoints} {t('points')}</div>}
             <div className="font-semibold text-primary">{t('total')}: {totalPoints} {t('points')}</div>
             {/* Prize claim button - only show if user has 30+ points */}
             {totalPoints >= 30 && (

@@ -9,9 +9,10 @@ import { useTranslations } from 'next-intl';
 
 interface InviteFriendsCardProps {
   onClose?: () => void;
+  onShareSuccess?: () => void; // Callback for when sharing is successful
 }
 
-const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
+const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose, onShareSuccess }) => {
   const t = useTranslations('components.InviteFriendsCard');
   const [shared, setShared] = useState(false);
   const iconSectionWidth = 100; // width reserved for the icon
@@ -35,6 +36,10 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
         toast.success(t('linkCopied'));
       }
       setShared(true);
+      // Call the success callback to award points
+      if (onShareSuccess) {
+        onShareSuccess();
+      }
     } catch (err) {
       console.error('Failed to share:', err);
       toast.error(t('shareError'));
@@ -89,7 +94,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
             transition={{ duration: 0.2 }}
             className="text-primary text-lg font-bold"
           >
-            {t('shareWithFriends')}
+            {t('shareTitle')}
           </motion.div>
           {/* Subtitle with slight delay */}
           <motion.div
@@ -98,7 +103,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose }) => {
             transition={{ duration: 0.2, delay: 0.1 }}
             className="text-sm text-black"
           >
-            {t('shareDescription')}
+            {t('shareText')}
           </motion.div>
         </div>
       </div>
