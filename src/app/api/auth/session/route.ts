@@ -3,6 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if adminAuth is available
+    if (!adminAuth) {
+      return NextResponse.json(
+        { error: 'Authentication service not available' },
+        { status: 503 }
+      );
+    }
+
     const { idToken } = await request.json();
 
     if (!idToken) {

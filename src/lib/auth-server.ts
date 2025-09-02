@@ -22,6 +22,12 @@ export interface ServerSession {
  */
 export async function auth(): Promise<ServerSession | null> {
   try {
+    // Check if adminAuth is available
+    if (!adminAuth) {
+      console.warn('Firebase Admin Auth not available');
+      return null;
+    }
+
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session')?.value;
     
