@@ -4,7 +4,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/src/components/ui/button';
 import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2 } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getUserFromFirestore } from '@/src/lib/firebase/users';
@@ -17,6 +17,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('pages.Admin');
   const [userRole, setUserRole] = useState<'user' | 'admin' | 'super_admin' | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
 
@@ -51,7 +52,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-gray-500">Loading admin panel...</p>
+          <p className="text-gray-500">{t('loading')}</p>
         </div>
       </div>
     );

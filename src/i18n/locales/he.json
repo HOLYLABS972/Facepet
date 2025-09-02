@@ -263,10 +263,24 @@
       "signInSuccessGoogle": "התחברתם עם Google בהצלחה!",
       "authError": "האימות נכשל",
       "authErrorGoogle": "אימות Google נכשל",
-      "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם."
+      "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם.",
+      "loading": "טוען..."
     }
   },
   "pages": {
+    "Admin": {
+      "dashboard": "לוח בקרה של מנהל",
+      "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
+      "loggedInAs": "אתה מחובר כ",
+      "adsManagement": "ניהול פרסומות",
+      "manageAdsDescription": "צרו, ערכו ונהלו פרסומות המוצגות בפלטפורמה.",
+      "manageAds": "נהל פרסומות",
+      "userManagement": "ניהול משתמשים",
+      "manageUsersDescription": "נהל חשבונות משתמשים, תפקידים והרשאות.",
+      "manageUsers": "נהל משתמשים",
+      "loading": "טוען...",
+      "uploading": "מעלה..."
+    },
     "PetProfilePage": {
       "title": "פרופיל חיית מחמד",
       "subtitle": "פרופיל חיית מחמד",
@@ -349,7 +363,9 @@
         "confirm": "מחק חשבון"
       },
       "saving": "שומר...",
-      "saveChanges": "שמור שינויים"
+      "saveChanges": "שמור שינויים",
+      "loading": "טוען...",
+      "uploading": "מעלה..."
     }
   }
 }

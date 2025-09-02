@@ -203,6 +203,19 @@
     }
   },
   "pages": {
+    "Admin": {
+      "dashboard": "Admin Dashboard",
+      "welcome": "Welcome to the Admin Dashboard",
+      "loggedInAs": "You are logged in as",
+      "adsManagement": "Advertisements Management",
+      "manageAdsDescription": "Create, edit, and manage advertisements displayed on the platform.",
+      "manageAds": "Manage Ads",
+      "userManagement": "User Management",
+      "manageUsersDescription": "Manage user accounts, roles, and permissions.",
+      "manageUsers": "Manage Users",
+      "loading": "Loading...",
+      "uploading": "Uploading..."
+    },
     "PetProfilePage": {
       "title": "Pet Profile",
       "labels": {
@@ -322,7 +335,8 @@
       "signInSuccessGoogle": "Signed in with Google successfully!",
       "authError": "Authentication failed",
       "authErrorGoogle": "Google authentication failed",
-      "verificationCodeSent": "Verification code sent! Please check your email."
+      "verificationCodeSent": "Verification code sent! Please check your email.",
+      "loading": "Loading..."
     },
     "UserSettingsPage": {
       "back": "Back",
@@ -355,7 +369,9 @@
         "confirm": "Delete Account"
       },
       "saving": "Saving...",
-      "saveChanges": "Save Changes"
+      "saveChanges": "Save Changes",
+      "loading": "Loading...",
+      "uploading": "Uploading..."
     },
     "EmailVerification": {
       "title": "Verify Your Email",

@@ -7,6 +7,7 @@ import { IKImage, IKUpload, IKVideo, ImageKitProvider } from 'imagekitio-next';
 import { FileUp, Image as ImageIcon, Video } from 'lucide-react';
 import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 const authenticator = async () => {
   try {
@@ -40,6 +41,7 @@ export default function MediaUpload({
   onChange,
   className = ''
 }: MediaUploadProps) {
+  const t = useTranslations('pages.Admin');
   const ikUploadRef = useRef<any>(null);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -161,7 +163,7 @@ export default function MediaUpload({
               )}
               <span className="text-sm font-medium">
                 {isUploading
-                  ? 'Uploading...'
+                  ? t('uploading')
                   : `Click to upload ${type === 'image' ? 'an image' : 'a video'}`}
               </span>
               <span className="text-muted-foreground mt-1 text-xs">
@@ -177,7 +179,7 @@ export default function MediaUpload({
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <FileUp className="h-4 w-4 animate-pulse" />
-              <span className="text-sm">Uploading {type}...</span>
+              <span className="text-sm">{t('uploading')} {type}...</span>
             </div>
             <Progress value={progress} className="h-2" />
           </div>

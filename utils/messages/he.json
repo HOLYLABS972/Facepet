@@ -177,15 +177,17 @@
   },
   "pages": {
     "Admin": {
-      "dashboard": "Admin Dashboard",
-      "welcome": "Welcome to the Admin Dashboard",
-      "loggedInAs": "You are logged in as",
-      "adsManagement": "Advertisements Management",
-      "manageAdsDescription": "Create, edit, and manage advertisements displayed on the platform.",
-      "manageAds": "Manage Ads",
-      "userManagement": "User Management",
-      "manageUsersDescription": "Manage user accounts, roles, and permissions.",
-      "manageUsers": "Manage Users"
+      "dashboard": "לוח בקרה של מנהל",
+      "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
+      "loggedInAs": "אתה מחובר כ",
+      "adsManagement": "ניהול פרסומות",
+      "manageAdsDescription": "צרו, ערכו ונהלו פרסומות המוצגות בפלטפורמה.",
+      "manageAds": "נהל פרסומות",
+      "userManagement": "ניהול משתמשים",
+      "manageUsersDescription": "נהל חשבונות משתמשים, תפקידים והרשאות.",
+      "manageUsers": "נהל משתמשים",
+      "loading": "טוען...",
+      "uploading": "מעלה..."
     },
     "WelcomePage": {
       "upperTitle": "כל מה שחיית המחמד שלך צריכה",

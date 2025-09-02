@@ -116,7 +116,7 @@ export default function SettingsPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-gray-500">{t('loading')}</p>
         </div>
       </div>
     );
@@ -431,7 +431,7 @@ export default function SettingsPage() {
                     ) : (
                       <Camera className="h-4 w-4" />
                     )}
-                    {uploading ? 'Uploading...' : t('uploadImage')}
+                    {uploading ? t('uploading') : t('uploadImage')}
                   </div>
                 </Label>
                 <Input
@@ -451,7 +451,7 @@ export default function SettingsPage() {
                   <div className="mt-3 space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">
-                        {uploadProgress.status === 'uploading' && 'Uploading...'}
+                        {uploadProgress.status === 'uploading' && t('uploading')}
                         {uploadProgress.status === 'completed' && 'Upload completed!'}
                         {uploadProgress.status === 'error' && 'Upload failed'}
                       </span>

@@ -269,7 +269,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {uploadProgress.status === 'uploading' && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Uploading...</span>
+                      <span className="text-gray-600">{t('form.updating')}</span>
                       <span className="text-gray-600">{uploadProgress.progress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
