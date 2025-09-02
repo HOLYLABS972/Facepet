@@ -20,9 +20,10 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose, onShareS
   const handleShare = async () => {
     // Use the correct website URL
     const shareUrl = 'https://facepet-kappa.vercel.app';
+    const shareText = t('shareText');
     const shareData = {
       title: t('shareTitle'),
-      text: `${t('shareText')} ${shareUrl}`,
+      text: shareText,
       url: shareUrl
     };
 
@@ -31,7 +32,7 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose, onShareS
         await navigator.share(shareData);
       } else {
         // Fallback: copy the full share text with URL to clipboard
-        const fullShareText = `${shareData.text} ${shareData.url}`;
+        const fullShareText = `${shareText} ${shareUrl}`;
         await navigator.clipboard.writeText(fullShareText);
         toast.success(t('linkCopied'));
       }
@@ -42,6 +43,10 @@ const InviteFriendsCard: React.FC<InviteFriendsCardProps> = ({ onClose, onShareS
       }
     } catch (err) {
       console.error('Failed to share:', err);
+      // Even if share fails, still award points if user attempted to share
+      if (onShareSuccess) {
+        onShareSuccess();
+      }
       toast.error(t('shareError'));
     }
   };

@@ -87,19 +87,29 @@ export const PointsProvider = ({ children }: PointsProviderProps) => {
 
   // Function to add points to a specific category
   const addPoints = async (category: 'registration' | 'phone' | 'pet' | 'share', points: number) => {
-    if (!user) return;
+    if (!user) {
+      console.error('No user found when trying to add points');
+      return;
+    }
+
+    console.log(`Adding ${points} points to ${category} category`);
+    console.log('Current breakdown:', pointsBreakdown);
 
     const newBreakdown = {
       ...pointsBreakdown,
       [category]: pointsBreakdown[category] + points
     };
 
+    console.log('New breakdown:', newBreakdown);
+
     // Update local state immediately for UI responsiveness
     setPointsBreakdown(newBreakdown);
 
     // Persist to Firestore
     try {
-      await updateUserPoints(user, newBreakdown);
+      console.log('Updating points in Firestore...');
+      const result = await updateUserPoints(user, newBreakdown);
+      console.log('Firestore update result:', result);
     } catch (error) {
       console.error('Error updating points in Firestore:', error);
       // Revert local state if Firestore update fails

@@ -83,21 +83,28 @@ export async function updateUserPoints(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     if (!user?.email) {
+      console.error('User not authenticated for points update');
       return { success: false, error: 'User not authenticated' };
     }
 
     const totalPoints = pointsBreakdown.registration + pointsBreakdown.phone + pointsBreakdown.pet + pointsBreakdown.share;
 
+    console.log('Updating points for user:', user.uid, 'with breakdown:', pointsBreakdown, 'total:', totalPoints);
+
     const pointsDocRef = doc(db, 'userPoints', user.uid);
-    await setDoc(pointsDocRef, {
+    const pointsData = {
       uid: user.uid,
       email: user.email,
       pointsBreakdown,
       totalPoints,
       lastUpdated: new Date()
-    }, { merge: true });
+    };
 
-    console.log('User points updated:', user.uid, totalPoints);
+    console.log('Points data to save:', pointsData);
+
+    await setDoc(pointsDocRef, pointsData, { merge: true });
+
+    console.log('User points updated successfully:', user.uid, totalPoints);
     return { success: true };
   } catch (error: any) {
     console.error('Error updating user points:', error);

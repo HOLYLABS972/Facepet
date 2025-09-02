@@ -292,11 +292,17 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           <InviteFriendsCard 
             onClose={() => {}} 
             onShareSuccess={async () => {
-              // Award 5 points for sharing
-              await addPoints('share', 5);
-              // Show individual share earning notification
-              setShowShareEarning(true);
-              console.log('User shared the app! Awarded 5 points. Total points:', userPoints + 5);
+              try {
+                console.log('Share success callback triggered');
+                // Award 5 points for sharing
+                await addPoints('share', 5);
+                console.log('Points added successfully');
+                // Show individual share earning notification
+                setShowShareEarning(true);
+                console.log('User shared the app! Awarded 5 points. Total points:', userPoints + 5);
+              } catch (error) {
+                console.error('Error awarding share points:', error);
+              }
             }}
           />
         </div>

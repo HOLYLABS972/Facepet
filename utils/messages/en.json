@@ -670,6 +670,23 @@
       "points": "points",
       "earned": "earned"
     },
+    "PointsExplenationPopup": {
+      "phases": {
+        "share": {
+          "title": "Share & Earn",
+          "text": "Share the app with friends and earn 5 points for each friend who joins!"
+        },
+        "earn": {
+          "title": "Earn Points",
+          "text": "Complete actions like registration, adding pets, and phone setup to earn points!"
+        },
+        "benefits": {
+          "title": "Get Rewards",
+          "text": "Use your points to claim prizes and unlock special features in the app!"
+        }
+      },
+      "understood": "Got it!"
+    },
     "GoBackButton": { "buttonLabel": "Go Back" }
   }
 }
