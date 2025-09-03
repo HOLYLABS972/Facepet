@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { deleteUser, updateUserRole } from '@/lib/actions/admin';
+import { deleteUser, updateUserRole, restrictUser, unrestrictUser } from '@/lib/actions/admin';
 import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -32,11 +32,13 @@ import { useState } from 'react';
 export default function UserActions({
   userId,
   currentRole,
-  isSuperAdmin
+  isSuperAdmin,
+  isRestricted
 }: {
   userId: string;
   currentRole: string;
   isSuperAdmin: boolean;
+  isRestricted?: boolean;
 }) {
   const t = useTranslations('Admin.userActions');
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -46,6 +48,8 @@ export default function UserActions({
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+  const [isRestricting, setIsRestricting] = useState(false);
+  const [restrictionReason, setRestrictionReason] = useState('');
 
   const router = useRouter();
 
@@ -96,6 +100,46 @@ export default function UserActions({
     }
   };
 
+  const handleRestrictUser = async () => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const result = await restrictUser(userId, restrictionReason);
+      if (result.success) {
+        setIsRestricting(false);
+        setRestrictionReason('');
+        router.refresh();
+      } else {
+        setError(result.error || 'Failed to restrict user');
+      }
+    } catch (err) {
+      setError('Failed to restrict user');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUnrestrictUser = async () => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const result = await unrestrictUser(userId);
+      if (result.success) {
+        router.refresh();
+      } else {
+        setError(result.error || 'Failed to unrestrict user');
+      }
+    } catch (err) {
+      setError('Failed to unrestrict user');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Handle opening the edit dialog and closing the dropdown
   const handleOpenEditDialog = () => {
     setIsDropdownOpen(false);
@@ -120,6 +164,27 @@ export default function UserActions({
           <DropdownMenuItem onClick={handleOpenEditDialog}>
             Edit Role
           </DropdownMenuItem>
+          {isRestricted ? (
+            <DropdownMenuItem
+              onClick={() => {
+                setIsDropdownOpen(false);
+                handleUnrestrictUser();
+              }}
+              className="text-green-600 hover:text-green-700 focus:text-green-700"
+            >
+              Unrestrict User
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              onClick={() => {
+                setIsDropdownOpen(false);
+                setIsRestricting(true);
+              }}
+              className="text-orange-600 hover:text-orange-700 focus:text-orange-700"
+            >
+              Restrict User
+            </DropdownMenuItem>
+          )}
           {!isSuperAdmin && (
             <DropdownMenuItem
               onClick={() => {
@@ -214,6 +279,57 @@ export default function UserActions({
               }}
             >
               {t('deleteUser')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Restrict User Dialog */}
+      <Dialog
+        open={isRestricting}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRestrictionReason('');
+            setError(null);
+          }
+          setIsRestricting(open);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Restrict User</DialogTitle>
+            <DialogDescription>
+              This will prevent the user from logging in. They will see a message that their account has been restricted.
+            </DialogDescription>
+          </DialogHeader>
+
+          {error && (
+            <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+              {error}
+            </div>
+          )}
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">
+              Restriction Reason (optional)
+            </label>
+            <Input
+              value={restrictionReason}
+              onChange={(e) => setRestrictionReason(e.target.value)}
+              placeholder="Enter reason for restriction..."
+            />
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRestricting(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleRestrictUser}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Restricting...' : 'Restrict User'}
             </Button>
           </DialogFooter>
         </DialogContent>

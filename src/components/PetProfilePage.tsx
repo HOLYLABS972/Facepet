@@ -33,11 +33,21 @@ interface Pet {
   updatedAt: Date;
 }
 
-interface PetProfilePageProps {
-  pet: Pet;
+interface Owner {
+  id: string;
+  displayName?: string;
+  phone?: string;
+  email: string;
+  fullName?: string;
+  phoneNumber?: string;
 }
 
-export default function PetProfilePage({ pet }: PetProfilePageProps) {
+interface PetProfilePageProps {
+  pet: Pet;
+  owner?: Owner;
+}
+
+export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
   const router = useRouter();
   const { user } = useAuth();
   const t = useTranslations('pages.PetProfilePage');
@@ -153,27 +163,30 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
             </div>
             
             {isOwner && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2">
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full mx-1"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/edit`)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    {t('actions.editPet')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/tag`)}>
-                    <Wifi className="mr-2 h-4 w-4" />
-                    {t('actions.attachTag')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push(`/pet/${pet.id}/tag`)}
+                  className="flex items-center space-x-2"
+                >
+                  <Wifi className="h-4 w-4" />
+                  <span>{t('actions.attachTag')}</span>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="p-2">
+                      <List className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/edit`)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      {t('actions.editPet')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
           </div>
         </div>
@@ -281,39 +294,81 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               </motion.div>
             )}
 
-            {/* Timeline */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Calendar className="w-5 h-5 text-blue-500" />
-                    <span>{t('sections.timeline')}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <div>
-                      <p className="font-medium text-green-800">{t('messages.profileCreated')}</p>
-                      <p className="text-sm text-green-600">{formatDate(pet.createdAt)}</p>
-                    </div>
-                  </div>
-                  {pet.updatedAt.getTime() !== pet.createdAt.getTime() && (
-                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            {/* Contact Information - Only show to non-owners */}
+            {owner && !isOwner && (owner.phone || owner.phoneNumber) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Phone className="w-5 h-5 text-green-500" />
+                      <span>{t('labels.contactDetails')}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                      <Phone className="w-5 h-5 text-green-600" />
                       <div>
-                        <p className="font-medium text-blue-800">{t('messages.lastUpdated')}</p>
-                        <p className="text-sm text-blue-600">{formatDate(pet.updatedAt)}</p>
+                        <p className="font-medium text-green-800">{t('labels.phone')}</p>
+                        <p className="text-sm text-green-600">
+                          {owner.phone || owner.phoneNumber}
+                        </p>
                       </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
+                    {owner.displayName || owner.fullName ? (
+                      <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                        <Mail className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium text-blue-800">בעלים</p>
+                          <p className="text-sm text-blue-600">
+                            {owner.displayName || owner.fullName}
+                          </p>
+                        </div>
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Timeline - Only show for pet owner */}
+            {isOwner && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Calendar className="w-5 h-5 text-blue-500" />
+                      <span>{t('sections.timeline')}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div>
+                        <p className="font-medium text-green-800">{t('messages.profileCreated')}</p>
+                        <p className="text-sm text-green-600">{formatDate(pet.createdAt)}</p>
+                      </div>
+                    </div>
+                    {pet.updatedAt.getTime() !== pet.createdAt.getTime() && (
+                      <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div>
+                          <p className="font-medium text-blue-800">{t('messages.lastUpdated')}</p>
+                          <p className="text-sm text-blue-600">{formatDate(pet.updatedAt)}</p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -322,7 +377,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
             >
               <Card>
                 <CardHeader>
@@ -366,7 +421,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
               >
                 <Card>
                   <CardHeader>
@@ -407,7 +462,7 @@ export default function PetProfilePage({ pet }: PetProfilePageProps) {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
               >
                 <Card className="border-blue-200 bg-blue-50">
                   <CardHeader>

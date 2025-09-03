@@ -41,7 +41,11 @@ const AdFullPage = ({
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      // Restore body overflow when component unmounts
+      document.body.style.overflow = '';
+    };
   }, []);
 
   // Notify parent when ad is closed

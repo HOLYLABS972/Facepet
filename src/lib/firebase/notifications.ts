@@ -277,6 +277,33 @@ export async function getNotificationTemplates(): Promise<{
 }
 
 /**
+ * Check if user already has a notification of specific action type
+ */
+export async function hasNotificationOfType(
+  user: User,
+  actionType: Notification['actionType']
+): Promise<{ success: boolean; hasNotification: boolean; error?: string }> {
+  try {
+    if (!user?.email) {
+      return { success: false, hasNotification: false, error: 'User not authenticated' };
+    }
+
+    const notificationsQuery = query(
+      collection(db, 'notifications'),
+      where('userId', '==', user.uid),
+      where('actionType', '==', actionType),
+      where('isActive', '==', true)
+    );
+
+    const snapshot = await getDocs(notificationsQuery);
+    return { success: true, hasNotification: !snapshot.empty };
+  } catch (error: any) {
+    console.error('Error checking notification existence:', error);
+    return { success: false, hasNotification: false, error: 'Failed to check notification' };
+  }
+}
+
+/**
  * Auto-create notifications based on user actions
  */
 export async function createActionNotification(
@@ -286,6 +313,15 @@ export async function createActionNotification(
   try {
     if (!user?.email) {
       return { success: false, error: 'User not authenticated' };
+    }
+
+    // For share, registration, and phone_setup notifications, check if user already has one
+    if (actionType === 'share' || actionType === 'registration' || actionType === 'phone_setup') {
+      const hasNotification = await hasNotificationOfType(user, actionType);
+      if (hasNotification.success && hasNotification.hasNotification) {
+        console.log(`User already has a ${actionType} notification, skipping creation`);
+        return { success: true }; // Return success but don't create duplicate
+      }
     }
 
     const notificationData = {
@@ -329,17 +365,17 @@ function getActionTitle(actionType: Notification['actionType']): string {
 function getActionMessage(actionType: Notification['actionType'], points: number): string {
   switch (actionType) {
     case 'registration':
-      return `Welcome to FacePet! Thanks for joining our community.`;
+      return `Welcome to FacePet! Thanks for joining our community with 10 points.`;
     case 'phone_setup':
-      return `Great! You verified your phone number.`;
+      return `Great! You verified your phone number with 10 points.`;
     case 'add_pet':
-      return `Awesome! You added a pet to your profile.`;
+      return `Awesome! You added a pet to your profile with 10 points.`;
     case 'share':
-      return `Thanks for sharing FacePet!`;
+      return `Thanks for sharing FacePet with 10 points!`;
     case 'prize_claim':
-      return `Congratulations! You claimed your prize.`;
+      return `Congratulations! You claimed your prize with 10 points.`;
     default:
-      return `Action completed successfully!`;
+      return `Action completed successfully with 10 points!`;
   }
 }
 

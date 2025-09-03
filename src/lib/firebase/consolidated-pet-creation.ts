@@ -98,7 +98,26 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       return { success: false, error: 'Pet not found' };
     }
     
-    const pet = { id: petDoc.id, ...petDoc.data() };
+    const petData = petDoc.data();
+    const pet = { 
+      id: petDoc.id, 
+      name: petData.name,
+      description: petData.description,
+      imageUrl: petData.imageUrl,
+      genderId: petData.genderId,
+      breedId: petData.breedId,
+      birthDate: petData.birthDate?.toDate ? petData.birthDate.toDate() : petData.birthDate,
+      notes: petData.notes,
+      userEmail: petData.userEmail,
+      vetId: petData.vetId,
+      breedName: petData.breedName,
+      gender: petData.gender,
+      age: petData.age,
+      type: petData.type,
+      // Convert Firebase Timestamps to Date objects
+      createdAt: petData.createdAt?.toDate ? petData.createdAt.toDate() : petData.createdAt,
+      updatedAt: petData.updatedAt?.toDate ? petData.updatedAt.toDate() : petData.updatedAt
+    };
     
     // Get owner from users collection
     const usersQuery = query(
@@ -112,7 +131,21 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
     }
     
     const ownerDoc = usersSnapshot.docs[0];
-    const owner = { id: ownerDoc.id, ...ownerDoc.data() };
+    const ownerData = ownerDoc.data();
+    const owner = { 
+      id: ownerDoc.id, 
+      uid: ownerData.uid,
+      email: ownerData.email,
+      displayName: ownerData.displayName,
+      phone: ownerData.phone,
+      profileImage: ownerData.profileImage,
+      language: ownerData.language,
+      acceptCookies: ownerData.acceptCookies,
+      role: ownerData.role,
+      // Convert Firebase Timestamps to Date objects
+      createdAt: ownerData.createdAt?.toDate ? ownerData.createdAt.toDate() : ownerData.createdAt,
+      updatedAt: ownerData.updatedAt?.toDate ? ownerData.updatedAt.toDate() : ownerData.updatedAt
+    };
     
     return { success: true, pet, owner };
   } catch (error: any) {

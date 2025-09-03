@@ -1,13 +1,13 @@
 'use client';
 
-import { useAuth } from '@/src/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from '@/i18n/routing';
-import { Button } from '@/src/components/ui/button';
-import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2 } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2, ShieldX, PawPrint, MessageSquare, Phone, Settings, Mail } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getUserFromFirestore } from '@/src/lib/firebase/users';
+import { getUserRole, isAdmin, isSuperAdmin, type UserRole } from '@/lib/utils/admin';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -16,9 +16,9 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const locale = useLocale();
-  const t = useTranslations('pages.Admin');
-  const [userRole, setUserRole] = useState<'user' | 'admin' | 'super_admin' | null>(null);
+  const locale = 'en'; // Force English for admin panel
+  const t = useTranslations('Admin');
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
@@ -29,15 +29,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       }
 
       try {
-        const userResult = await getUserFromFirestore(user.uid);
-        if (userResult.success && userResult.user) {
-          setUserRole(userResult.user.role || 'user');
-        } else {
-          setUserRole('user');
-        }
+        const role = await getUserRole(user);
+        setUserRole(role);
       } catch (error) {
         console.error('Error fetching user role:', error);
-        setUserRole('user');
+        setUserRole(null);
       } finally {
         setRoleLoading(false);
       }
@@ -45,6 +41,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     checkUserRole();
   }, [user]);
+
+  // Handle redirect in useEffect to avoid setState during render
+  useEffect(() => {
+    if (!loading && !roleLoading && (!user || !isAdmin(userRole))) {
+      router.push('/');
+    }
+  }, [user, userRole, loading, roleLoading, router]);
 
   // Show loading while checking authentication
   if (loading || roleLoading) {
@@ -58,10 +61,33 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  // Redirect if not authenticated or not admin
-  if (!user || !userRole || (userRole !== 'admin' && userRole !== 'super_admin')) {
-    router.push('/');
-    return null;
+  // Show unauthorized access screen if not authenticated or not admin
+  if (!user || !isAdmin(userRole)) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md mx-auto">
+          <ShieldX className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600 mb-6">
+            You don't have permission to access the admin panel. Only administrators can view this page.
+          </p>
+          <div className="space-y-3">
+            <Link href="/">
+              <Button className="w-full">
+                Go Back to Website
+              </Button>
+            </Link>
+            {!user && (
+              <Link href="/auth/signin">
+                <Button variant="outline" className="w-full">
+                  Sign In
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -91,7 +117,43 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 Manage Ads
               </Link>
             </li>
-            {userRole === 'super_admin' && (
+            <li>
+              <Link
+                href={`/${locale}/admin/pets`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <PawPrint className="h-6 w-6" />
+                Manage Pets
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/admin/comments`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <MessageSquare className="h-6 w-6" />
+                Manage Comments
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/admin/contact-submissions`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Mail className="h-6 w-6" />
+                Contact Submissions
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/admin/settings`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Settings className="h-6 w-6" />
+                Settings
+              </Link>
+            </li>
+            {isAdmin(userRole) && (
               <li>
                 <Link
                   href={`/${locale}/admin/users`}

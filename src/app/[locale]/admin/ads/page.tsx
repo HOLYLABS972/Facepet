@@ -1,6 +1,7 @@
-import { auth } from '@/lib/auth-server';
+
 import AdActions from '@/components/admin/AdActions';
 import AddAdForm from '@/components/admin/AddAdForm';
+import AdImageThumbnail from '@/components/admin/AdImageThumbnail';
 import { DataTablePagination } from '@/components/admin/DataTablePagination';
 import { LimitSelector } from '@/components/admin/LimitSelector';
 import { Button } from '@/components/ui/button';
@@ -30,17 +31,11 @@ export default async function AdsPage({
     order?: 'asc' | 'desc';
   };
 }) {
-  const session = await auth();
   const t = await getTranslations('Admin');
-  const locale = await getLocale();
+  const locale = 'en'; // Force English for admin panel
 
-  // Double-check authorization server-side
-  if (
-    !session?.user ||
-    (session.user.role !== 'admin' && session.user.role !== 'super_admin')
-  ) {
-    return redirect({ href: '/', locale });
-  }
+  // Note: Authentication is handled client-side in AdminLayout component
+  // Server-side auth check removed since we're using Firebase client-side auth
 
   // Parse query parameters - searchParams is already available, no need to await
   const pageParam = searchParams?.page;
@@ -97,9 +92,8 @@ export default async function AdsPage({
 
   return (
     <div className="container mx-auto p-8">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold">{t('adsManagement')}</h1>
-        <AddAdForm />
       </div>
 
       {/* Search and Filters */}
@@ -137,6 +131,9 @@ export default async function AdsPage({
 
       {/* Ads Table */}
       <div className="rounded-md border bg-white">
+        <div className="p-4 border-b">
+          <AddAdForm />
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -154,48 +151,9 @@ export default async function AdsPage({
                   )}
                 </a>
               </TableHead>
-              <TableHead>
-                <a href={getSortUrl('type')} className="flex items-center">
-                  Type
-                  {sort === 'type' && (
-                    <span className="ml-1">
-                      {order === 'asc' ? (
-                        <ArrowUp className="h-4 w-4" />
-                      ) : (
-                        <ArrowDown className="h-4 w-4" />
-                      )}
-                    </span>
-                  )}
-                </a>
-              </TableHead>
-              <TableHead>
-                <a href={getSortUrl('status')} className="flex items-center">
-                  Status
-                  {sort === 'status' && (
-                    <span className="ml-1">
-                      {order === 'asc' ? (
-                        <ArrowUp className="h-4 w-4" />
-                      ) : (
-                        <ArrowDown className="h-4 w-4" />
-                      )}
-                    </span>
-                  )}
-                </a>
-              </TableHead>
-              <TableHead>
-                <a href={getSortUrl('duration')} className="flex items-center">
-                  Duration (s)
-                  {sort === 'duration' && (
-                    <span className="ml-1">
-                      {order === 'asc' ? (
-                        <ArrowUp className="h-4 w-4" />
-                      ) : (
-                        <ArrowDown className="h-4 w-4" />
-                      )}
-                    </span>
-                  )}
-                </a>
-              </TableHead>
+
+              <TableHead>Tags</TableHead>
+              <TableHead>Image</TableHead>
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
                   Created
@@ -216,7 +174,7 @@ export default async function AdsPage({
           <TableBody>
             {ads.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   No advertisements found.
                 </TableCell>
               </TableRow>
@@ -224,21 +182,34 @@ export default async function AdsPage({
               ads.map((ad) => (
                 <TableRow key={ad.id}>
                   <TableCell className="font-medium">{ad.title}</TableCell>
-                  <TableCell>{ad.type}</TableCell>
                   <TableCell>
-                    <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                        ad.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : ad.status === 'scheduled'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {ad.status}
-                    </span>
+                    {ad.tags && ad.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {ad.tags.slice(0, 3).map((tag, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {ad.tags.length > 3 && (
+                          <span className="text-xs text-gray-500">
+                            +{ad.tags.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">No tags</span>
+                    )}
                   </TableCell>
-                  <TableCell>{ad.duration}s</TableCell>
+                  <TableCell>
+                    <AdImageThumbnail 
+                      src={ad.content} 
+                      alt={ad.title} 
+                      title={ad.title}
+                    />
+                  </TableCell>
                   <TableCell>{formatDate(ad.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <AdActions ad={ad} />

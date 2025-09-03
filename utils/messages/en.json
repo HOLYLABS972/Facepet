@@ -181,6 +181,7 @@
     "dashboard": "Admin Dashboard",
     "welcome": "Welcome to the Admin Dashboard",
     "loggedInAs": "You are logged in as",
+    "loading": "Loading...",
     "adsManagement": "Advertisements Management",
     "manageAdsDescription": "Create, edit, and manage advertisements displayed on the platform.",
     "manageAds": "Manage Ads",
@@ -415,13 +416,17 @@
         "email": "Email",
         "address": "Address",
         "private": "Private",
-        "type": "Type"
+        "type": "Type",
+        "phone": "Phone",
+        "owner": "Owner",
+        "contactDetails": "Contact Details"
       },
       "sections": {
         "basicInformation": "Basic Information",
         "description": "Description",
         "timeline": "Timeline",
-        "share": "Share Pet Profile"
+        "share": "Share Pet Profile",
+        "createYourOwn": "Create Your Own"
       },
       "actions": {
         "editPet": "Edit Pet",
@@ -429,17 +434,21 @@
         "deletePet": "Delete Pet",
         "deleting": "Deleting...",
         "copyLink": "Copy Link",
-        "share": "Share"
+        "share": "Share",
+        "createProfile": "Create Profile"
       },
       "messages": {
         "profileCreated": "Profile Created",
         "lastUpdated": "Last Updated",
         "shareDescription": "Share this profile with others",
+        "shareText": "Meet {name}'s profile! {url}",
         "deleteConfirm": "Permanently remove {petName}'s profile",
         "petDeleted": "Pet deleted successfully",
         "deleteFailed": "Failed to delete pet",
         "linkCopied": "Link copied to clipboard!",
-        "copyFailed": "Failed to copy link"
+        "copyFailed": "Failed to copy link",
+        "createProfileDescription": "Create a digital profile for your pet to keep them safe and connected.",
+        "publicView": "Public View"
       },
       "popup": {
         "title": "You Got a New Gift!",
@@ -579,6 +588,9 @@
       "title": "Terms of Service",
       "heroDescription": "Please read these terms carefully before using FacePet services.",
       "lastUpdated": "Last updated"
+    },
+    "Admin": {
+      "uploading": "Uploading"
     }
   },
   "errors": {
@@ -622,6 +634,7 @@
     },
     "Footer": {
       "usefulLinks": "Useful Links",
+      "services": "Services",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "contact": "Contact",
@@ -674,7 +687,7 @@
       "phases": {
         "share": {
           "title": "Share & Earn",
-          "text": "Share the app with friends and earn 5 points for each friend who joins!"
+          "text": "Share the app with friends and earn 10 points for each friend who joins!"
         },
         "earn": {
           "title": "Earn Points",

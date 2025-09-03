@@ -8,9 +8,10 @@ import { NextRequest, NextResponse } from 'next/server';
 const PROTECTED_ROUTES = [
   '/pages/my-pets',
   '/pages/my-gifts',
-  '/pages/services',
   '/pages/user/settings',
-  '/pet/'
+  '/pet/[id]/edit',
+  '/pet/[id]/nfc',
+  '/pet/[id]/tag'
 ];
 
 /**
@@ -21,7 +22,9 @@ const PUBLIC_ROUTES = [
   '/api/',
   '/_next/',
   '/static/',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/pet/', // Public pet viewing
+  '/services' // Public services page
 ];
 
 /**

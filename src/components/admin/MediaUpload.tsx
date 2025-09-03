@@ -3,30 +3,12 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { IKImage, IKUpload, IKVideo, ImageKitProvider } from 'imagekitio-next';
-import { FileUp, Image as ImageIcon, Video } from 'lucide-react';
+import { storage } from '@/lib/firebase/config';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { FileUp, Image as ImageIcon, Video, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
-
-const authenticator = async () => {
-  try {
-    const response = await fetch('/api/imagekit');
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Request failed with status ${response.status}: ${errorText}`
-      );
-    }
-
-    const data = await response.json();
-    const { signature, expire, token } = data;
-    return { token, expire, signature };
-  } catch (error: any) {
-    throw new Error(`Authentication request failed: ${error.message}`);
-  }
-};
 
 interface MediaUploadProps {
   type: 'image' | 'video';
@@ -42,23 +24,11 @@ export default function MediaUpload({
   className = ''
 }: MediaUploadProps) {
   const t = useTranslations('pages.Admin');
-  const ikUploadRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
 
-  const onError = (error: any) => {
-    console.error('Upload error:', error);
-    toast.error(`${type} upload failed`);
-    setIsUploading(false);
-  };
-
-  const onSuccess = (res: any) => {
-    onChange(res.filePath);
-    toast.success(`${type} uploaded successfully`);
-    setIsUploading(false);
-  };
-
-  const onValidate = (file: File) => {
+  const validateFile = (file: File): boolean => {
     // 20MB limit for images, 100MB for videos
     const maxSize = type === 'image' ? 20 * 1024 * 1024 : 100 * 1024 * 1024;
 
@@ -83,108 +53,181 @@ export default function MediaUpload({
     return true;
   };
 
+  const uploadFile = async (file: File) => {
+    if (!validateFile(file)) return;
+
+    setIsUploading(true);
+    setProgress(0);
+
+    try {
+      // Create a unique filename
+      const timestamp = Date.now();
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `${type}_${timestamp}.${fileExtension}`;
+      
+      // Create storage reference
+      const storageRef = ref(storage, `advertisements/${type}s/${fileName}`);
+      
+      // Upload file with progress tracking
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(Math.round(progress));
+        },
+        (error) => {
+          console.error('Upload error:', error);
+          toast.error(`Upload failed: ${error.message}`);
+          setIsUploading(false);
+        },
+        async () => {
+          try {
+            // Get download URL
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            onChange(downloadURL);
+            toast.success(`${type} uploaded successfully`);
+            setIsUploading(false);
+          } catch (error: any) {
+            console.error('Error getting download URL:', error);
+            toast.error('Upload completed but failed to get file URL');
+            setIsUploading(false);
+          }
+        }
+      );
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error(`Upload failed: ${error.message}`);
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      uploadFile(file);
+    }
+    // Reset input value to allow uploading the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleUploadClick = () => {
-    if (ikUploadRef.current) {
-      ikUploadRef.current.click();
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveFile = async () => {
+    if (!value) return;
+
+    try {
+      // Extract the file path from the download URL
+      const url = new URL(value);
+      const pathMatch = url.pathname.match(/\/o\/(.+?)\?/);
+      
+      if (pathMatch) {
+        const filePath = decodeURIComponent(pathMatch[1]);
+        const fileRef = ref(storage, filePath);
+        await deleteObject(fileRef);
+        onChange('');
+        toast.success('File removed successfully');
+      }
+    } catch (error: any) {
+      console.error('Error removing file:', error);
+      toast.error('Failed to remove file');
     }
   };
 
   return (
-    <ImageKitProvider
-      publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!}
-      urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
-      authenticator={authenticator}
-    >
-      <div className={`space-y-2 ${className}`}>
-        <IKUpload
-          ref={ikUploadRef}
-          onError={onError}
-          onSuccess={onSuccess}
-          useUniqueFileName={true}
-          validateFile={onValidate}
-          onUploadStart={() => {
-            setProgress(0);
-            setIsUploading(true);
-          }}
-          onUploadProgress={({ loaded, total }) => {
-            const percent = Math.round((loaded / total) * 100);
-            setProgress(percent);
-          }}
-          folder={`business/${type}`}
-          accept={type === 'image' ? 'image/*' : 'video/*'}
-          className="hidden"
-        />
+    <div className={`space-y-2 ${className}`}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={type === 'image' ? 'image/*' : 'video/*'}
+        onChange={handleFileChange}
+        className="hidden"
+      />
 
-        {value ? (
-          <Card className="relative overflow-hidden">
-            <CardContent className="p-2">
-              <div className="relative aspect-video w-full overflow-hidden rounded-md">
-                {type === 'image' ? (
-                  <IKImage
-                    path={value}
-                    transformation={[{ quality: '60', crop: 'maintain_ratio' }]}
-                    loading="lazy"
-                    lqip={{ active: true }}
-                    className="h-full w-full object-cover"
-                    alt="Advertisement image"
-                  />
-                ) : (
-                  <IKVideo
-                    path={value}
-                    controls={true}
-                    className="h-full w-full"
-                  />
-                )}
-              </div>
+      {value ? (
+        <Card className="relative overflow-hidden">
+          <CardContent className="p-2">
+            <div className="relative aspect-video w-full overflow-hidden rounded-md">
+              {type === 'image' ? (
+                <img
+                  src={value}
+                  alt="Advertisement image"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <video
+                  src={value}
+                  controls
+                  className="h-full w-full"
+                />
+              )}
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="absolute top-2 right-2 h-8 w-8 p-0"
+                onClick={handleRemoveFile}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="mt-2 flex gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-2 w-full"
+                className="flex-1"
                 onClick={handleUploadClick}
+                disabled={isUploading}
               >
                 Replace {type === 'image' ? 'Image' : 'Video'}
               </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            className="h-32 w-full border-dashed"
-            onClick={handleUploadClick}
-            disabled={isUploading}
-          >
-            <div className="flex flex-col items-center justify-center">
-              {type === 'image' ? (
-                <ImageIcon className="text-muted-foreground mb-2 h-8 w-8" />
-              ) : (
-                <Video className="text-muted-foreground mb-2 h-8 w-8" />
-              )}
-              <span className="text-sm font-medium">
-                {isUploading
-                  ? t('uploading')
-                  : `Click to upload ${type === 'image' ? 'an image' : 'a video'}`}
-              </span>
-              <span className="text-muted-foreground mt-1 text-xs">
-                {type === 'image'
-                  ? 'JPG, PNG or GIF up to 20MB'
-                  : 'MP4, WebM or MOV up to 100MB'}
-              </span>
             </div>
-          </Button>
-        )}
-
-        {isUploading && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <FileUp className="h-4 w-4 animate-pulse" />
-              <span className="text-sm">{t('uploading')} {type}...</span>
-            </div>
-            <Progress value={progress} className="h-2" />
+          </CardContent>
+        </Card>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          className="h-32 w-full border-dashed"
+          onClick={handleUploadClick}
+          disabled={isUploading}
+        >
+          <div className="flex flex-col items-center justify-center">
+            {type === 'image' ? (
+              <ImageIcon className="text-muted-foreground mb-2 h-8 w-8" />
+            ) : (
+              <Video className="text-muted-foreground mb-2 h-8 w-8" />
+            )}
+            <span className="text-sm font-medium">
+              {isUploading
+                ? t('uploading')
+                : `Click to upload ${type === 'image' ? 'an image' : 'a video'}`}
+            </span>
+            <span className="text-muted-foreground mt-1 text-xs">
+              {type === 'image'
+                ? 'JPG, PNG or GIF up to 20MB'
+                : 'MP4, WebM or MOV up to 100MB'}
+            </span>
           </div>
-        )}
-      </div>
-    </ImageKitProvider>
+        </Button>
+      )}
+
+      {isUploading && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <FileUp className="h-4 w-4 animate-pulse" />
+            <span className="text-sm">{t('uploading')} {type}...</span>
+          </div>
+          <Progress value={progress} className="h-2" />
+        </div>
+      )}
+    </div>
   );
 }

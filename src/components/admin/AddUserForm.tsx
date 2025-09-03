@@ -89,7 +89,7 @@ export default function AddUserForm() {
           Add New User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New User</DialogTitle>
         </DialogHeader>

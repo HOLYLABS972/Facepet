@@ -13,8 +13,8 @@ import {
   updateProfile,
   fetchSignInMethodsForEmail
 } from 'firebase/auth';
-import { auth } from '@/src/lib/firebase/config';
-import { createUserInFirestore } from '@/src/lib/firebase/users';
+import { auth } from '@/lib/firebase/config';
+import { createUserInFirestore, handleUserAuthentication, getUserFromFirestore } from '@/lib/firebase/users';
 
 // Function to determine user role - all users get 'user' role by default
 // Admin roles must be assigned manually through the admin panel
@@ -75,9 +75,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signIn = async (email: string, password: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // Firebase handles the authentication, no need for additional API calls
-    } catch (error) {
+      
+      // Check if user is restricted after successful Firebase authentication
+      if (userCredential.user) {
+        const userResult = await getUserFromFirestore(userCredential.user.uid);
+        if (userResult.success && userResult.user?.isRestricted) {
+          // Sign out the user immediately if they are restricted
+          await firebaseSignOut(auth);
+          throw new Error(`Your account has been restricted by an administrator. Reason: ${userResult.user.restrictionReason || 'No reason provided'}`);
+        }
+      }
+    } catch (error: any) {
       console.error('Sign in error:', error);
+      
+      // If Firebase Auth fails with network error, provide helpful message
+      if (error.code === 'auth/network-request-failed' || error.message?.includes('network')) {
+        console.log('Firebase Auth network error detected');
+        throw new Error('Network connection issue. Please check your internet connection and try again. If the problem persists, try using a different network or contact support.');
+      }
+      
+      throw error;
+    }
+  };
+
+  // Alternative login method using OTP (for when Firebase Auth has network issues)
+  const signInWithOTP = async (email: string) => {
+    try {
+      // Send OTP for login
+      await sendVerificationCode(email);
+      return { success: true, message: 'OTP sent for login' };
+    } catch (error) {
+      console.error('OTP login error:', error);
       throw error;
     }
   };
@@ -128,21 +156,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Use popup for in-frame experience
       const userCredential = await signInWithPopup(auth, provider);
       
-                      // Store user in Firestore collection after Google sign-in
-                if (userCredential.user) {
-                  const userRole = getUserRole(userCredential.user.email || '');
-                  const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
-                  console.log('🔍 Creating user (Google) with role:', { email: userCredential.user.email, userRole, cookiePreference });
-                  const userResult = await createUserInFirestore(userCredential.user, {
-                    acceptCookies: cookiePreference,
-                    language: 'en',
-                    role: userRole
-                  });
+      // Handle user authentication without overriding existing role
+      if (userCredential.user) {
+        // Check if user is restricted
+        const userResult = await getUserFromFirestore(userCredential.user.uid);
+        if (userResult.success && userResult.user?.isRestricted) {
+          // Sign out the user immediately if they are restricted
+          await firebaseSignOut(auth);
+          throw new Error(`Your account has been restricted by an administrator. Reason: ${userResult.user.restrictionReason || 'No reason provided'}`);
+        }
 
-                  if (!userResult.success) {
-                    console.error('Failed to store Google user in Firestore:', userResult.error);
-                  }
-                }
+        const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
+        console.log('🔍 Handling Google authentication (preserving existing role):', { 
+          email: userCredential.user.email, 
+          cookiePreference 
+        });
+        
+        const authResult = await handleUserAuthentication(userCredential.user, {
+          acceptCookies: cookiePreference,
+          language: 'en'
+        });
+
+        if (!authResult.success) {
+          console.error('Failed to handle Google user authentication:', authResult.error);
+        } else {
+          console.log('Google authentication successful:', authResult.isNewUser ? 'New user' : 'Existing user');
+        }
+      }
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;
@@ -221,6 +261,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      return signInMethods.length > 0;
+    } catch (error) {
+      console.error('Error checking email existence:', error);
+      return false;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -229,6 +279,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signInWithGoogle,
     signOut,
     resetPassword,
+    checkEmailExists,
     sendVerificationCode,
     verifyCodeAndCreateAccount
   };

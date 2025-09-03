@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MoreVertical, X, Trash2, Share2 } from 'lucide-react';
+import { MoreVertical, X, Trash2, Share2, Edit, Wifi, List } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -98,27 +98,42 @@ export default function PetDetailsBottomSheet({
               <X className="h-4 w-4" />
             </Button>
             <span className="flex-1 text-center">{pet.name}</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleSharePet}>
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share Pet
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDeletePet} className="text-red-600">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Pet
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push(`/pet/${pet.id}/tag`)}
+                className="flex items-center space-x-1"
+              >
+                <Wifi className="h-4 w-4" />
+                <span>Attach Tag</span>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/edit`)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Pet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSharePet}>
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share Pet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDeletePet} className="text-red-600">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Pet
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </DialogTitle>
         </DialogHeader>
 

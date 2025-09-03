@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth-server';
+
 import AddUserForm from '@/components/admin/AddUserForm';
 import { DataTablePagination } from '@/components/admin/DataTablePagination';
 import { LimitSelector } from '@/components/admin/LimitSelector';
@@ -30,14 +30,11 @@ export default async function UsersPage({
     order?: 'asc' | 'desc';
   };
 }) {
-  const session = await auth();
   const t = await getTranslations('Admin');
-  const locale = await getLocale();
+  const locale = 'en'; // Force English for admin panel
 
-  // Double-check authorization server-side
-  if (!session?.user || session.user.role !== 'super_admin') {
-    return redirect({ href: '/admin', locale });
-  }
+  // Note: Authentication is handled client-side in AdminLayout component
+  // Server-side auth check removed since we're using Firebase client-side auth
 
   // Parse query parameters - searchParams is already available, no need to await
   const pageParam = searchParams?.page;
@@ -92,13 +89,12 @@ export default async function UsersPage({
     return `?${params.toString()}`;
   };
 
-  const isSuperAdmin = session.user.role === 'super_admin';
+  // isSuperAdmin will be determined client-side in AdminLayout component
 
   return (
     <div className="container mx-auto p-8">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold">{t('userManagement')}</h1>
-        <AddUserForm />
       </div>
 
       {/* Search and Filters */}
@@ -136,6 +132,9 @@ export default async function UsersPage({
 
       {/* Users Table */}
       <div className="rounded-md border bg-white">
+        <div className="p-4 border-b">
+          <AddUserForm />
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -209,13 +208,14 @@ export default async function UsersPage({
                   )}
                 </a>
               </TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No users found.
                 </TableCell>
               </TableRow>
@@ -239,11 +239,23 @@ export default async function UsersPage({
                     </span>
                   </TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                        user.isRestricted
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {user.isRestricted ? 'Restricted' : 'Active'}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right">
                     <UserActions
                       userId={user.id}
                       currentRole={user.role}
                       isSuperAdmin={user.role === 'super_admin'}
+                      isRestricted={user.isRestricted}
                     />
                   </TableCell>
                 </TableRow>

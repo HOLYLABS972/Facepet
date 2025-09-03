@@ -17,10 +17,11 @@ import {
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { usePoints } from '@/src/contexts/PointsContext';
+import { useNotifications } from '@/src/contexts/NotificationsContext';
 import PointsExplenationPopup from '../PointsExplenationPopup';
+import { getUserFromFirestore } from '@/src/lib/firebase/users';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import {
@@ -43,9 +44,37 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { user, loading, signOut } = useAuth();
-  const { userPoints } = usePoints();
+  const { notifications } = useNotifications();
+  const [userRole, setUserRole] = useState<'user' | 'admin' | 'super_admin' | null>(null);
+  
+  // Calculate total points: each notification = 10 points
+  const totalPoints = notifications.length * 10;
   const locale = useLocale();
   const router = useRouter();
+
+  // Fetch user role
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (!user) {
+        setUserRole(null);
+        return;
+      }
+
+      try {
+        const userResult = await getUserFromFirestore(user.uid);
+        if (userResult.success && userResult.user) {
+          setUserRole(userResult.user.role || 'user');
+        } else {
+          setUserRole('user');
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole('user');
+      }
+    };
+
+    checkUserRole();
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -61,6 +90,12 @@ const Navbar = () => {
   };
 
   const publicPages: NavLink[] = [
+    {
+      label: t('services'),
+      key: 'services',
+      path: '/services',
+      icon: <Stethoscope className="h-5 w-5" />
+    },
     {
       label: t('signIn'),
       key: 'login',
@@ -79,7 +114,7 @@ const Navbar = () => {
     {
       label: t('services'),
       key: 'services',
-      path: '/pages/services',
+      path: '/services',
       icon: <Stethoscope className="h-5 w-5" />
     }
   ];
@@ -138,8 +173,8 @@ const Navbar = () => {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/pages/my-pets" className="flex items-center">
-                          <LayoutDashboard className="mr-2 h-4 w-4" />
-                          <span>Dashboard</span>
+                          <PawPrint className="mr-2 h-4 w-4" />
+                          <span>My Pets</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -148,8 +183,16 @@ const Navbar = () => {
                           <span>Profile</span>
                         </Link>
                       </DropdownMenuItem>
+                      {(userRole === 'admin' || userRole === 'super_admin') && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin" className="flex items-center">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            <span>Admin Panel</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem asChild>
-                        <Link href="/pages/services" className="flex items-center">
+                        <Link href="/services" className="flex items-center">
                           <Stethoscope className="mr-2 h-4 w-4" />
                           <span>Services</span>
                         </Link>
@@ -233,6 +276,17 @@ const Navbar = () => {
                         {link.label}
                       </MobileNavLink>
                     ))}
+                    {(userRole === 'admin' || userRole === 'super_admin') && (
+                      <MobileNavLink
+                        key="admin"
+                        path="/admin"
+                        locale={locale}
+                        onClick={() => setIsMenuOpen(false)}
+                        icon={<LayoutDashboard className="h-5 w-5" />}
+                      >
+                        Admin Panel
+                      </MobileNavLink>
+                    )}
                   </div>
                   <Button
                     variant={'ghost'}
@@ -269,7 +323,7 @@ const Navbar = () => {
                       className="active:text-primary m-0 flex gap-4 p-0 hover:bg-inherit active:bg-inherit"
                       onClick={() => setIsPopupOpen(true)}
                     >
-                      {userPoints}
+                      {totalPoints}
                       <Coins className="h-5 w-5" />
                     </Button>
                   </div>

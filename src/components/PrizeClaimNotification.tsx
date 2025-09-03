@@ -31,7 +31,7 @@ const PrizeClaimNotification: React.FC<PrizeClaimNotificationProps> = ({
       {/* Background with same styling as other notifications */}
       <div className={cn(
         "absolute inset-0 rounded-2xl border shadow-sm",
-        "border-blue-200 bg-blue-50"
+        "border-gray-200 bg-gray-50"
       )} />
 
       {/* Content */}
@@ -61,7 +61,7 @@ const PrizeClaimNotification: React.FC<PrizeClaimNotificationProps> = ({
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.2, delay: 0.2 }}
             onClick={handleClaim}
-            className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            className="mt-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
           >
             {t('claimButton')} →
           </motion.button>

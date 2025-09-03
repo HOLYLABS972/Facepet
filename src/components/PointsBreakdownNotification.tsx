@@ -66,7 +66,7 @@ const PointsBreakdownNotification: React.FC<PointsBreakdownNotificationProps> = 
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.2 }}
-            className="text-primary text-lg font-bold"
+            className="text-gray-900 text-lg font-bold"
           >
             {t('title')}
           </motion.div>
@@ -81,7 +81,7 @@ const PointsBreakdownNotification: React.FC<PointsBreakdownNotificationProps> = 
             {phonePoints > 0 && <div>{t('phoneSetup')}: +{phonePoints} {t('points')}</div>}
             {petPoints > 0 && <div>{t('addPet')}: +{petPoints} {t('points')}</div>}
             {sharePoints > 0 && <div>{t('share')}: +{sharePoints} {t('points')}</div>}
-            <div className="font-semibold text-primary">{t('total')}: {totalPoints} {t('points')}</div>
+            <div className="font-semibold text-gray-700">{t('total')}: {totalPoints} {t('points')}</div>
             {/* Prize claim button - only show if user has 30+ points */}
             {totalPoints >= 30 && (
               <motion.button
@@ -89,7 +89,7 @@ const PointsBreakdownNotification: React.FC<PointsBreakdownNotificationProps> = 
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.2, delay: 0.3 }}
                 onClick={handleClaimPrize}
-                className="mt-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                className="mt-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
               >
                 {t('claimPrize')} (30 {t('points')}) →
               </motion.button>

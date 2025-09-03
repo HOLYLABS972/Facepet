@@ -37,8 +37,8 @@ const FirebaseNotification: React.FC<FirebaseNotificationProps> = ({
       {/* Content */}
       <div className="relative z-10 flex h-full">
         {/* Icon Section */}
-        <div className="flex items-center justify-center w-20 h-full bg-gradient-to-br from-blue-500 to-purple-600">
-          <Coins className="w-8 h-8 text-white" />
+        <div className="flex items-center justify-center w-20 h-full bg-gray-100">
+          <Coins className="w-8 h-8 text-gray-600" />
         </div>
 
         {/* Text Section */}
@@ -67,7 +67,7 @@ const FirebaseNotification: React.FC<FirebaseNotificationProps> = ({
 
         {/* Unread Indicator */}
         {!notification.isRead && (
-          <div className="absolute top-2 left-2 w-2 h-2 bg-blue-500 rounded-full" />
+          <div className="absolute top-2 left-2 w-2 h-2 bg-gray-500 rounded-full" />
         )}
       </div>
     </motion.div>

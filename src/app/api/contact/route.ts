@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createContactSubmission } from '@/utils/database/queries/contact';
+import { createContactSubmission } from '@/src/lib/firebase/queries/contact';
 import { z } from 'zod';
 
 // Validation schema for contact form
@@ -7,7 +7,6 @@ const contactSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255, 'Name is too long'),
   email: z.string().email('Invalid email address').max(255, 'Email is too long'),
   phone: z.string().optional(),
-  subject: z.string().min(1, 'Subject is required').max(255, 'Subject is too long'),
   message: z.string().min(10, 'Message must be at least 10 characters').max(2000, 'Message is too long')
 });
 

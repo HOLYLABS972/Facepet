@@ -1,9 +1,18 @@
-import AdminLayout from '@/src/components/admin/AdminLayout';
+import AdminLayout from '@/components/admin/AdminLayout';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
-export default function AdminLayoutWrapper({
+export default async function AdminLayoutWrapper({
   children
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminLayout>{children}</AdminLayout>;
+  // Force English locale for admin panel
+  const messages = await getMessages({ locale: 'en' });
+  
+  return (
+    <NextIntlClientProvider messages={messages} locale="en">
+      <AdminLayout>{children}</AdminLayout>
+    </NextIntlClientProvider>
+  );
 }

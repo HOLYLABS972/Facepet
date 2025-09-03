@@ -6,23 +6,34 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
 export default async function AdminPage() {
-  const session = await auth();
   const t = await getTranslations('Admin');
-  const locale = await getLocale();
+  const locale = 'en'; // Force English for admin panel
 
-  // Double-check authorization server-side
-  if (
-    !session?.user ||
-    (session.user.role !== 'admin' && session.user.role !== 'super_admin')
-  ) {
-    return redirect({ href: '/', locale });
-  }
+  // Note: Authentication is handled client-side in AdminLayout component
+  // Server-side auth check removed since we're using Firebase client-side auth
 
   // Fetch dashboard statistics
   const stats = await getDashboardStats();
   const activity = await getRecentActivity();
+  
+  // Ensure stats has the expected structure
+  const safeStats = {
+    users: stats?.users || { total: 0, new: 0, byRole: {} },
+    ads: stats?.ads || { total: 0, byStatus: {}, byType: {} },
+    pets: stats?.pets || { total: 0, new: 0 },
+    contactSubmissions: stats?.contactSubmissions || { total: 0 },
+    comments: stats?.comments || { total: 0 },
+    rating: stats?.rating || { average: '0.0' }
+  };
+  
+  // Ensure activity has the expected structure
+  const safeActivity = {
+    users: activity?.users || [],
+    pets: activity?.pets || [],
+    ads: activity?.ads || []
+  };
 
-  const isSuperAdmin = session.user.role === 'super_admin';
+  // isSuperAdmin will be determined client-side in AdminLayout
 
   // Helper function to safely format dates
   const formatDate = (date: Date | string | null | undefined) => {
@@ -36,62 +47,15 @@ export default async function AdminPage() {
 
 
 
-      {/* Stats Overview */}
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Users Stats */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">User Statistics</h3>
-            <div className="rounded-lg bg-blue-100 p-2 text-blue-800">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {stats.users.total}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Total Users</div>
-            </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {stats.users.new}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">New (30d)</div>
-            </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {stats.users.byRole?.admin || 0}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Admins</div>
-            </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {stats.users.byRole?.user || 0}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Regular Users</div>
-            </div>
-          </div>
-        </div>
 
-        {/* Ads Stats */}
+
+      {/* Top Section - Statistics Overview */}
+      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        {/* Total Ads */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Ad Statistics</h3>
-            <div className="rounded-lg bg-green-100 p-2 text-green-800">
+            <h3 className="text-lg font-semibold">Total Ads</h3>
+            <div className="rounded-lg bg-blue-100 p-2 text-blue-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"
@@ -108,39 +72,135 @@ export default async function AdminPage() {
               </svg>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {stats.ads.total}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Total Ads</div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-blue-600">
+              {safeStats.ads.total}
             </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {stats.ads.byStatus?.active || 0}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Active</div>
-            </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-amber-600">
-                {stats.ads.byStatus?.scheduled || 0}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Scheduled</div>
-            </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {stats.ads.byStatus?.inactive || 0}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Inactive</div>
-            </div>
+            <div className="mt-1 text-sm text-gray-500">Advertisements</div>
           </div>
         </div>
 
-        {/* Pets Stats */}
+        {/* Contact Forms */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Pet Statistics</h3>
-            <div className="rounded-lg bg-red-100 p-2 text-red-800">
+            <h3 className="text-lg font-semibold">Contact Forms</h3>
+            <div className="rounded-lg bg-green-100 p-2 text-green-800">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-green-600">
+              {safeStats.contactSubmissions.total}
+            </div>
+            <div className="mt-1 text-sm text-gray-500">Submissions</div>
+          </div>
+        </div>
+
+        {/* Ad Comments */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Ad Comments</h3>
+            <div className="rounded-lg bg-purple-100 p-2 text-purple-800">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-purple-600">
+              {safeStats.comments.total}
+            </div>
+            <div className="mt-1 text-sm text-gray-500">Comments</div>
+          </div>
+        </div>
+
+        {/* Rating */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Rating</h3>
+            <div className="rounded-lg bg-yellow-100 p-2 text-yellow-800">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-yellow-600">
+              {safeStats.rating.average}
+            </div>
+            <div className="mt-1 text-sm text-gray-500">Average Rating</div>
+          </div>
+        </div>
+
+        {/* Total Users */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Total Users</h3>
+            <div className="rounded-lg bg-indigo-100 p-2 text-indigo-800">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-indigo-600">
+              {safeStats.users.total}
+            </div>
+            <div className="mt-1 text-sm text-gray-500">Users</div>
+          </div>
+        </div>
+
+        {/* Total Pets */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Total Pets</h3>
+            <div className="rounded-lg bg-pink-100 p-2 text-pink-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"
@@ -157,26 +217,27 @@ export default async function AdminPage() {
               </svg>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-2">
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <div className="text-6xl font-bold text-blue-600">
-                {stats.pets.total}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Total Pets</div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-pink-600">
+              {safeStats.pets.total}
             </div>
-
-            <div className="mt-2 text-center text-xs text-gray-500">
-              Pets are the core of our platform. Each pet has a unique profile
-              with details about their owner, vet, and breed.
-            </div>
+            <div className="mt-1 text-sm text-gray-500">Pets</div>
           </div>
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Bottom Section - Management Tables */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="rounded-lg bg-white p-6 shadow-md">
-          <h3 className="mb-4 text-lg font-semibold">Recent Users</h3>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Recent Users</h3>
+            <Link
+              href={`/${locale}/admin/users`}
+              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+            >
+              {t('manageUsers')}
+            </Link>
+          </div>
           <div className="overflow-hidden">
             <table className="min-w-full bg-white">
               <thead>
@@ -187,7 +248,7 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {activity.recentUsers.map((user) => (
+                {safeActivity.users.map((user) => (
                   <tr key={user.id} className="border-b hover:bg-gray-50">
                     <td className="p-2">{user.fullName}</td>
                     <td className="p-2 text-sm text-gray-600">{user.email}</td>
@@ -196,7 +257,7 @@ export default async function AdminPage() {
                     </td>
                   </tr>
                 ))}
-                {activity.recentUsers.length === 0 && (
+                {safeActivity.users.length === 0 && (
                   <tr>
                     <td colSpan={3} className="p-2 text-center text-gray-500">
                       No users found.
@@ -209,7 +270,15 @@ export default async function AdminPage() {
         </div>
 
         <div className="rounded-lg bg-white p-6 shadow-md">
-          <h3 className="mb-4 text-lg font-semibold">Recent Ads</h3>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Recent Ads</h3>
+            <Link
+              href={`/${locale}/admin/ads`}
+              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+            >
+              {t('manageAds')}
+            </Link>
+          </div>
           <div className="overflow-hidden">
             <table className="min-w-full bg-white">
               <thead>
@@ -220,7 +289,7 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {activity.recentAds.map((ad) => (
+                {safeActivity.ads.map((ad) => (
                   <tr key={ad.id} className="border-b hover:bg-gray-50">
                     <td className="p-2">{ad.title}</td>
                     <td className="p-2 text-sm">{ad.type}</td>
@@ -239,7 +308,7 @@ export default async function AdminPage() {
                     </td>
                   </tr>
                 ))}
-                {activity.recentAds.length === 0 && (
+                {safeActivity.ads.length === 0 && (
                   <tr>
                     <td colSpan={3} className="p-2 text-center text-gray-500">
                       No ads found.
@@ -252,34 +321,7 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      {/* Admin Actions */}
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <h2 className="mb-4 text-xl font-semibold">{t('adsManagement')}</h2>
-          <p className="mb-4 text-gray-700">{t('manageAdsDescription')}</p>
-          <Link
-            href={`/${locale}/admin/ads`}
-            className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
-          >
-            {t('manageAds')}
-          </Link>
-        </div>
 
-        {isSuperAdmin && (
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-4 text-xl font-semibold">
-              {t('userManagement')}
-            </h2>
-            <p className="mb-4 text-gray-700">{t('manageUsersDescription')}</p>
-            <Link
-              href={`/${locale}/admin/users`}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
-            >
-              {t('manageUsers')}
-            </Link>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

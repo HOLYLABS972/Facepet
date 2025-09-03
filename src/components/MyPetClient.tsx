@@ -6,13 +6,13 @@ import PetDetailsBottomSheet from '@/components/PetDetailsBottomSheet';
 import { User, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { usePoints } from '@/src/contexts/PointsContext';
+// Removed points system - notifications only
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
 import PhoneNumberBottomSheet from './PhoneNumberBottomSheet';
 import AdminNotificationCard from './AdminNotificationCard';
-import PointsBreakdownNotification from './PointsBreakdownNotification';
+// Removed points breakdown notification - notifications only
 import PrizeClaimNotification from './PrizeClaimNotification';
 import { useNotifications } from '@/src/contexts/NotificationsContext';
 import NotificationsList from './notifications/NotificationsList';
@@ -36,7 +36,7 @@ interface MyPetsClientProps {
 const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const t = useTranslations('pages.MyPetsPage');
   const { user, loading } = useAuth();
-  const { userPoints, setUserPoints, pointsBreakdown, setPointsBreakdown, showPointsBreakdown, setShowPointsBreakdown, addPoints } = usePoints();
+  // Removed points system - notifications only
   const { createActionNotification } = useNotifications();
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -53,13 +53,21 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   
   // Use ref to track previous pets count to avoid multiple point awards
   const previousPetsCountRef = useRef(0);
-  // Use ref to track if we've already created registration notification
+  // Use ref to track if we've already created registration notification (only 1 allowed)
   const registrationNotificationCreatedRef = useRef(false);
+  // Use ref to track if we've already created phone notification (only 1 allowed)
+  const phoneNotificationCreatedRef = useRef(false);
+  const phoneNotificationCheckRef = useRef(false); // Prevent multiple checks
+  // Use ref to track if we've already created add_pet notification (only 1 allowed)
+  const addPetNotificationCreatedRef = useRef(false);
+  // Use ref to track if we've completed the initial pets load
+  const initialPetsLoadRef = useRef(false);
   
-  // Create registration notification for new users
+  // Create registration notification for new users (only once per session)
   useEffect(() => {
     if (user && !loading && !registrationNotificationCreatedRef.current) {
       // Check if this is a new user (no pets and no phone number)
+      // Only create registration notification if user has no pets AND no phone number
       const isNewUser = pets.length === 0 && !user.phoneNumber;
       if (isNewUser) {
         // Mark that we've created the notification to prevent loops
@@ -68,9 +76,12 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         setTimeout(async () => {
           await createActionNotification('registration');
         }, 1000);
+      } else {
+        // If user has pets or phone number, they're not new - mark as processed
+        registrationNotificationCreatedRef.current = true;
       }
     }
-  }, [user, loading, pets.length]);
+  }, [user, loading]); // Removed pets.length from dependencies
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -104,15 +115,24 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
             const previousPetsCount = previousPetsCountRef.current;
             const currentPetsCount = petsData.length;
             
-            if (currentPetsCount > previousPetsCount) {
+            // Only create notification if:
+            // 1. Pets count actually increased (user added a pet)
+            // 2. We haven't already created an add_pet notification (only 1 allowed)
+            // 3. We've completed the initial load (to avoid creating notification on initial load)
+            if (currentPetsCount > previousPetsCount && 
+                !addPetNotificationCreatedRef.current && 
+                initialPetsLoadRef.current) {
               // User added a new pet, create notification with 10 points
               await createActionNotification('add_pet');
               setHasAddedPet(true);
+              addPetNotificationCreatedRef.current = true; // Mark as created (only 1 allowed)
               console.log('User added a pet! Created notification with 10 points.');
             }
             
             // Update the ref with the current count
             previousPetsCountRef.current = currentPetsCount;
+            // Mark that we've completed the initial load
+            initialPetsLoadRef.current = true;
             
             setPets(petsData);
           } else {
@@ -137,7 +157,9 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   // Check if user has phone number set - show bottom sheet if not
   useEffect(() => {
     const checkUserPhoneNumber = async () => {
-      if (user && !loading) {
+      if (user && !loading && !phoneNotificationCheckRef.current) {
+        phoneNotificationCheckRef.current = true; // Prevent multiple checks
+        
         try {
           // Get user data from Firestore to check phone number
           const { getUserFromFirestore } = await import('@/src/lib/firebase/users');
@@ -148,6 +170,22 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
             if (!hasPhoneNumber) {
               // Show phone setup bottom sheet automatically
               setShowPhoneBottomSheet(true);
+            } else {
+              // User has phone number, check if they need a phone notification
+              if (!phoneNotificationCreatedRef.current) {
+                // Check if user already has a phone notification
+                const { hasNotificationOfType } = await import('@/src/lib/firebase/notifications');
+                const hasPhoneNotification = await hasNotificationOfType(user, 'phone_setup');
+                if (hasPhoneNotification.success && !hasPhoneNotification.hasNotification) {
+                  // User has phone but no notification, create one
+                  await createActionNotification('phone_setup');
+                  phoneNotificationCreatedRef.current = true;
+                  console.log('Created phone notification for existing phone number');
+                } else {
+                  console.log('User already has phone notification or check failed');
+                  phoneNotificationCreatedRef.current = true; // Mark as handled
+                }
+              }
             }
           } else {
             // If we can't get user data, show phone setup as fallback
@@ -205,12 +243,15 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
   const handlePhoneAdded = async (phone: string) => {
     // Hide the phone bottom sheet since user has added their phone
     setShowPhoneBottomSheet(false);
-    // Create phone setup notification
-    console.log('Creating phone setup notification...');
-    const result = await createActionNotification('phone_setup');
-    console.log('Phone setup notification result:', result);
-    // Here you could also update the user's profile with the phone number
-    console.log('Phone number added:', phone, 'Created notification!');
+    
+    // Create phone setup notification (with duplicate check)
+    try {
+      await createActionNotification('phone_setup');
+      phoneNotificationCreatedRef.current = true; // Mark as created (only 1 allowed)
+      console.log('Phone number added:', phone, 'Notification handled!');
+    } catch (error) {
+      console.error('Error creating phone notification:', error);
+    }
   };
 
   // Function to show prize notification (for external calls)
@@ -225,10 +266,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     }
   }, []);
 
-  // Debug: Log current points whenever they change
-  useEffect(() => {
-    console.log('Current user points:', userPoints);
-  }, [userPoints]);
+  // Removed points system - notifications only
 
 
 
@@ -263,35 +301,17 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
             onShareSuccess={async () => {
               try {
                 console.log('Share success callback triggered');
-                // Award 5 points for sharing (hardcoded as requested)
-                await addPoints('share', 5);
-                console.log('Points added successfully');
-                console.log('User shared the app! Awarded 5 points. Total points:', userPoints + 5);
+                // Create share notification (limited to one per user)
+                await createActionNotification('share');
+                console.log('Share notification created successfully');
               } catch (error) {
-                console.error('Error awarding share points:', error);
+                console.error('Error creating share notification:', error);
               }
             }}
           />
         </div>
         
-        {/* Points Breakdown Notification */}
-        {showPointsBreakdown && (
-          <div className="mb-4">
-            <PointsBreakdownNotification 
-              onClose={() => setShowPointsBreakdown(false)}
-              totalPoints={userPoints}
-              registrationPoints={pointsBreakdown.registration}
-              phonePoints={pointsBreakdown.phone}
-              petPoints={pointsBreakdown.pet}
-              sharePoints={pointsBreakdown.share}
-              onClaimPrize={() => {
-                // Hide the points breakdown notification after claiming
-                setShowPointsBreakdown(false);
-                console.log('Prize claimed!');
-              }}
-            />
-          </div>
-        )}
+        {/* Removed points breakdown notification - notifications only */}
 
         {/* Prize Claim Notification */}
         {showPrizeNotification && (

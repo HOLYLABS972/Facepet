@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'motion/react';
-import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, Facebook, Instagram, MessageCircle } from 'lucide-react';
 import Footer from '@/src/components/layout/Footer';
 import { useTranslations } from 'next-intl';
+import { createContactSubmission } from '@/src/lib/firebase/contact';
+import { getContactInfo } from '@/lib/actions/admin';
 
 export default function ContactPage() {
   const t = useTranslations('pages.ContactPage');
@@ -17,12 +19,44 @@ export default function ContactPage() {
     name: '',
     email: '',
     phone: '',
-    subject: '',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [contactInfo, setContactInfo] = useState({
+    email: 'support@facepet.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Pet Street\nAnimal City, AC 12345\nUnited States',
+    facebook: '',
+    instagram: '',
+    whatsapp: ''
+  });
+  const [isLoadingContactInfo, setIsLoadingContactInfo] = useState(true);
+
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const info = await getContactInfo();
+        if (info) {
+          setContactInfo({
+            email: info.email || 'support@facepet.com',
+            phone: info.phone || '+1 (555) 123-4567',
+            address: info.address || '123 Pet Street\nAnimal City, AC 12345\nUnited States',
+            facebook: info.facebook || '',
+            instagram: info.instagram || '',
+            whatsapp: info.whatsapp || ''
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch contact info:', error);
+      } finally {
+        setIsLoadingContactInfo(false);
+      }
+    };
+
+    fetchContactInfo();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -39,32 +73,24 @@ export default function ContactPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
+      const submission = await createContactSubmission(formData);
+      
+      if (submission) {
         setSubmitStatus('success');
         setFormData({
           name: '',
           email: '',
           phone: '',
-          subject: '',
           message: ''
         });
       } else {
         setSubmitStatus('error');
-        setErrorMessage(result.message || 'Failed to submit contact form');
+        setErrorMessage('Failed to submit contact form');
       }
     } catch (error) {
+      console.error('Contact form submission error:', error);
       setSubmitStatus('error');
-      setErrorMessage('Network error. Please try again.');
+      setErrorMessage('Failed to submit contact form. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -164,19 +190,6 @@ export default function ContactPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="subject">{t('form.subject')} *</Label>
-                      <Input
-                        id="subject"
-                        name="subject"
-                        type="text"
-                        value={formData.subject}
-                        onChange={handleInputChange}
-                        required
-                        placeholder={t('form.subjectPlaceholder')}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
                       <Label htmlFor="message">{t('form.message')} *</Label>
                       <Textarea
                         id="message"
@@ -238,7 +251,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">{t('contactInfo.email')}</h4>
-                      <p className="text-gray-600">support@facepet.com</p>
+                      <p className="text-gray-600">{isLoadingContactInfo ? 'Loading...' : contactInfo.email}</p>
                       <p className="text-sm text-gray-500">{t('contactInfo.emailResponse')}</p>
                     </div>
                   </div>
@@ -249,7 +262,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">{t('contactInfo.phone')}</h4>
-                      <p className="text-gray-600">+1 (555) 123-4567</p>
+                      <p className="text-gray-600">{isLoadingContactInfo ? 'Loading...' : contactInfo.phone}</p>
                       <p className="text-sm text-gray-500">{t('contactInfo.phoneHours')}</p>
                     </div>
                   </div>
@@ -261,12 +274,57 @@ export default function ContactPage() {
                     <div>
                       <h4 className="font-semibold text-gray-900">{t('contactInfo.address')}</h4>
                       <p className="text-gray-600">
-                        123 Pet Street<br />
-                        Animal City, AC 12345<br />
-                        United States
+                        {isLoadingContactInfo ? 'Loading...' : contactInfo.address.split('\n').map((line, index) => (
+                          <span key={index}>
+                            {line}
+                            {index < contactInfo.address.split('\n').length - 1 && <br />}
+                          </span>
+                        ))}
                       </p>
                     </div>
                   </div>
+
+                  {/* Social Media Links */}
+                  {(contactInfo.facebook || contactInfo.instagram || contactInfo.whatsapp) && (
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-gray-900">Follow Us</h4>
+                      <div className="flex flex-wrap gap-4">
+                        {contactInfo.facebook && (
+                          <a 
+                            href={contactInfo.facebook} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
+                          >
+                            <Facebook className="h-5 w-5" />
+                            Facebook
+                          </a>
+                        )}
+                        {contactInfo.instagram && (
+                          <a 
+                            href={contactInfo.instagram} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-pink-600 hover:text-pink-700 transition-colors"
+                          >
+                            <Instagram className="h-5 w-5" />
+                            Instagram
+                          </a>
+                        )}
+                        {contactInfo.whatsapp && (
+                          <a 
+                            href={contactInfo.whatsapp} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors"
+                          >
+                            <MessageCircle className="h-5 w-5" />
+                            WhatsApp
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -284,7 +284,8 @@
         "basicInformation": "Basic Information",
         "description": "Description",
         "timeline": "Timeline",
-        "share": "Share Pet Profile"
+        "share": "Share Pet Profile",
+        "createYourOwn": "Create Your Own"
       },
       "actions": {
         "editPet": "Edit Pet",
@@ -292,17 +293,20 @@
         "deletePet": "Delete Pet",
         "deleting": "Deleting...",
         "copyLink": "Copy Link",
-        "share": "Share"
+        "share": "Share",
+        "createProfile": "Create Profile"
       },
       "messages": {
         "profileCreated": "Profile Created",
         "lastUpdated": "Last Updated",
         "shareDescription": "Share this profile with others",
+        "shareText": "Meet {name}'s profile! {url}",
         "deleteConfirm": "Permanently remove {petName}'s profile",
         "petDeleted": "Pet deleted successfully",
         "deleteFailed": "Failed to delete pet",
         "linkCopied": "Link copied to clipboard!",
-        "copyFailed": "Failed to copy link"
+        "copyFailed": "Failed to copy link",
+        "createProfileDescription": "Create a digital profile for your pet to keep them safe and connected."
       },
       "popup": {
         "title": "Gift a FacePet",
@@ -460,6 +464,11 @@
       "loadingPets": "Loading pets...",
       "noResults": "No pets found",
       "addFirstPet": "Add your first pet to get started"
+    },
+    "ServicesPage": {
+      "title": "Services And Professionals",
+      "searchPlaceholder": "Search Services And Professionals...",
+      "noResults": "No Services And Professionals found."
     }
   }
 }

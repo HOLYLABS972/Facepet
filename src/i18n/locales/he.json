@@ -349,7 +349,8 @@
         "basicInformation": "מידע בסיסי",
         "description": "תיאור",
         "timeline": "ציר זמן",
-        "share": "שתף פרופיל חיית מחמד"
+        "share": "שתף פרופיל חיית מחמד",
+        "createYourOwn": "צור את שלך"
       },
       "actions": {
         "editPet": "ערוך חיית מחמד",

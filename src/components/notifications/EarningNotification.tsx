@@ -82,7 +82,7 @@ const EarningNotification: React.FC<EarningNotificationProps> = ({
             transition={{ duration: 0.2, delay: 0.1 }}
             className="text-sm text-black"
           >
-            <div className="font-semibold text-green-600">
+            <div className="font-semibold text-gray-700">
               +{points} {t('points')} {t('earned')}!
             </div>
             <div className="text-gray-600">

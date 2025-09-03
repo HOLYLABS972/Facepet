@@ -12,14 +12,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { AdStatus, AdType, createAd } from '@/lib/actions/admin';
+import { Textarea } from '@/components/ui/textarea';
+
+import { createAd } from '@/lib/actions/admin';
 import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -28,13 +23,13 @@ export default function AddAdForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    type: 'image' as 'image' | 'video',
     content: '',
-    duration: 5,
-    status: 'inactive' as 'active' | 'inactive' | 'scheduled',
-    startDate: '',
-    endDate: ''
+    phone: '',
+    location: '',
+    description: '',
+    tags: [] as string[]
   });
+  const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,8 +43,32 @@ export default function AddAdForm() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'duration' ? parseInt(value) || 0 : value
+      [name]: value
     }));
+  };
+
+  const addTag = () => {
+    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()]
+      }));
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const handleTagKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,39 +77,31 @@ export default function AddAdForm() {
     setError(null);
 
     try {
-      // Format dates if scheduled
-      let startDate = null;
-      let endDate = null;
-
-      if (formData.status === 'scheduled') {
-        if (!formData.startDate || !formData.endDate) {
-          throw new Error('Start and end dates are required for scheduled ads');
-        }
-        startDate = new Date(formData.startDate);
-        endDate = new Date(formData.endDate);
-      }
-
       await createAd({
         title: formData.title,
-        type: formData.type,
+        type: 'image', // Default to image
         content: formData.content,
-        duration: formData.duration,
-        status: formData.status,
-        startDate,
-        endDate,
-        createdBy: null // Will be set server-side based on current user
+        duration: 5, // Default duration
+        status: 'active', // Default to active
+        startDate: null,
+        endDate: null,
+        createdBy: null, // Will be set server-side based on current user
+        phone: formData.phone,
+        location: formData.location,
+        description: formData.description,
+        tags: formData.tags
       });
 
       // Reset form and close
       setFormData({
         title: '',
-        type: 'image',
         content: '',
-        duration: 5,
-        status: 'inactive',
-        startDate: '',
-        endDate: ''
+        phone: '',
+        location: '',
+        description: '',
+        tags: []
       });
+      setTagInput('');
       setIsOpen(false);
 
       // Refresh the page to show the new ad
@@ -113,7 +124,7 @@ export default function AddAdForm() {
           Add New Ad
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Advertisement</DialogTitle>
         </DialogHeader>
@@ -136,44 +147,12 @@ export default function AddAdForm() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select
-                name="type"
-                value={formData.type}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, type: value as AdType }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="image">Image</SelectItem>
-                  <SelectItem value="video">Video</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="duration">Duration (seconds)</Label>
-              <Input
-                id="duration"
-                name="duration"
-                type="number"
-                min="1"
-                value={formData.duration}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="content">Content</Label>
             <MediaUpload
-              type={formData.type}
+              type="image"
               value={formData.content}
               onChange={(filePath) => {
                 setFormData((prev) => ({ ...prev, content: filePath }));
@@ -182,55 +161,77 @@ export default function AddAdForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select
-              name="status"
-              value={formData.status}
-              onValueChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  status: value as AdStatus
-                }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="scheduled">Scheduled</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Enter service description..."
+              rows={3}
+            />
           </div>
 
-          {formData.status === 'scheduled' && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Start Date</Label>
-                <Input
-                  id="startDate"
-                  name="startDate"
-                  type="date"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  required={formData.status === 'scheduled'}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="endDate">End Date</Label>
-                <Input
-                  id="endDate"
-                  name="endDate"
-                  type="date"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                  required={formData.status === 'scheduled'}
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+972-XX-XXX-XXXX"
+              />
             </div>
-          )}
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="City, Country"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <div className="flex gap-2">
+              <Input
+                id="tags"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyPress={handleTagKeyPress}
+                placeholder="Add a tag and press Enter"
+              />
+              <Button type="button" onClick={addTag} variant="outline">
+                Add
+              </Button>
+            </div>
+            {formData.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="ml-1 hover:text-red-300"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+
 
           <DialogFooter>
             <Button

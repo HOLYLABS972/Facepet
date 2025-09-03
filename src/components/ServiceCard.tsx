@@ -9,45 +9,24 @@ import {
   DrawerHeader,
   DrawerTitle
 } from '@/components/ui/drawer';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Star } from 'lucide-react';
-import React, { useState } from 'react';
+import { MapPin, Phone, Star, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
+import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
+import { useAuth } from '@/contexts/AuthContext';
 
-// Define mock Google Reviews data
-const googleReviewsMock = [
-  {
-    author: 'יוסי כהן',
-    rating: 5,
-    text: 'וטרינר מקצועי וסבלני, טיפל בכלב שלי במסירות והסביר לי כל שלב בתהליך. ממליץ בחום!',
-    date: '15 במרץ 2023'
-  },
-  {
-    author: 'רונית לוי',
-    rating: 4,
-    text: 'מקום נקי ומסודר, צוות נחמד מאוד. רק חבל שהייתי צריכה לחכות קצת יותר מדי זמן.',
-    date: '1 באפריל 2023'
-  },
-  {
-    author: 'אבי ישראלי',
-    rating: 5,
-    text: 'הצילו את החתול שלי ממצב מסוכן, תודה ענקית לצוות המסור והמקצועי!',
-    date: '10 במאי 2023'
-  },
-  {
-    author: 'דנה מור',
-    rating: 3,
-    text: 'שירות טוב, אבל המחירים קצת יקרים ביחס למקומות אחרים שבדקתי.',
-    date: '22 ביוני 2023'
-  },
-  {
-    author: 'נועם פרידמן',
-    rating: 5,
-    text: 'הוטרינר הכי טוב שהייתי אצלו, הכלבה שלי מרגישה הרבה יותר טוב אחרי הביקור!',
-    date: '5 בספטמבר 2023'
-  }
-];
+// Real comments will be loaded from the database
+const realComments: Array<{
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+}> = [];
 
 interface Service {
   location: string;
@@ -55,6 +34,9 @@ interface Service {
   name: string;
   tags: string[];
   description: string;
+  phone?: string;
+  address?: string;
+  id?: string; // Add ad ID for comments
 }
 
 interface ServiceCardProps {
@@ -63,6 +45,45 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const [open, setOpen] = useState(false);
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState<Array<{
+    id: string;
+    userName: string;
+    content: string;
+    rating: number;
+    createdAt: Date;
+  }>>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  
+  const { user } = useAuth();
+
+  // Load comments when drawer opens
+  useEffect(() => {
+    if (open && service.id) {
+      loadComments();
+    }
+  }, [open, service.id]);
+
+  const loadComments = async () => {
+    if (!service.id) return;
+    
+    setIsLoadingComments(true);
+    try {
+      console.log('Loading comments for service ID:', service.id);
+      console.log('Service ID length:', service.id.length);
+      console.log('Service ID type:', typeof service.id);
+      const commentsData = await getCommentsForAd(service.id);
+      console.log('Comments loaded:', commentsData);
+      setComments(commentsData);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -70,6 +91,56 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
   const handleClose = () => {
     setOpen(false);
+    setShowCommentForm(false);
+    setUserRating(0);
+    setCommentText('');
+  };
+
+  const handleStarClick = (rating: number) => {
+    setUserRating(rating);
+  };
+
+  const handleSubmitComment = async () => {
+    if (!user) {
+      alert('עליך להתחבר כדי לכתוב ביקורת');
+      return;
+    }
+    
+    if (userRating > 0 && commentText.trim() && service.id) {
+      setIsSubmittingComment(true);
+      
+      try {
+        const result = await submitComment({
+          adId: service.id,
+          adTitle: service.name,
+          userName: user.displayName || user.email?.split('@')[0] || 'משתמש',
+          userEmail: user.email || '',
+          content: commentText.trim(),
+          rating: userRating
+        });
+
+        if (result.success) {
+          // Reset form
+          setUserRating(0);
+          setCommentText('');
+          setShowCommentForm(false);
+          
+          // Reload comments to show the new one
+          await loadComments();
+          
+          alert('תגובתך נשלחה בהצלחה!');
+        } else {
+          alert('שגיאה בשליחת התגובה. אנא נסה שוב.');
+        }
+      } catch (error) {
+        console.error('Error submitting comment:', error);
+        alert('שגיאה בשליחת התגובה. אנא נסה שוב.');
+      } finally {
+        setIsSubmittingComment(false);
+      }
+    } else {
+      alert('אנא מלא את כל השדות הנדרשים');
+    }
   };
 
   return (
@@ -82,19 +153,27 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         )}
       >
         <div className="flex">
-          {/* Service name and tags */}
+          {/* Service name, description preview and tags */}
           <div className="flex w-2/3 flex-col justify-between rounded-2xl p-4">
             <div className="text-lg font-bold">{service.name}</div>
-            <div className="my-1 flex flex-wrap gap-2">
-              {service.tags.map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="bg-primary rounded-full px-2 py-1 text-xs text-white"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            {/* Description preview */}
+            {service.description && service.description.trim() !== '' && (
+              <div className="my-2 text-sm text-gray-600 line-clamp-2">
+                {service.description}
+              </div>
+            )}
+            {service.tags && service.tags.length > 0 && (
+              <div className="my-1 flex flex-wrap gap-2">
+                {service.tags.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="bg-primary rounded-full px-2 py-1 text-xs text-white"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Service image */}
@@ -115,34 +194,26 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           <div className="mx-4 mt-4 flex-1 overflow-x-hidden overflow-y-auto rounded-t-[10px]">
             <DrawerHeader className="ltr:text-left rtl:text-right">
               <DrawerTitle className="text-3xl">
-                <div className="flex items-center justify-between">
-                  {service.name}
-                  <Star
-                    size={24}
-                    className="cursor-pointer hover:text-orange-400"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const target = e.currentTarget;
-                      target.classList.toggle('fill-orange-400');
-                      target.classList.toggle('text-orange-400');
-                    }}
-                  />
-                </div>
+                {service.name}
               </DrawerTitle>
-              <DrawerDescription className="text-base">
-                {service.description}
-              </DrawerDescription>
+              {service.description && service.description.trim() !== '' && (
+                <DrawerDescription className="text-base">
+                  {service.description}
+                </DrawerDescription>
+              )}
               {/* Tags */}
-              <div className="mt-3 flex flex-wrap gap-2">
-                {service.tags.map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-primary rounded-full px-2 py-1 text-xs text-white"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              {service.tags && service.tags.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {service.tags.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-primary rounded-full px-2 py-1 text-xs text-white"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </DrawerHeader>
             {/* Service photo */}
             <div className="mt-3">
@@ -152,31 +223,132 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                 className="h-48 w-full rounded-md object-cover"
               />
             </div>
+            
+            {/* Contact Information */}
+            <div className="mt-4 space-y-2">
+              <h4 className="font-semibold">פרטי התקשרות</h4>
+              {service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null' && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone size={16} className="text-gray-500" />
+                  <span>{service.phone}</span>
+                </div>
+              )}
+              {(service.address || service.location) && (
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin size={16} className="text-gray-500" />
+                  <span>{service.address || service.location}</span>
+                </div>
+              )}
+            </div>
             {/* Google Reviews */}
             <div className="mt-5">
-              <h3 className="text-xl font-bold">ביקורות Google</h3>
-              {googleReviewsMock.map((review, idx) => (
-                <div key={idx} className="mt-2 border-b border-gray-200 p-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold">{review.author}</span>
-                    <span className="ml-2 flex items-center gap-1 text-sm text-gray-600">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={
-                            i < review.rating
-                              ? 'fill-orange-400 text-orange-400'
-                              : 'fill-gray-400 text-gray-400'
-                          }
-                        />
-                      ))}
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold">ביקורות Google</h3>
+                {user ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCommentForm(!showCommentForm)}
+                  >
+                    הוסף ביקורת
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => alert('עליך להתחבר כדי לכתוב ביקורת')}
+                  >
+                    הוסף ביקורת
+                  </Button>
+                )}
+              </div>
+              
+              {/* Comment Form */}
+              {showCommentForm && (
+                <div className="mt-4 rounded-lg border p-4 bg-gray-50">
+                  <h4 className="font-semibold mb-3">הוסף ביקורת חדשה</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <Label>דירוג</Label>
+                      <div className="flex gap-1 mt-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            size={20}
+                            className={cn(
+                              'cursor-pointer transition-colors',
+                              star <= userRating
+                                ? 'fill-orange-400 text-orange-400'
+                                : 'text-gray-300 hover:text-orange-300'
+                            )}
+                            onClick={() => handleStarClick(star)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="comment">תגובה</Label>
+                      <Textarea
+                        id="comment"
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="שתף את החוויה שלך..."
+                        rows={3}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleSubmitComment} size="sm" disabled={isSubmittingComment}>
+                        <Send size={16} className="mr-2" />
+                        {isSubmittingComment ? 'שולח...' : 'שלח'}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setShowCommentForm(false)}
+                      >
+                        ביטול
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {isLoadingComments ? (
+                <div className="mt-4 text-center py-4 text-gray-500">
+                  <p>טוען ביקורות...</p>
+                </div>
+              ) : comments.length > 0 ? (
+                comments.map((comment) => (
+                  <div key={comment.id} className="mt-2 border-b border-gray-200 p-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{comment.userName}</span>
+                      <span className="ml-2 flex items-center gap-1 text-sm text-gray-600">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            className={
+                              i < comment.rating
+                                ? 'fill-orange-400 text-orange-400'
+                                : 'fill-gray-400 text-gray-400'
+                            }
+                          />
+                        ))}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">{comment.content}</p>
+                    <span className="text-xs text-gray-400">
+                      {comment.createdAt.toLocaleDateString('he-IL')}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">{review.text}</p>
-                  <span className="text-xs text-gray-400">{review.date}</span>
+                ))
+              ) : (
+                <div className="mt-4 text-center py-4 text-gray-500">
+                  <p>אין עדיין ביקורות עבור השירות הזה</p>
+                  <p className="text-sm">היה הראשון לכתוב ביקורת!</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
           {/* Sticky footer */}
@@ -196,6 +368,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                 <Button
                   variant="ghost"
                   className="focus:bg-primary flex items-center gap-2 transition-colors focus:text-white focus:outline-none"
+                  onClick={() => {
+                    if (service.address) {
+                      const encodedAddress = encodeURIComponent(service.address);
+                      window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                    } else {
+                      alert('כתובת לא זמינה');
+                    }
+                  }}
                 >
                   <MapPin size={16} />
                   ניווט
@@ -204,20 +384,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                   orientation="vertical"
                   className="w-[1px] bg-gray-300"
                 />
+
                 <Button
                   variant="ghost"
                   className="focus:bg-primary flex items-center gap-2 transition-colors focus:text-white focus:outline-none"
-                >
-                  <Star size={16} />
-                  דירוג
-                </Button>
-                <Separator
-                  orientation="vertical"
-                  className="w-[1px] bg-gray-300"
-                />
-                <Button
-                  variant="ghost"
-                  className="focus:bg-primary flex items-center gap-2 transition-colors focus:text-white focus:outline-none"
+                  onClick={() => {
+                    if (service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null') {
+                      window.open(`tel:${service.phone}`, '_self');
+                    } else {
+                      alert('מספר טלפון לא זמין');
+                    }
+                  }}
                 >
                   <Phone size={16} />
                   התקשר

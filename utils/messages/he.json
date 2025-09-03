@@ -448,13 +448,17 @@
         "email": "אימייל",
         "address": "כתובת",
         "private": "פרטי",
-        "type": "סוג"
+        "type": "סוג",
+        "phone": "טלפון",
+        "owner": "בעלים",
+        "contactDetails": "פרטי התקשרות"
       },
       "sections": {
         "basicInformation": "מידע בסיסי",
         "description": "תיאור",
         "timeline": "ציר זמן",
-        "share": "שתף פרופיל חיית מחמד"
+        "share": "שתף פרופיל חיית מחמד",
+        "createYourOwn": "צור את שלך"
       },
       "actions": {
         "editPet": "ערוך חיית מחמד",
@@ -462,17 +466,21 @@
         "deletePet": "מחק חיית מחמד",
         "deleting": "מוחק...",
         "copyLink": "העתק קישור",
-        "share": "שתף"
+        "share": "שתף",
+        "createProfile": "צור פרופיל"
       },
       "messages": {
         "profileCreated": "הפרופיל נוצר",
         "lastUpdated": "עודכן לאחרונה",
         "shareDescription": "שתף פרופיל זה עם אחרים",
+        "shareText": "הכירו את הפרופיל של {name}! {url}",
         "deleteConfirm": "הסר לצמיתות את הפרופיל של {petName}",
         "petDeleted": "חיית המחמד נמחקה בהצלחה",
         "deleteFailed": "מחיקת חיית המחמד נכשלה",
         "linkCopied": "הקישור הועתק ללוח!",
-        "copyFailed": "העתקת הקישור נכשלה"
+        "copyFailed": "העתקת הקישור נכשלה",
+        "publicView": "תצוגה ציבורית",
+        "createProfileDescription": "צרו פרופיל דיגיטלי לחיית המחמד שלכם כדי לשמור עליה בטוחה ומחוברת."
       },
       "popup": {
         "title": "קיבלת מתנה חדשה!",
