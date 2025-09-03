@@ -19,6 +19,7 @@ export interface SimplePet {
   name: string;
   type: string;
   breedName: string;
+  breedId?: string;
   imageUrl: string;
   description?: string;
   age?: string;
@@ -71,7 +72,7 @@ export async function createPetInFirestore(
 /**
  * Get breed name from breedId
  */
-import { getBreedNameFromId } from './breed-utils';
+import { getBreedNameFromId, getBreedIdFromName } from './breed-utils';
 
 async function getBreedName(breedId: string): Promise<string> {
   return getBreedNameFromId(breedId);
@@ -191,10 +192,15 @@ export async function getPetById(
     if (petSnap.exists()) {
       const data = petSnap.data();
       
-      // Resolve breed name if breedId is provided instead of breedName
+      // Resolve breed name and ID
       let breedName = data.breedName;
+      let breedId = data.breedId;
+      
       if (!breedName && data.breedId) {
         breedName = await getBreedName(data.breedId);
+      } else if (breedName && !breedId) {
+        // If we have breed name but no ID, find the ID
+        breedId = getBreedIdFromName(breedName);
       }
       
       // Resolve gender name if genderId is provided instead of gender
@@ -230,6 +236,7 @@ export async function getPetById(
         name: data.name,
         type: data.type || 'Dog', // Default to Dog if type is not set
         breedName: breedName || 'Unknown Breed',
+        breedId: breedId,
         imageUrl: data.imageUrl,
         description: data.description,
         age: age,

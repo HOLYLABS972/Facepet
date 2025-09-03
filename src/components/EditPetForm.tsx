@@ -61,7 +61,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
   const [formData, setFormData] = useState<PetFormData>({
     name: pet.name || '',
     type: pet.type || '',
-    breed: pet.breed || '',
+    breed: (pet as any).breedId || pet.breed || '',
     image: null,
     imageUrl: pet.imageUrl || '',
     description: pet.description || '',
