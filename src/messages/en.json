@@ -364,6 +364,28 @@
       "verificationCodeSent": "Verification code sent! Please check your email.",
       "loading": "Loading..."
     },
+    "ForgotPasswordPage": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email address to receive a password reset link.",
+      "sending": "Sending...",
+      "sendResetLink": "Send Reset Link",
+      "backToSignIn": "Back to Sign In",
+      "form": {
+        "email": "Email Address",
+        "emailPlaceholder": "Enter your email address",
+        "resendText": "Didn't receive the code?",
+        "resendLink": "Resend"
+      },
+      "errors": {
+        "emailRequired": "Please enter your email address",
+        "userNotFound": "No account found with this email address",
+        "invalidEmail": "Please enter a valid email address",
+        "generalError": "An error occurred. Please try again."
+      },
+      "messages": {
+        "resetLinkSent": "Password reset link sent to your email"
+      }
+    },
     "UserSettingsPage": {
       "back": "Back",
       "title": "Settings",
@@ -424,7 +446,7 @@
         "form": {
           "phoneLabel": "Phone Number",
           "phonePlaceholder": "Enter your phone number",
-          "countryCodeNote": "Include country code (e.g., +1 for US, +972 for Israel)"
+          "countryCodeNote": "Country code is automatically included - just enter your number"
         },
         "buttons": {
           "cancel": "Cancel",

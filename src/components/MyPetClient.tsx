@@ -407,15 +407,17 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
 
 
       {/* Floating Add Button */}
-      <div className="fixed bottom-6 right-6 z-80">
-        <Button
-          onClick={() => router.push('/add-pet')}
-          className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
-          size="icon"
-        >
-          <Plus className="h-6 w-6 text-white" />
-        </Button>
-      </div>
+      {!showPhoneBottomSheet && !showPetBottomSheet && (
+        <div className="fixed bottom-6 right-6 z-80">
+          <Button
+            onClick={() => router.push('/add-pet')}
+            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
+            size="icon"
+          >
+            <Plus className="h-6 w-6 text-white" />
+          </Button>
+        </div>
+      )}
 
       {/* Bottom Sheets */}
       <PhoneNumberBottomSheet

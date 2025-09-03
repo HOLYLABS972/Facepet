@@ -41,7 +41,7 @@ const GetStartedPhoneInput: React.ForwardRefExoticComponent<GetStartedPhoneInput
       <div>
         <RPNInput.default
           ref={ref}
-          className={cn('flex flex-row-reverse', className)}
+          className={cn('flex rtl:flex-row-reverse', className)}
           flagComponent={FlagComponent}
           countrySelectComponent={CountrySelect}
           inputComponent={InputComponent}
@@ -103,7 +103,7 @@ const CountrySelect = ({
         <Button
           type="button"
           variant="outline"
-          className="border-r-none hover:ring-ring h-10 gap-1 rounded-s-none rounded-e border-gray-300 bg-white px-3 hover:bg-white hover:ring-1 hover:outline-hidden focus:z-10"
+          className="border-r-none hover:ring-ring h-10 gap-1 rounded-s-none rounded-e border-gray-300 bg-white px-3 hover:bg-white hover:ring-1 hover:outline-hidden focus:z-10 rtl:border-l-none rtl:border-r-1 rtl:rounded-s rtl:rounded-e-none"
           disabled={disabled}
         >
           <ChevronsUpDown

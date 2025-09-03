@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/ca
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 
 export default function ResetPasswordSentPage() {
-  const t = useTranslations('ResetPasswordSentPage');
+  const t = useTranslations('pages.ResetPasswordSentPage');
   const router = useRouter();
 
   return (
@@ -40,28 +40,15 @@ export default function ResetPasswordSentPage() {
               <div className="flex justify-center mb-4">
                 <Mail className="h-12 w-12 text-gray-400" />
               </div>
-              <p className="text-sm text-gray-600 mb-4">
-                {t('checkSpam')}
-              </p>
-              <p className="text-xs text-gray-500">
-                {t('expiry')}
-              </p>
+
             </div>
 
             <div className="space-y-3">
               <Button
-                onClick={() => router.push('/auth/sign-in')}
+                onClick={() => router.push('/auth')}
                 className="w-full"
               >
                 {t('backToSignIn')}
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => router.push('/auth/forgot')}
-                className="w-full"
-              >
-                {t('resendEmail')}
               </Button>
             </div>
           </CardContent>

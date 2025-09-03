@@ -97,7 +97,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
 
   body {
@@ -108,11 +108,82 @@
   }
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* Phone input styles */
+.phone-input .PhoneInputCountrySelect {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 80px !important;
+  padding: 8px 12px !important;
+  border-right: 1px solid #d1d5db !important;
+  background: #f9fafb !important;
+}
+
+.phone-input .PhoneInputCountrySelect select {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.phone-input .PhoneInputCountryIcon {
+  display: block !important;
+  width: 20px !important;
+  height: 15px !important;
+  margin-right: 6px !important;
+}
+
+.phone-input .PhoneInputCountrySelectArrow {
+  opacity: 1 !important;
+  color: #6b7280 !important;
+  margin-left: 4px !important;
+  font-size: 12px !important;
+}
+
+.phone-input .PhoneInputInput {
+  flex: 1 !important;
+  border: none !important;
+  outline: none !important;
+  padding: 8px 12px !important;
+  background: white !important;
+  font-size: 16px !important;
+}
+
+.phone-input .PhoneInput {
+  display: flex !important;
+  align-items: center !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  background: white !important;
+  overflow: hidden !important;
+}
+
+.phone-input .PhoneInput:focus-within {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+/* RTL support for phone input */
+[dir="rtl"] .phone-input .PhoneInputCountrySelect {
+  border-right: none !important;
+  border-left: 1px solid #d1d5db !important;
+}
+
+[dir="rtl"] .phone-input .PhoneInputCountryIcon {
+  margin-right: 0 !important;
+  margin-left: 6px !important;
+}
+
+[dir="rtl"] .phone-input .PhoneInputCountrySelectArrow {
+  margin-left: 0 !important;
+  margin-right: 4px !important;
+}
+
+[dir="rtl"] .phone-input .PhoneInputCountrySelect select {
+  text-align: right !important;
 }

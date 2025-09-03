@@ -105,5 +105,9 @@ module.exports = {
       });
     })
   ],
-  darkMode: ['class']
+  darkMode: ['class'],
+  // Enable RTL support
+  corePlugins: {
+    // Enable RTL support for all plugins
+  }
 };

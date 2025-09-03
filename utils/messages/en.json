@@ -219,7 +219,7 @@
         "form": {
           "phoneLabel": "Phone Number",
           "phonePlaceholder": "Enter your phone number",
-          "countryCodeNote": "Include country code (e.g., +1 for US, +972 for Israel)"
+          "countryCodeNote": "Country code is automatically included - just enter your number"
         },
         "buttons": {
           "cancel": "Cancel",
@@ -377,10 +377,7 @@
     "ResetPasswordSentPage": {
       "title": "Reset Password Sent",
       "subtitle": "We've sent you an email with a password reset link. Please check your inbox.",
-      "backToSignIn": "Back to Sign In",
-      "resendEmail": "Resend Email",
-      "checkSpam": "Don't see the email? Check your spam folder.",
-      "expiry": "The reset link will expire in 1 hour for security reasons."
+      "backToSignIn": "Back to Sign In"
     },
     "DonePage": {
       "title": "Hip, hip, hooray!",

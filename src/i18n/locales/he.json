@@ -290,6 +290,28 @@
       "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם.",
       "loading": "טוען..."
     },
+    "ForgotPasswordPage": {
+      "title": "שכחת סיסמה",
+      "subtitle": "הזן את כתובת הדוא\"ל שלך לקבלת קישור לאיפוס הסיסמה.",
+      "sending": "שולח...",
+      "sendResetLink": "שלח קישור איפוס",
+      "backToSignIn": "חזור להתחברות",
+      "form": {
+        "email": "כתובת דוא\"ל",
+        "emailPlaceholder": "הזן את כתובת הדוא\"ל שלך",
+        "resendText": "עדייו לא קיבלת את הקוד?",
+        "resendLink": "שלח מחדש"
+      },
+      "errors": {
+        "emailRequired": "אנא הזן את כתובת הדוא\"ל שלך",
+        "userNotFound": "לא נמצא חשבון עם כתובת דוא\"ל זו",
+        "invalidEmail": "אנא הזן כתובת דוא\"ל תקינה",
+        "generalError": "אירעה שגיאה. אנא נסה שוב."
+      },
+      "messages": {
+        "resetLinkSent": "קישור לאיפוס הסיסמה נשלח לדוא\"ל שלך"
+      }
+    },
     "Admin": {
       "dashboard": "לוח בקרה של מנהל",
       "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
@@ -390,6 +412,26 @@
       "saveChanges": "שמור שינויים",
       "loading": "טוען...",
       "uploading": "מעלה..."
+    },
+    "addPhoneNumber": "הוסף מספר טלפון",
+    "phoneNumberDescription": "קבל את הניוזלטר שלנו עם טיפים ועדכונים לטיפול בחיות מחמד!",
+    "phoneNumberBottomSheet": {
+      "form": {
+        "phoneLabel": "מספר טלפון",
+        "phonePlaceholder": "הזן את מספר הטלפון שלך",
+        "countryCodeNote": "קוד המדינה כלול אוטומטית - פשוט הזן את המספר שלך"
+      },
+      "buttons": {
+        "cancel": "ביטול",
+        "addPhone": "הוסף טלפון",
+        "adding": "מוסיף..."
+      },
+      "success": "מספר הטלפון נוסף בהצלחה!",
+      "errors": {
+        "phoneRequired": "מספר הטלפון נדרש",
+        "phoneInvalid": "מספר הטלפון לא תקין",
+        "addFailed": "נכשל בהוספת מספר הטלפון"
+      }
     }
   }
 }

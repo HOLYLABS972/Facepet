@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Phone, Check } from 'lucide-react';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Label } from './ui/label';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { updateUserInFirestore } from '@/src/lib/firebase/users';
+import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 interface PhoneNumberBottomSheetProps {
   isOpen: boolean;
@@ -40,9 +42,8 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
       return;
     }
 
-    // Basic phone number validation
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    if (!phoneRegex.test(phoneNumber.replace(/[\s\-\(\)]/g, ''))) {
+    // Validate phone number using libphonenumber-js
+    if (!isValidPhoneNumber(phoneNumber)) {
       toast.error(t('phoneNumberBottomSheet.errors.phoneInvalid'));
       return;
     }
@@ -82,10 +83,16 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
     }
   };
 
+
+
+
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
+
+          
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -134,18 +141,26 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
             <form onSubmit={handleSubmit} className="px-6 pb-8">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">{t('phoneNumberBottomSheet.form.phoneLabel')}</Label>
-                  <Input
+                  <Label htmlFor="phone" className="rtl:text-right">{t('phoneNumberBottomSheet.form.phoneLabel')}</Label>
+                  <PhoneInput
                     id="phone"
-                    type="tel"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(value) => setPhoneNumber(value || '')}
                     placeholder={t('phoneNumberBottomSheet.form.phonePlaceholder')}
                     disabled={isSubmitting}
-                    className="text-lg"
-                    autoFocus
+                    defaultCountry="IL"
+                    className="phone-input"
+                    international
+                    countryCallingCodeEditable={false}
+                    style={{
+                      '--PhoneInput-color--focus': '#3b82f6',
+                      '--PhoneInputCountrySelect-marginRight': '0.5rem',
+                      '--PhoneInputCountrySelect-marginLeft': '0.5rem',
+                      '--PhoneInputCountrySelectArrow-opacity': '1',
+                      '--PhoneInputCountrySelectArrow-color': '#6b7280',
+                    } as React.CSSProperties}
                   />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 mt-2 rtl:text-right">
                     {t('phoneNumberBottomSheet.form.countryCodeNote')}
                   </p>
                 </div>
@@ -154,16 +169,16 @@ const PhoneNumberBottomSheet: React.FC<PhoneNumberBottomSheetProps> = ({
                   <Button
                     type="submit"
                     disabled={isSubmitting || !phoneNumber.trim()}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700 rtl:flex-row-reverse"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 rtl:mr-0 rtl:ml-2" />
                         {t('phoneNumberBottomSheet.buttons.adding')}
                       </>
                     ) : (
                       <>
-                        <Check className="h-4 w-4 mr-2" />
+                        <Check className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                         {t('phoneNumberBottomSheet.buttons.addPhone')}
                       </>
                     )}

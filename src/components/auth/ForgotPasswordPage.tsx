@@ -13,7 +13,7 @@ import { auth } from '@/src/lib/firebase/config';
 import toast from 'react-hot-toast';
 
 export default function ForgotPasswordPage() {
-  const t = useTranslations('ForgotPasswordPage');
+  const t = useTranslations('pages.ForgotPasswordPage');
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -55,25 +55,25 @@ export default function ForgotPasswordPage() {
               variant="ghost"
               size="sm"
               onClick={() => router.back()}
-              className="absolute left-0 top-1/2 -translate-y-1/2"
+              className="absolute left-0 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-0"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
             </Button>
-            <CardTitle className="text-2xl font-bold text-gray-800">
+            <CardTitle className="text-2xl font-bold text-gray-800 rtl:text-right">
               {t('title')}
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 mt-2 rtl:text-right">
               {t('subtitle')}
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700 rtl:text-right">
                   {t('form.email')}
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 rtl:left-auto rtl:right-3" />
                   <Input
                     id="email"
                     type="email"
@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t('form.emailPlaceholder')}
                     required
-                    className="pl-10"
+                    className="pl-10 rtl:pl-3 rtl:pr-10 rtl:text-right"
                   />
                 </div>
               </div>
@@ -98,8 +98,8 @@ export default function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <Button
                 variant="ghost"
-                onClick={() => router.push('/auth/sign-in')}
-                className="text-sm"
+                onClick={() => router.push('/auth')}
+                className="text-sm rtl:text-right"
               >
                 {t('backToSignIn')}
               </Button>

@@ -128,10 +128,14 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
         }
       }
 
+      // Get breed name from breed ID
+      const breeds = getBreedsForType(formData.type as PetType);
+      const selectedBreed = breeds.find(breed => breed.id === formData.breed);
+      
       const petData = {
         name: formData.name,
         type: formData.type,
-        breedName: formData.breed,
+        breedName: selectedBreed ? selectedBreed.name : formData.breed,
         imageUrl,
         description: formData.description,
         age: formData.age,
