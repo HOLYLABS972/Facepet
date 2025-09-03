@@ -7,7 +7,7 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
-import { ArrowLeft, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/src/lib/firebase/config';
 import toast from 'react-hot-toast';
@@ -50,15 +50,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <Card className="shadow-lg">
-          <CardHeader className="text-center relative">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="absolute left-0 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-0"
-            >
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
-            </Button>
+          <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-gray-800 rtl:text-right">
               {t('title')}
             </CardTitle>

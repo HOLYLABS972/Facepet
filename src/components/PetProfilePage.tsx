@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, List, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, List, Loader2, Users } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -143,23 +143,35 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.back()}
-                className="p-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-xl font-bold">{pet.name}</h1>
-                <p className="text-sm text-gray-600">{t('subtitle')}</p>
-                {!user && (
-                  <p className="text-xs text-blue-600 mt-1">
-                    {t('messages.publicView')}
-                  </p>
-                )}
-              </div>
+              {!user ? (
+                <div className="flex items-center space-x-2">
+                  <div className="text-primary font-['Lobster'] text-2xl font-bold">
+                    FacePet
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Powered by NFC technology
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.back()}
+                  className="p-2"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              )}
+            </div>
+            
+            <div className="text-right">
+              <h1 className="text-xl font-bold">{pet.name}</h1>
+              <p className="text-sm text-gray-600">{t('subtitle')}</p>
+              {!user && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {t('messages.publicView')}
+                </p>
+              )}
             </div>
             
             {isOwner && (
@@ -304,8 +316,8 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Phone className="w-5 h-5 text-green-500" />
-                      <span>{t('labels.contactDetails')}</span>
+                      <Users className="w-5 h-5 text-black" />
+                      <span className="text-black">{t('labels.contactDetails')}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -464,20 +476,20 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.9 }}
               >
-                <Card className="border-blue-200 bg-blue-50">
+                <Card className="border-gray-200 bg-gray-50">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2 text-blue-800">
-                      <Heart className="w-5 h-5 text-blue-600" />
+                    <CardTitle className="flex items-center space-x-2 text-gray-800">
+                      <Heart className="w-5 h-5 text-gray-600" />
                       <span>{t('sections.createYourOwn')}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <p className="text-sm text-blue-700">
+                    <p className="text-sm text-gray-700">
                       {t('messages.createProfileDescription')}
                     </p>
                     <Button
                       onClick={() => router.push('/auth')}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      className="w-full bg-gray-600 hover:bg-gray-700 text-white"
                     >
                       {t('actions.createProfile')}
                     </Button>
