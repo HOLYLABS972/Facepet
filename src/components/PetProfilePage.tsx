@@ -322,7 +322,7 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                       <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                         <Mail className="w-5 h-5 text-blue-600" />
                         <div>
-                          <p className="font-medium text-blue-800">בעלים</p>
+                          <p className="font-medium text-blue-800">{t('labels.owner')}</p>
                           <p className="text-sm text-blue-600">
                             {owner.displayName || owner.fullName}
                           </p>
@@ -476,7 +476,7 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                       {t('messages.createProfileDescription')}
                     </p>
                     <Button
-                      onClick={() => router.push('/auth/signup')}
+                      onClick={() => router.push('/auth')}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       {t('actions.createProfile')}
