@@ -288,6 +288,45 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
         </div>
       </div>
 
+      {/* My Pets Header */}
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold">{t('title')}</h2>
+      </div>
+
+      <Separator className="mb-4 h-0.5" />
+
+      {/* Pet Cards */}
+      {petsLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2 text-gray-600">{t('loadingPets')}</span>
+        </div>
+      ) : filteredPets.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-600 mb-4">{t('noResults')}</p>
+          <p className="text-sm text-gray-500">
+            {t('addFirstPet')}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {filteredPets.map((pet) => (
+            <MyPetCard
+              key={pet.id}
+              id={pet.id}
+              name={pet.name}
+              breed={pet.breed}
+              image={pet.image}
+              type={pet.type}
+              onTap={handlePetTap}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 50px spacing after pets */}
+      <div style={{ height: '50px' }}></div>
+
       {/* Notifications Section */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -365,41 +404,7 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
 
       </div>
 
-      {/* My Pets Header */}
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold">{t('title')}</h2>
-      </div>
 
-      <Separator className="mb-4 h-0.5" />
-
-      {/* Pet Cards */}
-      {petsLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="ml-2 text-gray-600">{t('loadingPets')}</span>
-        </div>
-      ) : filteredPets.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">{t('noResults')}</p>
-          <p className="text-sm text-gray-500">
-            {t('addFirstPet')}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {filteredPets.map((pet) => (
-            <MyPetCard
-              key={pet.id}
-              id={pet.id}
-              name={pet.name}
-              breed={pet.breed}
-              image={pet.image}
-              type={pet.type}
-              onTap={handlePetTap}
-            />
-          ))}
-        </div>
-      )}
 
       {/* Floating Add Button */}
       <div className="fixed bottom-6 right-6 z-80">
