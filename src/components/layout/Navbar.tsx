@@ -82,11 +82,11 @@ const Navbar = () => {
       console.log('Firebase logout...', { user });
       await signOut();
       console.log('Firebase logout completed, redirecting to landing page...');
-      window.location.href = '/';
+      router.replace('/');
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback: force redirect even if signOut fails
-      window.location.href = '/';
+      router.replace('/');
     }
   };
 
