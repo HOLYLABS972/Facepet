@@ -12,7 +12,8 @@ import {
   Stethoscope,
   UserRoundPlus,
   X,
-  LayoutDashboard
+  LayoutDashboard,
+  Mail
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -194,7 +195,13 @@ const Navbar = () => {
                       <DropdownMenuItem asChild>
                         <Link href="/services" className="flex items-center">
                           <Stethoscope className="mr-2 h-4 w-4" />
-                          <span>Services</span>
+                          <span>{t('services')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/contact" className="flex items-center">
+                          <Mail className="mr-2 h-4 w-4" />
+                          <span>{t('contact')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
