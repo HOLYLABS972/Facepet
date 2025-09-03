@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, List, Loader2, Users } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, Loader2, Users } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -10,12 +10,7 @@ import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
 
@@ -185,19 +180,15 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                   <Wifi className="h-4 w-4" />
                   <span>{t('actions.attachTag')}</span>
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-2">
-                      <List className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      {t('actions.editPet')}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push(`/pet/${pet.id}/edit`)}
+                  className="flex items-center space-x-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>{t('actions.editPet')}</span>
+                </Button>
               </div>
             )}
           </div>
