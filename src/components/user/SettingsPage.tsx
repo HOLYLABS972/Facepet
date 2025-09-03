@@ -602,21 +602,20 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Delete Account Button */}
-        <div className="mb-6">
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center gap-4">
+          {/* Delete Account Button */}
           <Button
             variant="outline"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={deletingAccount}
-            className="w-full border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400"
+            className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {deletingAccount ? t('deleteAccount.deleting') : t('deleteAccount.button')}
           </Button>
-        </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end">
+          {/* Save Button */}
           <Button
             onClick={handleSave}
             disabled={saving}
