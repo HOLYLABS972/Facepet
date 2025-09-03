@@ -68,17 +68,19 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         <div className="flex h-full flex-col justify-between p-4">
           <div className="flex items-start justify-between">
             <div className="text-lg font-bold">{name}</div>
+          </div>
+          <div className="flex flex-col">
+            <div className="text-sm text-gray-600">{breed}</div>
             {type && (
-              <span className="inline-flex rounded-full px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800 ml-2">
+              <span className="inline-flex rounded-full px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800 w-fit mt-1">
                 {type}
               </span>
             )}
           </div>
-          <div className="text-sm text-gray-600">{breed}</div>
         </div>
 
         {/* Call-to-Action Arrow Overlay */}
-        <div className="absolute top-0 bottom-0 z-20 flex items-end justify-center pb-4 ltr:right-0 rtl:left-0" style={{ marginRight: '30px' }}>
+        <div className="absolute top-0 bottom-0 z-20 flex items-center justify-center ltr:right-0 rtl:left-0" style={{ marginRight: '30px' }}>
           <ArrowRight className="h-4 w-4 stroke-gray-600 rtl:rotate-180" />
         </div>
       </motion.div>
