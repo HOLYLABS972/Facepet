@@ -12,9 +12,12 @@ import Footer from '@/src/components/layout/Footer';
 import { useTranslations } from 'next-intl';
 import { createContactSubmission } from '@/src/lib/firebase/contact';
 import { getContactInfo } from '@/lib/actions/admin';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { getUserFromFirestore } from '@/src/lib/firebase/users';
 
 export default function ContactPage() {
   const t = useTranslations('pages.ContactPage');
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -57,6 +60,45 @@ export default function ContactPage() {
 
     fetchContactInfo();
   }, []);
+
+  // Prefill form with user data if authenticated
+  useEffect(() => {
+    if (user) {
+      const loadUserData = async () => {
+        try {
+          // Try to get user data from Firestore first
+          const userResult = await getUserFromFirestore(user.uid);
+          
+          if (userResult.success && userResult.user) {
+            // Use Firestore data if available
+            setFormData(prev => ({
+              ...prev,
+              name: user.displayName || userResult.user?.displayName || '',
+              email: user.email || '',
+              phone: userResult.user?.phone || ''
+            }));
+          } else {
+            // Fallback to Firebase Auth data
+            setFormData(prev => ({
+              ...prev,
+              name: user.displayName || '',
+              email: user.email || ''
+            }));
+          }
+        } catch (error) {
+          console.error('Error loading user data for contact form:', error);
+          // Fallback to basic data
+          setFormData(prev => ({
+            ...prev,
+            name: user.displayName || '',
+            email: user.email || ''
+          }));
+        }
+      };
+
+      loadUserData();
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

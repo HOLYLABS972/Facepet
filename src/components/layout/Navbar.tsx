@@ -93,10 +93,10 @@ const Navbar = () => {
 
   const publicPages: NavLink[] = [
     {
-      label: t('services'),
-      key: 'services',
-      path: '/services',
-      icon: <Stethoscope className="h-5 w-5" />
+      label: t('contact'),
+      key: 'contact',
+      path: '/contact',
+      icon: <Mail className="h-5 w-5" />
     },
     {
       label: t('signIn'),
@@ -118,6 +118,12 @@ const Navbar = () => {
       key: 'services',
       path: '/services',
       icon: <Stethoscope className="h-5 w-5" />
+    },
+    {
+      label: t('contact'),
+      key: 'contact',
+      path: '/contact',
+      icon: <Mail className="h-5 w-5" />
     }
   ];
 
@@ -185,6 +191,12 @@ const Navbar = () => {
                           <span>Profile</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/services" className="flex items-center">
+                          <Stethoscope className="mr-2 h-4 w-4" />
+                          <span>{t('services')}</span>
+                        </Link>
+                      </DropdownMenuItem>
                       {(userRole === 'admin' || userRole === 'super_admin') && (
                         <DropdownMenuItem asChild>
                           <Link href="/admin" className="flex items-center">
@@ -193,12 +205,6 @@ const Navbar = () => {
                           </Link>
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem asChild>
-                        <Link href="/services" className="flex items-center">
-                          <Stethoscope className="mr-2 h-4 w-4" />
-                          <span>{t('services')}</span>
-                        </Link>
-                      </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/contact" className="flex items-center">
                           <Mail className="mr-2 h-4 w-4" />
@@ -215,6 +221,12 @@ const Navbar = () => {
                 </>
               ) : (
                 <div className="flex items-center gap-2">
+                  <Link href="/contact">
+                    <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
+                      <Mail className="h-4 w-4 mr-2" />
+                      {t('contact')}
+                    </Button>
+                  </Link>
                   <Link href="/auth">
                     <Button className="bg-primary hover:bg-primary/90 text-white">
                       <LogIn className="h-5 w-5 mr-2" />

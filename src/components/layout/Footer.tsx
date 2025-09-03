@@ -14,6 +14,9 @@ const Footer = () => {
           <div className="flex flex-col items-center gap-4">
             <h3 className="text-sm font-semibold text-gray-700">{t('usefulLinks')}</h3>
             <div className="flex gap-6 text-sm">
+              <Link href="/services" className="hover:text-primary transition-colors">
+                {t('services')}
+              </Link>
               <Link href="/terms" className="hover:text-primary transition-colors">
                 {t('termsOfService')}
               </Link>
