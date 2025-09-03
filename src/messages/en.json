@@ -206,6 +206,7 @@
       "title": "NFC Tag Connection",
       "subtitle": "Create a pet profile for sharing",
       "backButton": "Back",
+      "howToAttach": "How to attach NFC tag:",
       "steps": {
         "prepareTag": {
           "title": "Prepare NFC Tag",
@@ -214,34 +215,12 @@
         "enableNfc": {
           "title": "Enable NFC on Phone",
           "description": "Enable NFC in your phone settings"
-        },
-        "record": {
-          "title": "Tap to Record",
-          "description": "Tap your phone to the NFC tag to record the pet's information"
         }
       },
-      "recordTag": {
-        "title": "Record NFC Tag",
-        "description": "Click the button below and then tap your phone to the NFC tag to record {petName}'s information",
-        "button": {
-          "default": "Record Tag",
-          "recording": "Recording...",
-          "recorded": "Tag Recorded!"
-        },
-        "errors": {
-          "notSupported": "NFC is not supported on this device. Please use a device with NFC capabilities.",
-          "failed": "Failed to write to NFC tag. Please try again.",
-          "unableToGenerateUrl": "Unable to generate share URL",
-          "writeFailed": "Failed to write to NFC tag"
-        },
-        "success": "NFC tag recorded successfully!"
-      },
-      "shareableLink": {
-        "title": "Shareable Link",
-        "description": "Anyone with this link can view {petName}'s profile:",
-        "copied": "Link copied!",
-        "copy": "Copy Link",
-        "share": "Share"
+      "downloadApp": {
+        "title": "Download FacePet App",
+        "description": "To view {petName}'s profile and connect with the owner, download the FacePet app:",
+        "button": "Download App"
       }
     }
   },
@@ -469,6 +448,50 @@
       "title": "Services And Professionals",
       "searchPlaceholder": "Search Services And Professionals...",
       "noResults": "No Services And Professionals found."
+    },
+    "HowItWorks": {
+      "title": "How FacePet Works",
+      "heroTitle": "Pet Safety, Reinvented",
+      "heroDescription": "FacePet uses NFC technology to keep your pets safe and connected. Here's how our innovative system works.",
+      "steps": {
+        "attachChip": {
+          "title": "Attach NFC Chip",
+          "description": "Securely attach the FacePet NFC chip to your pet's collar or harness."
+        },
+        "createProfile": {
+          "title": "Create Pet Profile",
+          "description": "Set up your pet's profile with photos, medical info, and contact details."
+        },
+        "shareCommunity": {
+          "title": "Share with Community",
+          "description": "Anyone can scan the chip to access your pet's information and contact you."
+        },
+        "peaceOfMind": {
+          "title": "Peace of Mind",
+          "description": "Your pet is protected 24/7 with instant access to vital information."
+        }
+      },
+      "whyChoose": {
+        "title": "Why Choose FacePet?",
+        "description": "Our NFC-based system provides instant access to your pet's information, ensuring they're always protected and connected.",
+        "instantId": {
+          "title": "Instant Identification",
+          "description": "Anyone can scan the NFC chip to instantly access your pet's profile and contact information."
+        },
+        "emergencyContact": {
+          "title": "Emergency Contact",
+          "description": "Quick access to owner and veterinarian contact information in emergency situations."
+        },
+        "noSubscriptions": {
+          "title": "No Subscriptions",
+          "description": "One-time purchase for lifetime peace of mind. No monthly fees or recurring costs."
+        }
+      },
+      "cta": {
+        "title": "Ready to Protect Your Pet?",
+        "description": "Join thousands of pet owners who trust FacePet to keep their furry friends safe.",
+        "button": "Get Started Now"
+      }
     }
   }
 }

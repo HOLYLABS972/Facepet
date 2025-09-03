@@ -146,34 +146,12 @@
         "enableNfc": {
           "title": "הפעלת NFC בטלפון",
           "description": "הפעל NFC בהגדרות הטלפון שלך"
-        },
-        "record": {
-          "title": "הקש להקלטה",
-          "description": "הקש את הטלפון שלך לתג ה-NFC כדי להקליט את פרטי חיית המחמד"
         }
       },
-      "recordTag": {
-        "title": "הקלטת תג NFC",
-        "description": "הקש על הכפתור למטה ואז הקש את הטלפון שלך לתג ה-NFC כדי להקליט את המידע של {petName}",
-        "button": {
-          "default": "הקלטת תג",
-          "recording": "מקליט...",
-          "recorded": "התג הוקלט!"
-        },
-        "errors": {
-          "notSupported": "NFC לא נתמך במכשיר זה. אנא השתמש במכשיר עם יכולות NFC.",
-          "failed": "ההקלטה לתג NFC נכשלה. אנא נסה שוב.",
-          "unableToGenerateUrl": "לא ניתן ליצור קישור שיתוף",
-          "writeFailed": "הכתיבה לתג NFC נכשלה"
-        },
-        "success": "תג ה-NFC הוקלט בהצלחה!"
-      },
-      "shareableLink": {
-        "title": "קישור לשיתוף",
-        "description": "כל מי שיש לו קישור זה יכול לצפות בפרופיל של {petName}:",
-        "copied": "הקישור הועתק!",
-        "copy": "העתק קישור",
-        "share": "שתף"
+      "downloadApp": {
+        "title": "הורד את אפליקציית FacePet",
+        "description": "כדי לצפות בפרופיל של {petName} וליצור קשר עם הבעלים, הורד את אפליקציית FacePet:",
+        "button": "הורד אפליקציה"
       }
     }
   },
@@ -276,6 +254,7 @@
       "searchPlaceholder": "חפש שירותים ואנשי מקצוע...",
       "noResults": "לא נמצאו שירותים ואנשי מקצוע."
     },
+
     "ConfirmationPage": {
       "title": "אימות דוא\"ל",
       "subtitle": "אנא הזן את הקוד בן 6 הספרות ששלחנו לכתובת הדוא\"ל שלך",
@@ -371,8 +350,18 @@
       "backToSignIn": "חזור להתחברות",
       "form": {
         "email": "כתובת דוא\"ל",
+        "emailPlaceholder": "הזן את כתובת הדוא\"ל שלך",
         "resendText": "עדייו לא קיבלת את הקוד?",
         "resendLink": "שלח מחדש"
+      },
+      "errors": {
+        "emailRequired": "אנא הזן את כתובת הדוא\"ל שלך",
+        "userNotFound": "לא נמצא חשבון עם כתובת דוא\"ל זו",
+        "invalidEmail": "אנא הזן כתובת דוא\"ל תקינה",
+        "generalError": "אירעה שגיאה. אנא נסה שוב."
+      },
+      "messages": {
+        "resetLinkSent": "קישור לאיפוס הסיסמה נשלח לדוא\"ל שלך"
       }
     },
     "ResetPasswordPage": {
@@ -622,7 +611,6 @@
     },
     "Navbar": {
       "about": "קצת עלינו",
-      "howItWorks": "איך זה עובד?",
       "contact": "טופס יצירת קשר",
       "myPets": "החיות שלי",
       "myFavorites": "המעודפים שלי",
@@ -634,6 +622,7 @@
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",
+      "services": "שירותים",
       "privacyPolicy": "מדיניות פרטיות",
       "termsOfService": "תנאי שימוש",
       "contact": "צור קשר",

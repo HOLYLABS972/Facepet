@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     
     if (!email) {
-      toast.error('Please enter your email address');
+      toast.error(t('errors.emailRequired'));
       return;
     }
 
@@ -30,16 +30,16 @@ export default function ForgotPasswordPage() {
     
     try {
       await sendPasswordResetEmail(auth, email);
-      toast.success('Password reset link sent to your email');
+      toast.success(t('messages.resetLinkSent'));
       router.push('/auth/reset-password-sent');
     } catch (error: any) {
       console.error('Password reset error:', error);
       if (error.code === 'auth/user-not-found') {
-        toast.error('No account found with this email address');
+        toast.error(t('errors.userNotFound'));
       } else if (error.code === 'auth/invalid-email') {
-        toast.error('Please enter a valid email address');
+        toast.error(t('errors.invalidEmail'));
       } else {
-        toast.error('An error occurred. Please try again.');
+        toast.error(t('errors.generalError'));
       }
     } finally {
       setIsLoading(false);
@@ -79,7 +79,7 @@ export default function ForgotPasswordPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
+                    placeholder={t('form.emailPlaceholder')}
                     required
                     className="pl-10"
                   />

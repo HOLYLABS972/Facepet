@@ -178,7 +178,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           </div>
           <div className="hidden w-full items-center justify-center sm:flex">
             <Button
-              onClick={() => router.push('/how-it-works')}
+              onClick={() => router.push('/auth')}
               className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
             >
               {t('buttonLabel')}

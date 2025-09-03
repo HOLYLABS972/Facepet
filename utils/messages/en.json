@@ -146,34 +146,12 @@
         "enableNfc": {
           "title": "Enable NFC on Phone",
           "description": "Enable NFC in your phone settings"
-        },
-        "record": {
-          "title": "Tap to Record",
-          "description": "Tap your phone to the NFC tag to record your pet's details"
         }
       },
-      "recordTag": {
-        "title": "Record NFC Tag",
-        "description": "Tap the button below and then tap your phone to the NFC tag to record {petName}'s information",
-        "button": {
-          "default": "Record Tag",
-          "recording": "Recording...",
-          "recorded": "Tag Recorded!"
-        },
-        "errors": {
-          "notSupported": "NFC is not supported on this device. Please use a device with NFC capabilities.",
-          "failed": "Recording to NFC tag failed. Please try again.",
-          "unableToGenerateUrl": "Unable to generate share link",
-          "writeFailed": "Writing to NFC tag failed"
-        },
-        "success": "NFC tag recorded successfully!"
-      },
-      "shareableLink": {
-        "title": "Shareable Link",
-        "description": "Anyone with this link can view {petName}'s profile:",
-        "copied": "Link copied!",
-        "copy": "Copy Link",
-        "share": "Share"
+      "downloadApp": {
+        "title": "Download FacePet App",
+        "description": "To view {petName}'s profile and connect with the owner, download the FacePet app:",
+        "button": "Download App"
       }
     }
   },
@@ -283,6 +261,7 @@
       "searchPlaceholder": "Search Services And Professionals...",
       "noResults": "No Services And Professionals found."
     },
+
     "SignUpPage": {
       "title": "Sign Up",
       "form": {
@@ -369,8 +348,18 @@
       "backToSignIn": "Back to Sign In",
       "form": {
         "email": "Email Address",
+        "emailPlaceholder": "Enter your email address",
         "resendText": "Didn't receive the code?",
         "resendLink": "Resend"
+      },
+      "errors": {
+        "emailRequired": "Please enter your email address",
+        "userNotFound": "No account found with this email address",
+        "invalidEmail": "Please enter a valid email address",
+        "generalError": "An error occurred. Please try again."
+      },
+      "messages": {
+        "resetLinkSent": "Password reset link sent to your email"
       }
     },
     "ResetPasswordPage": {
@@ -623,7 +612,6 @@
     },
     "Navbar": {
       "about": "About Us",
-      "howItWorks": "How It Works",
       "contact": "Contact Form",
       "myPets": "My Pets",
       "services": "Services and Professionals",

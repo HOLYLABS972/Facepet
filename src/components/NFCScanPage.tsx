@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Wifi, Copy, Check, Smartphone, Tag, Share2 } from 'lucide-react';
+import { ArrowLeft, Smartphone, Tag, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
-import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
 
 interface Pet {
@@ -44,98 +43,24 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
       description: t('steps.enableNfc.description'),
       icon: Smartphone,
     },
-    {
-      id: 3,
-      title: t('steps.record.title'),
-      description: t('steps.record.description'),
-      icon: Wifi,
-    },
   ];
   const router = useRouter();
-  const [isRecording, setIsRecording] = useState(false);
-  const [isRecorded, setIsRecorded] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [nfcSupported, setNfcSupported] = useState(true);
 
-  // Check for NFC support when component mounts
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setNfcSupported('NDEFReader' in window);
-    }
-  }, []);
-
-  const petShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/pet/${pet.id}` : '';
-
-  const handleRecordTag = async () => {
-    if (typeof window === 'undefined' || !('NDEFReader' in window)) {
-      toast.error(t('recordTag.errors.notSupported'));
-      setNfcSupported(false);
-      return;
-    }
-
-    if (!petShareUrl) {
-      toast.error(t('recordTag.errors.unableToGenerateUrl'));
-      return;
-    }
-
-    setIsRecording(true);
-
-    try {
-      const ndef = new (window as any).NDEFReader();
-      await ndef.write({
-        records: [
-          {
-            recordType: "url",
-            data: petShareUrl
-          }
-        ]
-      });
-      
-      setIsRecorded(true);
-      toast.success(t('recordTag.success'));
-    } catch (error) {
-      console.error('Error writing to NFC tag:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      toast.error(`${t('recordTag.errors.writeFailed')}: ${errorMessage}`);
-    } finally {
-      setIsRecording(false);
-    }
-  };
-
-  const handleCopyLink = async () => {
-    if (!petShareUrl) {
-      toast.error(t('recordTag.errors.unableToGenerateUrl'));
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(petShareUrl);
-      setCopied(true);
-      toast.success(t('shareableLink.copied'));
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      toast.error(t('shareableLink.error'));
-    }
-  };
-
-  const handleShare = async () => {
-    if (!petShareUrl) {
-      toast.error(t('recordTag.errors.unableToGenerateUrl'));
-      return;
-    }
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${pet.name} - Pet Profile`,
-          text: `Check out ${pet.name}'s pet profile!`,
-          url: petShareUrl,
-        });
-      } catch (error) {
-        console.log('Share cancelled');
-      }
+  const handleDownloadApp = () => {
+    // You can customize this URL to point to your app store links
+    const appStoreUrl = 'https://apps.apple.com/app/facepet'; // iOS
+    const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.facepet'; // Android
+    
+    // Detect platform and redirect accordingly
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    
+    if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+      window.open(appStoreUrl, '_blank');
+    } else if (/android/i.test(userAgent)) {
+      window.open(playStoreUrl, '_blank');
     } else {
-      handleCopyLink();
+      // Default to a general download page or show both options
+      window.open(appStoreUrl, '_blank');
     }
   };
 
@@ -223,93 +148,31 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
           </div>
         </motion.div>
 
-        {/* Record Tag Section */}
+        {/* Download App Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="mb-8"
         >
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Wifi className="w-5 h-5" />
-                <span>{t('recordTag.title')}</span>
+                <Download className="w-5 h-5" />
+                <span>{t('downloadApp.title')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-4">
-                {t('recordTag.description', { petName: pet.name })}
+                {t('downloadApp.description', { petName: pet.name })}
               </p>
               <Button
-                onClick={handleRecordTag}
-                disabled={isRecording || isRecorded}
+                onClick={handleDownloadApp}
                 className="w-full"
                 size="lg"
               >
-                {isRecording ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    {t('recordTag.button.recording')}
-                  </>
-                ) : isRecorded ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    {t('recordTag.button.recorded')}
-                  </>
-                ) : (
-                  <>
-                    <Wifi className="w-4 h-4 mr-2" />
-                    {t('recordTag.button.default')}
-                  </>
-                )}
+                <Download className="w-4 h-4 mr-2" />
+                {t('downloadApp.button')}
               </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Shareable Link Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Share2 className="w-5 h-5" />
-                <span>{t('shareableLink.title')}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">
-                {t('shareableLink.description', { petName: pet.name })}
-              </p>
-              <div className="flex space-x-2">
-                <div className="flex-1 p-3 bg-gray-100 rounded-lg text-sm font-mono break-all">
-                  {petShareUrl}
-                </div>
-                <Button
-                  onClick={handleCopyLink}
-                  variant="outline"
-                  size="sm"
-                  className="flex-shrink-0"
-                >
-                  {copied ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </Button>
-                <Button
-                  onClick={handleShare}
-                  variant="outline"
-                  size="sm"
-                  className="flex-shrink-0"
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
-              </div>
             </CardContent>
           </Card>
         </motion.div>
