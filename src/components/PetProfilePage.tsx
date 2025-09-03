@@ -180,7 +180,7 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => router.push(`/pages/pet/${pet.id}/edit`)}>
+                    <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
                       <Edit className="mr-2 h-4 w-4" />
                       {t('actions.editPet')}
                     </DropdownMenuItem>
