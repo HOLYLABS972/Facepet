@@ -8,7 +8,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Upload, Loader2, CheckCircle, XCircle, Save } from 'lucide-react';
+import { Upload, Loader2, CheckCircle, XCircle, Save, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
 import { BreedSelect } from './ui/breed-select';
@@ -161,7 +161,15 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
           transition={{ duration: 0.5 }}
         >
           <Card className="shadow-lg">
-            <CardHeader className="text-center">
+            <CardHeader className="text-center relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.back()}
+                className="absolute left-0 top-1/2 -translate-y-1/2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
               <CardTitle className="text-2xl font-bold text-gray-800">
                 {t('title')}
               </CardTitle>

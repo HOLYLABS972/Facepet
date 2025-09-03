@@ -78,7 +78,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         </div>
 
         {/* Call-to-Action Arrow Overlay */}
-        <div className="absolute top-0 bottom-0 z-20 flex items-end justify-center pb-4 ltr:right-0 rtl:left-0" style={{ marginRight: '20px' }}>
+        <div className="absolute top-0 bottom-0 z-20 flex items-end justify-center pb-4 ltr:right-0 rtl:left-0" style={{ marginRight: '30px' }}>
           <ArrowRight className="h-4 w-4 stroke-gray-600 rtl:rotate-180" />
         </div>
       </motion.div>
