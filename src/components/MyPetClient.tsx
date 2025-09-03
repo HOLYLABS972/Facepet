@@ -291,7 +291,6 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">{t('notifications')}</h2>
-          <NotificationsList />
         </div>
         
         {/* Share with Friends - always show */}
@@ -309,6 +308,11 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               }
             }}
           />
+        </div>
+
+        {/* Notifications List - appears after share button */}
+        <div className="mb-4">
+          <NotificationsList />
         </div>
         
         {/* Removed points breakdown notification - notifications only */}
