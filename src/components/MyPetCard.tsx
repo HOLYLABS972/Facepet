@@ -12,6 +12,7 @@ interface MyPetCardProps {
   name: string;
   breed: string;
   image: string;
+  type?: string;
   onTap?: (petId: string) => void;
 }
 
@@ -20,6 +21,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
   name,
   breed,
   image,
+  type,
   onTap
 }) => {
   const direction = useDirection();
@@ -64,12 +66,19 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         transition={{ type: 'spring', stiffness: 200, damping: 10 }}
       >
         <div className="flex h-full flex-col justify-between p-4">
-          <div className="text-lg font-bold">{name}</div>
+          <div className="flex items-start justify-between">
+            <div className="text-lg font-bold">{name}</div>
+            {type && (
+              <span className="inline-flex rounded-full px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800 ml-2">
+                {type}
+              </span>
+            )}
+          </div>
           <div className="text-sm text-gray-600">{breed}</div>
         </div>
 
         {/* Call-to-Action Arrow Overlay */}
-        <div className="absolute top-0 bottom-0 z-20 flex items-center justify-center p-4 ltr:right-0 rtl:left-0">
+        <div className="absolute top-0 bottom-0 z-20 flex items-end justify-center pb-4 ltr:right-0 rtl:left-0" style={{ marginRight: '20px' }}>
           <ArrowRight className="h-4 w-4 stroke-gray-600 rtl:rotate-180" />
         </div>
       </motion.div>
