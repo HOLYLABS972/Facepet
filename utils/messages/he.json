@@ -629,7 +629,8 @@
       "services": "שירותים ואנשי מקצוע",
       "signOut": "התנתק",
       "signIn": "התחבר",
-      "signUp": "הירשם"
+      "signUp": "הירשם",
+      "adminPanel": "לוח בקרה"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",

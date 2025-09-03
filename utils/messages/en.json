@@ -630,7 +630,8 @@
       "myFavorites": "My Favorites",
       "signOut": "Sign Out",
       "signIn": "Sign In",
-      "signUp": "Sign Up"
+      "signUp": "Sign Up",
+      "adminPanel": "Admin Panel"
     },
     "Footer": {
       "usefulLinks": "Useful Links",

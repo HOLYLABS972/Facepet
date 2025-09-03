@@ -187,7 +187,7 @@ const Navbar = () => {
                         <DropdownMenuItem asChild>
                           <Link href="/admin" className="flex items-center">
                             <LayoutDashboard className="mr-2 h-4 w-4" />
-                            <span>Admin Panel</span>
+                            <span>{t('adminPanel')}</span>
                           </Link>
                         </DropdownMenuItem>
                       )}
@@ -284,7 +284,7 @@ const Navbar = () => {
                         onClick={() => setIsMenuOpen(false)}
                         icon={<LayoutDashboard className="h-5 w-5" />}
                       >
-                        Admin Panel
+                        {t('adminPanel')}
                       </MobileNavLink>
                     )}
                   </div>
