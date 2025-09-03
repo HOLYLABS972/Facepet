@@ -139,11 +139,14 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {!user ? (
-                <div className="flex items-center space-x-2">
-                  <div className="text-primary font-['Lobster'] text-2xl font-bold">
+                <div className="flex flex-col items-start">
+                  <button
+                    onClick={() => router.push('/')}
+                    className="text-primary font-['Lobster'] text-2xl font-bold hover:opacity-80 transition-opacity cursor-pointer"
+                  >
                     FacePet
-                  </div>
-                  <div className="text-xs text-gray-500">
+                  </button>
+                  <div className="text-xs text-gray-500 mt-1">
                     Powered by NFC technology
                   </div>
                 </div>
