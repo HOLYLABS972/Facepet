@@ -64,7 +64,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
       <h1 className="mb-4 text-2xl font-bold">{t('title')}</h1>
       <div className="relative mb-4 h-9 rounded-lg bg-white">
         <Search
-          className="absolute top-1/2 -translate-y-1/2 transform text-gray-400 ltr:right-3 rtl:left-3"
+          className="absolute top-1/2 -translate-y-1/2 transform text-gray-400 ltr:left-3 rtl:right-3"
           size={16}
         />
         <Input
