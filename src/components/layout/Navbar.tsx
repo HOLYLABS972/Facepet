@@ -82,11 +82,12 @@ const Navbar = () => {
       console.log('Firebase logout...', { user });
       await signOut();
       console.log('Firebase logout completed, redirecting to landing page...');
-      router.replace('/');
+      // Use window.location.href to force full page reload and bypass AuthGuard
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback: force redirect even if signOut fails
-      router.replace('/');
+      window.location.href = '/';
     }
   };
 
