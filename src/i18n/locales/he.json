@@ -49,6 +49,7 @@
       "title": "חיבור תג NFC",
       "subtitle": "יצירת פרופיל חיית מחמד לשיתוף",
       "backButton": "חזרה",
+      "howToAttach": "איך לחבר תג NFC:",
       "steps": {
         "prepareTag": {
           "title": "הכנת תג NFC",
@@ -57,34 +58,12 @@
         "enableNfc": {
           "title": "הפעלת NFC בטלפון",
           "description": "הפעל NFC בהגדרות הטלפון שלך"
-        },
-        "record": {
-          "title": "הקש להקלטה",
-          "description": "הקש את הטלפון שלך לתג ה-NFC כדי להקליט את פרטי חיית המחמד"
         }
       },
-      "recordTag": {
-        "title": "הקלטת תג NFC",
-        "description": "הקש על הכפתור למטה ואז הקש את הטלפון שלך לתג ה-NFC כדי להקליט את המידע של {petName}",
-        "button": {
-          "default": "הקלטת תג",
-          "recording": "מקליט...",
-          "recorded": "התג הוקלט!"
-        },
-        "errors": {
-          "notSupported": "NFC לא נתמך במכשיר זה. אנא השתמש במכשיר עם יכולות NFC.",
-          "failed": "ההקלטה לתג NFC נכשלה. אנא נסה שוב.",
-          "unableToGenerateUrl": "לא ניתן ליצור קישור שיתוף",
-          "writeFailed": "הכתיבה לתג NFC נכשלה"
-        },
-        "success": "תג ה-NFC הוקלט בהצלחה!"
-      },
-      "shareableLink": {
-        "title": "קישור לשיתוף",
-        "description": "כל מי שיש לו קישור זה יכול לצפות בפרופיל של {petName}:",
-        "copied": "הקישור הועתק!",
-        "copy": "העתק קישור",
-        "share": "שתף"
+      "downloadApp": {
+        "title": "הורד את אפליקציית FacePet",
+        "description": "כדי לצפות בפרופיל של {petName} וליצור קשר עם הבעלים, הורד את אפליקציית FacePet:",
+        "button": "הורד אפליקציה"
       }
     },
     "edit": {
