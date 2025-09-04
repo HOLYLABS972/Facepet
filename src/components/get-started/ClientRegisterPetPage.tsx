@@ -7,9 +7,11 @@ import GetStartedFloatingActionButton from '@/components/get-started/ui/GetStart
 import GetStartedProgressDots from '@/components/get-started/ui/GetStartedProgressDots';
 import { useRouter } from '@/i18n/routing';
 import { usePetId } from '@/src/hooks/use-pet-id';
-import { createPetInFirestore } from '@/src/lib/firebase/pets';
-import { getPetRegisterSchemas } from '@/utils/validation/petRegister';
+import { useParams } from 'next/navigation';
+import { createNewPet } from '@/src/lib/firebase/client-pets';
+import { getUserFromFirestore } from '@/src/lib/firebase/users';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { getPetRegisterSchemas } from '@/utils/validation/petRegister';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
@@ -31,9 +33,17 @@ export default function ClientRegisterPetPage({
   const t = useTranslations('');
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
-  const { petId, clearPetId } = usePetId();
+  const { petId: localStoragePetId, clearPetId } = usePetId();
+  const params = useParams<{ id: string }>();
+  const petId = params.id; // Get pet ID from URL parameters
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Get valid breed & gender IDs.
   const breedIds = useMemo(() => breeds.map((b) => b.id), [breeds]);
@@ -42,20 +52,30 @@ export default function ClientRegisterPetPage({
   // Transform genders & breeds to localized options.
   const localizedGenders = useMemo(
     () =>
-      genders.map(({ id, labels }) => ({
-        id,
-        label: labels[locale] || labels.en
-      })),
-    [genders, locale]
+      isHydrated
+        ? genders.map(({ id, labels }) => ({
+            id,
+            label: labels[locale] || labels.en
+          }))
+        : genders.map(({ id, labels }) => ({
+            id,
+            label: labels.en // Use English as fallback during SSR
+          })),
+    [genders, locale, isHydrated]
   );
 
   const localizedBreeds = useMemo(
     () =>
-      breeds.map(({ id, labels }) => ({
-        id,
-        label: labels[locale] || labels.en
-      })),
-    [breeds, locale]
+      isHydrated
+        ? breeds.map(({ id, labels }) => ({
+            id,
+            label: labels[locale] || labels.en
+          }))
+        : breeds.map(({ id, labels }) => ({
+            id,
+            label: labels.en // Use English as fallback during SSR
+          })),
+    [breeds, locale, isHydrated]
   );
 
   // Get the internationalized schemas.
@@ -75,35 +95,73 @@ export default function ClientRegisterPetPage({
     () => ({
       imageUrl: '',
       petName: '',
-      breedId: 0,
-      genderId: 0,
-      birthDate: null,
+      breedId: breedIds[0] || 1, // Use first valid breed ID
+      genderId: genderIds[0] || 1, // Use first valid gender ID
+      birthDate: null as Date | null,
       notes: '',
-      ownerFullName: userDetails.fullName,
-      ownerPhoneNumber: userDetails.phone,
-      ownerEmailAddress: userDetails.email,
+      // Use authenticated user data if available, otherwise use userDetails
+      ownerFullName: user?.displayName || userDetails.fullName || '',
+      ownerPhoneNumber: userDetails.phone || '',
+      ownerEmailAddress: user?.email || userDetails.email || '',
       ownerHomeAddress: '',
       vetName: '',
       vetPhoneNumber: '',
       vetEmailAddress: '',
       vetAddress: ''
     }),
-    [userDetails]
+    [user, userDetails, breedIds, genderIds]
   );
 
   const [formData, setFormData] = useState(initialFormData);
 
   const methods = useForm({
     resolver: zodResolver(schemaSteps[currentStep]),
-    defaultValues: formData,
+    defaultValues: initialFormData,
     mode: 'onChange'
   });
 
+  // Fetch user details from Firestore when user is available
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (user && isHydrated) {
+        try {
+          const userResult = await getUserFromFirestore(user.uid);
+          if (userResult.success && userResult.user) {
+            const updatedData = {
+              ownerFullName: user.displayName || userResult.user.displayName || userDetails.fullName || '',
+              ownerEmailAddress: user.email || userResult.user.email || userDetails.email || '',
+              ownerPhoneNumber: userResult.user.phone || userDetails.phone || ''
+            };
+            
+            // Update form data
+            setFormData(prev => ({ ...prev, ...updatedData }));
+            
+            // Reset form with updated data
+            methods.reset(prev => ({ ...prev, ...updatedData }));
+          }
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+          // Fallback to userDetails if Firestore fetch fails
+          const updatedData = {
+            ownerFullName: user.displayName || userDetails.fullName || '',
+            ownerEmailAddress: user.email || userDetails.email || '',
+            ownerPhoneNumber: userDetails.phone || ''
+          };
+          
+          setFormData(prev => ({ ...prev, ...updatedData }));
+          methods.reset(prev => ({ ...prev, ...updatedData }));
+        }
+      }
+    };
+
+    fetchUserDetails();
+  }, [user, isHydrated, userDetails, methods]);
+
   const handleSubmit = async (allFormData: typeof formData): Promise<void> => {
-    if (!user) {
-      setError('User not authenticated');
-      toast.error('Please sign in to create a pet');
-      router.push('/auth');
+    if (!petId) {
+      setError('No pet ID available');
+      toast.error('No pet ID available');
+      router.push('/pet/get-started');
       return;
     }
 
@@ -111,27 +169,11 @@ export default function ClientRegisterPetPage({
     setError(null);
 
     try {
-      // Transform form data to match PetData interface
-      const petData = {
-        name: allFormData.petName,
-        description: '',
-        imageUrl: allFormData.imageUrl,
-        genderId: allFormData.genderId,
-        breedId: allFormData.breedId,
-        birthDate: allFormData.birthDate?.toISOString(),
-        notes: allFormData.notes || '',
-        ownerName: allFormData.ownerFullName,
-        ownerPhone: allFormData.ownerPhoneNumber,
-        ownerEmail: allFormData.ownerEmailAddress,
-        ownerAddress: allFormData.ownerHomeAddress,
-        vetId: allFormData.vetName ? 'vet-id' : undefined
-      };
+      const result = await createNewPet(petId, allFormData as NewPetData, user);
 
-      const result = await createPetInFirestore(petData, user);
-
-      if (result.success && result.petId) {
+      if (result.success) {
         clearPetId();
-        router.push(`/pet/${result.petId}/done`);
+        router.push(`/pet/${result.petId || petId}/done`);
       } else {
         setError(result.error || 'An error occurred while creating your pet');
         toast.error(result.error || 'Failed to create pet profile');
@@ -163,7 +205,7 @@ export default function ClientRegisterPetPage({
     setFormData((prev) => ({ ...prev, ...currentData }));
 
     if (currentStep === 0) {
-      router.push(`/pet/${petId}/get-started`);
+      router.push('/pages/my-pets');
     } else {
       setCurrentStep((prev) => prev - 1);
     }
@@ -183,6 +225,16 @@ export default function ClientRegisterPetPage({
     <OwnerDetailsPage key="owner-details" />,
     <VetDetailsPage key="vet-details" />
   ][currentStep];
+
+  // Show loading state during hydration
+  if (!isHydrated) {
+    return (
+      <div className="flex h-full grow flex-col items-center justify-center p-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <span className="ml-2 text-gray-600">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <FormProvider {...methods}>

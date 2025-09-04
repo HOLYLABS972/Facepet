@@ -1,0 +1,261 @@
+{
+  "Admin": {
+    "dashboard": "Admin Dashboard",
+    "welcome": "Welcome to the Admin Dashboard",
+    "loggedInAs": "You are logged in as",
+    "adsManagement": "Advertisements Management",
+    "manageAdsDescription": "Create, edit, and manage advertisements displayed on the platform.",
+    "manageAds": "Manage Ads",
+    "userManagement": "User Management",
+    "manageUsersDescription": "Manage user accounts, roles, and permissions.",
+    "manageUsers": "Manage Users"
+  },
+  "pages": {
+    "WelcomePage": {
+      "upperTitle": "Tiny pet guardians",
+      "lowerTitle": "for big peace of mind.",
+      "buttonLabel": "Begin Registration",
+      "signInText": "Already have an account?",
+      "signInLink": "Sign In",
+      "signOutText": "Want to switch an account?",
+      "signOutLink": "Sign Out"
+    },
+    "TooFastPage": {
+      "title": "Whoof... Slow down there!",
+      "subtitle": "Looks like you've been a little bit too eager. We've put temporary pause on your exitment. Chill for a bit and try again shortly."
+    },
+    "PetNotFoundPage": {
+      "title": "Pet Not Found",
+      "subtitle": "We couldn't find the pet you were looking for. Please try again or contact support."
+    },
+    "TermsAndConditionsPage": {
+      "title": "Terms & Conditions",
+      "subtitle": "Will appear here!"
+    },
+    "ConfirmationPage": {
+      "title": "Email Verification",
+      "subtitle": "Please enter the 6-digit code we sent to your email address",
+      "form": {
+        "resendText": "Didn't receive the code?",
+        "resendLink": "Resend"
+      }
+    },
+    "MyPetsPage": {
+      "title": "My Pets",
+      "searchPlaceholder": "Search pets...",
+      "noResults": "No pets found."
+    },
+    "MyGiftsPage": {
+      "title": "My Gifts",
+      "searchPlaceholder": "Search gifts...",
+      "noResults": "No gifts found."
+    },
+    "ServicesPage": {
+      "title": "Services And Professionals",
+      "searchPlaceholder": "Search Services And Professionals...",
+      "noResults": "No Services And Professionals found."
+    },
+    "SignUpPage": {
+      "title": "Sign Up",
+      "form": {
+        "FullName": "Full Name",
+        "PhoneNumber": "Phone Number",
+        "EmailAddress": "Email Address",
+        "Password": "Password",
+        "ConfirmPassword": "Confirm Password",
+        "TermsAcceptPrefix": "I accept the",
+        "TermsLink": "Terms and Conditions"
+      },
+      "errors": {
+        "FullName": "Full name is required",
+        "PhoneNumber": "Phone number is required",
+        "EmailAddress": "Invalid email address",
+        "Password": "Password must be at least 8 characters long",
+        "ConfirmPassword": "Password confirmation is required",
+        "TermsAccept": "You must accept the terms and conditions",
+        "PasswordMatch": "Passwords don't match"
+      }
+    },
+    "UserSettingsPage": {
+      "title": "User Settings",
+      "form": {
+        "FullName": "Full Name",
+        "PhoneNumber": "Phone Number",
+        "EmailAddress": "Email Address",
+        "CurrentPassword": "Current Password",
+        "NewPassword": "New Password",
+        "ConfirmPassword": "Confirm Password"
+      },
+      "errors": {
+        "FullName": "Full name is required",
+        "PhoneNumber": "Phone number is required",
+        "EmailAddress": "Invalid email address",
+        "Password": "Password must be at least 8 characters long",
+        "PasswordMatch": "Passwords don't match",
+        "CurrentPasswordRequired": "Current password is required"
+      }
+    },
+    "SignInPage": {
+      "title": "Sign In",
+      "form": {
+        "EmailAddress": "Email Address",
+        "Password": "Password"
+      },
+      "forgotPassword": "Forgot Password?"
+    },
+    "ForgotPasswordPage": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email address to receive a password reset link.",
+      "form": {
+        "email": "Email Address",
+        "resendText": "Didn't receive the code?",
+        "resendLink": "Resend"
+      }
+    },
+    "ResetPasswordPage": {
+      "title": "Reset Password",
+      "subtitle": "Enter your new password to reset your account.",
+      "form": {
+        "password": "New Password",
+        "confirmPassword": "Confirm Password"
+      },
+      "errors": {
+        "Password": "Password must be at least 8 characters long",
+        "PasswordMatch": "Passwords don't match"
+      }
+    },
+    "ResetPasswordSentPage": {
+      "title": "Reset Password Sent",
+      "subtitle": "We've sent you an email with a password reset link. Please check your inbox.",
+      "backToSignIn": "Back to Sign In",
+      "resendEmail": "Resend Email",
+      "checkSpam": "Don't see the email? Check your spam folder.",
+      "expiry": "The reset link will expire in 1 hour for security reasons."
+    },
+    "DonePage": {
+      "title": "Hip, hip, hooray!",
+      "subtitle": "Now you can scan the charm to see how it works."
+    },
+    "PetProfilePage": {
+      "tabs": {
+        "pet": "Pet",
+        "owner": "Owner",
+        "vet": "Vet"
+      },
+      "labels": {
+        "name": "Name",
+        "breed": "Breed",
+        "gender": "Gender",
+        "age": "Age",
+        "ageText": "years old",
+        "notes": "Notes",
+        "contact": "Contact",
+        "email": "Email",
+        "address": "Address",
+        "private": "Private"
+      },
+      "popup": {
+        "title": "You Got a New Gift!",
+        "text": "A welcome gift is waiting for you!",
+        "buttonLabel": "Take me to my gifts page"
+      }
+    },
+    "HomePage": {
+      "upperTitle": "Pet Safety, Reinvented",
+      "lowerTitle": "Protect your pet with our NFC chip.",
+      "buttonLabel": "Get Started",
+      "signOutText": "Already signed in?",
+      "signOutLink": "Sign Out",
+      "signInText": "Already have an account?",
+      "signInLink": "Sign In",
+      "brand": "FacePet",
+      "menuButton": "Open main menu"
+    },
+    "PetDetailsPage": {
+      "title": "Pet Details",
+      "form": {
+        "UploadImageTitle": "Upload Pet Image",
+        "PetName": "Pet Name",
+        "Breed": "Breed",
+        "Gender": "Gender",
+        "BirthDate": "Birth Date",
+        "weight": "Weight (kg)",
+        "Notes": "Notes"
+      }
+    },
+    "OwnerDetailsPage": {
+      "title": "Owner Details",
+      "form": {
+        "FullName": "Full Name",
+        "PhoneNumber": "Phone Number",
+        "EmailAddress": "Email Address",
+        "HomeAddress": "Home Address"
+      }
+    },
+    "VetDetailsPage": {
+      "title": "Vet Details",
+      "form": {
+        "VeterinaryName": "Veterinary Name",
+        "PhoneNumber": "Phone Number",
+        "EmailAddress": "Email Address",
+        "VeterinaryAddress": "Veterinary Address"
+      }
+    }
+  },
+  "errors": {
+    "petDetails": {
+      "imageRequired": "Image is required",
+      "nameRequired": "Pet name is required",
+      "invalidBreed": "Invalid breed selected",
+      "invalidGender": "Invalid gender selected"
+    },
+    "ownerDetails": {
+      "fullNameRequired": "Full name is required",
+      "phoneRequired": "Phone number is required",
+      "invalidEmail": "Invalid email address",
+      "homeAddressRequired": "Home address is required"
+    }
+  },
+  "components": {
+    "searchbar": {
+      "search": "Search...",
+      "noResult": "No results found"
+    },
+    "Navbar": {
+      "about": "About Us",
+      "howItWorks": "How It Works",
+      "contact": "Contact Us",
+      "myPets": "My Pets",
+      "services": "Services and Professionals",
+      "myFavorites": "My Favorites",
+      "signOut": "Sign Out",
+      "signIn": "Sign In",
+      "signUp": "Sign Up"
+    },
+    "Footer": {
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contact": "Contact",
+      "madeWithLove": "Made with love for pet owners"
+    },
+    "ProductHighlights": {
+      "headline": "Never Lose Your Pet Again",
+      "subheading": "Our state-of-the-art NFC chip helps ensure that your pet is quickly found if lost. Trusted by thousands of pet owners worldwide.",
+      "recoveredPets": "Recovered Pets",
+      "activeUsers": "Active Users",
+      "chipsDeployed": "Chips Deployed"
+    },
+    "ConfirmProfileChanges": {
+      "title": "Confirm Changes",
+      "description": "Are you sure you want to update your profile with these changes?",
+      "cancelButton": "Cancel",
+      "confirmButton": "Confirm"
+    },
+    "ShareButton": {
+      "title": "שתף את חיית המחמד שלך!",
+      "text": "Check out my pet on FacePet!",
+      "linkCopied": "Link copied successfully!"
+    },
+    "GoBackButton": { "buttonLabel": "Go Back" }
+  }
+}

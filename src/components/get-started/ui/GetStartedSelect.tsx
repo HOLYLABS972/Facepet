@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 interface GetStartedSelectProps {
   label: string;
   id: string;
-  value: number;
+  value?: number;
   required?: boolean;
   selectOptions: { id: number; label: string }[];
   hasError?: boolean;
@@ -42,7 +42,7 @@ const GetStartedSelect = ({
         htmlFor={id}
         className={cn(
           'absolute top-2.5 left-3 w-fit text-sm text-gray-500 transition-all duration-200 ease-in-out rtl:right-3',
-          value
+          value && value > 0
             ? 'text-primary -top-6 text-sm font-medium'
             : 'top-2.5 text-gray-500',
           hasError ? 'text-red-800' : ''
@@ -55,7 +55,7 @@ const GetStartedSelect = ({
 
       {/* Select Component */}
       <Select
-        value={String(value)}
+        value={value ? String(value) : ''}
         onValueChange={(newValue) => onChange(Number(newValue))}
       >
         <SelectTrigger
@@ -65,9 +65,9 @@ const GetStartedSelect = ({
             hasError ? 'border-red-800' : ''
           )}
         >
-          <SelectValue className="rtl:text-right">
-            {selectOptions.find((option) => option.id === value)?.label || ''}
-          </SelectValue>
+                  <SelectValue className="rtl:text-right">
+          {selectOptions.find((option) => option.id === (value || 0))?.label || ''}
+        </SelectValue>
         </SelectTrigger>
 
         <SelectContent>

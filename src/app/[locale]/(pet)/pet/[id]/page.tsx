@@ -18,5 +18,5 @@ export default async function PublicPetPage({ params }: PetPageProps) {
     notFound();
   }
 
-  return <PetProfilePage pet={result.pet} owner={result.owner} />;
+  return <PetProfilePage pet={result.pet} owner={result.owner} vet={result.vet} />;
 }

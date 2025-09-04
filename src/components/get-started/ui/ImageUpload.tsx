@@ -3,38 +3,16 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-// Assets - using public paths
-const assets = {
-  upload_figures: '/assets/upload_figures.png'
-};
-import { IKImage, IKUpload, ImageKitProvider } from 'imagekitio-next';
-import { ArrowLeftRight } from 'lucide-react';
+import { uploadPetImage } from '@/src/lib/firebase/simple-upload';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { ArrowLeftRight, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const authenticator = async () => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_PROD_API_ENDPOINT!}/api/imagekit`
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-
-      throw new Error(
-        `Request failed with status ${response.status}: ${errorText}`
-      );
-    }
-
-    const data = await response.json();
-
-    const { signature, expire, token } = data;
-
-    return { token, expire, signature };
-  } catch (error: any) {
-    throw new Error(`Authentication request failed: ${error.message}`);
-  }
+// Assets - using public paths
+const assets = {
+  upload_figures: '/assets/upload_figures.png'
 };
 
 interface Props {
@@ -42,6 +20,8 @@ interface Props {
   folder: string;
   onFileChange: (filePath: string) => void;
   value?: string;
+  required?: boolean;
+  error?: string;
 }
 
 const ImageUpload = ({
@@ -49,129 +29,176 @@ const ImageUpload = ({
   folder,
   onFileChange,
   value,
+  required = false,
+  error,
   ...props
 }: Props) => {
-  const ikUploadRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
 
-  const onError = (error: any) => {
-    console.log(error);
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    toast.error('image upload failed');
-  };
-
-  const onSuccess = (res: any) => {
-    onFileChange(res.filePath);
-
-    toast.success('image uploaded successfully');
-  };
-
-  const onValidate = (file: File) => {
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error('File size too large');
-
-      return false;
+    if (!user) {
+      toast.error('Please log in to upload images');
+      return;
     }
 
-    return true;
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image size must be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+    setProgress(0);
+
+    try {
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
+      const result = await uploadPetImage(file, user);
+
+      clearInterval(progressInterval);
+      setProgress(100);
+
+      if (result.success && result.downloadURL) {
+        onFileChange(result.downloadURL);
+        toast.success('Image uploaded successfully');
+      } else {
+        toast.error(result.error || 'Upload failed');
+      }
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+      setProgress(0);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveImage = () => {
+    onFileChange('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
-    <ImageKitProvider
-      publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!}
-      urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
-      authenticator={authenticator}
-    >
+    <div className="w-full">
       <Card className="h-15 w-full overflow-visible rounded-lg border-none bg-transparent shadow-none">
         <CardContent className="p-0">
-          <IKUpload
-            ref={ikUploadRef}
-            onError={onError}
-            onSuccess={onSuccess}
-            useUniqueFileName={true}
-            validateFile={onValidate}
-            onUploadStart={() => setProgress(0)}
-            onUploadProgress={({ loaded, total }) => {
-              const percent = Math.round((loaded / total) * 100);
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+          disabled={uploading}
+        />
 
-              setProgress(percent);
-            }}
-            folder={folder}
-            accept="image/*"
-            className="hidden rounded-lg"
-            {...props}
-          />
-          {value ? (
-            <div className="relative h-15 w-full rounded-lg">
-              {/* Image */}
-              <ImageKitProvider
-                publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!}
-                urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
-                authenticator={authenticator}
-              >
-                <IKImage
-                  alt={value}
-                  path={value}
-                  width={500}
-                  height={80}
-                  loading="lazy"
-                  transformation={[
-                    {
-                      quality: '30'
-                    }
-                  ]}
-                  className="h-full w-full rounded-lg object-cover"
-                />
-              </ImageKitProvider>
+        {value ? (
+          <div className="relative h-15 w-full rounded-lg">
+            {/* Image */}
+            <Image
+              alt="Uploaded pet image"
+              src={value}
+              width={500}
+              height={80}
+              className="h-full w-full rounded-lg object-cover"
+            />
 
-              {/* Retry Button */}
+            {/* Action buttons */}
+            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black bg-opacity-50 rounded-lg opacity-0 hover:opacity-100 transition-opacity">
               <Button
                 variant="ghost"
-                className="bg-primary absolute inset-0 m-auto flex h-10 w-10 items-center justify-center rounded-lg opacity-80"
+                size="sm"
+                className="bg-primary text-white hover:bg-primary/90"
                 onClick={(e) => {
                   e.preventDefault();
-
-                  if (ikUploadRef.current) {
-                    // @ts-ignore
-                    ikUploadRef.current?.click();
-                  }
+                  fileInputRef.current?.click();
                 }}
+                disabled={uploading}
               >
-                <ArrowLeftRight />
+                <ArrowLeftRight className="h-4 w-4 mr-1" />
+                Replace
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="bg-red-500 text-white hover:bg-red-600"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleRemoveImage();
+                }}
+                disabled={uploading}
+              >
+                <X className="h-4 w-4 mr-1" />
+                Remove
               </Button>
             </div>
-          ) : (
-            <Button
-              variant="ghost"
-              className="relative h-15 w-full rounded-[8px] border-0 bg-[#FBCDD0]"
-              onClick={(e) => {
-                e.preventDefault();
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            className="relative h-15 w-full rounded-[8px] border-0 bg-[#FBCDD0]"
+            onClick={(e) => {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }}
+            disabled={uploading}
+          >
+            <span className="w-full text-base font-medium ltr:pl-3 ltr:text-left rtl:pr-3 rtl:text-right">
+              {uploading ? 'Uploading...' : label}
+            </span>
+            <Image
+              src={assets.upload_figures}
+              alt="figure"
+              width={162.67}
+              height={121.53}
+              className="absolute -top-11 ltr:right-6 rtl:left-6"
+            />
+          </Button>
+        )}
+      </CardContent>
 
-                if (ikUploadRef.current) {
-                  // @ts-ignore
-                  ikUploadRef.current?.click();
-                }
-              }}
-            >
-              <span className="w-full text-base font-medium ltr:pl-3 ltr:text-left rtl:pr-3 rtl:text-right">
-                {label}
-              </span>
-              <Image
-                src={assets.upload_figures}
-                alt="figure"
-                width={162.67}
-                height={121.53}
-                className="absolute -top-11 ltr:right-6 rtl:left-6"
-              />
-            </Button>
-          )}
-        </CardContent>
+        {/* Progress bar */}
+        {progress > 0 && progress < 100 && (
+          <Progress className="[&>*]:bg-primary" value={progress} />
+        )}
       </Card>
-
-      {progress > 0 && progress !== 100 && (
-        <Progress className="[&>*]:bg-primary" value={progress} />
+      
+      {/* Error message */}
+      {error && (
+        <p className="mt-2 text-sm text-red-600">{error}</p>
       )}
-    </ImageKitProvider>
+      
+      {/* Required indicator */}
+      {required && !value && (
+        <p className="mt-1 text-sm text-gray-600">* Image is required</p>
+      )}
+    </div>
   );
 };
 

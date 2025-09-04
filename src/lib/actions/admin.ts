@@ -811,25 +811,95 @@ export async function getAdsByPetId(petId: string) {
 }
 
 /**
- * Get all pets for admin selection
+ * Get all pets for admin selection with owner names
  */
 export async function getAllPetsForAdmin() {
   try {
     const petsSnapshot = await getDocs(collection(db, 'pets'));
-    const pets = petsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      name: doc.data().name || '',
-      type: doc.data().type || '',
-      breed: doc.data().breed || '',
-      imageUrl: doc.data().imageUrl || doc.data().image || '',
-      ownerId: doc.data().ownerId || '',
-      createdAt: doc.data().createdAt?.toDate() || new Date()
-    }));
+    
+    const pets = await Promise.all(
+      petsSnapshot.docs.map(async (petDoc) => {
+        const petData = petDoc.data();
+        let ownerName = 'Unknown Owner';
+        
+        // Get owner email - use userEmail directly since that's what we want to display
+        if (petData.userEmail) {
+          ownerName = petData.userEmail;
+        } else if (petData.ownerId) {
+          try {
+            const ownerDocRef = doc(db, 'owners', petData.ownerId);
+            const ownerDoc = await getDoc(ownerDocRef);
+            if (ownerDoc.exists()) {
+              const ownerData = ownerDoc.data() as any;
+              ownerName = ownerData.email || ownerData.fullName || ownerData.name || 'Unknown Owner';
+            }
+          } catch (error) {
+            console.error('Error fetching owner:', error);
+          }
+        }
+
+        // Get breed name - use breedName directly since that's what's stored
+        let breedName = petData.breedName || petData.breed || 'Unknown Breed';
+
+        return {
+          id: petDoc.id,
+          name: petData.name || '',
+          type: petData.type || 'Unknown',
+          breed: breedName,
+          imageUrl: petData.imageUrl || petData.image || '',
+          ownerName: ownerName,
+          ownerId: petData.ownerId || '',
+          createdAt: petData.createdAt?.toDate() || new Date()
+        };
+      })
+    );
 
     return pets;
   } catch (error) {
     console.error('Error getting all pets for admin:', error);
     return [];
+  }
+}
+
+/**
+ * Update pet type or breed
+ */
+export async function updatePetField(petId: string, field: 'type' | 'breed', value: string) {
+  try {
+    const petRef = doc(db, 'pets', petId);
+    
+    if (field === 'type') {
+      await updateDoc(petRef, {
+        type: value,
+        updatedAt: new Date()
+      });
+    } else if (field === 'breed') {
+      // Find the breed ID by name
+      const breedsSnapshot = await getDocs(collection(db, 'breeds'));
+      const breed = breedsSnapshot.docs.find(doc => {
+        const data = doc.data();
+        return (data.labels?.en || data.name) === value;
+      });
+      
+      if (breed) {
+        await updateDoc(petRef, {
+          breed: value,
+          breedId: breed.id,
+          updatedAt: new Date()
+        });
+      } else {
+        // If breed not found, just update the breed name
+        await updateDoc(petRef, {
+          breed: value,
+          updatedAt: new Date()
+        });
+      }
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating pet field:', error);
+    return { success: false, error: 'Failed to update pet' };
   }
 }
 

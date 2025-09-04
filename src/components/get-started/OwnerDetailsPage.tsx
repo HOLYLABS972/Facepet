@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 import he from 'react-phone-number-input/locale/he';
 import GetStartedInput from './ui/GetStartedInput';
 import { GetStartedPhoneInput } from './ui/GetStartedPhoneInput';
-import LocationAutocompleteSelector from './ui/LocationAutocompleteSelector';
 import PrivacyLockToggle from './ui/PrivacyLockToggle';
 
 const OwnerDetailsPage = () => {
@@ -116,7 +115,7 @@ const OwnerDetailsPage = () => {
                 name="ownerHomeAddress"
                 control={control}
                 render={({ field }) => (
-                  <LocationAutocompleteSelector
+                  <GetStartedInput
                     label={t('form.HomeAddress')}
                     id="homeAddress"
                     {...field}

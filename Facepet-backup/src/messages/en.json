@@ -1,0 +1,100 @@
+{
+  "components": {
+    "PrivacyLockToggle": {
+      "alwaysPublic": "This information is always public",
+      "currentlyPrivate": "This information is private (click to make public)",
+      "currentlyPublic": "This information is public (click to make private)"
+    },
+    "ProductHighlights": {
+      "title": "Why FacePet?",
+      "subtitle": "Tiny pet guardians for big peace of mind.",
+      "features": [
+        {
+          "title": "Instant Identification",
+          "description": "Scan the QR code to instantly access your pet's profile."
+        },
+        {
+          "title": "Emergency Contact",
+          "description": "Quickly connect with the pet's owner or vet in emergencies."
+        },
+        {
+          "title": "No Subscriptions",
+          "description": "One-time purchase for lifetime peace of mind."
+        }
+      ]
+    }
+  },
+  "pages": {
+    "PetProfilePage": {
+      "title": "Pet Profile",
+      "labels": {
+        "name": "Name",
+        "breed": "Breed",
+        "gender": "Gender",
+        "age": "Age",
+        "ageText": "years",
+        "notes": "Notes",
+        "contact": "Contact",
+        "email": "Email",
+        "address": "Address",
+        "private": "Private"
+      },
+      "tabs": {
+        "pet": "Pet",
+        "owner": "Owner",
+        "vet": "Vet"
+      },
+      "popup": {
+        "title": "Gift a FacePet",
+        "text": "Help your friends keep their pets safe too!",
+        "buttonLabel": "Gift Now"
+      }
+    },
+    "PetDetailsPage": {
+      "title": "Pet Details",
+      "form": {
+        "UploadImageTitle": "Upload Pet Image",
+        "PetName": "Pet Name",
+        "Breed": "Breed",
+        "Gender": "Gender",
+        "BirthDate": "Birth Date",
+        "weight": "Weight (kg)",
+        "Notes": "Notes",
+        "PrivacySettings": "Privacy Settings",
+        "PrivacyName": "Name Privacy",
+        "PrivacyBreed": "Breed Privacy",
+        "PrivacyGender": "Gender Privacy",
+        "PrivacyAge": "Age Privacy",
+        "PrivacyNotes": "Notes Privacy"
+      }
+    },
+    "OwnerDetailsPage": {
+      "title": "Owner Details",
+      "form": {
+        "FullName": "Full Name",
+        "PhoneNumber": "Phone Number",
+        "EmailAddress": "Email Address",
+        "HomeAddress": "Home Address",
+        "PrivacySettings": "Privacy Settings",
+        "PrivacyName": "Name Privacy",
+        "PrivacyPhone": "Phone Privacy",
+        "PrivacyEmail": "Email Privacy",
+        "PrivacyAddress": "Address Privacy"
+      }
+    },
+    "VetDetailsPage": {
+      "title": "Veterinary Details",
+      "form": {
+        "VeterinaryName": "Veterinary Name",
+        "PhoneNumber": "Phone Number",
+        "EmailAddress": "Email Address",
+        "VeterinaryAddress": "Veterinary Address",
+        "PrivacySettings": "Privacy Settings",
+        "PrivacyName": "Name Privacy",
+        "PrivacyPhone": "Phone Privacy",
+        "PrivacyEmail": "Email Privacy",
+        "PrivacyAddress": "Address Privacy"
+      }
+    }
+  }
+}

@@ -23,7 +23,7 @@ import React, { useMemo, useState } from 'react';
 interface GetStartedComboSelectProps {
   label: string;
   id: string;
-  value: number;
+  value?: number;
   required?: boolean;
   selectOptions: { id: number; label: string }[];
   hasError?: boolean;
@@ -65,7 +65,7 @@ const GetStartedComboSelect: React.FC<GetStartedComboSelectProps> = ({
         htmlFor={id}
         className={cn(
           'absolute top-2.5 left-3 w-fit text-sm text-gray-500 transition-all duration-200 ease-in-out rtl:right-3',
-          value
+          value && value > 0
             ? 'text-primary -top-6 text-sm font-medium'
             : 'top-2.5 text-gray-500',
           hasError ? 'text-red-800' : ''
@@ -90,7 +90,7 @@ const GetStartedComboSelect: React.FC<GetStartedComboSelectProps> = ({
             onClick={() => setOpen(true)}
           >
             <span className="font-normal">
-              {selectOptions.find((option) => option.id === value)?.label || ''}
+              {selectOptions.find((option) => option.id === (value || 0))?.label || ''}
             </span>
             <ChevronDown className="h-4! w-4! opacity-50" />
           </Button>

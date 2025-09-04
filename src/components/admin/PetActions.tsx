@@ -69,7 +69,7 @@ export default function PetActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
               setIsDropdownOpen(false);
@@ -77,7 +77,7 @@ export default function PetActions({
             }}
             className="text-red-600 hover:text-red-700 focus:text-red-700"
           >
-            Delete Pet
+            {t('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -94,9 +94,9 @@ export default function PetActions({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Pet</DialogTitle>
+            <DialogTitle>{t('delete')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{petName}"? This action cannot be undone.
+              {t('confirmDelete')} "{petName}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -108,14 +108,14 @@ export default function PetActions({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleting(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete Pet'}
+              {isSubmitting ? t('deleting') : t('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

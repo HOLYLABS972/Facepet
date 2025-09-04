@@ -9,8 +9,8 @@ export default function PetLayout({ children }: { children: React.ReactNode }) {
   const locale = useLocale();
 
   // Basic validation for pet ID (Firebase document ID format)
-  // Firebase document IDs are typically 20 characters long and contain alphanumeric characters
-  if (!id || id.length < 10 || !/^[a-zA-Z0-9]+$/.test(id)) {
+  // Firebase document IDs can be 1-1500 characters and contain alphanumeric characters, hyphens, and underscores
+  if (!id || id.length < 1 || !/^[a-zA-Z0-9_-]+$/.test(id)) {
     redirect({ href: '/', locale });
     return;
   }

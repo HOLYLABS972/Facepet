@@ -23,14 +23,28 @@ const PetCard = React.memo(({ pet }: PetCardProps) => {
     >
       <Card className="relative flex w-full flex-col overflow-hidden rounded-3xl border-none shadow-md">
         <CardContent className="relative p-0">
-          <Image
-            src={pet.imageUrl}
-            alt={pet.name}
-            width={704}
-            height={448}
-            loading="lazy"
-            className="h-full w-full object-cover"
-          />
+          {pet.imageUrl && pet.imageUrl.trim() !== '' ? (
+            <Image
+              src={pet.imageUrl}
+              alt={pet.name}
+              width={704}
+              height={448}
+              loading="lazy"
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                console.error('Failed to load pet image:', pet.imageUrl);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : null}
+          {/* Fallback for missing image */}
+          {(!pet.imageUrl || pet.imageUrl.trim() === '') && (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500">
+              <span className="text-6xl font-bold text-white">
+                {pet.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
 
           <div className="absolute bottom-0 w-full">
             <div

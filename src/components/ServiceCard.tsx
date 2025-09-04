@@ -102,7 +102,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
   const handleSubmitComment = async () => {
     if (!user) {
-      alert('עליך להתחבר כדי לכתוב ביקורת');
+      alert('Please log in to write a review');
       return;
     }
     
@@ -113,7 +113,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         const result = await submitComment({
           adId: service.id,
           adTitle: service.name,
-          userName: user.displayName || user.email?.split('@')[0] || 'משתמש',
+          userName: user.displayName || user.email?.split('@')[0] || 'User',
           userEmail: user.email || '',
           content: commentText.trim(),
           rating: userRating
@@ -177,7 +177,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           </div>
 
           {/* Service image */}
-          <div className="w-1/3">
+          <div className="w-1/3 h-32 overflow-hidden">
             <img
               src={service.image}
               alt={service.name}

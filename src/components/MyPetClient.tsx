@@ -1,26 +1,18 @@
-// components/pages/my-pets/MyPetsClient.tsx
+// components/pages/my-pets/MyPetClient.tsx
 'use client';
 
 import MyPetCard from '@/components/MyPetCard';
-import PetDetailsBottomSheet from '@/components/PetDetailsBottomSheet';
-import { User, Plus } from 'lucide-react';
+import { EditIcon, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/src/contexts/AuthContext';
-// Removed points system - notifications only
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import InviteFriendsCard from './InviteFriendsCard';
-import PhoneNumberBottomSheet from './PhoneNumberBottomSheet';
-import AdminNotificationCard from './AdminNotificationCard';
-// Removed points breakdown notification - notifications only
-import PrizeClaimNotification from './PrizeClaimNotification';
-import { useNotifications } from '@/src/contexts/NotificationsContext';
-import NotificationsList from './notifications/NotificationsList';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
-import { useRouter } from '@/i18n/routing';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { db } from '@/src/lib/firebase/config';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { useRouter } from '@/i18n/routing';
 
 interface Pet {
   id: string;
@@ -29,59 +21,18 @@ interface Pet {
   image: string;
 }
 
-interface MyPetsClientProps {
+interface MyPetClientProps {
   pets: Pet[];
 }
 
-const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
+const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
   const t = useTranslations('pages.MyPetsPage');
   const { user, loading } = useAuth();
-  // Removed points system - notifications only
-  const { createActionNotification } = useNotifications();
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
   const [pets, setPets] = useState(initialPets);
   const [petsLoading, setPetsLoading] = useState(false);
-
-  const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
-  const [showPhoneBottomSheet, setShowPhoneBottomSheet] = useState(false);
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
-  const [showPetBottomSheet, setShowPetBottomSheet] = useState(false);
-
-  const [hasAddedPet, setHasAddedPet] = useState(false); // Track if user has added a pet
-  const [showPrizeNotification, setShowPrizeNotification] = useState(false);
-  
-  // Use ref to track previous pets count to avoid multiple point awards
-  const previousPetsCountRef = useRef(0);
-  // Use ref to track if we've already created registration notification (only 1 allowed)
-  const registrationNotificationCreatedRef = useRef(false);
-  // Use ref to track if we've already created phone notification (only 1 allowed)
-  const phoneNotificationCreatedRef = useRef(false);
-  const phoneNotificationCheckRef = useRef(false); // Prevent multiple checks
-  // Use ref to track if we've already created add_pet notification (only 1 allowed)
-  const addPetNotificationCreatedRef = useRef(false);
-  // Use ref to track if we've completed the initial pets load
-  const initialPetsLoadRef = useRef(false);
-  
-  // Create registration notification for new users (only once per session)
-  useEffect(() => {
-    if (user && !loading && !registrationNotificationCreatedRef.current) {
-      // Check if this is a new user (no pets and no phone number)
-      // Only create registration notification if user has no pets AND no phone number
-      const isNewUser = pets.length === 0 && !user.phoneNumber;
-      if (isNewUser) {
-        // Mark that we've created the notification to prevent loops
-        registrationNotificationCreatedRef.current = true;
-        // Create registration notification
-        setTimeout(async () => {
-          await createActionNotification('registration');
-        }, 1000);
-      } else {
-        // If user has pets or phone number, they're not new - mark as processed
-        registrationNotificationCreatedRef.current = true;
-      }
-    }
-  }, [user, loading]); // Removed pets.length from dependencies
 
   // Fetch pets when user is authenticated
   useEffect(() => {
@@ -102,44 +53,16 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
           if (!querySnapshot.empty) {
             const petsData = querySnapshot.docs.map(doc => {
               const data = doc.data();
-              console.log('Pet data from Firestore:', data);
               return {
                 id: doc.id,
                 name: data.name || 'Unknown Pet',
                 breed: data.breedName || data.breed || 'Unknown Breed',
-                image: data.imageUrl || '/default-pet.png',
-                type: data.type || 'Other'
+                image: data.imageUrl || '/default-pet.png'
               };
             });
-            
-            // Check if user just added a pet (pets count increased)
-            const previousPetsCount = previousPetsCountRef.current;
-            const currentPetsCount = petsData.length;
-            
-            // Only create notification if:
-            // 1. Pets count actually increased (user added a pet)
-            // 2. We haven't already created an add_pet notification (only 1 allowed)
-            // 3. We've completed the initial load (to avoid creating notification on initial load)
-            if (currentPetsCount > previousPetsCount && 
-                !addPetNotificationCreatedRef.current && 
-                initialPetsLoadRef.current) {
-              // User added a new pet, create notification with 10 points
-              await createActionNotification('add_pet');
-              setHasAddedPet(true);
-              addPetNotificationCreatedRef.current = true; // Mark as created (only 1 allowed)
-              console.log('User added a pet! Created notification with 10 points.');
-            }
-            
-            // Update the ref with the current count
-            previousPetsCountRef.current = currentPetsCount;
-            // Mark that we've completed the initial load
-            initialPetsLoadRef.current = true;
-            
             setPets(petsData);
           } else {
-            console.log('No pets found for user');
             setPets([]);
-            previousPetsCountRef.current = 0;
           }
         } catch (error) {
           console.log('Error fetching pets from Firestore:', error);
@@ -153,144 +76,43 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
     fetchPets();
   }, [user?.uid, user?.email, loading]);
 
-
-
-  // Check if user has phone number set - show bottom sheet if not
-  useEffect(() => {
-    const checkUserPhoneNumber = async () => {
-      if (user && !loading && !phoneNotificationCheckRef.current) {
-        phoneNotificationCheckRef.current = true; // Prevent multiple checks
-        
-        try {
-          // Get user data from Firestore to check phone number
-          const { getUserFromFirestore } = await import('@/src/lib/firebase/users');
-          const userResult = await getUserFromFirestore(user.uid);
-          
-          if (userResult.success && userResult.user) {
-            const hasPhoneNumber = userResult.user.phone && userResult.user.phone.trim() !== '';
-            if (!hasPhoneNumber) {
-              // Show phone setup bottom sheet automatically
-              setShowPhoneBottomSheet(true);
-            } else {
-              // User has phone number, check if they need a phone notification
-              if (!phoneNotificationCreatedRef.current) {
-                // Check if user already has a phone notification
-                const { hasNotificationOfType } = await import('@/src/lib/firebase/notifications');
-                const hasPhoneNotification = await hasNotificationOfType(user, 'phone_setup');
-                if (hasPhoneNotification.success && !hasPhoneNotification.hasNotification) {
-                  // User has phone but no notification, create one
-                  await createActionNotification('phone_setup');
-                  phoneNotificationCreatedRef.current = true;
-                  console.log('Created phone notification for existing phone number');
-                } else {
-                  console.log('User already has phone notification or check failed');
-                  phoneNotificationCreatedRef.current = true; // Mark as handled
-                }
-              }
-            }
-          } else {
-            // If we can't get user data, show phone setup as fallback
-            setShowPhoneBottomSheet(true);
-          }
-        } catch (error) {
-          console.error('Error checking user phone number:', error);
-          // Show phone setup as fallback
-          setShowPhoneBottomSheet(true);
-        }
-      }
-    };
-
-    checkUserPhoneNumber();
-  }, [user, loading]);
-
-
-
-  // Fetch admin notifications (placeholder for future implementation)
-  useEffect(() => {
-    const fetchAdminNotifications = async () => {
-      if (user && !loading) {
-        try {
-          // TODO: Implement admin notifications fetching from Firestore
-          // For now, we'll use empty array
-          setAdminNotifications([]);
-        } catch (error) {
-          console.log('Error fetching admin notifications:', error);
-          setAdminNotifications([]);
-        }
-      }
-    };
-
-    fetchAdminNotifications();
-  }, [user, loading]);
-
   const filteredPets = pets.filter((pet) =>
     pet.name.toLowerCase().includes(search.toLowerCase())
   );
 
-
-
-  const handlePetTap = (petId: string) => {
-    router.push(`/pet/${petId}`);
+  // Generate a unique pet ID for the original registration flow
+  // Must be at least 10 characters and contain only alphanumeric characters
+  const generatePetId = () => {
+    const timestamp = Date.now().toString();
+    const random = Math.random().toString(36).substr(2, 9);
+    return 'pet' + timestamp + random;
   };
 
-  const handleDeletePet = (petId: string) => {
-    setPets(prev => prev.filter(pet => pet.id !== petId));
-    setShowPetBottomSheet(false);
-    setSelectedPet(null);
+  const handleAddPet = () => {
+    const petId = generatePetId();
+    router.push(`/pet/${petId}/get-started/register`);
   };
-
-
-
-  const handlePhoneAdded = async (phone: string) => {
-    // Hide the phone bottom sheet since user has added their phone
-    setShowPhoneBottomSheet(false);
-    
-    // Create phone setup notification (with duplicate check)
-    try {
-      await createActionNotification('phone_setup');
-      phoneNotificationCreatedRef.current = true; // Mark as created (only 1 allowed)
-      console.log('Phone number added:', phone, 'Notification handled!');
-    } catch (error) {
-      console.error('Error creating phone notification:', error);
-    }
-  };
-
-  // Function to show prize notification (for external calls)
-  const showPrizeNotificationFunc = () => {
-    setShowPrizeNotification(true);
-  };
-
-  // Make the function available globally for debugging/development
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).showPrizeNotification = showPrizeNotificationFunc;
-    }
-  }, []);
-
-  // Removed points system - notifications only
-
-
 
   return (
     <div>
-      {/* Welcome Section */}
-      <div className="mb-6">
-        <div className="text-center">
-          <h1 className="text-primary py-2 font-['Lobster'] text-3xl tracking-wide lg:text-4xl">
-            {t('welcomeBack')}
-          </h1>
-          
-
-
-          <p className="text-base text-gray-600">
-            {t('managePetsDescription')}
-          </p>
+      {/* Header */}
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={isEditMode ? 'default' : 'ghost'}
+            className="h-9 w-9"
+            onClick={() => setIsEditMode(!isEditMode)}
+          >
+            <EditIcon
+              className={cn('h-6 w-6', isEditMode ? '' : 'text-gray-400')}
+            />
+          </Button>
         </div>
       </div>
 
-      {/* My Pets Header */}
       <div className="mb-4">
-        <h2 className="text-2xl font-bold">{t('title')}</h2>
+        <InviteFriendsCard />
       </div>
 
       <Separator className="mb-4 h-0.5" />
@@ -299,13 +121,20 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
       {petsLoading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="ml-2 text-gray-600">{t('loadingPets')}</span>
+          <span className="ml-2 text-gray-600">Loading pets...</span>
         </div>
       ) : filteredPets.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">{t('noResults')}</p>
-          <p className="text-sm text-gray-500">
-            {t('addFirstPet')}
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="mb-4">
+            <div className="mx-auto h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center">
+              <Plus className="h-12 w-12 text-gray-400" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No pets yet
+          </h3>
+          <p className="text-gray-500 mb-6 max-w-sm">
+            Start by adding your first pet to keep them safe and connected!
           </p>
         </div>
       ) : (
@@ -317,126 +146,24 @@ const MyPetsClient: React.FC<MyPetsClientProps> = ({ pets: initialPets }) => {
               name={pet.name}
               breed={pet.breed}
               image={pet.image}
-              type={pet.type}
-              onTap={handlePetTap}
+              isEditMode={isEditMode}
             />
           ))}
         </div>
       )}
 
-      {/* 50px spacing after pets */}
-      <div style={{ height: '50px' }}></div>
-
-      {/* Notifications Section */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">{t('notifications')}</h2>
-        </div>
-        
-        {/* Share with Friends - always show */}
-        <div className="mb-4">
-          <InviteFriendsCard 
-            onClose={() => {}} 
-            onShareSuccess={async () => {
-              try {
-                console.log('Share success callback triggered');
-                // Create share notification (limited to one per user)
-                await createActionNotification('share');
-                console.log('Share notification created successfully');
-              } catch (error) {
-                console.error('Error creating share notification:', error);
-              }
-            }}
-          />
-        </div>
-
-        {/* Notifications List - appears after share button */}
-        <div className="mb-4">
-          <NotificationsList />
-        </div>
-        
-        {/* Removed points breakdown notification - notifications only */}
-
-        {/* Prize Claim Notification */}
-        {showPrizeNotification && (
-          <div className="mb-4">
-            <PrizeClaimNotification 
-              onClaim={() => {
-                setShowPrizeNotification(false);
-                console.log('Prize claimed from notification!');
-              }}
-            />
-          </div>
-        )}
-
-
-        
-        {/* Admin Notifications */}
-        {adminNotifications.map((notification, index) => {
-          const handleClose = () => {
-            setAdminNotifications(prev => {
-              // Find the current index of this notification in the updated array
-              const currentIndex = prev.findIndex(n => 
-                n.title === notification.title && 
-                n.message === notification.message &&
-                n.type === notification.type
-              );
-              return prev.filter((_, i) => i !== currentIndex);
-            });
-          };
-          
-          return (
-            <div key={`notification-${index}-${notification.title}`} className="mb-4">
-              <AdminNotificationCard
-                title={notification.title}
-                message={notification.message}
-                type={notification.type}
-                actionText={notification.actionText}
-                onAction={notification.onAction}
-                onClose={handleClose}
-              />
-            </div>
-          );
-        })}
-        
-
-        
-
+      {/* Floating Action Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={handleAddPet}
+          className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg"
+          title="Add Pet"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
       </div>
-
-
-
-      {/* Floating Add Button */}
-      {!showPhoneBottomSheet && !showPetBottomSheet && (
-        <div className="fixed bottom-6 right-6 z-80">
-          <Button
-            onClick={() => router.push('/add-pet')}
-            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
-            size="icon"
-          >
-            <Plus className="h-6 w-6 text-white" />
-          </Button>
-        </div>
-      )}
-
-      {/* Bottom Sheets */}
-      <PhoneNumberBottomSheet
-        isOpen={showPhoneBottomSheet}
-        onClose={() => setShowPhoneBottomSheet(false)}
-        onPhoneAdded={handlePhoneAdded}
-      />
-
-      <PetDetailsBottomSheet
-        isOpen={showPetBottomSheet}
-        onClose={() => {
-          setShowPetBottomSheet(false);
-          setSelectedPet(null);
-        }}
-        pet={selectedPet}
-        onDeletePet={handleDeletePet}
-      />
     </div>
   );
 };
 
-export default MyPetsClient;
+export default MyPetClient;

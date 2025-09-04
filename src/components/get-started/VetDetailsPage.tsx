@@ -5,7 +5,6 @@ import { Controller, useFormContext } from 'react-hook-form';
 import he from 'react-phone-number-input/locale/he';
 import GetStartedInput from './ui/GetStartedInput';
 import { GetStartedPhoneInput } from './ui/GetStartedPhoneInput';
-import LocationAutocompleteSelector from './ui/LocationAutocompleteSelector';
 import PrivacyLockToggle from './ui/PrivacyLockToggle';
 
 const VetDetailsPage = () => {
@@ -122,11 +121,11 @@ const VetDetailsPage = () => {
                 name="vetAddress"
                 control={control}
                 render={({ field }) => (
-                  <LocationAutocompleteSelector
+                  <GetStartedInput
                     label={t('form.VeterinaryAddress')}
                     id="vetAddress"
                     {...field}
-                    hasError={!!errors.ownerHomeAddress}
+                    hasError={!!errors.vetAddress}
                   />
                 )}
               />

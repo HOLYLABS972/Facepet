@@ -6,26 +6,7 @@ export const getPetRegisterSchemas = (
   genderIds: number[]
 ) => ({
   petDetails: z.object({
-    imageUrl: z.preprocess(
-      (val) => {
-        // Check if the value is falsy or an empty string
-        if (!val || (typeof val === 'string' && val.trim() === '')) {
-          const pets = [
-            'pig',
-            'bunny',
-            'dino',
-            'duck',
-            'penguin',
-            'bear',
-            'panda'
-          ];
-          const randomPet = pets[Math.floor(Math.random() * pets.length)];
-          return `/figures/${randomPet}.jpg`;
-        }
-        return val;
-      },
-      z.string().nonempty(t('errors.petDetails.imageRequired'))
-    ),
+    imageUrl: z.string().min(1, t('errors.petDetails.imageRequired')),
     petName: z.string().nonempty(t('errors.petDetails.nameRequired')),
     breedId: z.number().refine((value) => breedIds.includes(value), {
       message: t('errors.petDetails.invalidBreed')

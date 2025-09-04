@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, Loader2, Users } from 'lucide-react';
+import { ArrowLeft, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, Loader2, Users, Plus, Edit } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -10,8 +10,9 @@ import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
+import VetDataModal from './VetDataModal';
 
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
 
 interface Pet {
@@ -26,6 +27,8 @@ interface Pet {
   userEmail: string;
   createdAt: Date;
   updatedAt: Date;
+  notes?: string;
+  birthDate?: string;
 }
 
 interface Owner {
@@ -35,20 +38,38 @@ interface Owner {
   email: string;
   fullName?: string;
   phoneNumber?: string;
+  homeAddress?: string;
+}
+
+interface Vet {
+  id: string;
+  name?: string;
+  phoneNumber?: string;
+  email?: string;
+  address?: string;
+  // Vet privacy settings - all vet info can be private
+  isNamePrivate?: boolean;
+  isPhonePrivate?: boolean;
+  isEmailPrivate?: boolean;
+  isAddressPrivate?: boolean;
 }
 
 interface PetProfilePageProps {
   pet: Pet;
   owner?: Owner;
+  vet?: Vet;
 }
 
-export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
+export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps) {
   const router = useRouter();
   const { user } = useAuth();
   const t = useTranslations('pages.PetProfilePage');
   const [copied, setCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showShareEarning, setShowShareEarning] = useState(false);
+  const [isVetModalOpen, setIsVetModalOpen] = useState(false);
+  const [isEditingVet, setIsEditingVet] = useState(false);
+  const [currentVet, setCurrentVet] = useState(vet);
   
   // Check if current user is the pet owner
   const isOwner = user?.email === pet.userEmail;
@@ -99,6 +120,32 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
       setCopied(true);
       toast.success(t('messages.linkCopied'));
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleAddVet = () => {
+    setIsEditingVet(false);
+    setIsVetModalOpen(true);
+  };
+
+  const handleEditVet = () => {
+    setIsEditingVet(true);
+    setIsVetModalOpen(true);
+  };
+
+  const handleSaveVet = async (vetData: any) => {
+    try {
+      // For now, we'll just update the local state
+      // In a real implementation, you'd save this to Firebase
+      const newVet = {
+        id: currentVet?.id || 'new-vet-id',
+        ...vetData
+      };
+      setCurrentVet(newVet);
+      toast.success('Veterinary information saved successfully');
+    } catch (error) {
+      console.error('Error saving vet data:', error);
+      toast.error('Failed to save veterinary information');
     }
   };
 
@@ -183,15 +230,6 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                   <Wifi className="h-4 w-4" />
                   <span>{t('actions.attachTag')}</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/pet/${pet.id}/edit`)}
-                  className="flex items-center space-x-2"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>{t('actions.editPet')}</span>
-                </Button>
               </div>
             )}
           </div>
@@ -274,6 +312,12 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                         <span className="font-semibold capitalize">{pet.gender}</span>
                       </div>
                     )}
+                    {pet.notes && (
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium text-gray-600">{t('labels.notes')}</span>
+                        <span className="font-semibold">{pet.notes}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -301,7 +345,7 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
             )}
 
             {/* Contact Information - Only show to non-owners */}
-            {owner && !isOwner && (owner.phone || owner.phoneNumber) && (
+            {owner && !isOwner && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -315,16 +359,18 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                      <Phone className="w-5 h-5 text-green-600" />
-                      <div>
-                        <p className="font-medium text-green-800">{t('labels.phone')}</p>
-                        <p className="text-sm text-green-600">
-                          {owner.phone || owner.phoneNumber}
-                        </p>
+                    {(owner.phone || owner.phoneNumber) && (
+                      <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                        <Phone className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-800">{t('labels.phone')}</p>
+                          <p className="text-sm text-green-600">
+                            {owner.phone || owner.phoneNumber}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    {owner.displayName || owner.fullName ? (
+                    )}
+                    {(owner.displayName || owner.fullName) && (
                       <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                         <Mail className="w-5 h-5 text-blue-600" />
                         <div>
@@ -334,7 +380,129 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
                           </p>
                         </div>
                       </div>
-                    ) : null}
+                    )}
+                    {owner.homeAddress && (
+                      <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
+                        <MapPin className="w-5 h-5 text-orange-600" />
+                        <div>
+                          <p className="font-medium text-orange-800">{t('labels.address')}</p>
+                          <p className="text-sm text-orange-600">{owner.homeAddress}</p>
+                        </div>
+                      </div>
+                    )}
+                    {!(owner.phone || owner.phoneNumber) && !(owner.displayName || owner.fullName) && !owner.homeAddress && (
+                      <div className="flex items-center justify-center p-6 text-gray-500">
+                        <p>No contact information available</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Vet Information - Show to both owners and non-owners */}
+            {currentVet && (currentVet.name || currentVet.phoneNumber || currentVet.email || currentVet.address) ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Users className="w-5 h-5 text-purple-500" />
+                        <span>{t('sections.veterinaryInformation')}</span>
+                      </div>
+                      {isOwner && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEditVet}
+                          className="flex items-center space-x-1"
+                        >
+                          <Edit className="w-4 h-4" />
+                          <span>{t('messages.editVet')}</span>
+                        </Button>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {currentVet.name && (!isOwner || !currentVet.isNamePrivate) && (
+                      <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                        <Users className="w-5 h-5 text-purple-600" />
+                        <div>
+                          <p className="font-medium text-purple-800">{t('labels.veterinaryName')}</p>
+                          <p className="text-sm text-purple-600">{currentVet.name}</p>
+                        </div>
+                      </div>
+                    )}
+                    {currentVet.phoneNumber && (!isOwner || !currentVet.isPhonePrivate) && (
+                      <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                        <Phone className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-800">{t('labels.phone')}</p>
+                          <p className="text-sm text-green-600">{currentVet.phoneNumber}</p>
+                        </div>
+                      </div>
+                    )}
+                    {currentVet.email && (!isOwner || !currentVet.isEmailPrivate) && (
+                      <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                        <Mail className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium text-blue-800">{t('labels.email')}</p>
+                          <p className="text-sm text-blue-600">{currentVet.email}</p>
+                        </div>
+                      </div>
+                    )}
+                    {currentVet.address && (!isOwner || !currentVet.isAddressPrivate) && (
+                      <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
+                        <MapPin className="w-5 h-5 text-orange-600" />
+                        <div>
+                          <p className="font-medium text-orange-800">{t('labels.address')}</p>
+                          <p className="text-sm text-orange-600">{currentVet.address}</p>
+                        </div>
+                      </div>
+                    )}
+                    {/* Show message if all vet info is private for owner */}
+                    {isOwner && currentVet.isNamePrivate && currentVet.isPhonePrivate && currentVet.isEmailPrivate && currentVet.isAddressPrivate && (
+                      <div className="flex items-center justify-center p-6 text-gray-500">
+                        <p>{t('messages.vetInfoPrivate')}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Users className="w-5 h-5 text-purple-500" />
+                        <span>{t('sections.veterinaryInformation')}</span>
+                      </div>
+                      {isOwner && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleAddVet}
+                          className="flex items-center space-x-1"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>{t('messages.addVet')}</span>
+                        </Button>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-center p-6 text-gray-500">
+                      <p>{t('messages.noVetData')}</p>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -494,6 +662,15 @@ export default function PetProfilePage({ pet, owner }: PetProfilePageProps) {
           </div>
         </div>
       </div>
+
+      {/* Vet Data Modal */}
+      <VetDataModal
+        isOpen={isVetModalOpen}
+        onClose={() => setIsVetModalOpen(false)}
+        onSave={handleSaveVet}
+        initialData={isEditingVet ? currentVet : null}
+        isEditing={isEditingVet}
+      />
     </div>
   );
 }

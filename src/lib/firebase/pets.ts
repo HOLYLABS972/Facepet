@@ -15,6 +15,11 @@ export interface PetData {
   ownerEmail: string;
   ownerAddress: string;
   vetId?: string;
+  // Vet data for creation
+  vetName?: string;
+  vetPhoneNumber?: string;
+  vetEmailAddress?: string;
+  vetAddress?: string;
 }
 
 export interface OwnerData {
@@ -68,15 +73,48 @@ export interface Pet {
  */
 async function getBreedName(breedId: number): Promise<string> {
   try {
-    // Import the breeds data
-    const breedsData = await import('../../../utils/database/seeds/breeds.json');
-    const breed = breedsData.default.find((b: any) => b.id === breedId);
-    return breed ? breed.en : `Breed ${breedId}`;
+    // Query the breeds collection from Firebase
+    const { collection, query, where, getDocs } = await import('firebase/firestore');
+    const breedsRef = collection(db, 'breeds');
+    const q = query(breedsRef, where('id', '==', breedId));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const breedDoc = querySnapshot.docs[0];
+      const breedData = breedDoc.data();
+      return breedData.labels?.en || breedData.name || `Breed ${breedId}`;
+    }
+    
+    return `Breed ${breedId}`;
   } catch (error) {
     console.error('Error getting breed name:', error);
     return `Breed ${breedId}`;
   }
 }
+
+async function getGenderName(genderId: number): Promise<string> {
+  try {
+    // Query the genders collection from Firebase
+    const { collection, query, where, getDocs } = await import('firebase/firestore');
+    const gendersRef = collection(db, 'genders');
+    const q = query(gendersRef, where('id', '==', genderId));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const genderDoc = querySnapshot.docs[0];
+      const genderData = genderDoc.data();
+      return genderData.labels?.en || genderData.name || `Gender ${genderId}`;
+    }
+    
+    return `Gender ${genderId}`;
+  } catch (error) {
+    console.error('Error getting gender name:', error);
+    return `Gender ${genderId}`;
+  }
+}
+
+// Export the functions
+export { getBreedName, getGenderName };
 
 export async function createPetInFirestore(
   petData: PetData, 
@@ -109,12 +147,12 @@ export async function createPetInFirestore(
 
     // Create vet document if vet data is provided
     let vetRef = null;
-    if (petData.vetId) {
+    if (petData.vetName && petData.vetName.trim() !== '') {
       const vetData: VetData = {
-        name: '',
-        phoneNumber: '',
-        email: '',
-        address: '',
+        name: petData.vetName,
+        phoneNumber: petData.vetPhoneNumber || '',
+        email: petData.vetEmailAddress || '',
+        address: petData.vetAddress || '',
         isPhonePrivate: false,
         isEmailPrivate: false,
         isAddressPrivate: false

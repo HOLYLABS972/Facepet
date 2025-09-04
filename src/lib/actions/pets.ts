@@ -47,10 +47,8 @@ export interface Pet {
  */
 export async function createPet(petData: PetData): Promise<{ success: boolean; petId?: string; error?: string }> {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    // Note: This function is deprecated - use Firebase client-pets instead
+    return { success: false, error: 'This function is deprecated. Use Firebase client-pets instead.' };
 
     // Create owner first
     const [owner] = await db.insert(owners).values({
@@ -134,10 +132,8 @@ export async function getUserPets(userEmail: string): Promise<{ success: boolean
  */
 export async function getPetById(petId: string): Promise<{ success: boolean; pet?: Pet; error?: string }> {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    // Note: This function is deprecated - use Firebase client-pets instead
+    return { success: false, error: 'This function is deprecated. Use Firebase client-pets instead.' };
 
     const [pet] = await db
       .select({
@@ -187,10 +183,8 @@ export async function getPetById(petId: string): Promise<{ success: boolean; pet
  */
 export async function updatePet(petId: string, petData: Partial<PetData>): Promise<{ success: boolean; error?: string }> {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    // Note: This function is deprecated - use Firebase client-pets instead
+    return { success: false, error: 'This function is deprecated. Use Firebase client-pets instead.' };
 
     // Check if pet exists and belongs to user
     const existingPet = await getPetById(petId);
@@ -242,10 +236,8 @@ export async function updatePet(petId: string, petData: Partial<PetData>): Promi
  */
 export async function deletePet(petId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    // Note: This function is deprecated - use Firebase client-pets instead
+    return { success: false, error: 'This function is deprecated. Use Firebase client-pets instead.' };
 
     // Check if pet exists and belongs to user
     const existingPet = await getPetById(petId);
@@ -340,10 +332,49 @@ export async function isPetLinkedToUser(petId: string, userEmail: string): Promi
 }
 
 /**
- * Create new pet (alias for createPet for backward compatibility)
+ * Create new pet (Firebase version - matches backup interface)
  */
-export async function createNewPet(petId: string, petData: PetData): Promise<{ success: boolean; petId?: string; error?: string }> {
-  // For now, we'll ignore the petId parameter and let the database generate a new ID
-  // You can modify this if you want to use specific pet IDs
-  return await createPet(petData);
+export async function createNewPet(petId: string, petData: any): Promise<{ success: boolean; petId?: string; error?: string }> {
+  try {
+    // Note: This function is deprecated - use Firebase client-pets instead
+    return { success: false, error: 'This function is deprecated. Use Firebase client-pets instead.' };
+
+    // Transform the form data to match our PetData interface
+    const transformedPetData: PetData = {
+      name: petData.petName || '',
+      description: '',
+      imageUrl: petData.imageUrl || '',
+      genderId: petData.genderId || 0,
+      breedId: petData.breedId || 0,
+      birthDate: petData.birthDate ? new Date(petData.birthDate).toISOString() : undefined,
+      notes: petData.notes || '',
+      ownerName: petData.ownerFullName || '',
+      ownerPhone: petData.ownerPhoneNumber || '',
+      ownerEmail: petData.ownerEmailAddress || '',
+      ownerAddress: petData.ownerHomeAddress || '',
+      vetId: petData.vetName ? 'vet-id' : undefined
+    };
+
+    // Add vet data to the petData object for Firebase function
+    const petDataWithVet = {
+      ...transformedPetData,
+      vetName: petData.vetName || '',
+      vetPhoneNumber: petData.vetPhoneNumber || '',
+      vetEmailAddress: petData.vetEmailAddress || '',
+      vetAddress: petData.vetAddress || ''
+    };
+
+    // Use Firebase to create the pet
+    const { createPetInFirestore } = await import('@/src/lib/firebase/pets');
+    const result = await createPetInFirestore(petDataWithVet, { email: session.user.email } as any);
+
+    if (result.success) {
+      return { success: true, petId: result.petId };
+    } else {
+      return { success: false, error: result.error };
+    }
+  } catch (error: any) {
+    console.error('Create new pet error:', error);
+    return { success: false, error: 'Failed to create pet' };
+  }
 }

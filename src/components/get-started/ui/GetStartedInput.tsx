@@ -43,6 +43,7 @@ const GetStartedInput = ({
         id={id}
         required={required}
         {...props}
+        value={props.value || ''}
         className={cn(
           'h-10 rounded border-gray-300 bg-white',
           hasError ? 'border-red-800' : '',
