@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Smartphone, Tag, Download } from 'lucide-react';
+import { ArrowLeft, Smartphone, Tag, Download, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { getMobileAppLinks } from '@/src/lib/actions/admin';
 
 interface Pet {
   id: string;
@@ -29,6 +30,11 @@ interface NFCScanPageProps {
 
 export default function NFCScanPage({ pet }: NFCScanPageProps) {
   const t = useTranslations('Pet.nfcTag');
+  const [mobileAppLinks, setMobileAppLinks] = useState({
+    androidAppUrl: '',
+    iosAppUrl: ''
+  });
+  const [userPlatform, setUserPlatform] = useState<'android' | 'ios' | 'web' | null>(null);
 
   const STEPS = [
     {
@@ -46,21 +52,53 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
   ];
   const router = useRouter();
 
-  const handleDownloadApp = () => {
-    // You can customize this URL to point to your app store links
-    const appStoreUrl = 'https://apps.apple.com/app/facepet'; // iOS
-    const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.facepet'; // Android
+  // Platform detection function
+  const detectPlatform = () => {
+    if (typeof window === 'undefined') return 'web';
     
-    // Detect platform and redirect accordingly
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const userAgent = window.navigator.userAgent.toLowerCase();
     
-    if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-      window.open(appStoreUrl, '_blank');
-    } else if (/android/i.test(userAgent)) {
-      window.open(playStoreUrl, '_blank');
+    if (/android/.test(userAgent)) {
+      return 'android';
+    } else if (/iphone|ipad|ipod/.test(userAgent)) {
+      return 'ios';
     } else {
-      // Default to a general download page or show both options
-      window.open(appStoreUrl, '_blank');
+      return 'web';
+    }
+  };
+
+  // Load mobile app links
+  useEffect(() => {
+    const loadMobileAppLinks = async () => {
+      try {
+        const links = await getMobileAppLinks();
+        setMobileAppLinks(links);
+      } catch (error) {
+        console.error('Error loading mobile app links:', error);
+      }
+    };
+    
+    loadMobileAppLinks();
+  }, []);
+
+  // Detect user platform
+  useEffect(() => {
+    setUserPlatform(detectPlatform());
+  }, []);
+
+  const handleDownloadApp = () => {
+    if (userPlatform === 'android' && mobileAppLinks.androidAppUrl) {
+      window.open(mobileAppLinks.androidAppUrl, '_blank');
+    } else if (userPlatform === 'ios' && mobileAppLinks.iosAppUrl) {
+      window.open(mobileAppLinks.iosAppUrl, '_blank');
+    } else if (mobileAppLinks.androidAppUrl) {
+      // Default to Android if available
+      window.open(mobileAppLinks.androidAppUrl, '_blank');
+    } else if (mobileAppLinks.iosAppUrl) {
+      // Fallback to iOS if Android not available
+      window.open(mobileAppLinks.iosAppUrl, '_blank');
+    } else {
+      console.warn('No mobile app links configured');
     }
   };
 
@@ -165,14 +203,65 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
               <p className="text-gray-600 mb-4">
                 {t('downloadApp.description', { petName: pet.name })}
               </p>
-              <Button
-                onClick={handleDownloadApp}
-                className="w-full"
-                size="lg"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                {t('downloadApp.button')}
-              </Button>
+              
+              {!mobileAppLinks.androidAppUrl && !mobileAppLinks.iosAppUrl ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-500 mb-2">Mobile app download links are not configured yet.</p>
+                  <p className="text-sm text-gray-400">Please contact the administrator.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {/* Show platform-specific download or both options */}
+                  {userPlatform === 'android' && mobileAppLinks.androidAppUrl ? (
+                    <Button
+                      onClick={() => window.open(mobileAppLinks.androidAppUrl, '_blank')}
+                      className="w-full"
+                      size="lg"
+                    >
+                      <div className="w-5 h-5 mr-2">🤖</div>
+                      Download for Android
+                      <ExternalLink className="w-4 h-4 ml-2" />
+                    </Button>
+                  ) : userPlatform === 'ios' && mobileAppLinks.iosAppUrl ? (
+                    <Button
+                      onClick={() => window.open(mobileAppLinks.iosAppUrl, '_blank')}
+                      className="w-full"
+                      size="lg"
+                    >
+                      <div className="w-5 h-5 mr-2">🍎</div>
+                      Download for iOS
+                      <ExternalLink className="w-4 h-4 ml-2" />
+                    </Button>
+                  ) : (
+                    <div className="space-y-2">
+                      {/* Show both options for web users */}
+                      {mobileAppLinks.androidAppUrl && (
+                        <Button
+                          onClick={() => window.open(mobileAppLinks.androidAppUrl, '_blank')}
+                          className="w-full"
+                          size="lg"
+                        >
+                          <div className="w-5 h-5 mr-2">🤖</div>
+                          Download for Android
+                          <ExternalLink className="w-4 h-4 ml-2" />
+                        </Button>
+                      )}
+
+                      {mobileAppLinks.iosAppUrl && (
+                        <Button
+                          onClick={() => window.open(mobileAppLinks.iosAppUrl, '_blank')}
+                          className="w-full"
+                          size="lg"
+                        >
+                          <div className="w-5 h-5 mr-2">🍎</div>
+                          Download for iOS
+                          <ExternalLink className="w-4 h-4 ml-2" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

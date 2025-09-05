@@ -53,17 +53,20 @@ const OwnerDetailsPage = () => {
               <Controller
                 name="ownerPhoneNumber"
                 control={control}
-                render={({ field }) => (
-                  <GetStartedPhoneInput
-                    label={t('form.PhoneNumber')}
-                    id="phoneNumber"
-                    {...field}
-                    hasError={!!errors.ownerPhoneNumber}
-                    labels={locale === 'he' ? he : undefined}
-                    defaultCountry="IL"
-                    international={false}
-                  />
-                )}
+                render={({ field }) => {
+                  console.log('Phone field value:', field.value);
+                  return (
+                    <GetStartedPhoneInput
+                      label={t('form.PhoneNumber')}
+                      id="phoneNumber"
+                      {...field}
+                      hasError={!!errors.ownerPhoneNumber}
+                      labels={locale === 'he' ? he : undefined}
+                      defaultCountry="IL"
+                      international={true}
+                    />
+                  );
+                }}
               />
             </div>
             <Controller

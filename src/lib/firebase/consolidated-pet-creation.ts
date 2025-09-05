@@ -272,6 +272,7 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
     
     const ownerDoc = usersSnapshot.docs[0];
     const ownerData = ownerDoc.data();
+    
     const owner = { 
       id: ownerDoc.id, 
       uid: ownerData.uid,
@@ -280,7 +281,7 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       fullName: ownerData.displayName,
       phone: ownerData.phone,
       phoneNumber: ownerData.phone,
-      homeAddress: ownerData.homeAddress,
+      homeAddress: ownerData.address || ownerData.homeAddress, // Try both field names for compatibility
       profileImage: ownerData.profileImage,
       language: ownerData.language,
       acceptCookies: ownerData.acceptCookies,

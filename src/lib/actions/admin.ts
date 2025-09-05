@@ -1060,6 +1060,8 @@ export interface ContactInfo {
   facebook?: string;
   instagram?: string;
   whatsapp?: string;
+  androidAppUrl?: string;
+  iosAppUrl?: string;
   isEnabled: boolean;
   updatedAt: Date;
 }
@@ -1086,6 +1088,8 @@ export async function getContactInfo(): Promise<ContactInfo | null> {
       facebook: data.facebook || '',
       instagram: data.instagram || '',
       whatsapp: data.whatsapp || '',
+      androidAppUrl: data.androidAppUrl || '',
+      iosAppUrl: data.iosAppUrl || '',
       isEnabled: data.isEnabled || false,
       updatedAt: data.updatedAt?.toDate() || new Date()
     };
@@ -1121,6 +1125,29 @@ export async function saveContactInfo(contactInfo: Omit<ContactInfo, 'id' | 'upd
   } catch (error) {
     console.error('Error saving contact info:', error);
     return { success: false, error: 'Failed to save contact information' };
+  }
+}
+
+/**
+ * Get mobile app links
+ */
+export async function getMobileAppLinks() {
+  try {
+    console.log('Getting contact info for mobile app links...');
+    const contactInfo = await getContactInfo();
+    console.log('Contact info retrieved:', contactInfo);
+    const links = {
+      androidAppUrl: contactInfo?.androidAppUrl || '',
+      iosAppUrl: contactInfo?.iosAppUrl || ''
+    };
+    console.log('Mobile app links extracted:', links);
+    return links;
+  } catch (error) {
+    console.error('Error getting mobile app links:', error);
+    return {
+      androidAppUrl: '',
+      iosAppUrl: ''
+    };
   }
 }
 

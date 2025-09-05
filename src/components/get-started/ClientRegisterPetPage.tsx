@@ -62,11 +62,14 @@ export default function ClientRegisterPetPage({
   // Define form default values.
   const initialFormData = useMemo(
     () => ({
+      id: petId || '', // Add required id field
       imageUrl: '',
       petName: '',
       type: '', // String-based type field
       breed: '', // String-based breed field
+      breedId: 0, // Add required breedId field
       gender: '', // String-based gender field
+      genderId: 0, // Add required genderId field
       birthDate: null as Date | null,
       notes: '',
       // Use authenticated user data if available, otherwise use userDetails
@@ -79,7 +82,7 @@ export default function ClientRegisterPetPage({
       vetEmailAddress: '',
       vetAddress: ''
     }),
-    [user, userDetails]
+    [user, userDetails, petId]
   );
 
   const [formData, setFormData] = useState(initialFormData);
@@ -97,11 +100,30 @@ export default function ClientRegisterPetPage({
         try {
           const userResult = await getUserFromFirestore(user.uid);
           if (userResult.success && userResult.user) {
+            // Format phone number to include country code if it doesn't have one
+            let phoneNumber = userResult.user.phone || userDetails.phone || '';
+            if (phoneNumber && !phoneNumber.startsWith('+')) {
+              // If phone number doesn't start with +, assume it's Israeli and add +972
+              if (phoneNumber.startsWith('0')) {
+                phoneNumber = '+972' + phoneNumber.substring(1);
+              } else {
+                phoneNumber = '+972' + phoneNumber;
+              }
+            }
+            
             const updatedData = {
               ownerFullName: user.displayName || userResult.user.displayName || userDetails.fullName || '',
               ownerEmailAddress: user.email || userResult.user.email || userDetails.email || '',
-              ownerPhoneNumber: userResult.user.phone || userDetails.phone || ''
+              ownerPhoneNumber: phoneNumber,
+              ownerHomeAddress: userResult.user.address || '' // Fetch address from user profile
             };
+            
+            console.log('Fetched user data for form:', {
+              originalPhone: userResult.user.phone,
+              formattedPhone: phoneNumber,
+              address: userResult.user.address,
+              allFields: Object.keys(userResult.user)
+            });
             
             // Update form data
             setFormData(prev => ({ ...prev, ...updatedData }));
@@ -139,7 +161,7 @@ export default function ClientRegisterPetPage({
     setError(null);
 
     try {
-      const result = await createNewPet(petId, allFormData as NewPetData, user);
+      const result = await createNewPet(petId, allFormData as any, user);
 
       if (result.success) {
         clearPetId();

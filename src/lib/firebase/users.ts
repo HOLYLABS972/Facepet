@@ -20,6 +20,7 @@ export async function createUserInFirestore(
   user: User,
   additionalData?: {
     phone?: string;
+    address?: string;
     profileImage?: string;
     acceptCookies?: boolean;
     language?: string;
@@ -46,9 +47,12 @@ export async function createUserInFirestore(
         updatedAt: new Date(),
       };
 
-      // Only update phone, acceptCookies, language if they're provided and different
+      // Only update phone, address, acceptCookies, language if they're provided and different
       if (additionalData?.phone !== undefined) {
         updateData.phone = additionalData.phone;
+      }
+      if (additionalData?.address !== undefined) {
+        updateData.address = additionalData.address;
       }
       if (additionalData?.acceptCookies !== undefined) {
         updateData.acceptCookies = additionalData.acceptCookies;
@@ -72,6 +76,7 @@ export async function createUserInFirestore(
         email: user.email,
         displayName: user.displayName || '',
         phone: additionalData?.phone || '',
+        address: additionalData?.address || '',
         profileImage: user.photoURL || additionalData?.profileImage || '',
         acceptCookies: additionalData?.acceptCookies || false,
         language: additionalData?.language || 'en',

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { saveContactInfo, type ContactInfo } from '@/lib/actions/admin';
-import { Loader2, Save, Phone, Mail, MapPin, Settings } from 'lucide-react';
+import { Loader2, Save, Phone, Mail, MapPin, Settings, Smartphone } from 'lucide-react';
 
 interface ContactInfoFormProps {
   initialData?: ContactInfo | null;
@@ -27,6 +27,8 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
     facebook: '',
     instagram: '',
     whatsapp: '',
+    androidAppUrl: '',
+    iosAppUrl: '',
     isEnabled: false
   });
 
@@ -39,6 +41,8 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
         facebook: initialData.facebook || '',
         instagram: initialData.instagram || '',
         whatsapp: initialData.whatsapp || '',
+        androidAppUrl: initialData.androidAppUrl || '',
+        iosAppUrl: initialData.iosAppUrl || '',
         isEnabled: initialData.isEnabled || false
       });
     }
@@ -73,18 +77,23 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
         facebook: formData.facebook,
         instagram: formData.instagram,
         whatsapp: formData.whatsapp,
+        androidAppUrl: formData.androidAppUrl,
+        iosAppUrl: formData.iosAppUrl,
         isEnabled: formData.isEnabled
       };
 
+      console.log('Saving contact info with mobile app links:', contactInfo);
       const result = await saveContactInfo(contactInfo);
 
       if (result.success) {
+        console.log('Contact info saved successfully');
         setSuccess(true);
         setTimeout(() => {
           setSuccess(false);
           router.refresh();
         }, 2000);
       } else {
+        console.error('Failed to save contact info:', result.error);
         setError(result.error || 'Failed to save contact information');
       }
     } catch (err) {
@@ -211,6 +220,40 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
                 onChange={handleChange}
                 placeholder="https://wa.me/1234567890"
               />
+            </div>
+          </div>
+
+          {/* Mobile App Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Smartphone className="h-4 w-4" />
+              Mobile App Links
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="androidAppUrl">Android App Store URL</Label>
+                <Input
+                  id="androidAppUrl"
+                  name="androidAppUrl"
+                  type="url"
+                  value={formData.androidAppUrl}
+                  onChange={handleChange}
+                  placeholder="https://play.google.com/store/apps/details?id=com.facepet.app"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="iosAppUrl">iOS App Store URL</Label>
+                <Input
+                  id="iosAppUrl"
+                  name="iosAppUrl"
+                  type="url"
+                  value={formData.iosAppUrl}
+                  onChange={handleChange}
+                  placeholder="https://apps.apple.com/app/facepet/id123456789"
+                />
+              </div>
             </div>
           </div>
 

@@ -218,7 +218,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const verifyCodeAndCreateAccount = async (email: string, password: string, fullName: string, code: string, phone?: string) => {
+  const verifyCodeAndCreateAccount = async (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => {
     try {
       // Validate the OTP code against the stored frontend code
       if (!storedOTPCode || storedOTPCode !== code) {
@@ -243,6 +243,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.log('🔍 Creating user with role:', { email, userRole, cookiePreference });
         const userResult = await createUserInFirestore(userCredential.user, {
           phone: phone || '',
+          address: address || '',
           acceptCookies: cookiePreference,
           language: 'en',
           role: userRole

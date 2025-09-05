@@ -72,6 +72,11 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
   const [isEditingVet, setIsEditingVet] = useState(false);
   const [currentVet, setCurrentVet] = useState(vet);
   
+  // Update currentVet when vet prop changes
+  useEffect(() => {
+    setCurrentVet(vet);
+  }, [vet]);
+  
   // Check if current user is the pet owner
   const isOwner = user?.email === pet.userEmail;
 

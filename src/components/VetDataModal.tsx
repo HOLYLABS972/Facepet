@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { Button } from './ui/button';
@@ -58,6 +58,13 @@ export default function VetDataModal({
       isAddressPrivate: false
     }
   });
+
+  // Reset form when initialData changes (for editing)
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+    }
+  }, [initialData, reset]);
 
   const onSubmit = async (data: VetData) => {
     setIsLoading(true);
@@ -143,7 +150,7 @@ export default function VetDataModal({
                         hasError={!!errors.phoneNumber}
                         labels={he}
                         defaultCountry="IL"
-                        international={false}
+                        international={true}
                       />
                     )}
                   />

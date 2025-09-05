@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
@@ -35,7 +35,8 @@ const AuthPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    fullName: ''
+    fullName: '',
+    address: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +57,7 @@ const AuthPage = () => {
         toast.success(t('verificationCodeSent'));
         
         // Redirect to email verification page with simple parameters
-        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}&fullName=${encodeURIComponent(formData.fullName)}`);
+        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}&fullName=${encodeURIComponent(formData.fullName)}&address=${encodeURIComponent(formData.address)}`);
       } else {
         await signIn(formData.email, formData.password);
         toast.success(t('signInSuccess'));
@@ -180,21 +181,39 @@ const AuthPage = () => {
               {/* Email Form */}
               <form onSubmit={handleEmailAuth} className="space-y-4">
                 {isSignUp && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">{t('fullName')}</label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        name="fullName"
-                        type="text"
-                        placeholder={t('fullNamePlaceholder')}
-                        value={formData.fullName}
-                        onChange={handleInputChange}
-                        required={isSignUp}
-                        className="pl-10 h-12"
-                      />
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">{t('fullName')}</label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          name="fullName"
+                          type="text"
+                          placeholder={t('fullNamePlaceholder')}
+                          value={formData.fullName}
+                          onChange={handleInputChange}
+                          required={isSignUp}
+                          className="pl-10 h-12"
+                        />
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">{t('address')}</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          name="address"
+                          type="text"
+                          placeholder={t('addressPlaceholder')}
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          required={isSignUp}
+                          className="pl-10 h-12"
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div className="space-y-2">

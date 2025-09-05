@@ -153,22 +153,23 @@ export async function createPetInFirestore(
     const genderName = petData.gender || '';
     const typeName = petData.type || '';
 
-    // Create owner document first
-    const ownerData: OwnerData = {
-      fullName: petData.ownerName,
-      phoneNumber: petData.ownerPhone,
-      email: petData.ownerEmail,
-      homeAddress: petData.ownerAddress,
-      isPhonePrivate: false,
-      isEmailPrivate: false,
-      isAddressPrivate: false
-    };
-
-    const ownerRef = await addDoc(collection(db, 'owners'), {
-      ...ownerData,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
+    // Update user profile with owner information if provided
+    if (petData.ownerName || petData.ownerPhone || petData.ownerEmail || petData.ownerAddress) {
+      try {
+        const { updateUserInFirestore } = await import('./users');
+        const updateData: any = {};
+        
+        if (petData.ownerName) updateData.displayName = petData.ownerName;
+        if (petData.ownerPhone) updateData.phone = petData.ownerPhone;
+        if (petData.ownerAddress) updateData.address = petData.ownerAddress;
+        
+        await updateUserInFirestore(user.uid, updateData);
+        console.log('Updated user profile with owner information');
+      } catch (error) {
+        console.warn('Failed to update user profile with owner information:', error);
+        // Don't fail the entire operation for this
+      }
+    }
 
     // Create vet document if vet data is provided
     let vetRef = null;
@@ -190,7 +191,7 @@ export async function createPetInFirestore(
       });
     }
 
-    // Create pet document
+    // Create pet document - no need for separate owner, user is the owner
     const petDocData = {
       name: petData.name,
       description: petData.description || '',
@@ -200,8 +201,7 @@ export async function createPetInFirestore(
       breed: breedName,
       birthDate: petData.birthDate || null,
       notes: petData.notes || '',
-      userEmail: user.email,
-      ownerId: ownerRef.id,
+      userEmail: user.email, // Direct reference to user (no ownerId needed)
       vetId: vetRef?.id || null,
       createdAt: new Date(),
       updatedAt: new Date()

@@ -66,7 +66,7 @@ const VetDetailsPage = () => {
                     hasError={!!errors.vetPhoneNumber}
                     labels={locale === 'he' ? he : undefined}
                     defaultCountry="IL"
-                    international={false}
+                    international={true}
                   />
                 )}
               />

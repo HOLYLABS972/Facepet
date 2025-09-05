@@ -47,12 +47,14 @@ export default function SettingsPage() {
     { code: 'he', name: 'עברית', flag: '🇮🇱' }
   ];
 
+
   // Redirect to sign in if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/auth');
     }
   }, [user, authLoading, router]);
+
 
   // Initialize form data when user loads
   useEffect(() => {
@@ -624,6 +626,7 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
 
         {/* Action Buttons */}
         <div className="flex justify-between items-center gap-4">

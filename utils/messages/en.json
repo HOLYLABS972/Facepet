@@ -322,6 +322,13 @@
       "preferredLanguage": "Preferred Language",
       "selectLanguage": "Select a language",
       "languageDescription": "Choose your preferred language for the interface",
+      "mobileApp": {
+        "title": "Mobile App",
+        "description": "Download our mobile app for the best experience on your phone",
+        "android": "Download for Android",
+        "ios": "Download for iOS",
+        "note": "The app will automatically detect your device and show the appropriate download option"
+      },
       "saveChanges": "Save Changes",
       "saving": "Saving...",
       "loading": "Loading...",

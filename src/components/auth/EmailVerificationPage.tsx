@@ -16,10 +16,11 @@ interface EmailVerificationPageProps {
   email: string;
   password?: string;
   fullName?: string;
+  address?: string;
   onBack?: () => void;
 }
 
-const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerificationPageProps) => {
+const EmailVerificationPage = ({ email, password, fullName, address, onBack }: EmailVerificationPageProps) => {
   const t = useTranslations('pages.EmailVerification');
   const { user, verifyCodeAndCreateAccount, sendVerificationCode } = useAuth();
   const router = useRouter();
@@ -45,7 +46,7 @@ const EmailVerificationPage = ({ email, password, fullName, onBack }: EmailVerif
     try {
       if (password && fullName) {
         // This is a signup flow - verify code and create account
-        await verifyCodeAndCreateAccount(email, password, fullName, verificationCode);
+        await verifyCodeAndCreateAccount(email, password, fullName, verificationCode, address);
         toast.success('Account created successfully!');
         router.push('/pages/my-pets');
       } else {

@@ -2,6 +2,7 @@
 
 import { createPetInFirestore } from './pets';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { db } from './config';
 
 export interface NewPetData {
   id: string;
@@ -84,7 +85,7 @@ export async function createNewPet(
           await updateDoc(userDoc.ref, {
             displayName: petData.ownerFullName || user.displayName,
             phone: petData.ownerPhoneNumber || user.phone,
-            homeAddress: petData.ownerHomeAddress || '',
+            address: petData.ownerHomeAddress || '', // Use 'address' field, not 'homeAddress'
             updatedAt: new Date()
           });
         }
