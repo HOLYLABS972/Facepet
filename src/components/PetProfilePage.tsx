@@ -19,11 +19,12 @@ interface Pet {
   id: string;
   name: string;
   type: string;
-  breedName: string;
+  breed: string;
   imageUrl: string;
   description?: string;
   age?: string;
   gender?: string;
+  weight?: string;
   userEmail: string;
   createdAt: Date;
   updatedAt: Date;
@@ -263,7 +264,7 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                 <h2 className="text-3xl font-bold mb-2">{pet.name}</h2>
                 <div className="flex items-center space-x-2">
                   <span className="text-lg">{getPetTypeEmoji(pet.type)}</span>
-                  <span className="text-lg">{pet.breedName}</span>
+                  <span className="text-lg">{pet.breed}</span>
                 </div>
               </div>
             </div>
@@ -298,7 +299,7 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                     </div>
                     <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <span className="font-medium text-gray-600">{t('labels.breed')}</span>
-                      <span className="font-semibold">{pet.breedName}</span>
+                      <span className="font-semibold">{pet.breed || t('labels.notSpecified')}</span>
                     </div>
                     {pet.age && (
                       <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
@@ -306,10 +307,14 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                         <span className="font-semibold">{pet.age}</span>
                       </div>
                     )}
-                    {pet.gender && (
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium text-gray-600">{t('labels.gender')}</span>
+                      <span className="font-semibold capitalize">{pet.gender || t('labels.notSpecified')}</span>
+                    </div>
+                    {pet.weight && (
                       <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <span className="font-medium text-gray-600">{t('labels.gender')}</span>
-                        <span className="font-semibold capitalize">{pet.gender}</span>
+                        <span className="font-medium text-gray-600">{t('labels.weight')}</span>
+                        <span className="font-semibold">{pet.weight}</span>
                       </div>
                     )}
                     {pet.notes && (
@@ -428,42 +433,51 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {currentVet.name && (!isOwner || !currentVet.isNamePrivate) && (
-                      <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
-                        <Users className="w-5 h-5 text-purple-600" />
-                        <div>
-                          <p className="font-medium text-purple-800">{t('labels.veterinaryName')}</p>
-                          <p className="text-sm text-purple-600">{currentVet.name}</p>
-                        </div>
+                    {/* Vet Clinic Info */}
+                    <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
+                      <div className="w-5 h-5 text-purple-600">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 21h18"/>
+                          <path d="M5 21V7l8-4v18"/>
+                          <path d="M19 21V11l-6-4"/>
+                          <path d="M9 9v.01"/>
+                          <path d="M9 12v.01"/>
+                          <path d="M9 15v.01"/>
+                          <path d="M9 18v.01"/>
+                        </svg>
                       </div>
-                    )}
-                    {currentVet.phoneNumber && (!isOwner || !currentVet.isPhonePrivate) && (
-                      <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                        <Phone className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="font-medium text-green-800">{t('labels.phone')}</p>
-                          <p className="text-sm text-green-600">{currentVet.phoneNumber}</p>
-                        </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-purple-800">{t('labels.veterinaryClinic')}</p>
+                        <p className="text-sm text-purple-600">
+                          {currentVet.name && (!isOwner || !currentVet.isNamePrivate) 
+                            ? currentVet.name 
+                            : t('messages.noVetData')
+                          }
+                        </p>
+                        {(currentVet.phoneNumber && (!isOwner || !currentVet.isPhonePrivate)) && (
+                          <p className="text-xs text-purple-500 mt-1">{currentVet.phoneNumber}</p>
+                        )}
                       </div>
-                    )}
-                    {currentVet.email && (!isOwner || !currentVet.isEmailPrivate) && (
-                      <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                        <Mail className="w-5 h-5 text-blue-600" />
-                        <div>
-                          <p className="font-medium text-blue-800">{t('labels.email')}</p>
-                          <p className="text-sm text-blue-600">{currentVet.email}</p>
-                        </div>
+                    </div>
+                    
+                    {/* Additional vet details in a compact format */}
+                    {(currentVet.email && (!isOwner || !currentVet.isEmailPrivate)) || (currentVet.address && (!isOwner || !currentVet.isAddressPrivate)) ? (
+                      <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                        {currentVet.email && (!isOwner || !currentVet.isEmailPrivate) && (
+                          <span className="flex items-center space-x-1 px-2 py-1 bg-blue-50 rounded">
+                            <Mail className="w-3 h-3" />
+                            <span>{currentVet.email}</span>
+                          </span>
+                        )}
+                        {currentVet.address && (!isOwner || !currentVet.isAddressPrivate) && (
+                          <span className="flex items-center space-x-1 px-2 py-1 bg-orange-50 rounded">
+                            <MapPin className="w-3 h-3" />
+                            <span>{currentVet.address}</span>
+                          </span>
+                        )}
                       </div>
-                    )}
-                    {currentVet.address && (!isOwner || !currentVet.isAddressPrivate) && (
-                      <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
-                        <MapPin className="w-5 h-5 text-orange-600" />
-                        <div>
-                          <p className="font-medium text-orange-800">{t('labels.address')}</p>
-                          <p className="text-sm text-orange-600">{currentVet.address}</p>
-                        </div>
-                      </div>
-                    )}
+                    ) : null}
+                    
                     {/* Show message if all vet info is private for owner */}
                     {isOwner && currentVet.isNamePrivate && currentVet.isPhonePrivate && currentVet.isEmailPrivate && currentVet.isAddressPrivate && (
                       <div className="flex items-center justify-center p-6 text-gray-500">

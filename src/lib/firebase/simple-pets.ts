@@ -11,6 +11,8 @@ export interface SimplePetData {
   description?: string;
   age?: string;
   gender?: string;
+  weight?: string;
+  notes?: string;
   updatedAt?: Date;
 }
 
@@ -24,6 +26,8 @@ export interface SimplePet {
   description?: string;
   age?: string;
   gender?: string;
+  weight?: string;
+  notes?: string;
   userEmail: string;
   createdAt: Date;
   updatedAt: Date;
@@ -100,23 +104,48 @@ function calculateAge(birthDate: string): string {
   try {
     const birth = new Date(birthDate);
     const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
     
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
+    // If birth date is in the future, return "Not born yet"
+    if (birth > today) {
+      return 'Not born yet';
     }
     
-    if (age === 0) {
-      const monthAge = today.getMonth() - birth.getMonth();
-      if (monthAge <= 1) {
-        const dayAge = Math.floor((today.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24));
-        return `${dayAge} days old`;
+    // Calculate the difference in years
+    let years = today.getFullYear() - birth.getFullYear();
+    let months = today.getMonth() - birth.getMonth();
+    let days = today.getDate() - birth.getDate();
+    
+    // Adjust if the day hasn't occurred yet this month
+    if (days < 0) {
+      months--;
+      // Get the last day of the previous month
+      const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      days += lastMonth.getDate();
+    }
+    
+    // Adjust if the month hasn't occurred yet this year
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    // If less than a year old, show as decimal years (minimum 0.1 years)
+    if (years === 0) {
+      // Calculate total days
+      const totalDays = Math.floor((today.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Convert to years with decimal places
+      const ageInYears = totalDays / 365.25;
+      
+      // Ensure minimum of 0.1 years
+      if (ageInYears < 0.1) {
+        return '0.1 years old';
+      } else {
+        return `${ageInYears.toFixed(1)} years old`;
       }
-      return `${monthAge} months old`;
     }
     
-    return `${age} years old`;
+    return `${years} years old`;
   } catch (error) {
     console.error('Error calculating age:', error);
     return 'Unknown age';
@@ -241,6 +270,8 @@ export async function getPetById(
         description: data.description,
         age: age,
         gender: gender,
+        weight: data.weight,
+        notes: data.notes,
         userEmail: data.userEmail,
         createdAt: createdAtDate,
         updatedAt: updatedAtDate

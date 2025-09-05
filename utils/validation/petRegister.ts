@@ -1,20 +1,25 @@
 import { z } from 'zod';
 
 export const getPetRegisterSchemas = (
-  t: (key: string) => string,
-  breedIds: number[],
-  genderIds: number[]
+  t: (key: string) => string
 ) => ({
   petDetails: z.object({
     imageUrl: z.string().min(1, t('errors.petDetails.imageRequired')),
     petName: z.string().nonempty(t('errors.petDetails.nameRequired')),
-    breedId: z.number().refine((value) => breedIds.includes(value), {
-      message: t('errors.petDetails.invalidBreed')
-    }),
-    genderId: z.number().refine((value) => genderIds.includes(value), {
-      message: t('errors.petDetails.invalidGender')
-    }),
-    birthDate: z.date().optional().nullable(),
+    type: z.string().min(1, t('errors.petDetails.typeRequired')),
+    breed: z.string().min(1, t('errors.petDetails.breedRequired')),
+    gender: z.string().min(1, t('errors.petDetails.genderRequired')),
+    birthDate: z.date()
+      .optional()
+      .nullable()
+      .refine((date) => {
+        if (!date) return true; // Allow null/undefined
+        const today = new Date();
+        today.setHours(23, 59, 59, 999); // End of today
+        return date <= today;
+      }, {
+        message: 'Birth date cannot be in the future'
+      }),
     notes: z.string().optional()
   }),
   ownerDetails: z.object({

@@ -6,8 +6,9 @@ export interface PetData {
   name: string;
   description?: string;
   imageUrl: string;
-  genderId: number;
-  breedId: number;
+  type: string;
+  gender: string;
+  breed: string;
   birthDate?: string;
   notes?: string;
   ownerName: string;
@@ -73,43 +74,65 @@ export interface Pet {
  */
 async function getBreedName(breedId: number): Promise<string> {
   try {
+    console.log('Looking for breed with ID:', breedId);
     // Query the breeds collection from Firebase
     const { collection, query, where, getDocs } = await import('firebase/firestore');
     const breedsRef = collection(db, 'breeds');
     const q = query(breedsRef, where('id', '==', breedId));
     const querySnapshot = await getDocs(q);
     
+    console.log('Breed query results:', querySnapshot.docs.length, 'documents found');
+    
     if (!querySnapshot.empty) {
       const breedDoc = querySnapshot.docs[0];
       const breedData = breedDoc.data();
-      return breedData.labels?.en || breedData.name || `Breed ${breedId}`;
+      console.log('Found breed data:', breedData);
+      const breedName = breedData.labels?.en || breedData.name || 'Unknown Breed';
+      console.log('Returning breed name:', breedName);
+      return breedName;
     }
     
-    return `Breed ${breedId}`;
+    // If not found by ID, try to get all breeds to see what's available
+    console.log('Breed not found by ID, checking all breeds...');
+    const allBreedsSnapshot = await getDocs(breedsRef);
+    console.log('All breeds in collection:', allBreedsSnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
+    
+    return 'Unknown Breed';
   } catch (error) {
     console.error('Error getting breed name:', error);
-    return `Breed ${breedId}`;
+    return 'Unknown Breed';
   }
 }
 
 async function getGenderName(genderId: number): Promise<string> {
   try {
+    console.log('Looking for gender with ID:', genderId);
     // Query the genders collection from Firebase
     const { collection, query, where, getDocs } = await import('firebase/firestore');
     const gendersRef = collection(db, 'genders');
     const q = query(gendersRef, where('id', '==', genderId));
     const querySnapshot = await getDocs(q);
     
+    console.log('Gender query results:', querySnapshot.docs.length, 'documents found');
+    
     if (!querySnapshot.empty) {
       const genderDoc = querySnapshot.docs[0];
       const genderData = genderDoc.data();
-      return genderData.labels?.en || genderData.name || `Gender ${genderId}`;
+      console.log('Found gender data:', genderData);
+      const genderName = genderData.labels?.en || genderData.name || 'Unknown Gender';
+      console.log('Returning gender name:', genderName);
+      return genderName;
     }
     
-    return `Gender ${genderId}`;
+    // If not found by ID, try to get all genders to see what's available
+    console.log('Gender not found by ID, checking all genders...');
+    const allGendersSnapshot = await getDocs(gendersRef);
+    console.log('All genders in collection:', allGendersSnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
+    
+    return 'Unknown Gender';
   } catch (error) {
     console.error('Error getting gender name:', error);
-    return `Gender ${genderId}`;
+    return 'Unknown Gender';
   }
 }
 
@@ -125,8 +148,10 @@ export async function createPetInFirestore(
       return { success: false, error: 'User not authenticated' };
     }
 
-    // Get breed name from breedId
-    const breedName = await getBreedName(petData.breedId);
+    // Use the string values directly (no need to convert from IDs)
+    const breedName = petData.breed || '';
+    const genderName = petData.gender || '';
+    const typeName = petData.type || '';
 
     // Create owner document first
     const ownerData: OwnerData = {
@@ -170,10 +195,9 @@ export async function createPetInFirestore(
       name: petData.name,
       description: petData.description || '',
       imageUrl: petData.imageUrl,
-      type: 'Dog', // Default type for display compatibility
-      genderId: petData.genderId,
-      breedId: petData.breedId,
-      breedName: breedName, // Add breed name for display
+      type: typeName,
+      gender: genderName,
+      breed: breedName,
       birthDate: petData.birthDate || null,
       notes: petData.notes || '',
       userEmail: user.email,

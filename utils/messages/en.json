@@ -123,10 +123,15 @@
         "descriptionPlaceholder": "Describe your pet...",
         "age": "Age",
         "agePlaceholder": "Enter age",
+        "birthDate": "Birth Date",
         "gender": "Gender",
         "selectGender": "Select Gender",
         "genderMale": "Male",
         "genderFemale": "Female",
+        "weight": "Weight",
+        "weightPlaceholder": "Enter weight in kg",
+        "notes": "Notes",
+        "notesPlaceholder": "Enter notes or special information",
         "updating": "Updating...",
         "save": "Save Changes"
       },
@@ -218,7 +223,8 @@
       "searchPlaceholder": "Search pets...",
       "noResults": "No pets found.",
       "addPet": "Add Pet",
-      "addFirstPet": "Start by adding your first pet to keep them safe!",
+      "noPetsYet": "No pets yet",
+      "addFirstPet": "Start by adding your first pet to keep them safe and connected!",
       "managePetsDescription": "Manage your pets and keep them safe with FacePet",
       "welcomeBack": "Welcome back!",
       "loadingPets": "Loading pets...",
@@ -318,6 +324,10 @@
       "languageDescription": "Choose your preferred language for the interface",
       "saveChanges": "Save Changes",
       "saving": "Saving...",
+      "loading": "Loading...",
+      "uploading": "Uploading...",
+      "address": "Address",
+      "addressPlaceholder": "Enter your address",
       "deleteAccount": {
         "button": "Delete Account",
         "deleting": "Deleting...",
@@ -392,7 +402,8 @@
     },
     "DonePage": {
       "title": "Hip, hip, hooray!",
-      "subtitle": "Now you can scan the charm to see how it works."
+      "subtitle": "Now you can scan the charm to see how it works.",
+      "backToMyPets": "Back to My Pets"
     },
     "PetProfilePage": {
       "title": "Pet Profile",
@@ -408,6 +419,7 @@
         "gender": "Gender",
         "age": "Age",
         "ageText": "years old",
+        "weight": "Weight",
         "notes": "Notes",
         "contact": "Contact",
         "email": "Email",
@@ -417,7 +429,10 @@
         "phone": "Phone",
         "owner": "Owner",
         "contactDetails": "Contact Details",
-        "veterinaryName": "Veterinary Name"
+        "veterinaryName": "Veterinary Name",
+        "veterinaryClinic": "Veterinary Clinic",
+        "shop": "Shop",
+        "notSpecified": "Not specified"
       },
       "sections": {
         "basicInformation": "Basic Information",
@@ -451,7 +466,10 @@
         "vetInfoPrivate": "Veterinary information is set to private",
         "noVetData": "No vet data available",
         "addVet": "Add Vet",
-        "editVet": "Edit"
+        "editVet": "Edit",
+        "editVetInfo": "Edit Veterinary Information",
+        "addVetInfo": "Add Veterinary Information",
+        "shopPlaceholder": "Coming soon"
       },
       "popup": {
         "title": "You Got a New Gift!",
@@ -476,6 +494,7 @@
       "form": {
         "UploadImageTitle": "Upload Pet Image",
         "PetName": "Pet Name",
+        "Type": "Type",
         "Breed": "Breed",
         "Gender": "Gender",
         "BirthDate": "Birth Date",
@@ -600,6 +619,9 @@
     "petDetails": {
       "imageRequired": "Image is required",
       "nameRequired": "Pet name is required",
+      "typeRequired": "Pet type is required",
+      "breedRequired": "Breed is required",
+      "genderRequired": "Gender is required",
       "invalidBreed": "Invalid breed selected",
       "invalidGender": "Invalid gender selected"
     },
@@ -628,6 +650,7 @@
       "about": "About Us",
       "contact": "Contact Form",
       "myPets": "My Pets",
+      "profile": "Profile",
       "services": "Services and Professionals",
       "myFavorites": "My Favorites",
       "signOut": "Sign Out",

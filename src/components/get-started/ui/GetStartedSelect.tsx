@@ -13,13 +13,14 @@ import { useTranslations } from 'next-intl';
 interface GetStartedSelectProps {
   label: string;
   id: string;
-  value?: number;
+  value?: string;
   required?: boolean;
-  selectOptions: { id: number; label: string }[];
+  selectOptions: { value: string; label: string }[];
   hasError?: boolean;
   errorMessage?: string;
-  onChange: (value: number) => void;
+  onChange: (value: string) => void;
   onBlur?: () => void;
+  disabled?: boolean;
 }
 
 const GetStartedSelect = ({
@@ -42,7 +43,7 @@ const GetStartedSelect = ({
         htmlFor={id}
         className={cn(
           'absolute top-2.5 left-3 w-fit text-sm text-gray-500 transition-all duration-200 ease-in-out rtl:right-3',
-          value && value > 0
+          value && value.length > 0
             ? 'text-primary -top-6 text-sm font-medium'
             : 'top-2.5 text-gray-500',
           hasError ? 'text-red-800' : ''
@@ -55,8 +56,8 @@ const GetStartedSelect = ({
 
       {/* Select Component */}
       <Select
-        value={value ? String(value) : ''}
-        onValueChange={(newValue) => onChange(Number(newValue))}
+        value={value || ''}
+        onValueChange={(newValue) => onChange(newValue)}
       >
         <SelectTrigger
           id={id}
@@ -66,16 +67,18 @@ const GetStartedSelect = ({
           )}
         >
                   <SelectValue className="rtl:text-right">
-          {selectOptions.find((option) => option.id === (value || 0))?.label || ''}
+          {selectOptions.find((option) => option.value === value)?.label || ''}
         </SelectValue>
         </SelectTrigger>
 
         <SelectContent>
-          {selectOptions.map((option) => (
-            <SelectItem key={option.id} value={String(option.id)}>
-              {option.label || option.id}
-            </SelectItem>
-          ))}
+          {selectOptions
+            .filter((option) => option.value && option.label) // Filter out undefined values
+            .map((option, index) => (
+              <SelectItem key={option.value || `option-${index}`} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
     </div>

@@ -24,6 +24,7 @@ interface GetStartedDatePickerProps {
   id: string;
   value?: string; // ISO string for selected date
   required?: boolean;
+  maxDate?: Date; // Maximum selectable date
   onChange: (date: Date | null) => void;
 }
 
@@ -32,6 +33,7 @@ const GetStartedDatePicker = ({
   id,
   value,
   required = false,
+  maxDate,
   onChange,
   ...props
 }: GetStartedDatePickerProps) => {
@@ -99,6 +101,12 @@ const GetStartedDatePicker = ({
             captionLayout="dropdown"
             selected={parsedDate || undefined}
             onSelect={handleDateChange}
+            disabled={(date) => {
+              if (maxDate) {
+                return date > maxDate;
+              }
+              return false;
+            }}
             month={
               parsedDate
                 ? new Date(parsedDate.getFullYear(), parsedDate.getMonth())

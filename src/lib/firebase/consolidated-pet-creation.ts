@@ -28,13 +28,20 @@ export async function createPetWithConsolidatedUser(
       return { success: false, error: 'User not authenticated' };
     }
 
+    // Get breed and gender names from IDs
+    const { getBreedName, getGenderName } = await import('./pets');
+    const breedName = await getBreedName(petData.breedId);
+    const genderName = await getGenderName(petData.genderId);
+
     // Create pet document directly
     const petDocData = {
       name: petData.name,
       description: petData.description || '',
       imageUrl: petData.imageUrl,
       genderId: petData.genderId,
+      gender: genderName, // Add gender name for display
       breedId: petData.breedId,
+      breedName: breedName, // Add breed name for display
       birthDate: petData.birthDate || null,
       notes: petData.notes || '',
       userEmail: user.email, // Direct reference to user
@@ -109,12 +116,18 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       breedId: petData.breedId,
       gender: petData.gender,
       genderId: petData.genderId,
-      type: petData.type
+      type: petData.type,
+      allData: petData
     });
     
     // Resolve breed name - try multiple approaches
     let breedName = petData.breedName || petData.breed;
-    if (!breedName && petData.breedId) {
+    console.log('Initial breedName from petData:', breedName);
+    
+    // If breedName is already saved and not a placeholder, use it
+    if (breedName && !breedName.includes('Unknown') && !breedName.includes('Breed')) {
+      console.log('Using existing breedName from petData:', breedName);
+    } else if (!breedName && petData.breedId) {
       try {
         const { collection, getDocs } = await import('firebase/firestore');
         const breedsRef = collection(db, 'breeds');
@@ -133,17 +146,22 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
           breedName = breedData.labels?.en || breedData.name || breedData.en || `Breed ${petData.breedId}`;
           console.log('Resolved breed name:', breedName);
         } else {
-          breedName = `Breed ${petData.breedId}`;
+          breedName = 'Unknown Breed';
         }
       } catch (error) {
         console.error('Error getting breed name:', error);
-        breedName = `Breed ${petData.breedId}`;
+        breedName = 'Unknown Breed';
       }
     }
     
     // Resolve gender name - try multiple approaches
     let gender = petData.gender;
-    if (!gender && petData.genderId) {
+    console.log('Initial gender from petData:', gender);
+    
+    // If gender is already saved and not a placeholder, use it
+    if (gender && !gender.includes('Unknown') && !gender.includes('Gender')) {
+      console.log('Using existing gender from petData:', gender);
+    } else if (!gender && petData.genderId) {
       try {
         const { collection, getDocs } = await import('firebase/firestore');
         const gendersRef = collection(db, 'genders');
@@ -162,11 +180,11 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
           gender = genderData.labels?.en || genderData.name || genderData.en || `Gender ${petData.genderId}`;
           console.log('Resolved gender name:', gender);
         } else {
-          gender = `Gender ${petData.genderId}`;
+          gender = 'Unknown Gender';
         }
       } catch (error) {
         console.error('Error getting gender name:', error);
-        gender = `Gender ${petData.genderId}`;
+        gender = 'Unknown Gender';
       }
     }
     
@@ -175,8 +193,48 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
     if (!age && petData.birthDate) {
       const birthDate = petData.birthDate?.toDate ? petData.birthDate.toDate() : new Date(petData.birthDate);
       const today = new Date();
-      const ageInYears = Math.floor((today.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-      age = ageInYears.toString();
+      
+      // If birth date is in the future, set age to "Not born yet"
+      if (birthDate > today) {
+        age = 'Not born yet';
+      } else {
+        // Calculate the difference in years
+        let years = today.getFullYear() - birthDate.getFullYear();
+        let months = today.getMonth() - birthDate.getMonth();
+        let days = today.getDate() - birthDate.getDate();
+        
+        // Adjust if the day hasn't occurred yet this month
+        if (days < 0) {
+          months--;
+          // Get the last day of the previous month
+          const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+          days += lastMonth.getDate();
+        }
+        
+        // Adjust if the month hasn't occurred yet this year
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
+        
+        // If less than a year old, show as decimal years (minimum 0.1 years)
+        if (years === 0) {
+          // Calculate total days
+          const totalDays = Math.floor((today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          // Convert to years with decimal places
+          const ageInYears = totalDays / 365.25;
+          
+          // Ensure minimum of 0.1 years
+          if (ageInYears < 0.1) {
+            age = '0.1 years old';
+          } else {
+            age = `${ageInYears.toFixed(1)} years old`;
+          }
+        } else {
+          age = `${years} years old`;
+        }
+      }
     }
     
     const pet = { 
@@ -190,8 +248,9 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       notes: petData.notes,
       userEmail: petData.userEmail,
       vetId: petData.vetId,
-      breedName: breedName || `Breed ${petData.breedId}`,
-      gender: gender || `Gender ${petData.genderId}`,
+      breed: breedName || 'Unknown Breed', // Changed from breedName to breed
+      breedName: breedName || 'Unknown Breed', // Keep both for compatibility
+      gender: gender || 'Unknown Gender',
       age: age,
       type: petData.type || 'Dog',
       weight: petData.weight,

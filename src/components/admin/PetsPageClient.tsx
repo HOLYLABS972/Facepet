@@ -89,6 +89,10 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
         aValue = a.breed;
         bValue = b.breed;
         break;
+      case 'gender':
+        aValue = a.gender;
+        bValue = b.gender;
+        break;
       case 'createdAt':
         aValue = a.createdAt;
         bValue = b.createdAt;
@@ -117,7 +121,7 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
   };
 
   // Handle pet field updates
-  const handlePetUpdate = (petId: string, field: 'type' | 'breed', newValue: string) => {
+  const handlePetUpdate = (petId: string, field: 'type' | 'breed' | 'gender', newValue: string) => {
     setPetsData(prevPets => 
       prevPets.map(pet => 
         pet.id === petId 
@@ -252,6 +256,20 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                   )}
                 </a>
               </TableHead>
+              <TableHead>
+                <a href={getSortUrl('gender')} className="flex items-center">
+                  Gender
+                  {sort === 'gender' && (
+                    <span className="ml-1">
+                      {order === 'asc' ? (
+                        <ArrowUp className="h-4 w-4" />
+                      ) : (
+                        <ArrowDown className="h-4 w-4" />
+                      )}
+                    </span>
+                  )}
+                </a>
+              </TableHead>
               <TableHead>Image</TableHead>
               <TableHead>Owner Name</TableHead>
               <TableHead>
@@ -274,7 +292,7 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
           <TableBody>
             {paginatedPets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   No pets found.
                 </TableCell>
               </TableRow>
@@ -287,7 +305,6 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                       value={pet.type}
                       field="type"
                       petId={pet.id}
-                      currentType={pet.type}
                       onUpdate={handlePetUpdate}
                     />
                   </TableCell>
@@ -296,7 +313,14 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                       value={pet.breed}
                       field="breed"
                       petId={pet.id}
-                      currentType={pet.type}
+                      onUpdate={handlePetUpdate}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <EditableTableCell
+                      value={pet.gender}
+                      field="gender"
+                      petId={pet.id}
                       onUpdate={handlePetUpdate}
                     />
                   </TableCell>

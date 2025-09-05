@@ -7,6 +7,7 @@ interface UserData {
   email: string;
   displayName?: string;
   phone?: string;
+  address?: string;
   profileImage?: string;
   acceptCookies?: boolean;
   language?: string;

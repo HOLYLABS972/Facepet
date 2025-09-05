@@ -121,7 +121,7 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
       {petsLoading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="ml-2 text-gray-600">Loading pets...</span>
+          <span className="ml-2 text-gray-600">{t('loadingPets')}</span>
         </div>
       ) : filteredPets.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -131,10 +131,10 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
             </div>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No pets yet
+            {t('noPetsYet')}
           </h3>
           <p className="text-gray-500 mb-6 max-w-sm">
-            Start by adding your first pet to keep them safe and connected!
+            {t('addFirstPet')}
           </p>
         </div>
       ) : (
@@ -157,7 +157,7 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
         <Button
           onClick={handleAddPet}
           className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg"
-          title="Add Pet"
+          title={t('addPet')}
         >
           <Plus className="h-6 w-6" />
         </Button>

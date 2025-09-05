@@ -1,7 +1,7 @@
 import GetStartedHeader from '@/components/get-started/ui/GetStartedHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import GetStartedComboSelect from './ui/GetStartedComboSelect';
@@ -9,18 +9,22 @@ import GetStartedDatePicker from './ui/GetStartedDatePicker';
 import GetStartedInput from './ui/GetStartedInput';
 import GetStartedSelect from './ui/GetStartedSelect';
 import ImageUpload from './ui/ImageUpload';
+import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
 
 interface PetDetailsPageProps {
-  genders: { id: number; label: string }[];
-  breeds: { id: number; label: string }[];
+  // No longer need to pass genders and breeds as we'll fetch them from database
 }
 
-const PetDetailsPage: React.FC<PetDetailsPageProps> = ({ genders, breeds }) => {
+const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
   const {
     control,
     formState: { errors }
   } = useFormContext();
   const t = useTranslations('pages.PetDetailsPage');
+  const [breeds, setBreeds] = useState<{ value: string; label: string }[]>([]);
+  const [genders, setGenders] = useState<{ value: string; label: string }[]>([]);
+  const [petTypes, setPetTypes] = useState<{ value: string; label: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     Object.values(errors).forEach((error) => {
@@ -29,6 +33,35 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = ({ genders, breeds }) => {
       }
     });
   }, [errors]);
+
+  // Fetch dropdown data from database
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        setIsLoading(true);
+        const [breedsData, gendersData, typesData] = await Promise.all([
+          getBreedsForDropdown(),
+          getGendersForDropdown(),
+          getPetTypesForDropdown()
+        ]);
+        
+        setBreeds(breedsData);
+        setGenders(gendersData);
+        setPetTypes(typesData);
+      } catch (error) {
+        console.error('Error fetching dropdown data:', error);
+        toast.error('Failed to load form options');
+        // Set empty arrays as fallback to prevent validation errors
+        setBreeds([]);
+        setGenders([]);
+        setPetTypes([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDropdownData();
+  }, []);
 
   return (
     <Card className="border-none bg-transparent shadow-none">
@@ -63,32 +96,56 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = ({ genders, breeds }) => {
           )}
         />
 
-        {/* Breed - Always public */}
+        {/* Pet Type - Always public */}
         <Controller
-          name="breedId"
+          name="type"
           control={control}
           render={({ field }) => (
-            <GetStartedComboSelect
+            <GetStartedSelect
+              label={t('form.Type')}
+              id="type"
+              selectOptions={petTypes}
+              hasError={!!errors.type}
+              disabled={isLoading}
+              value={field.value || ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+            />
+          )}
+        />
+
+        {/* Breed - Always public */}
+        <Controller
+          name="breed"
+          control={control}
+          render={({ field }) => (
+            <GetStartedSelect
               label={t('form.Breed')}
               id="breed"
               selectOptions={breeds}
               hasError={!!errors.breed}
-              {...field}
+              disabled={isLoading}
+              value={field.value || ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
             />
           )}
         />
 
         {/* Gender - Always public */}
         <Controller
-          name="genderId"
+          name="gender"
           control={control}
           render={({ field }) => (
             <GetStartedSelect
               label={t('form.Gender')}
               id="gender"
-              {...field}
               selectOptions={genders}
               hasError={!!errors.gender}
+              disabled={isLoading}
+              value={field.value || ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
             />
           )}
         />
@@ -101,6 +158,7 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = ({ genders, breeds }) => {
             <GetStartedDatePicker
               label={t('form.BirthDate')}
               id="date"
+              maxDate={new Date()} // Restrict to today and earlier
               {...field}
               onChange={(date) => {
                 field.onChange(date);

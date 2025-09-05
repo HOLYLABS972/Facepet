@@ -11,11 +11,11 @@ import { Label } from './ui/label';
 import { Upload, Loader2, CheckCircle, XCircle, Save, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
-import { BreedSelect } from './ui/breed-select';
-import { getBreedsForType, type PetType } from '@/src/lib/data/breeds';
+import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import GetStartedDatePicker from './get-started/ui/GetStartedDatePicker';
 
 interface Pet {
   id: string;
@@ -26,6 +26,8 @@ interface Pet {
   description?: string;
   age?: string;
   gender?: string;
+  weight?: string;
+  notes?: string;
 }
 
 interface EditPetFormProps {
@@ -38,9 +40,10 @@ interface PetFormData {
   breed: string;
   image: File | null;
   imageUrl: string;
-  description: string;
-  age: string;
+  birthDate: string;
   gender: string;
+  weight: string;
+  notes: string;
 }
 
 interface UploadProgress {
@@ -48,11 +51,6 @@ interface UploadProgress {
   status: 'uploading' | 'completed' | 'error';
 }
 
-const petTypes: { value: PetType; label: string; emoji: string }[] = [
-  { value: 'cat', label: 'Cat', emoji: '🐱' },
-  { value: 'dog', label: 'Dog', emoji: '🐶' },
-  { value: 'other', label: 'Other', emoji: '🐾' },
-];
 
 export default function EditPetForm({ pet }: EditPetFormProps) {
   const { user } = useAuth();
@@ -64,15 +62,45 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     breed: (pet as any).breedId || pet.breed || '',
     image: null,
     imageUrl: pet.imageUrl || '',
-    description: pet.description || '',
-    age: pet.age || '',
+    birthDate: pet.birthDate || '',
     gender: pet.gender || '',
+    weight: pet.weight || '',
+    notes: pet.notes || '',
   });
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
     progress: 0,
     status: 'completed',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [breeds, setBreeds] = useState<{ value: string; label: string }[]>([]);
+  const [genders, setGenders] = useState<{ value: string; label: string }[]>([]);
+  const [petTypes, setPetTypes] = useState<{ value: string; label: string }[]>([]);
+  const [isLoadingDropdowns, setIsLoadingDropdowns] = useState(true);
+
+  // Fetch dropdown data from database
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        setIsLoadingDropdowns(true);
+        const [breedsData, gendersData, typesData] = await Promise.all([
+          getBreedsForDropdown(),
+          getGendersForDropdown(),
+          getPetTypesForDropdown()
+        ]);
+        
+        setBreeds(breedsData);
+        setGenders(gendersData);
+        setPetTypes(typesData);
+      } catch (error) {
+        console.error('Error fetching dropdown data:', error);
+        toast.error('Failed to load form data');
+      } finally {
+        setIsLoadingDropdowns(false);
+      }
+    };
+
+    fetchDropdownData();
+  }, []);
 
   const handleInputChange = (field: keyof PetFormData, value: string) => {
     setFormData(prev => ({
@@ -128,18 +156,15 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
         }
       }
 
-      // Get breed name from breed ID
-      const breeds = getBreedsForType(formData.type as PetType);
-      const selectedBreed = breeds.find(breed => breed.id === formData.breed);
-      
       const petData = {
         name: formData.name,
         type: formData.type,
-        breedName: selectedBreed ? selectedBreed.name : formData.breed,
+        breedName: formData.breed,
         imageUrl,
-        description: formData.description,
-        age: formData.age,
+        birthDate: formData.birthDate,
         gender: formData.gender,
+        weight: formData.weight,
+        notes: formData.notes,
       };
 
       await updatePetInFirestore(pet.id, petData);
@@ -206,12 +231,13 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     value={formData.type}
                     onChange={(e) => handleInputChange('type', e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isLoadingDropdowns}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                   >
-                    <option value="">{t('form.selectType')}</option>
+                    <option value="">{isLoadingDropdowns ? 'Loading...' : t('form.selectType')}</option>
                     {petTypes.map((type) => (
                       <option key={type.value} value={type.value}>
-                        {type.emoji} {type.label}
+                        {type.label}
                       </option>
                     ))}
                   </select>
@@ -223,12 +249,20 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     <Label htmlFor="breed" className="text-sm font-medium text-gray-700">
                       {t('form.breed')}
                     </Label>
-                    <BreedSelect
-                      petType={formData.type as PetType}
+                    <select
+                      id="breed"
                       value={formData.breed}
-                      onValueChange={(value) => handleInputChange('breed', value)}
-                      placeholder={t('form.selectBreed')}
-                    />
+                      onChange={(e) => handleInputChange('breed', e.target.value)}
+                      disabled={isLoadingDropdowns}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                    >
+                      <option value="">{isLoadingDropdowns ? 'Loading...' : t('form.selectBreed')}</option>
+                      {breeds.map((breed) => (
+                        <option key={breed.value} value={breed.value}>
+                          {breed.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 )}
 
@@ -293,34 +327,20 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                   </div>
                 )}
 
-                {/* Description */}
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                    {t('form.description')}
-                  </Label>
-                  <textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder={t('form.descriptionPlaceholder')}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  />
-                </div>
 
-                {/* Age and Gender */}
+                {/* Birth Date and Gender */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="age" className="text-sm font-medium text-gray-700">
-                      {t('form.age')}
-                    </Label>
-                    <Input
-                      id="age"
-                      type="text"
-                      value={formData.age}
-                      onChange={(e) => handleInputChange('age', e.target.value)}
-                      placeholder={t('form.agePlaceholder')}
-                      className="w-full"
+                    <GetStartedDatePicker
+                      label={t('form.birthDate')}
+                      id="birthDate"
+                      value={formData.birthDate}
+                      maxDate={new Date()}
+                      onChange={(date) => {
+                        if (date) {
+                          handleInputChange('birthDate', date.toISOString());
+                        }
+                      }}
                     />
                   </div>
                   <div className="space-y-2">
@@ -331,12 +351,46 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                       id="gender"
                       value={formData.gender}
                       onChange={(e) => handleInputChange('gender', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isLoadingDropdowns}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                     >
-                      <option value="">{t('form.selectGender')}</option>
-                      <option value="male">{t('form.genderMale')}</option>
-                      <option value="female">{t('form.genderFemale')}</option>
+                      <option value="">{isLoadingDropdowns ? 'Loading...' : t('form.selectGender')}</option>
+                      {genders.map((gender) => (
+                        <option key={gender.value} value={gender.value}>
+                          {gender.label}
+                        </option>
+                      ))}
                     </select>
+                  </div>
+                </div>
+
+                {/* Weight and Notes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="weight" className="text-sm font-medium text-gray-700">
+                      {t('form.weight')}
+                    </Label>
+                    <Input
+                      id="weight"
+                      type="number"
+                      value={formData.weight}
+                      onChange={(e) => handleInputChange('weight', e.target.value)}
+                      placeholder={t('form.weightPlaceholder')}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
+                      {t('form.notes')}
+                    </Label>
+                    <Input
+                      id="notes"
+                      type="text"
+                      value={formData.notes}
+                      onChange={(e) => handleInputChange('notes', e.target.value)}
+                      placeholder={t('form.notesPlaceholder')}
+                      className="w-full"
+                    />
                   </div>
                 </div>
 

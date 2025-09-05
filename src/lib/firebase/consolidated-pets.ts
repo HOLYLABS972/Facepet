@@ -43,8 +43,15 @@ export async function createConsolidatedPet(
     const { db } = await import('@/src/lib/firebase/config');
     const { collection, addDoc } = await import('firebase/firestore');
     
+    // Get breed and gender names from IDs
+    const { getBreedName, getGenderName } = await import('./pets');
+    const breedName = await getBreedName(petData.breedId);
+    const genderName = await getGenderName(petData.genderId);
+    
     const petDocData = {
       ...petData,
+      gender: genderName, // Add gender name for display
+      breedName: breedName, // Add breed name for display
       userEmail,
       createdAt: new Date(),
       updatedAt: new Date()

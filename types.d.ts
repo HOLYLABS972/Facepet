@@ -9,8 +9,8 @@ interface NewPetData {
   id: string;
   imageUrl: string;
   petName: string;
-  breedId: number;
-  genderId: number;
+  breed: string;
+  gender: string;
   birthDate: string | null;
   notes: string;
   // All pet information is always public
@@ -42,8 +42,8 @@ interface Pet {
   birthDate: string | null;
   notes: string | null;
   userId: string;
-  gender: { en: string; he: string };
-  breed: { en: string; he: string };
+  gender: string;
+  breed: string;
   // All pet information is always public
   owner: {
     email: string;
@@ -75,8 +75,8 @@ type PetForEdit = {
   imageUrl: string;
   birthDate: string | null;
   notes: string | null;
-  gender: number | null;
-  breed: number | null;
+  gender: string | null;
+  breed: string | null;
   // All pet information is always public
   owner: {
     fullName: string | null;

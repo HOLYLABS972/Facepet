@@ -85,12 +85,12 @@ export default function VetDataModal({
             {isEditing ? (
               <>
                 <Edit className="w-5 h-5 text-purple-500" />
-                <span>Edit Veterinary Information</span>
+                <span>{t('messages.editVetInfo')}</span>
               </>
             ) : (
               <>
                 <Plus className="w-5 h-5 text-purple-500" />
-                <span>Add Veterinary Information</span>
+                <span>{t('messages.addVetInfo')}</span>
               </>
             )}
           </DialogTitle>

@@ -7,8 +7,9 @@ export interface NewPetData {
   id: string;
   imageUrl: string;
   petName: string;
-  breedId: number;
-  genderId: number;
+  type: string;
+  breed: string;
+  gender: string;
   birthDate: string | null;
   notes: string;
   // All pet information is always public
@@ -51,8 +52,9 @@ export async function createNewPet(
       name: petData.petName || '',
       description: '',
       imageUrl: petData.imageUrl || '',
-      genderId: petData.genderId || 0,
-      breedId: petData.breedId,
+      gender: petData.gender || '',
+      breed: petData.breed || '',
+      type: petData.type || '',
       birthDate: petData.birthDate ? new Date(petData.birthDate).toISOString() : undefined,
       notes: petData.notes || '',
       ownerName: petData.ownerFullName || '',
@@ -70,6 +72,27 @@ export async function createNewPet(
     const result = await createPetInFirestore(transformedPetData, user);
 
     if (result.success) {
+      // Update user profile with owner information
+      try {
+        const { doc, updateDoc, collection, query, where, getDocs } = await import('firebase/firestore');
+        const usersRef = collection(db, 'users');
+        const userQuery = query(usersRef, where('email', '==', user.email));
+        const userSnapshot = await getDocs(userQuery);
+        
+        if (!userSnapshot.empty) {
+          const userDoc = userSnapshot.docs[0];
+          await updateDoc(userDoc.ref, {
+            displayName: petData.ownerFullName || user.displayName,
+            phone: petData.ownerPhoneNumber || user.phone,
+            homeAddress: petData.ownerHomeAddress || '',
+            updatedAt: new Date()
+          });
+        }
+      } catch (updateError) {
+        console.warn('Failed to update user profile:', updateError);
+        // Don't fail the entire operation for this
+      }
+
       return { success: true, petId: result.petId };
     } else {
       return { success: false, error: result.error };

@@ -182,13 +182,13 @@ const Navbar = () => {
                       <DropdownMenuItem asChild>
                         <Link href="/pages/my-pets" className="flex items-center">
                           <PawPrint className="mr-2 h-4 w-4" />
-                          <span>My Pets</span>
+                          <span>{t('myPets')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/user/settings" className="flex items-center">
                           <CircleUserRound className="mr-2 h-4 w-4" />
-                          <span>Profile</span>
+                          <span>{t('profile')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>

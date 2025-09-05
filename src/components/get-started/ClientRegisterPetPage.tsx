@@ -45,43 +45,12 @@ export default function ClientRegisterPetPage({
     setIsHydrated(true);
   }, []);
 
-  // Get valid breed & gender IDs.
-  const breedIds = useMemo(() => breeds.map((b) => b.id), [breeds]);
-  const genderIds = useMemo(() => genders.map((g) => g.id), [genders]);
-
-  // Transform genders & breeds to localized options.
-  const localizedGenders = useMemo(
-    () =>
-      isHydrated
-        ? genders.map(({ id, labels }) => ({
-            id,
-            label: labels[locale] || labels.en
-          }))
-        : genders.map(({ id, labels }) => ({
-            id,
-            label: labels.en // Use English as fallback during SSR
-          })),
-    [genders, locale, isHydrated]
-  );
-
-  const localizedBreeds = useMemo(
-    () =>
-      isHydrated
-        ? breeds.map(({ id, labels }) => ({
-            id,
-            label: labels[locale] || labels.en
-          }))
-        : breeds.map(({ id, labels }) => ({
-            id,
-            label: labels.en // Use English as fallback during SSR
-          })),
-    [breeds, locale, isHydrated]
-  );
+  // Note: PetDetailsPage now fetches its own dropdown data from the database
 
   // Get the internationalized schemas.
   const schemas = useMemo(
-    () => getPetRegisterSchemas(t, breedIds, genderIds),
-    [t, breedIds, genderIds]
+    () => getPetRegisterSchemas(t),
+    [t]
   );
 
   // Order of steps: petDetails, ownerDetails, vetDetails.
@@ -95,8 +64,9 @@ export default function ClientRegisterPetPage({
     () => ({
       imageUrl: '',
       petName: '',
-      breedId: breedIds[0] || 1, // Use first valid breed ID
-      genderId: genderIds[0] || 1, // Use first valid gender ID
+      type: '', // String-based type field
+      breed: '', // String-based breed field
+      gender: '', // String-based gender field
       birthDate: null as Date | null,
       notes: '',
       // Use authenticated user data if available, otherwise use userDetails
@@ -109,7 +79,7 @@ export default function ClientRegisterPetPage({
       vetEmailAddress: '',
       vetAddress: ''
     }),
-    [user, userDetails, breedIds, genderIds]
+    [user, userDetails]
   );
 
   const [formData, setFormData] = useState(initialFormData);
@@ -219,8 +189,6 @@ export default function ClientRegisterPetPage({
   const StepComponent = [
     <PetDetailsPage
       key="pet-details"
-      genders={localizedGenders}
-      breeds={localizedBreeds}
     />,
     <OwnerDetailsPage key="owner-details" />,
     <VetDetailsPage key="vet-details" />

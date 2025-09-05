@@ -184,7 +184,7 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
             className="flex items-center gap-2 px-6 py-3 text-primary border-primary hover:bg-primary hover:text-white transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to My Pets
+            {t('backToMyPets')}
           </Button>
         </motion.div>
 

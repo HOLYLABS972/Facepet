@@ -11,7 +11,7 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
-import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle, Trash2, AlertTriangle, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadProfileImage, testStorageConnection } from '@/src/lib/firebase/simple-upload';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
@@ -34,6 +34,7 @@ export default function SettingsPage() {
     fullName: '',
     phone: '',
     email: '',
+    address: '',
     profileImage: null as File | null,
     profileImageURL: '',
     acceptCookies: false,
@@ -68,6 +69,7 @@ export default function SettingsPage() {
               fullName: user.displayName || userResult.user.displayName || '',
               email: user.email || '',
               phone: userResult.user.phone || '',
+              address: userResult.user.address || '',
               profileImageURL: userResult.user.profileImage || user.photoURL || '',
               acceptCookies: userResult.user.acceptCookies || false,
               language: locale // Always use current locale, not stored preference
@@ -78,6 +80,7 @@ export default function SettingsPage() {
               ...prev,
               fullName: user.displayName || '',
               email: user.email || '',
+              address: '',
               profileImageURL: user.photoURL || '',
               acceptCookies: localStorage.getItem('acceptCookies') === 'true',
               language: locale // Always use current locale
@@ -90,6 +93,7 @@ export default function SettingsPage() {
             ...prev,
             fullName: user.displayName || '',
             email: user.email || '',
+            address: '',
             profileImageURL: user.photoURL || '',
             acceptCookies: localStorage.getItem('acceptCookies') === 'true',
             language: locale // Always use current locale
@@ -284,6 +288,11 @@ export default function SettingsPage() {
       // Add phone if provided
       if (formData.phone) {
         updateData.phone = formData.phone;
+      }
+
+      // Add address if provided
+      if (formData.address) {
+        updateData.address = formData.address;
       }
 
       // Add profile image if uploaded
@@ -537,6 +546,20 @@ export default function SettingsPage() {
               <p className="text-sm text-gray-500">
                 {t('emailNote')}
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">{t('address')}</Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder={t('addressPlaceholder')}
+                  className="pl-10"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
