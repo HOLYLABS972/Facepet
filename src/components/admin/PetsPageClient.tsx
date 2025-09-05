@@ -25,6 +25,7 @@ interface Pet {
   name: string;
   type: string;
   breed: string;
+  gender: string;
   imageUrl: string;
   ownerName: string;
   ownerId: string;

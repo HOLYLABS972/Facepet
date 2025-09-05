@@ -846,6 +846,7 @@ export async function getAllPetsForAdmin() {
           name: petData.name || '',
           type: petData.type || 'Unknown',
           breed: breedName,
+          gender: petData.gender || 'Unknown',
           imageUrl: petData.imageUrl || petData.image || '',
           ownerName: ownerName,
           ownerId: petData.ownerId || '',
@@ -868,9 +869,12 @@ export async function updatePetField(petId: string, field: 'type' | 'breed' | 'g
   try {
     const petRef = doc(db, 'pets', petId);
     
-    // Simply update the field with the string value
+    // Map field names to database field names
+    const dbField = field === 'breed' ? 'breedName' : field;
+    
+    // Update the field with the string value
     await updateDoc(petRef, {
-      [field]: value,
+      [dbField]: value,
       updatedAt: new Date()
     });
     
