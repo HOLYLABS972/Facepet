@@ -422,6 +422,13 @@
     },
     "VetDetailsPage": {
       "title": "פרטי הוטרינריה",
+      "searchLabel": "חפש מרפאה וטרינרית קיימת",
+      "vetSelected": "מרפאה וטרינרית נבחרה. השדות למטה כעת לקריאה בלבד.",
+      "orLabel": "או",
+      "searchPlaceholder": "חפש מרפאה וטרינרית...",
+      "existing": "קיים",
+      "selected": "נבחר",
+      "noResults": "לא נמצאו מרפאות וטרינריות. תוכל להוסיף חדשה למטה.",
       "form": {
         "VeterinaryName": "שם הוטרינריה",
         "PhoneNumber": "מספר טלפון",

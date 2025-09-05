@@ -20,6 +20,7 @@ export const getPetRegisterSchemas = (
       }, {
         message: 'Birth date cannot be in the future'
       }),
+    weight: z.string().optional(),
     notes: z.string().optional()
   }),
   ownerDetails: z.object({
@@ -39,6 +40,7 @@ export const getPetRegisterSchemas = (
     isOwnerAddressPrivate: z.boolean().optional().default(false)
   }),
   vetDetails: z.object({
+    vetId: z.string().optional(),
     vetName: z.string().optional(),
     vetPhoneNumber: z.string().optional(),
     vetEmailAddress: z.string().optional(),

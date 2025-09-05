@@ -10,6 +10,7 @@ export interface PetData {
   gender: string;
   breed: string;
   birthDate?: string;
+  weight?: string;
   notes?: string;
   ownerName: string;
   ownerPhone: string;
@@ -51,6 +52,7 @@ export interface Pet {
   genderId: number;
   breedId: number;
   birthDate?: string;
+  weight?: string;
   notes?: string;
   userEmail: string;
   ownerId: string;
@@ -171,9 +173,13 @@ export async function createPetInFirestore(
       }
     }
 
-    // Create vet document if vet data is provided
+    // Handle vet - use existing vetId if provided, otherwise create new vet
     let vetRef = null;
-    if (petData.vetName && petData.vetName.trim() !== '') {
+    if (petData.vetId) {
+      // Use existing vet ID
+      vetRef = { id: petData.vetId };
+    } else if (petData.vetName && petData.vetName.trim() !== '') {
+      // Create new vet document if vet data is provided but no existing vetId
       const vetData: VetData = {
         name: petData.vetName,
         phoneNumber: petData.vetPhoneNumber || '',
@@ -199,7 +205,9 @@ export async function createPetInFirestore(
       type: typeName,
       gender: genderName,
       breed: breedName,
+      breedName: breedName, // Also save as breedName for consistency
       birthDate: petData.birthDate || null,
+      weight: petData.weight || '',
       notes: petData.notes || '',
       userEmail: user.email, // Direct reference to user (no ownerId needed)
       vetId: vetRef?.id || null,
@@ -237,6 +245,7 @@ export async function getPetByIdFromFirestore(petId: string): Promise<{ success:
       genderId: petData.genderId,
       breedId: petData.breedId,
       birthDate: petData.birthDate,
+      weight: petData.weight,
       notes: petData.notes,
       userEmail: petData.userEmail,
       ownerId: petData.ownerId,

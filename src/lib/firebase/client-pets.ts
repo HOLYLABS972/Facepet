@@ -12,6 +12,7 @@ export interface NewPetData {
   breed: string;
   gender: string;
   birthDate: string | null;
+  weight: string;
   notes: string;
   // All pet information is always public
   // Owner information
@@ -24,6 +25,7 @@ export interface NewPetData {
   isOwnerEmailPrivate?: boolean;
   isOwnerAddressPrivate?: boolean;
   // Vet information
+  vetId: string;
   vetName: string;
   vetPhoneNumber: string;
   vetEmailAddress: string;
@@ -57,12 +59,13 @@ export async function createNewPet(
       breed: petData.breed || '',
       type: petData.type || '',
       birthDate: petData.birthDate ? new Date(petData.birthDate).toISOString() : undefined,
+      weight: petData.weight || '',
       notes: petData.notes || '',
       ownerName: petData.ownerFullName || '',
       ownerPhone: petData.ownerPhoneNumber || '',
       ownerEmail: petData.ownerEmailAddress || '',
       ownerAddress: petData.ownerHomeAddress || '',
-      vetId: petData.vetName ? 'vet-id' : undefined,
+      vetId: petData.vetId || undefined,
       vetName: petData.vetName || '',
       vetPhoneNumber: petData.vetPhoneNumber || '',
       vetEmailAddress: petData.vetEmailAddress || '',

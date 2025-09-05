@@ -71,12 +71,14 @@ export default function ClientRegisterPetPage({
       gender: '', // String-based gender field
       genderId: 0, // Add required genderId field
       birthDate: null as Date | null,
+      weight: '', // Add weight field
       notes: '',
       // Use authenticated user data if available, otherwise use userDetails
       ownerFullName: user?.displayName || userDetails.fullName || '',
       ownerPhoneNumber: userDetails.phone || '',
       ownerEmailAddress: user?.email || userDetails.email || '',
       ownerHomeAddress: '',
+      vetId: '',
       vetName: '',
       vetPhoneNumber: '',
       vetEmailAddress: '',

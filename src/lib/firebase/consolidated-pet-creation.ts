@@ -11,6 +11,7 @@ export interface SimplifiedPetData {
   genderId: number;
   breedId: number;
   birthDate?: Date;
+  weight?: string;
   notes?: string;
   vetId?: string;
 }
@@ -43,6 +44,7 @@ export async function createPetWithConsolidatedUser(
       breedId: petData.breedId,
       breedName: breedName, // Add breed name for display
       birthDate: petData.birthDate || null,
+      weight: petData.weight || '',
       notes: petData.notes || '',
       userEmail: user.email, // Direct reference to user
       vetId: petData.vetId || null,
@@ -117,6 +119,7 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       gender: petData.gender,
       genderId: petData.genderId,
       type: petData.type,
+      weight: petData.weight,
       allData: petData
     });
     

@@ -72,6 +72,14 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
   const [isEditingVet, setIsEditingVet] = useState(false);
   const [currentVet, setCurrentVet] = useState(vet);
   
+  // Debug: Log the pet data to see what's being received
+  console.log('PetProfilePage received pet data:', {
+    id: pet.id,
+    name: pet.name,
+    weight: pet.weight,
+    allPetData: pet
+  });
+  
   // Update currentVet when vet prop changes
   useEffect(() => {
     setCurrentVet(vet);

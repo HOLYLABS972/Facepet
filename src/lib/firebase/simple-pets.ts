@@ -221,8 +221,8 @@ export async function getPetById(
     if (petSnap.exists()) {
       const data = petSnap.data();
       
-      // Resolve breed name and ID
-      let breedName = data.breedName;
+      // Resolve breed name and ID - check both breed and breedName fields
+      let breedName = data.breedName || data.breed;
       let breedId = data.breedId;
       
       if (!breedName && data.breedId) {

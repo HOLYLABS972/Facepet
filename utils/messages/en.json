@@ -520,6 +520,13 @@
     },
     "VetDetailsPage": {
       "title": "Vet Details",
+      "searchLabel": "Search for existing veterinary clinic",
+      "vetSelected": "Veterinary clinic selected. Fields below are now read-only.",
+      "orLabel": "OR",
+      "searchPlaceholder": "Search for veterinary clinic...",
+      "existing": "Existing",
+      "selected": "Selected",
+      "noResults": "No veterinary clinics found. You can add a new one below.",
       "form": {
         "VeterinaryName": "Veterinary Name",
         "PhoneNumber": "Phone Number",

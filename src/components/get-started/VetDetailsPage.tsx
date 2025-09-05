@@ -6,14 +6,39 @@ import he from 'react-phone-number-input/locale/he';
 import GetStartedInput from './ui/GetStartedInput';
 import { GetStartedPhoneInput } from './ui/GetStartedPhoneInput';
 import PrivacyLockToggle from './ui/PrivacyLockToggle';
+import VetSearchComponent from './ui/VetSearchComponent';
+import { VetClinic } from '@/src/lib/firebase/vets';
+import { useState } from 'react';
 
 const VetDetailsPage = () => {
   const {
     control,
+    setValue,
     formState: { errors }
   } = useFormContext();
   const t = useTranslations('pages.VetDetailsPage');
   const locale = useLocale();
+  const [selectedVet, setSelectedVet] = useState<VetClinic | null>(null);
+
+  const handleVetSelected = (vet: VetClinic) => {
+    setSelectedVet(vet);
+    // Pre-fill form with selected vet data
+    setValue('vetId', vet.id);
+    setValue('vetName', vet.name);
+    setValue('vetPhoneNumber', vet.phoneNumber || '');
+    setValue('vetEmailAddress', vet.email || '');
+    setValue('vetAddress', vet.address || '');
+  };
+
+  const handleClearSelection = () => {
+    setSelectedVet(null);
+    // Clear form fields
+    setValue('vetId', '');
+    setValue('vetName', '');
+    setValue('vetPhoneNumber', '');
+    setValue('vetEmailAddress', '');
+    setValue('vetAddress', '');
+  };
 
   return (
     <div className="flex h-full grow flex-col">
@@ -22,6 +47,34 @@ const VetDetailsPage = () => {
       {/* Form */}
       <Card className="border-none bg-transparent shadow-none">
         <CardContent className="space-y-10 px-0 pt-8">
+          {/* Vet Search Component */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              {t('searchLabel', { default: 'Search for existing veterinary clinic' })}
+            </label>
+            <VetSearchComponent
+              onVetSelected={handleVetSelected}
+              onClearSelection={handleClearSelection}
+              selectedVet={selectedVet}
+            />
+            {selectedVet && (
+              <p className="text-xs text-green-600">
+                {t('vetSelected', { default: 'Veterinary clinic selected. Fields below are now read-only.' })}
+              </p>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">
+                {t('orLabel', { default: 'OR' })}
+              </span>
+            </div>
+          </div>
           {/* Vet Name - Can be private */}
           <div className="flex items-center gap-2">
             <div className="flex-grow">
@@ -35,6 +88,7 @@ const VetDetailsPage = () => {
                     {...field}
                     hasError={!!errors.vetName}
                     errorMessage={errors.vetName?.message as string}
+                    disabled={!!selectedVet}
                   />
                 )}
               />
@@ -47,6 +101,7 @@ const VetDetailsPage = () => {
                   isPrivate={value}
                   onChange={onChange}
                   className="flex-shrink-0"
+                  disabled={!!selectedVet}
                 />
               )}
             />
@@ -67,6 +122,7 @@ const VetDetailsPage = () => {
                     labels={locale === 'he' ? he : undefined}
                     defaultCountry="IL"
                     international={true}
+                    disabled={!!selectedVet}
                   />
                 )}
               />
@@ -79,6 +135,7 @@ const VetDetailsPage = () => {
                   isPrivate={value}
                   onChange={onChange}
                   className="flex-shrink-0"
+                  disabled={!!selectedVet}
                 />
               )}
             />
@@ -97,6 +154,7 @@ const VetDetailsPage = () => {
                     hasError={!!errors.vetEmailAddress}
                     errorMessage={errors.vetEmailAddress?.message as string}
                     {...field}
+                    disabled={!!selectedVet}
                   />
                 )}
               />
@@ -109,6 +167,7 @@ const VetDetailsPage = () => {
                   isPrivate={value}
                   onChange={onChange}
                   className="flex-shrink-0"
+                  disabled={!!selectedVet}
                 />
               )}
             />
@@ -126,6 +185,7 @@ const VetDetailsPage = () => {
                     id="vetAddress"
                     {...field}
                     hasError={!!errors.vetAddress}
+                    disabled={!!selectedVet}
                   />
                 )}
               />
@@ -138,6 +198,7 @@ const VetDetailsPage = () => {
                   isPrivate={value}
                   onChange={onChange}
                   className="flex-shrink-0"
+                  disabled={!!selectedVet}
                 />
               )}
             />
