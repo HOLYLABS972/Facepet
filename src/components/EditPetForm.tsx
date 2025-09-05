@@ -21,13 +21,15 @@ interface Pet {
   id: string;
   name: string;
   type: string;
-  breed: string;
+  breedName: string;
+  breedId?: string;
   imageUrl?: string;
   description?: string;
   age?: string;
   gender?: string;
   weight?: string;
   notes?: string;
+  birthDate?: string;
 }
 
 interface EditPetFormProps {
@@ -59,10 +61,10 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
   const [formData, setFormData] = useState<PetFormData>({
     name: pet.name || '',
     type: pet.type || '',
-    breed: (pet as any).breedId || pet.breed || '',
+    breed: pet.breedName || '',
     image: null,
     imageUrl: pet.imageUrl || '',
-    birthDate: pet.birthDate || '',
+    birthDate: pet.birthDate ? (typeof pet.birthDate === 'string' ? pet.birthDate : pet.birthDate.toISOString()) : '',
     gender: pet.gender || '',
     weight: pet.weight || '',
     notes: pet.notes || '',

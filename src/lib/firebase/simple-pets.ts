@@ -28,6 +28,7 @@ export interface SimplePet {
   gender?: string;
   weight?: string;
   notes?: string;
+  birthDate?: string;
   userEmail: string;
   createdAt: Date;
   updatedAt: Date;
@@ -272,6 +273,7 @@ export async function getPetById(
         gender: gender,
         weight: data.weight,
         notes: data.notes,
+        birthDate: data.birthDate ? (typeof data.birthDate === 'string' ? data.birthDate : data.birthDate.toISOString()) : undefined,
         userEmail: data.userEmail,
         createdAt: createdAtDate,
         updatedAt: updatedAtDate
