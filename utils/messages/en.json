@@ -561,7 +561,9 @@
       "authError": "Authentication failed",
       "authErrorGoogle": "Google authentication failed",
       "verificationCodeSent": "Verification code sent! Please check your email.",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "address": "Address",
+      "addressPlaceholder": "Enter your address"
     },
     "EmailVerification": {
       "title": "Verify Your Email",

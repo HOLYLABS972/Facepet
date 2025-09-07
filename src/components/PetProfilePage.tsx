@@ -233,19 +233,7 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
               )}
             </div>
             
-            {isOwner && (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/pet/${pet.id}/tag`)}
-                  className="flex items-center space-x-2"
-                >
-                  <Wifi className="h-4 w-4" />
-                  <span>{t('actions.attachTag')}</span>
-                </Button>
-              </div>
-            )}
+            {/* Attach Tag button removed */}
           </div>
         </div>
       </div>
@@ -432,17 +420,7 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                         <Users className="w-5 h-5 text-purple-500" />
                         <span>{t('sections.veterinaryInformation')}</span>
                       </div>
-                      {isOwner && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleEditVet}
-                          className="flex items-center space-x-1"
-                        >
-                          <Edit className="w-4 h-4" />
-                          <span>{t('messages.editVet')}</span>
-                        </Button>
-                      )}
+                      {/* Edit Vet button removed */}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">

@@ -152,18 +152,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           'relative cursor-pointer overflow-hidden rounded-2xl bg-white shadow-md transition hover:shadow-lg'
         )}
       >
-        <div className="flex">
+        <div className="flex h-full">
           {/* Service name, description preview and tags */}
-          <div className="flex w-2/3 flex-col justify-between rounded-2xl p-4">
-            <div className="text-lg font-bold">{service.name}</div>
+          <div className="flex w-2/3 flex-col rounded-2xl p-4">
+            <div className="text-lg font-bold mb-2">{service.name}</div>
             {/* Description preview */}
             {service.description && service.description.trim() !== '' && (
-              <div className="my-2 text-sm text-gray-600 line-clamp-2">
+              <div className="text-sm text-gray-600 line-clamp-2 mb-auto">
                 {service.description}
               </div>
             )}
             {service.tags && service.tags.length > 0 && (
-              <div className="my-1 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-2">
                 {service.tags.map((tag, idx) => (
                   <span
                     key={idx}
@@ -177,7 +177,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           </div>
 
           {/* Service image */}
-          <div className="w-1/3 h-32 overflow-hidden">
+          <div className="w-1/3 min-h-[140px] overflow-hidden">
             <img
               src={service.image}
               alt={service.name}

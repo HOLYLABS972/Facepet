@@ -28,8 +28,8 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
 
   // Fixed dimensions for consistent layout.
   const imageWidth = 100; // in pixels
-  const cardHeight = 100; // in pixels
-  const optionsPanelWidth = 90; // width of the options panel (adjust as needed)
+  const cardHeight = 120; // in pixels, increased for better mobile display
+  const optionsPanelWidth = 60; // width of the options panel, reduced for small screens
 
   // State to track how many images have loaded.
   const [imagesLoaded, setImagesLoaded] = React.useState(0);
@@ -62,7 +62,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
     <div
       onClick={handleCardClick}
       className={cn(
-        `bg-primary relative h-[100px] cursor-pointer rounded-2xl shadow-md transition duration-200 hover:shadow-lg active:shadow-lg`
+        `bg-primary relative h-[120px] w-full cursor-pointer rounded-2xl shadow-md transition duration-200 hover:shadow-lg active:shadow-lg overflow-hidden`
       )}
     >
       {/* Options Panel (revealed in edit mode) */}
@@ -133,7 +133,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
                 height={cardHeight}
                 loading="lazy"
                 style={{ transform: 'scaleX(-1)' }}
-                className="h-full w-full bg-gray-200 object-cover"
+                className="h-full w-full bg-gray-200 object-cover object-center rounded-e-2xl"
                 onLoad={handleImageLoad}
                 onError={(e) => {
                   console.error('Failed to load pet image:', image);

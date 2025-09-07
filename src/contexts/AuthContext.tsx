@@ -25,6 +25,19 @@ const getUserRole = (email: string): 'user' | 'admin' | 'super_admin' => {
   return 'user';
 };
 
+interface UserData {
+  acceptCookies?: boolean;
+  language?: string;
+  role?: string;
+  isRestricted?: boolean;
+  restrictionReason?: string;
+}
+
+interface VerificationResult {
+  success: boolean;
+  message?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -34,8 +47,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   checkEmailExists: (email: string) => Promise<boolean>;
-  sendVerificationCode: (email: string) => Promise<void>;
-  verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string) => Promise<void>;
+  sendVerificationCode: (email: string) => Promise<VerificationResult>;
+  verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => Promise<{ success: boolean; user: User | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -79,10 +92,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Check if user is restricted after successful Firebase authentication
       if (userCredential.user) {
         const userResult = await getUserFromFirestore(userCredential.user.uid);
-        if (userResult.success && userResult.user?.isRestricted) {
+        const userData = userResult.user as UserData;
+        if (userResult.success && userData?.isRestricted) {
           // Sign out the user immediately if they are restricted
           await firebaseSignOut(auth);
-          throw new Error(`Your account has been restricted by an administrator. Reason: ${userResult.user.restrictionReason || 'No reason provided'}`);
+          throw new Error(`Your account has been restricted by an administrator. Reason: ${userData.restrictionReason || 'No reason provided'}`);
         }
       }
     } catch (error: any) {
@@ -112,6 +126,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
+      // Check if email already exists
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      if (signInMethods.length > 0) {
+        throw new Error('This email is already registered. Please sign in instead.');
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       // Update the user's display name
       if (userCredential.user) {
@@ -130,12 +150,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
 
         if (!userResult.success) {
-          console.error('Failed to store user in Firestore:', userResult.error);
+          // If Firestore creation fails, delete the Firebase Auth user
+          await userCredential.user.delete();
+          throw new Error('Failed to create user profile. Please try again.');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign up error:', error);
-      throw error;
+      // Make the error message more user-friendly
+      if (error.code === 'auth/email-already-in-use') {
+        throw new Error('This email is already registered. Please sign in instead.');
+      } else {
+        throw error;
+      }
     }
   };
 
@@ -160,10 +187,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (userCredential.user) {
         // Check if user is restricted
         const userResult = await getUserFromFirestore(userCredential.user.uid);
-        if (userResult.success && userResult.user?.isRestricted) {
+        const userData = userResult.user as UserData;
+        if (userResult.success && userData?.isRestricted) {
           // Sign out the user immediately if they are restricted
           await firebaseSignOut(auth);
-          throw new Error(`Your account has been restricted by an administrator. Reason: ${userResult.user.restrictionReason || 'No reason provided'}`);
+          throw new Error(`Your account has been restricted by an administrator. Reason: ${userData.restrictionReason || 'No reason provided'}`);
         }
 
         const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
@@ -198,8 +226,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const sendVerificationCode = async (email: string) => {
+  const sendVerificationCode = async (email: string): Promise<VerificationResult> => {
     try {
+      // Check if email exists before sending code
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      if (signInMethods.length > 0) {
+        return { success: false, message: 'This email is already registered. Please sign in instead.' };
+      }
+
       // Call your external OTP API
       const response = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
       const data = await response.json();
@@ -210,11 +244,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.log('Verification code sent and stored:', data.verification_code);
         return { success: true, message: data.message };
       } else {
-        throw new Error('Failed to get verification code from API');
+        return { success: false, message: 'Failed to get verification code from API' };
       }
     } catch (error) {
       console.error('Send verification code error:', error);
-      throw error;
+      return { success: false, message: error instanceof Error ? error.message : 'Failed to send verification code' };
     }
   };
 

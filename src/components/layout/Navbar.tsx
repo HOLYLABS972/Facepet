@@ -47,9 +47,6 @@ const Navbar = () => {
   const { user, loading, signOut } = useAuth();
   const { notifications } = useNotifications();
   const [userRole, setUserRole] = useState<'user' | 'admin' | 'super_admin' | null>(null);
-  
-  // Calculate total points: each notification = 10 points
-  const totalPoints = notifications.length * 10;
   const locale = useLocale();
   const router = useRouter();
 
@@ -172,7 +169,9 @@ const Navbar = () => {
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                       <div className="flex items-center justify-start gap-2 p-2">
                         <div className="flex flex-col space-y-1 leading-none">
-                          <p className="font-medium">{user?.displayName || user?.email}</p>
+                          {user?.displayName && (
+                            <p className="font-medium">{user.displayName}</p>
+                          )}
                           <p className="w-[200px] truncate text-sm text-muted-foreground">
                             {user?.email}
                           </p>
@@ -336,16 +335,7 @@ const Navbar = () => {
                         {user?.displayName || user?.email}
                       </Button>
                     </Link>
-                    <Button
-                      variant={'ghost'}
-                      type="button"
-                      id="balance"
-                      className="active:text-primary m-0 flex gap-4 p-0 hover:bg-inherit active:bg-inherit"
-                      onClick={() => setIsPopupOpen(true)}
-                    >
-                      {totalPoints}
-                      <Coins className="h-5 w-5" />
-                    </Button>
+
                   </div>
                 </div>
               ) : (

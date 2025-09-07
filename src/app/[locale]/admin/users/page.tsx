@@ -1,5 +1,4 @@
 
-import AddUserForm from '@/components/admin/AddUserForm';
 import { DataTablePagination } from '@/components/admin/DataTablePagination';
 import { LimitSelector } from '@/components/admin/LimitSelector';
 import UserActions from '@/components/admin/UserActions';
@@ -132,9 +131,6 @@ export default async function UsersPage({
 
       {/* Users Table */}
       <div className="rounded-md border bg-white">
-        <div className="p-4 border-b">
-          <AddUserForm />
-        </div>
         <Table>
           <TableHeader>
             <TableRow>
