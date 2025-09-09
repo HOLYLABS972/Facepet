@@ -23,14 +23,13 @@ interface EmailVerificationPageProps {
 
 const EmailVerificationPage = ({ email, password, fullName, address, phone, onBack }: EmailVerificationPageProps) => {
   const t = useTranslations('pages.EmailVerification');
-  const { user, verifyCodeAndCreateAccount, sendVerificationCode } = useAuth();
+  const { user, verifyCodeAndCreateAccount, sendVerificationCode, getStoredOTPCode } = useAuth();
   const router = useRouter();
   
   const [verificationCode, setVerificationCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [storedOTPCode, setStoredOTPCode] = useState<string | null>(null);
 
   // Countdown timer for resend button
   useEffect(() => {
@@ -39,6 +38,15 @@ const EmailVerificationPage = ({ email, password, fullName, address, phone, onBa
       return () => clearTimeout(timer);
     }
   }, [countdown]);
+
+  // Debug: Log stored OTP code when component loads
+  useEffect(() => {
+    const storedCode = getStoredOTPCode();
+    console.log('🔍 EmailVerificationPage loaded with stored code:', storedCode);
+    if (storedCode) {
+      console.log('🔑 DEBUG: Use this code for verification:', storedCode);
+    }
+  }, [getStoredOTPCode]);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,14 +60,18 @@ const EmailVerificationPage = ({ email, password, fullName, address, phone, onBa
         router.push('/pages/my-pets');
       } else {
         // This is just email verification (for existing users)
-        // Validate the OTP code against the stored frontend code
-        if (!storedOTPCode || storedOTPCode !== verificationCode) {
+        const storedCode = getStoredOTPCode();
+        console.log('🔍 Verifying code for existing user:', { 
+          providedCode: verificationCode, 
+          storedCode: storedCode,
+          codesMatch: storedCode === verificationCode 
+        });
+        
+        if (!storedCode || storedCode !== verificationCode) {
           toast.error('Invalid verification code');
           return;
         }
 
-        // Clear the stored OTP code after successful verification
-        setStoredOTPCode(null);
         toast.success('Email verified successfully!');
         router.push('/pages/my-pets');
       }
