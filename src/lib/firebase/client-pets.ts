@@ -20,6 +20,7 @@ export interface NewPetData {
   ownerPhoneNumber: string;
   ownerEmailAddress: string;
   ownerHomeAddress: string;
+  ownerCoordinates?: { lat: number; lng: number };
   // Owner privacy settings - name is always public
   isOwnerPhonePrivate?: boolean;
   isOwnerEmailPrivate?: boolean;
@@ -89,6 +90,7 @@ export async function createNewPet(
             displayName: petData.ownerFullName || user.displayName,
             phone: petData.ownerPhoneNumber || user.phone,
             address: petData.ownerHomeAddress || '', // Use 'address' field, not 'homeAddress'
+            coordinates: petData.ownerCoordinates || null,
             updatedAt: new Date()
           });
         }

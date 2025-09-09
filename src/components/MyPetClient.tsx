@@ -134,7 +134,7 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
             {t('noPetsYet')}
           </h3>
           <p className="text-gray-500 mb-6 max-w-sm">
-            {t('addFirstPet')}
+            {t('scanToAddPet')}
           </p>
         </div>
       ) : (
@@ -152,16 +152,7 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
         </div>
       )}
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={handleAddPet}
-          className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg"
-          title={t('addPet')}
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
-      </div>
+      {/* Floating Action Button - Removed to force pet creation only through scanning */}
     </div>
   );
 };

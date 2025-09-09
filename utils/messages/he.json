@@ -17,8 +17,8 @@
           "description": "תן שם מיוחד לחיית המחמד שלך"
         },
         "photo": {
-          "title": "הוספת תמונה",
-          "description": "העלה תמונה חמודה של חיית המחמד שלך"
+          "title": "הוספת תמונה (אופציונלי)",
+          "description": "העלה תמונה חמודה של חיית המחמד שלך (אופציונלי)"
         },
         "complete": {
           "title": "הושלם!",
@@ -74,8 +74,8 @@
       },
       "photo": {
         "title": "הוסף תמונה של {name}",
-        "description": "העלה תמונה חמודה של חיית המחמד שלך",
-        "uploadPrompt": "לחץ להעלאת תמונה",
+        "description": "העלה תמונה חמודה של חיית המחמד שלך (אופציונלי)",
+        "uploadPrompt": "לחץ להעלאת תמונה (אופציונלי)",
         "uploading": "מעלה...",
         "uploadComplete": "התמונה הועלתה בהצלחה!",
         "uploadFailed": "העלאת התמונה נכשלה"
@@ -212,26 +212,6 @@
       "loadingPets": "טוען חיות...",
       "notifications": "התראות",
       "noNotifications": "אין התראות חדשות",
-      "addPhoneNumber": "הוסף מספר טלפון",
-      "phoneNumberDescription": "קבל את הניוזלטר שלנו עם טיפים ועדכונים לטיפול בחיות מחמד!",
-      "phoneNumberBottomSheet": {
-        "form": {
-          "phoneLabel": "מספר טלפון",
-          "phonePlaceholder": "הזן את מספר הטלפון שלך",
-          "countryCodeNote": "קוד המדינה כלול אוטומטית - פשוט הזן את המספר שלך"
-        },
-        "buttons": {
-          "cancel": "ביטול",
-          "addPhone": "הוסף טלפון",
-          "adding": "מוסיף..."
-        },
-        "success": "מספר הטלפון נוסף בהצלחה!",
-        "errors": {
-          "phoneRequired": "אנא הזן מספר טלפון",
-          "phoneInvalid": "אנא הזן מספר טלפון תקין",
-          "addFailed": "הוספת מספר הטלפון נכשלה. אנא נסה שוב."
-        }
-      },
       "shareWithFriends": "שתף עם חברים",
       "shareDescription": "שתף וקבל 10 נקודות עבור כל חבר שמצטרף!"
     },
@@ -417,7 +397,9 @@
         "FullName": "שם מלא",
         "PhoneNumber": "מספר טלפון",
         "EmailAddress": "כתובת מייל",
-        "HomeAddress": "כתובת מגורים"
+        "HomeAddress": "כתובת מגורים",
+        "selectOnMap": "בחר במפה",
+        "selectAddressOnMap": "בחר כתובת במפה"
       }
     },
     "VetDetailsPage": {
@@ -554,7 +536,9 @@
       "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם.",
       "loading": "טוען...",
       "address": "כתובת",
-      "addressPlaceholder": "הכנס את הכתובת שלך"
+      "addressPlaceholder": "הכנס את הכתובת שלך",
+      "phone": "מספר טלפון",
+      "phonePlaceholder": "הכנס את מספר הטלפון שלך"
     },
     "EmailVerification": {
       "title": "אמתו את האימייל שלכם",
@@ -568,6 +552,28 @@
       "resendIn": "שלחו שוב בעוד",
       "sending": "שולחים...",
       "backToSignUp": "חזרה להרשמה"
+    },
+    "GoogleSignupBottomSheet": {
+      "title": "השלימו את הפרופיל שלכם",
+      "description": "אנא ספקו את מספר הטלפון והכתובת שלכם כדי להשלים את הגדרת החשבון",
+      "form": {
+        "phoneLabel": "מספר טלפון",
+        "phonePlaceholder": "הזינו את מספר הטלפון שלכם",
+        "countryCodeNote": "קוד המדינה כלול אוטומטית - פשוט הזינו את המספר שלכם",
+        "addressLabel": "כתובת",
+        "addressPlaceholder": "הזינו את הכתובת שלכם"
+      },
+      "buttons": {
+        "save": "שמור מידע",
+        "saving": "שומר..."
+      },
+      "success": "הפרופיל הושלם בהצלחה!",
+      "errors": {
+        "phoneRequired": "אנא הזינו מספר טלפון",
+        "addressRequired": "אנא הזינו את הכתובת שלכם",
+        "phoneInvalid": "אנא הזינו מספר טלפון תקין",
+        "saveFailed": "שמירת המידע נכשלה. אנא נסו שוב."
+      }
     },
     "ContactPage": {
       "title": "צרו קשר",
@@ -730,6 +736,18 @@
       },
       "understood": "הבנתי!"
     },
-    "GoBackButton": { "buttonLabel": "חזור אחורה" }
+    "GoBackButton": { "buttonLabel": "חזור אחורה" },
+    "AddressMapSelector": {
+      "searchPlaceholder": "חפש כתובת...",
+      "instructions": "לחץ על המפה או חפש כדי לבחור את הכתובת שלך",
+      "markerTitle": "מיקום נבחר",
+      "selectedAddress": "כתובת נבחרת",
+      "noAddressSelected": "לא נבחרה כתובת",
+      "confirmAddress": "אשר כתובת",
+      "cancel": "ביטול",
+      "errors": {
+        "geocodeFailed": "לא ניתן למצוא את הכתובת. אנא נסה מונח חיפוש אחר."
+      }
+    }
   }
 }

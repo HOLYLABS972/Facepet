@@ -41,14 +41,16 @@ interface VerificationResult {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  needsGoogleProfileCompletion: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, phone?: string, address?: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   checkEmailExists: (email: string) => Promise<boolean>;
   sendVerificationCode: (email: string) => Promise<VerificationResult>;
   verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => Promise<{ success: boolean; user: User | null }>;
+  completeGoogleProfile: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +70,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsGoogleProfileCompletion, setNeedsGoogleProfileCompletion] = useState(false);
   const [storedOTPCode, setStoredOTPCode] = useState<string | null>(null);
 
   useEffect(() => {
@@ -124,7 +127,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, phone?: string, address?: string) => {
     try {
       // Check if email already exists
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
@@ -144,6 +147,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const cookiePreference = typeof window !== 'undefined' ? localStorage.getItem('acceptCookies') === 'true' : false;
         console.log('🔍 Creating user (signUp) with role:', { email, userRole, cookiePreference });
         const userResult = await createUserInFirestore(userCredential.user, {
+          phone: phone || '',
+          address: address || '',
           acceptCookies: cookiePreference,
           language: 'en',
           role: userRole
@@ -209,6 +214,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           console.error('Failed to handle Google user authentication:', authResult.error);
         } else {
           console.log('Google authentication successful:', authResult.isNewUser ? 'New user' : 'Existing user');
+          
+          // Check if user needs profile completion (missing phone or address)
+          if (authResult.isNewUser || !userData?.phone || !userData?.address) {
+            setNeedsGoogleProfileCompletion(true);
+          }
         }
       }
     } catch (error) {
@@ -306,9 +316,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const completeGoogleProfile = () => {
+    setNeedsGoogleProfileCompletion(false);
+  };
+
   const value = {
     user,
     loading,
+    needsGoogleProfileCompletion,
     signIn,
     signUp,
     signInWithGoogle,
@@ -316,7 +331,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     resetPassword,
     checkEmailExists,
     sendVerificationCode,
-    verifyCodeAndCreateAccount
+    verifyCodeAndCreateAccount,
+    completeGoogleProfile
   };
 
   return (

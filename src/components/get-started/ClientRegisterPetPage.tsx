@@ -78,6 +78,7 @@ export default function ClientRegisterPetPage({
       ownerPhoneNumber: userDetails.phone || '',
       ownerEmailAddress: user?.email || userDetails.email || '',
       ownerHomeAddress: '',
+      ownerCoordinates: undefined,
       vetId: '',
       vetName: '',
       vetPhoneNumber: '',

@@ -1,1 +1,0 @@
-ALTER TABLE "pets" ALTER COLUMN "birth_date" DROP NOT NULL;

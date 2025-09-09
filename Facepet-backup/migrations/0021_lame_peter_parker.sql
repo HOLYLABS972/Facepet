@@ -1,1 +1,0 @@
-ALTER TABLE "verification_codes" ADD COLUMN "hashed_password" text;

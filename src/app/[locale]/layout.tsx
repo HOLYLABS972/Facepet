@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { Lobster, Rubik } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
+import GoogleSignupHandler from '@/components/GoogleSignupHandler';
 import './globals.css';
 
 // Dynamically import analytics components
@@ -71,6 +72,7 @@ export default async function LocaleLayout({
           <NotificationsProvider>
             <NextIntlClientProvider messages={messages}>
               <MainLayout direction={direction}>{children}</MainLayout>
+              <GoogleSignupHandler />
             </NextIntlClientProvider>
           </NotificationsProvider>
         </AuthProvider>

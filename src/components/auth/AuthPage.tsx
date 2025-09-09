@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Lock, User, Eye, EyeOff, MapPin } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, MapPin, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
@@ -36,7 +36,8 @@ const AuthPage = () => {
     email: '',
     password: '',
     fullName: '',
-    address: ''
+    address: '',
+    phone: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +58,7 @@ const AuthPage = () => {
         toast.success(t('verificationCodeSent'));
         
         // Redirect to email verification page with simple parameters
-        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}&fullName=${encodeURIComponent(formData.fullName)}&address=${encodeURIComponent(formData.address)}`);
+        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}&fullName=${encodeURIComponent(formData.fullName)}&address=${encodeURIComponent(formData.address)}&phone=${encodeURIComponent(formData.phone)}`);
       } else {
         await signIn(formData.email, formData.password);
         toast.success(t('signInSuccess'));
@@ -207,6 +208,22 @@ const AuthPage = () => {
                           type="text"
                           placeholder={t('addressPlaceholder')}
                           value={formData.address}
+                          onChange={handleInputChange}
+                          required={isSignUp}
+                          className="pl-10 h-12"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">{t('phone')}</label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          name="phone"
+                          type="tel"
+                          placeholder={t('phonePlaceholder')}
+                          value={formData.phone}
                           onChange={handleInputChange}
                           required={isSignUp}
                           className="pl-10 h-12"

@@ -17,8 +17,8 @@
           "description": "Give your pet a special name"
         },
         "photo": {
-          "title": "Add Photo",
-          "description": "Upload a cute photo of your pet"
+          "title": "Add Photo (Optional)",
+          "description": "Upload a cute photo of your pet (optional)"
         },
         "complete": {
           "title": "Complete!",
@@ -74,8 +74,8 @@
       },
       "photo": {
         "title": "Add photo of {name}",
-        "description": "Upload a cute photo of your pet",
-        "uploadPrompt": "Click to upload photo",
+        "description": "Upload a cute photo of your pet (optional)",
+        "uploadPrompt": "Click to upload photo (optional)",
         "uploading": "Uploading...",
         "uploadComplete": "Photo uploaded successfully!",
         "uploadFailed": "Photo upload failed"
@@ -206,6 +206,18 @@
       "title": "Pet Not Found",
       "subtitle": "We couldn't find the pet you were looking for. Please try again or contact support."
     },
+    "TagFound": {
+      "title": "Tag Found!",
+      "description": "We found a pet tag with ID: {petId}",
+      "tagDetected": "NFC Tag Detected",
+      "tagInfo": "This tag is not yet registered. Would you like to register it?",
+      "welcomeBack": "Welcome back, {name}!",
+      "needAccount": "Account Required",
+      "registerPet": "Register This Pet",
+      "createAccountAndRegister": "Create Account & Register",
+      "alreadyHaveAccount": "Already have an account? Sign In",
+      "processing": "Processing..."
+    },
     "TermsAndConditionsPage": {
       "title": "Terms & Conditions",
       "subtitle": "Will appear here!"
@@ -225,31 +237,12 @@
       "addPet": "Add Pet",
       "noPetsYet": "No pets yet",
       "addFirstPet": "Start by adding your first pet to keep them safe and connected!",
+      "scanToAddPet": "Scan an NFC tag to add your first pet!",
       "managePetsDescription": "Manage your pets and keep them safe with FacePet",
       "welcomeBack": "Welcome back!",
       "loadingPets": "Loading pets...",
       "notifications": "Notifications",
       "noNotifications": "No new notifications",
-      "addPhoneNumber": "Add Phone Number",
-      "phoneNumberDescription": "Receive our newsletter with pet care tips and updates!",
-      "phoneNumberBottomSheet": {
-        "form": {
-          "phoneLabel": "Phone Number",
-          "phonePlaceholder": "Enter your phone number",
-          "countryCodeNote": "Country code is automatically included - just enter your number"
-        },
-        "buttons": {
-          "cancel": "Cancel",
-          "addPhone": "Add Phone",
-          "adding": "Adding..."
-        },
-        "success": "Phone number added successfully!",
-        "errors": {
-          "phoneRequired": "Please enter a phone number",
-          "phoneInvalid": "Please enter a valid phone number",
-          "addFailed": "Failed to add phone number. Please try again."
-        }
-      },
       "shareWithFriends": "Share with Friends",
       "shareDescription": "Share and get 10 points for every friend who joins!"
     },
@@ -515,7 +508,9 @@
         "FullName": "Full Name",
         "PhoneNumber": "Phone Number",
         "EmailAddress": "Email Address",
-        "HomeAddress": "Home Address"
+        "HomeAddress": "Home Address",
+        "selectOnMap": "Select on Map",
+        "selectAddressOnMap": "Select Address on Map"
       }
     },
     "VetDetailsPage": {
@@ -563,7 +558,9 @@
       "verificationCodeSent": "Verification code sent! Please check your email.",
       "loading": "Loading...",
       "address": "Address",
-      "addressPlaceholder": "Enter your address"
+      "addressPlaceholder": "Enter your address",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Enter your phone number"
     },
     "EmailVerification": {
       "title": "Verify Your Email",
@@ -577,6 +574,28 @@
       "resendIn": "Resend in",
       "sending": "Sending...",
       "backToSignUp": "Back to Sign Up"
+    },
+    "GoogleSignupBottomSheet": {
+      "title": "Complete Your Profile",
+      "description": "Please provide your phone number and address to complete your account setup",
+      "form": {
+        "phoneLabel": "Phone Number",
+        "phonePlaceholder": "Enter your phone number",
+        "countryCodeNote": "Country code is automatically included - just enter your number",
+        "addressLabel": "Address",
+        "addressPlaceholder": "Enter your address"
+      },
+      "buttons": {
+        "save": "Save Information",
+        "saving": "Saving..."
+      },
+      "success": "Profile completed successfully!",
+      "errors": {
+        "phoneRequired": "Please enter a phone number",
+        "addressRequired": "Please enter your address",
+        "phoneInvalid": "Please enter a valid phone number",
+        "saveFailed": "Failed to save information. Please try again."
+      }
     },
     "ContactPage": {
       "title": "Contact Us",
@@ -742,6 +761,18 @@
       },
       "understood": "Got it!"
     },
-    "GoBackButton": { "buttonLabel": "Go Back" }
+    "GoBackButton": { "buttonLabel": "Go Back" },
+    "AddressMapSelector": {
+      "searchPlaceholder": "Search for an address...",
+      "instructions": "Click on the map or search to select your address",
+      "markerTitle": "Selected Location",
+      "selectedAddress": "Selected Address",
+      "noAddressSelected": "No address selected",
+      "confirmAddress": "Confirm Address",
+      "cancel": "Cancel",
+      "errors": {
+        "geocodeFailed": "Could not find the address. Please try a different search term."
+      }
+    }
   }
 }

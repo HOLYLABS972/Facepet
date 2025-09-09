@@ -1,6 +1,6 @@
 import PetProfilePage from '@/components/PetProfilePage';
 import { getPetWithConsolidatedOwner } from '@/src/lib/firebase/consolidated-pet-creation';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 interface PetPageProps {
   params: {
@@ -10,12 +10,13 @@ interface PetPageProps {
 }
 
 export default async function PublicPetPage({ params }: PetPageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
   
   const result = await getPetWithConsolidatedOwner(id);
   
   if (!result.success || !result.pet) {
-    notFound();
+    // Redirect to tag found page for unrecognized pet IDs
+    redirect(`/${locale}/pet/${id}/tag-found`);
   }
 
   return <PetProfilePage pet={result.pet} owner={result.owner} vet={result.vet} />;

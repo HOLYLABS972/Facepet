@@ -129,10 +129,7 @@ export default function AddNewPetForm() {
       return;
     }
 
-    if (!formData.imageUrl) {
-      toast.error(t('errors.imageRequired'));
-      return;
-    }
+    // Image is now optional - no validation needed
 
     setLoading(true);
 
@@ -144,7 +141,7 @@ export default function AddNewPetForm() {
         name: formData.name.trim(),
         type: formData.type,
         breedName: selectedBreed ? selectedBreed.name : '',
-        imageUrl: formData.imageUrl,
+        imageUrl: formData.imageUrl || '/default-pet.png', // Use default image if none provided
         description: '',
         age: '',
         gender: ''
@@ -185,7 +182,7 @@ export default function AddNewPetForm() {
       case 1: return formData.type !== '';
       case 2: return formData.breed !== '';
       case 3: return formData.name.trim() !== '';
-      case 4: return formData.imageUrl !== '';
+      case 4: return true; // Image is now optional
       default: return true;
     }
   };

@@ -6,6 +6,7 @@ interface VerifyEmailPageProps {
     password?: string;
     fullName?: string;
     address?: string;
+    phone?: string;
   };
 }
 
@@ -14,6 +15,7 @@ export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) 
   const password = searchParams.password || '';
   const fullName = searchParams.fullName || '';
   const address = searchParams.address || '';
+  const phone = searchParams.phone || '';
 
   if (!email) {
     return (
@@ -32,6 +34,7 @@ export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) 
       password={password}
       fullName={fullName}
       address={address}
+      phone={phone}
     />
   );
 }

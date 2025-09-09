@@ -4,7 +4,7 @@ export const getPetRegisterSchemas = (
   t: (key: string) => string
 ) => ({
   petDetails: z.object({
-    imageUrl: z.string().min(1, t('errors.petDetails.imageRequired')),
+    imageUrl: z.string().optional(),
     petName: z.string().nonempty(t('errors.petDetails.nameRequired')),
     type: z.string().min(1, t('errors.petDetails.typeRequired')),
     breed: z.string().min(1, t('errors.petDetails.breedRequired')),
@@ -34,6 +34,10 @@ export const getPetRegisterSchemas = (
     ownerHomeAddress: z
       .string()
       .nonempty(t('errors.ownerDetails.homeAddressRequired')),
+    ownerCoordinates: z.object({
+      lat: z.number(),
+      lng: z.number()
+    }).optional(),
     // Owner privacy settings
     isOwnerPhonePrivate: z.boolean().optional().default(false),
     isOwnerEmailPrivate: z.boolean().optional().default(false),
