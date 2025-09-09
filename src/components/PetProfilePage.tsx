@@ -378,11 +378,22 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                     )}
                     {(owner.displayName || owner.fullName) && (
                       <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                        <Mail className="w-5 h-5 text-blue-600" />
+                        <Users className="w-5 h-5 text-blue-600" />
                         <div>
                           <p className="font-medium text-blue-800">{t('labels.owner')}</p>
                           <p className="text-sm text-blue-600">
                             {owner.displayName || owner.fullName}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {owner.email && (
+                      <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                        <Mail className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium text-blue-800">{t('labels.email')}</p>
+                          <p className="text-sm text-blue-600">
+                            {owner.email}
                           </p>
                         </div>
                       </div>
@@ -396,7 +407,7 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                         </div>
                       </div>
                     )}
-                    {!(owner.phone || owner.phoneNumber) && !(owner.displayName || owner.fullName) && !owner.homeAddress && (
+                    {!(owner.phone || owner.phoneNumber) && !(owner.displayName || owner.fullName) && !owner.email && !owner.homeAddress && (
                       <div className="flex items-center justify-center p-6 text-gray-500">
                         <p>No contact information available</p>
                       </div>
