@@ -18,6 +18,8 @@ interface PetDetailsPageProps {
 const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
   const {
     control,
+    watch,
+    setValue,
     formState: { errors }
   } = useFormContext();
   const t = useTranslations('pages.PetDetailsPage');
@@ -25,6 +27,9 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
   const [genders, setGenders] = useState<{ value: string; label: string }[]>([]);
   const [petTypes, setPetTypes] = useState<{ value: string; label: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Watch the pet type to filter breeds
+  const selectedPetType = watch('type');
 
   useEffect(() => {
     Object.values(errors).forEach((error) => {
@@ -34,25 +39,21 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
     });
   }, [errors]);
 
-  // Fetch dropdown data from database
+  // Fetch initial dropdown data from database
   useEffect(() => {
-    const fetchDropdownData = async () => {
+    const fetchInitialData = async () => {
       try {
         setIsLoading(true);
-        const [breedsData, gendersData, typesData] = await Promise.all([
-          getBreedsForDropdown(),
+        const [gendersData, typesData] = await Promise.all([
           getGendersForDropdown(),
           getPetTypesForDropdown()
         ]);
         
-        setBreeds(breedsData);
         setGenders(gendersData);
         setPetTypes(typesData);
       } catch (error) {
-        console.error('Error fetching dropdown data:', error);
+        console.error('Error fetching initial dropdown data:', error);
         toast.error('Failed to load form options');
-        // Set empty arrays as fallback to prevent validation errors
-        setBreeds([]);
         setGenders([]);
         setPetTypes([]);
       } finally {
@@ -60,8 +61,36 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
       }
     };
 
-    fetchDropdownData();
+    fetchInitialData();
   }, []);
+
+  // Fetch breeds when pet type changes
+  useEffect(() => {
+    const fetchBreedsForType = async () => {
+      if (selectedPetType) {
+        try {
+          setIsLoading(true);
+          const breedsData = await getBreedsForDropdown(selectedPetType);
+          setBreeds(breedsData);
+          
+          // Reset breed selection when type changes
+          setValue('breed', '');
+        } catch (error) {
+          console.error('Error fetching breeds for type:', error);
+          toast.error('Failed to load breeds');
+          setBreeds([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        // Clear breeds when no type is selected
+        setBreeds([]);
+        setValue('breed', '');
+      }
+    };
+
+    fetchBreedsForType();
+  }, [selectedPetType, setValue]);
 
   return (
     <Card className="border-none bg-transparent shadow-none">
@@ -124,10 +153,11 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
               id="breed"
               selectOptions={breeds}
               hasError={!!errors.breed}
-              disabled={isLoading}
+              disabled={isLoading || !selectedPetType}
               value={field.value || ''}
               onChange={field.onChange}
               onBlur={field.onBlur}
+              placeholder={!selectedPetType ? t('form.selectTypeFirst') : undefined}
             />
           )}
         />

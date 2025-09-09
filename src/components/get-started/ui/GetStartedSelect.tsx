@@ -21,6 +21,7 @@ interface GetStartedSelectProps {
   onChange: (value: string) => void;
   onBlur?: () => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 const GetStartedSelect = ({
@@ -32,7 +33,9 @@ const GetStartedSelect = ({
   hasError = false,
   errorMessage = '',
   onChange,
-  onBlur
+  onBlur,
+  disabled = false,
+  placeholder
 }: GetStartedSelectProps) => {
   const t = useTranslations('components.searchbar');
 
@@ -58,17 +61,19 @@ const GetStartedSelect = ({
       <Select
         value={value || ''}
         onValueChange={(newValue) => onChange(newValue)}
+        disabled={disabled}
       >
         <SelectTrigger
           id={id}
           className={cn(
             'h-10 border-gray-300 bg-white text-base',
-            hasError ? 'border-red-800' : ''
+            hasError ? 'border-red-800' : '',
+            disabled ? 'opacity-50 cursor-not-allowed' : ''
           )}
         >
-                  <SelectValue className="rtl:text-right">
-          {selectOptions.find((option) => option.value === value)?.label || ''}
-        </SelectValue>
+          <SelectValue className="rtl:text-right">
+            {selectOptions.find((option) => option.value === value)?.label || placeholder || ''}
+          </SelectValue>
         </SelectTrigger>
 
         <SelectContent>

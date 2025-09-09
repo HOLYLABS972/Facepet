@@ -499,7 +499,8 @@
         "Gender": "Gender",
         "BirthDate": "Birth Date",
         "weight": "Weight (kg)",
-        "Notes": "Notes"
+        "Notes": "Notes",
+        "selectTypeFirst": "Please select a pet type first"
       }
     },
     "OwnerDetailsPage": {

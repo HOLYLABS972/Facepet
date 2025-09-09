@@ -9,7 +9,7 @@ export interface DropdownOption {
 /**
  * Get all breeds for dropdown selection
  */
-export async function getBreedsForDropdown(): Promise<DropdownOption[]> {
+export async function getBreedsForDropdown(petType?: string): Promise<DropdownOption[]> {
   try {
     const breedsRef = collection(db, 'breeds');
     const snapshot = await getDocs(breedsRef);
@@ -18,23 +18,36 @@ export async function getBreedsForDropdown(): Promise<DropdownOption[]> {
       .map((doc, index) => {
         const data = doc.data();
         const value = data.labels?.en || data.name || 'Unknown Breed';
+        const type = data.type || '';
         return {
           value: value,
           label: value,
           id: doc.id, // Use document ID for uniqueness
-          index: index
+          index: index,
+          type: type
         };
       })
       .filter(option => option.value && option.label); // Filter out any undefined values
     
+    // Filter by pet type if provided
+    let filteredOptions = options;
+    if (petType) {
+      console.log('Filtering breeds for pet type:', petType);
+      console.log('Available breeds with types:', options.map(opt => ({ name: opt.value, type: opt.type })));
+      filteredOptions = options.filter(option => 
+        option.type.toLowerCase() === petType.toLowerCase()
+      );
+      console.log('Filtered breeds:', filteredOptions.map(opt => ({ name: opt.value, type: opt.type })));
+    }
+    
     // Remove duplicates based on value, keeping the first occurrence
-    const uniqueOptions = options.reduce((acc, current) => {
+    const uniqueOptions = filteredOptions.reduce((acc, current) => {
       const existing = acc.find(option => option.value === current.value);
       if (!existing) {
         acc.push(current);
       }
       return acc;
-    }, [] as typeof options);
+    }, [] as typeof filteredOptions);
     
     return uniqueOptions.map(option => ({
       value: option.value,
