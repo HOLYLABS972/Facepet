@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import VetDataModal from './VetDataModal';
 
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
@@ -17,8 +17,8 @@ import { db } from '@/src/lib/firebase/config';
 import { 
   generateEmailPrefillUrl, 
   generateWhatsAppPrefillUrl, 
-  generateSMSPrefillUrl,
   generatePetFoundMessage,
+  generatePetFoundEmailSubject,
   isLikelyWhatsApp,
   formatPhoneNumber
 } from '@/utils/contact-utils';
@@ -73,6 +73,7 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
   const router = useRouter();
   const { user } = useAuth();
   const t = useTranslations('pages.PetProfilePage');
+  const locale = useLocale() as 'en' | 'he';
   const [copied, setCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showShareEarning, setShowShareEarning] = useState(false);
@@ -390,8 +391,8 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                               className="h-8 px-2 text-green-600 border-green-300 hover:bg-green-100"
                               onClick={() => {
                                 const phoneNumber = formatPhoneNumber(owner.phone || owner.phoneNumber || '');
-                                const message = generatePetFoundMessage(pet.name);
-                                const whatsappUrl = generateWhatsAppPrefillUrl(phoneNumber, message);
+                              const message = generatePetFoundMessage(pet.name, undefined, locale);
+                              const whatsappUrl = generateWhatsAppPrefillUrl(phoneNumber, message);
                                 window.open(whatsappUrl, '_blank');
                               }}
                             >
@@ -399,20 +400,6 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                               WhatsApp
                             </Button>
                           )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 px-2 text-green-600 border-green-300 hover:bg-green-100"
-                            onClick={() => {
-                              const phoneNumber = formatPhoneNumber(owner.phone || owner.phoneNumber || '');
-                              const message = generatePetFoundMessage(pet.name);
-                              const smsUrl = generateSMSPrefillUrl(phoneNumber, message);
-                              window.open(smsUrl, '_blank');
-                            }}
-                          >
-                            <Phone className="w-4 h-4 mr-1" />
-                            SMS
-                          </Button>
                         </div>
                       </div>
                     )}
@@ -441,8 +428,8 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                           variant="outline"
                           className="h-8 px-2 text-blue-600 border-blue-300 hover:bg-blue-100"
                           onClick={() => {
-                            const subject = `Pet Found: ${pet.name}`;
-                            const message = generatePetFoundMessage(pet.name);
+                            const subject = generatePetFoundEmailSubject(pet.name, locale);
+                            const message = generatePetFoundMessage(pet.name, undefined, locale);
                             const emailUrl = generateEmailPrefillUrl(owner.email, subject, message);
                             window.open(emailUrl, '_blank');
                           }}
@@ -543,8 +530,8 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                               variant="outline"
                               className="h-6 px-2 text-blue-600 border-blue-300 hover:bg-blue-100 text-xs"
                               onClick={() => {
-                                const subject = `Pet Found: ${pet.name} - Vet Contact`;
-                                const message = generatePetFoundMessage(pet.name);
+                                const subject = generatePetFoundEmailSubject(pet.name, locale) + (locale === 'he' ? ' - יצירת קשר עם הוטרינר' : ' - Vet Contact');
+                                const message = generatePetFoundMessage(pet.name, undefined, locale);
                                 const emailUrl = generateEmailPrefillUrl(currentVet.email || '', subject, message);
                                 window.open(emailUrl, '_blank');
                               }}

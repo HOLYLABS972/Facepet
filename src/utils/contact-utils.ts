@@ -5,7 +5,18 @@
 /**
  * Generate a prefill message for pet found notifications
  */
-export function generatePetFoundMessage(petName: string, finderName?: string): string {
+export function generatePetFoundMessage(petName: string, finderName?: string, language: string = 'en'): string {
+  if (language === 'he') {
+    const baseMessage = `מצאתי את חיית המחמד שלך "${petName}". חיית המחמד שלך בידיים בטוחות.`;
+    
+    if (finderName) {
+      return `שלום, אני ${finderName}. ${baseMessage}`;
+    }
+    
+    return baseMessage;
+  }
+  
+  // Default English message
   const baseMessage = `I found your pet "${petName}". Your pet is in safe hands.`;
   
   if (finderName) {
@@ -13,6 +24,17 @@ export function generatePetFoundMessage(petName: string, finderName?: string): s
   }
   
   return baseMessage;
+}
+
+/**
+ * Generate email subject for pet found notifications
+ */
+export function generatePetFoundEmailSubject(petName: string, language: string = 'en'): string {
+  if (language === 'he') {
+    return `חיית מחמד נמצאה: ${petName}`;
+  }
+  
+  return `Pet Found: ${petName}`;
 }
 
 /**
@@ -44,17 +66,6 @@ export function generateWhatsAppPrefillUrl(phoneNumber: string, message: string)
   return `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
 }
 
-/**
- * Generate SMS prefill URL with message
- */
-export function generateSMSPrefillUrl(phoneNumber: string, message: string): string {
-  // Clean phone number - remove all non-digit characters except +
-  const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
-  
-  const encodedMessage = encodeURIComponent(message);
-  
-  return `sms:${cleanPhone}?body=${encodedMessage}`;
-}
 
 /**
  * Check if a phone number is likely a WhatsApp number
