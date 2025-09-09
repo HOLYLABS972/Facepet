@@ -67,10 +67,12 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
   // Fetch breeds when pet type changes
   useEffect(() => {
     const fetchBreedsForType = async () => {
+      console.log('PetDetailsPage: selectedPetType changed to:', selectedPetType);
       if (selectedPetType) {
         try {
           setIsLoading(true);
           const breedsData = await getBreedsForDropdown(selectedPetType);
+          console.log('PetDetailsPage: received breeds data:', breedsData);
           setBreeds(breedsData);
           
           // Reset breed selection when type changes
@@ -84,6 +86,7 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
         }
       } else {
         // Clear breeds when no type is selected
+        console.log('PetDetailsPage: no pet type selected, clearing breeds');
         setBreeds([]);
         setValue('breed', '');
       }
