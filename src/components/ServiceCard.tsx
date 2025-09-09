@@ -14,11 +14,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Star, Send } from 'lucide-react';
+import { MapPin, Phone, Star, Send, Heart, HeartOff } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
 import { useAuth } from '@/contexts/AuthContext';
+import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/lib/firebase/favorites';
 
 // Real comments will be loaded from the database
 const realComments: Array<{
@@ -57,6 +58,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   }>>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   
   const { user } = useAuth();
 
@@ -66,6 +69,24 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
       loadComments();
     }
   }, [open, service.id]);
+
+  // Check if service is favorited when user changes
+  useEffect(() => {
+    if (user && service.id) {
+      checkIfFavorited();
+    }
+  }, [user, service.id]);
+
+  const checkIfFavorited = async () => {
+    if (!user || !service.id) return;
+    
+    try {
+      const favorited = await isAdFavorited(user, service.id);
+      setIsFavorited(favorited);
+    } catch (error) {
+      console.error('Error checking if favorited:', error);
+    }
+  };
 
   const loadComments = async () => {
     if (!service.id) return;
@@ -140,6 +161,43 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
       }
     } else {
       alert('אנא מלא את כל השדות הנדרשים');
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!user) {
+      alert('Please log in to add to favorites');
+      return;
+    }
+
+    if (!service.id) {
+      alert('Service ID not available');
+      return;
+    }
+
+    setIsTogglingFavorite(true);
+    
+    try {
+      if (isFavorited) {
+        const result = await removeFromFavorites(user, service.id);
+        if (result.success) {
+          setIsFavorited(false);
+        } else {
+          alert('Failed to remove from favorites');
+        }
+      } else {
+        const result = await addToFavorites(user, service.id, service.name, 'service');
+        if (result.success) {
+          setIsFavorited(true);
+        } else {
+          alert('Failed to add to favorites');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setIsTogglingFavorite(false);
     }
   };
 
@@ -398,6 +456,30 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                 >
                   <Phone size={16} />
                   התקשר
+                </Button>
+                <Separator
+                  orientation="vertical"
+                  className="w-[1px] bg-gray-300"
+                />
+
+                <Button
+                  variant="ghost"
+                  className={`flex items-center gap-2 transition-colors focus:outline-none ${
+                    isFavorited 
+                      ? 'text-red-500 hover:text-red-600 focus:text-red-600' 
+                      : 'hover:text-red-500 focus:text-red-500'
+                  }`}
+                  onClick={handleToggleFavorite}
+                  disabled={isTogglingFavorite}
+                >
+                  {isTogglingFavorite ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : isFavorited ? (
+                    <Heart size={16} className="fill-current" />
+                  ) : (
+                    <HeartOff size={16} />
+                  )}
+                  {isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
                 </Button>
               </div>
             </DrawerFooter>

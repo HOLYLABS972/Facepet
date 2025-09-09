@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, Loader2, Users, Plus, Edit } from 'lucide-react';
+import { ArrowLeft, Trash2, Wifi, Share2, Copy, Check, Calendar, MapPin, Phone, Mail, Heart, Star, Loader2, Users, Plus, Edit, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -14,6 +14,14 @@ import VetDataModal from './VetDataModal';
 
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
+import { 
+  generateEmailPrefillUrl, 
+  generateWhatsAppPrefillUrl, 
+  generateSMSPrefillUrl,
+  generatePetFoundMessage,
+  isLikelyWhatsApp,
+  formatPhoneNumber
+} from '@/utils/contact-utils';
 
 interface Pet {
   id: string;
@@ -368,11 +376,43 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                     {(owner.phone || owner.phoneNumber) && (
                       <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                         <Phone className="w-5 h-5 text-green-600" />
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium text-green-800">{t('labels.phone')}</p>
                           <p className="text-sm text-green-600">
                             {owner.phone || owner.phoneNumber}
                           </p>
+                        </div>
+                        <div className="flex space-x-2">
+                          {isLikelyWhatsApp(owner.phone || owner.phoneNumber || '') && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-2 text-green-600 border-green-300 hover:bg-green-100"
+                              onClick={() => {
+                                const phoneNumber = formatPhoneNumber(owner.phone || owner.phoneNumber || '');
+                                const message = generatePetFoundMessage(pet.name);
+                                const whatsappUrl = generateWhatsAppPrefillUrl(phoneNumber, message);
+                                window.open(whatsappUrl, '_blank');
+                              }}
+                            >
+                              <MessageCircle className="w-4 h-4 mr-1" />
+                              WhatsApp
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 px-2 text-green-600 border-green-300 hover:bg-green-100"
+                            onClick={() => {
+                              const phoneNumber = formatPhoneNumber(owner.phone || owner.phoneNumber || '');
+                              const message = generatePetFoundMessage(pet.name);
+                              const smsUrl = generateSMSPrefillUrl(phoneNumber, message);
+                              window.open(smsUrl, '_blank');
+                            }}
+                          >
+                            <Phone className="w-4 h-4 mr-1" />
+                            SMS
+                          </Button>
                         </div>
                       </div>
                     )}
@@ -390,21 +430,48 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                     {owner.email && (
                       <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                         <Mail className="w-5 h-5 text-blue-600" />
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium text-blue-800">{t('labels.email')}</p>
                           <p className="text-sm text-blue-600">
                             {owner.email}
                           </p>
                         </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 px-2 text-blue-600 border-blue-300 hover:bg-blue-100"
+                          onClick={() => {
+                            const subject = `Pet Found: ${pet.name}`;
+                            const message = generatePetFoundMessage(pet.name);
+                            const emailUrl = generateEmailPrefillUrl(owner.email, subject, message);
+                            window.open(emailUrl, '_blank');
+                          }}
+                        >
+                          <Mail className="w-4 h-4 mr-1" />
+                          Email
+                        </Button>
                       </div>
                     )}
                     {owner.homeAddress && (
                       <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
                         <MapPin className="w-5 h-5 text-orange-600" />
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium text-orange-800">{t('labels.address')}</p>
                           <p className="text-sm text-orange-600">{owner.homeAddress}</p>
                         </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 px-2 text-orange-600 border-orange-300 hover:bg-orange-100"
+                          onClick={() => {
+                            const encodedAddress = encodeURIComponent(owner.homeAddress || '');
+                            const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                            window.open(googleMapsUrl, '_blank');
+                          }}
+                        >
+                          <MapPin className="w-4 h-4 mr-1" />
+                          Maps
+                        </Button>
                       </div>
                     )}
                     {!(owner.phone || owner.phoneNumber) && !(owner.displayName || owner.fullName) && !owner.email && !owner.homeAddress && (
@@ -462,20 +529,51 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                       </div>
                     </div>
                     
-                    {/* Additional vet details in a compact format */}
+                    {/* Additional vet details with contact buttons */}
                     {(currentVet.email && (!isOwner || !currentVet.isEmailPrivate)) || (currentVet.address && (!isOwner || !currentVet.isAddressPrivate)) ? (
-                      <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                      <div className="space-y-2">
                         {currentVet.email && (!isOwner || !currentVet.isEmailPrivate) && (
-                          <span className="flex items-center space-x-1 px-2 py-1 bg-blue-50 rounded">
-                            <Mail className="w-3 h-3" />
-                            <span>{currentVet.email}</span>
-                          </span>
+                          <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                              <Mail className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm text-blue-600">{currentVet.email}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-blue-600 border-blue-300 hover:bg-blue-100 text-xs"
+                              onClick={() => {
+                                const subject = `Pet Found: ${pet.name} - Vet Contact`;
+                                const message = generatePetFoundMessage(pet.name);
+                                const emailUrl = generateEmailPrefillUrl(currentVet.email || '', subject, message);
+                                window.open(emailUrl, '_blank');
+                              }}
+                            >
+                              <Mail className="w-3 h-3 mr-1" />
+                              Email
+                            </Button>
+                          </div>
                         )}
                         {currentVet.address && (!isOwner || !currentVet.isAddressPrivate) && (
-                          <span className="flex items-center space-x-1 px-2 py-1 bg-orange-50 rounded">
-                            <MapPin className="w-3 h-3" />
-                            <span>{currentVet.address}</span>
-                          </span>
+                          <div className="flex items-center justify-between p-2 bg-orange-50 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                              <MapPin className="w-4 h-4 text-orange-600" />
+                              <span className="text-sm text-orange-600">{currentVet.address}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-orange-600 border-orange-300 hover:bg-orange-100 text-xs"
+                              onClick={() => {
+                                const encodedAddress = encodeURIComponent(currentVet.address || '');
+                                const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                                window.open(googleMapsUrl, '_blank');
+                              }}
+                            >
+                              <MapPin className="w-3 h-3 mr-1" />
+                              Maps
+                            </Button>
+                          </div>
                         )}
                       </div>
                     ) : null}

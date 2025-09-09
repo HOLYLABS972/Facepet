@@ -1,6 +1,6 @@
 import GetStartedHeader from '@/components/get-started/ui/GetStartedHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -23,6 +23,7 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
     formState: { errors }
   } = useFormContext();
   const t = useTranslations('pages.PetDetailsPage');
+  const locale = useLocale() as 'en' | 'he';
   const [breeds, setBreeds] = useState<{ value: string; label: string }[]>([]);
   const [genders, setGenders] = useState<{ value: string; label: string }[]>([]);
   const [petTypes, setPetTypes] = useState<{ value: string; label: string }[]>([]);
@@ -39,14 +40,14 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
     });
   }, [errors]);
 
-  // Fetch initial dropdown data from database
+  // Fetch initial dropdown data from hardcoded data
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setIsLoading(true);
         const [gendersData, typesData] = await Promise.all([
-          getGendersForDropdown(),
-          getPetTypesForDropdown()
+          getGendersForDropdown(locale),
+          getPetTypesForDropdown(locale)
         ]);
         
         setGenders(gendersData);
@@ -62,17 +63,15 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
     };
 
     fetchInitialData();
-  }, []);
+  }, [locale]);
 
   // Fetch breeds when pet type changes
   useEffect(() => {
     const fetchBreedsForType = async () => {
-      console.log('PetDetailsPage: selectedPetType changed to:', selectedPetType);
       if (selectedPetType) {
         try {
           setIsLoading(true);
-          const breedsData = await getBreedsForDropdown(selectedPetType);
-          console.log('PetDetailsPage: received breeds data:', breedsData);
+          const breedsData = await getBreedsForDropdown(selectedPetType, locale);
           setBreeds(breedsData);
           
           // Reset breed selection when type changes
@@ -86,14 +85,13 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
         }
       } else {
         // Clear breeds when no type is selected
-        console.log('PetDetailsPage: no pet type selected, clearing breeds');
         setBreeds([]);
         setValue('breed', '');
       }
     };
 
     fetchBreedsForType();
-  }, [selectedPetType, setValue]);
+  }, [selectedPetType, setValue, locale]);
 
   return (
     <Card className="border-none bg-transparent shadow-none">

@@ -1,5 +1,4 @@
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from './config';
+import { getPetTypes, getBreedsByType, getGenders, ALL_BREEDS, ALL_BREEDS_HEBREW } from '../hardcoded-data';
 
 export interface DropdownOption {
   value: string;
@@ -9,52 +8,25 @@ export interface DropdownOption {
 /**
  * Get all breeds for dropdown selection
  */
-export async function getBreedsForDropdown(petType?: string): Promise<DropdownOption[]> {
+export async function getBreedsForDropdown(petType?: string, locale: 'en' | 'he' = 'en'): Promise<DropdownOption[]> {
   try {
-    const breedsRef = collection(db, 'breeds');
-    const snapshot = await getDocs(breedsRef);
-    
-    const options = snapshot.docs
-      .map((doc, index) => {
-        const data = doc.data();
-        const value = data.labels?.en || data.name || 'Unknown Breed';
-        const type = data.type || '';
-        return {
-          value: value,
-          label: value,
-          id: doc.id, // Use document ID for uniqueness
-          index: index,
-          type: type
-        };
-      })
-      .filter(option => option.value && option.label); // Filter out any undefined values
-    
-    // Filter by pet type if provided
-    let filteredOptions = options;
     if (petType) {
-      console.log('Filtering breeds for pet type:', petType);
-      console.log('Available breeds with types:', options.map(opt => ({ name: opt.value, type: opt.type })));
-      filteredOptions = options.filter(option => 
-        option.type.toLowerCase() === petType.toLowerCase()
-      );
-      console.log('Filtered breeds:', filteredOptions.map(opt => ({ name: opt.value, type: opt.type })));
+      const breeds = getBreedsByType(petType, locale);
+      return breeds.map(breed => ({
+        value: breed.value,
+        label: breed.label
+      }));
     }
     
-    // Remove duplicates based on value, keeping the first occurrence
-    const uniqueOptions = filteredOptions.reduce((acc, current) => {
-      const existing = acc.find(option => option.value === current.value);
-      if (!existing) {
-        acc.push(current);
-      }
-      return acc;
-    }, [] as typeof filteredOptions);
+    // Return all breeds if no type specified
+    const allBreeds = locale === 'he' ? ALL_BREEDS_HEBREW : ALL_BREEDS;
     
-    return uniqueOptions.map(option => ({
-      value: option.value,
-      label: option.label
+    return allBreeds.map(breed => ({
+      value: breed.value,
+      label: breed.label
     }));
   } catch (error) {
-    console.error('Error fetching breeds for dropdown:', error);
+    console.error('Error getting breeds for dropdown:', error);
     return [];
   }
 }
@@ -62,36 +34,12 @@ export async function getBreedsForDropdown(petType?: string): Promise<DropdownOp
 /**
  * Get all genders for dropdown selection
  */
-export async function getGendersForDropdown(): Promise<DropdownOption[]> {
+export async function getGendersForDropdown(locale: 'en' | 'he' = 'en'): Promise<DropdownOption[]> {
   try {
-    const gendersRef = collection(db, 'genders');
-    const snapshot = await getDocs(gendersRef);
-    
-    const options = snapshot.docs
-      .map((doc, index) => {
-        const data = doc.data();
-        const value = data.labels?.en || data.name || 'Unknown Gender';
-        return {
-          value: value,
-          label: value,
-          id: doc.id,
-          index: index
-        };
-      })
-      .filter(option => option.value && option.label);
-    
-    // Remove duplicates based on value, keeping the first occurrence
-    const uniqueOptions = options.reduce((acc, current) => {
-      const existing = acc.find(option => option.value === current.value);
-      if (!existing) {
-        acc.push(current);
-      }
-      return acc;
-    }, [] as typeof options);
-    
-    return uniqueOptions.map(option => ({
-      value: option.value,
-      label: option.label
+    const genders = getGenders(locale);
+    return genders.map(gender => ({
+      value: gender.value,
+      label: gender.label
     }));
   } catch (error) {
     console.error('Error fetching genders for dropdown:', error);
@@ -102,40 +50,16 @@ export async function getGendersForDropdown(): Promise<DropdownOption[]> {
 /**
  * Get pet types for dropdown selection
  */
-export async function getPetTypesForDropdown(): Promise<DropdownOption[]> {
+export async function getPetTypesForDropdown(locale: 'en' | 'he' = 'en'): Promise<DropdownOption[]> {
   try {
-    const typesRef = collection(db, 'petTypes');
-    const snapshot = await getDocs(typesRef);
-    
-    const options = snapshot.docs
-      .map((doc, index) => {
-        const data = doc.data();
-        const value = data.labels?.en || data.name || 'Unknown Type';
-        return {
-          value: value,
-          label: value,
-          id: doc.id,
-          index: index
-        };
-      })
-      .filter(option => option.value && option.label);
-    
-    // Remove duplicates based on value, keeping the first occurrence
-    const uniqueOptions = options.reduce((acc, current) => {
-      const existing = acc.find(option => option.value === current.value);
-      if (!existing) {
-        acc.push(current);
-      }
-      return acc;
-    }, [] as typeof options);
-    
-    return uniqueOptions.map(option => ({
-      value: option.value,
-      label: option.label
+    const types = getPetTypes(locale);
+    return types.map(type => ({
+      value: type.value,
+      label: type.label
     }));
   } catch (error) {
     console.error('Error fetching pet types for dropdown:', error);
-    // Return default types if collection doesn't exist
+    // Return default types if error occurs
     return [
       { value: 'dog', label: 'Dog' },
       { value: 'cat', label: 'Cat' },

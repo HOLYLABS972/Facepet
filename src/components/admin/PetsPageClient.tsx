@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { DataTablePagination } from '@/components/admin/DataTablePagination';
 import { LimitSelector } from '@/components/admin/LimitSelector';
 import PetActions from '@/components/admin/PetActions';
-import AddTypeModal from '@/components/admin/AddTypeModal';
-import AddBreedModal from '@/components/admin/AddBreedModal';
 import EditableTableCell from '@/components/admin/EditableTableCell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,8 +42,6 @@ interface PetsPageClientProps {
 }
 
 export default function PetsPageClient({ pets, searchParams }: PetsPageClientProps) {
-  const [showAddTypeModal, setShowAddTypeModal] = useState(false);
-  const [showAddBreedModal, setShowAddBreedModal] = useState(false);
   const [petsData, setPetsData] = useState(pets);
 
   // Parse query parameters
@@ -161,20 +157,6 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
     <div className="container mx-auto p-8">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold">Manage Pets</h1>
-        <div className="mt-4 flex space-x-2 sm:mt-0">
-          <Button 
-            onClick={() => setShowAddTypeModal(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Add Type
-          </Button>
-          <Button 
-            onClick={() => setShowAddBreedModal(true)}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            Add Breed
-          </Button>
-        </div>
       </div>
 
       {/* Search and Filters */}
@@ -363,15 +345,6 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
         }}
       />
 
-      {/* Modals */}
-      <AddTypeModal 
-        isOpen={showAddTypeModal} 
-        onClose={() => setShowAddTypeModal(false)} 
-      />
-      <AddBreedModal 
-        isOpen={showAddBreedModal} 
-        onClose={() => setShowAddBreedModal(false)} 
-      />
     </div>
   );
 }
