@@ -15,6 +15,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { createUserInFirestore, handleUserAuthentication, getUserFromFirestore } from '@/lib/firebase/users';
+import { generateOTPCode } from '@/src/lib/otp-generator';
+import { sendVerificationEmailWithFallback } from '@/src/lib/holy-labs-email';
 
 // Function to determine user role - all users get 'user' role by default
 // Admin roles must be assigned manually through the admin panel
@@ -31,6 +33,8 @@ interface UserData {
   role?: string;
   isRestricted?: boolean;
   restrictionReason?: string;
+  phone?: string;
+  address?: string;
 }
 
 interface VerificationResult {
@@ -236,7 +240,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const sendVerificationCode = async (email: string): Promise<VerificationResult> => {
+  const sendVerificationCode = async (email: string, userName?: string): Promise<VerificationResult> => {
     try {
       // Check if email exists before sending code
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
@@ -244,17 +248,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return { success: false, message: 'This email is already registered. Please sign in instead.' };
       }
 
-      // Call your external OTP API
-      const response = await fetch(`https://api.theholylabs.com/global_auth?email=${encodeURIComponent(email)}`);
-      const data = await response.json();
+      // Generate OTP code on frontend
+      const otpCode = generateOTPCode();
+      console.log('Generated OTP code:', otpCode);
+
+      // Send email via Holy Labs API
+      const result = await sendVerificationEmailWithFallback(
+        email, 
+        otpCode, 
+        userName || 'User'
+      );
       
-      if (data.verification_code) {
+      if (result.success) {
         // Store the OTP code in frontend state for comparison
-        setStoredOTPCode(data.verification_code);
-        console.log('Verification code sent and stored:', data.verification_code);
-        return { success: true, message: data.message };
+        setStoredOTPCode(otpCode);
+        console.log('Verification code sent and stored:', otpCode);
+        return { success: true, message: result.message };
       } else {
-        return { success: false, message: 'Failed to get verification code from API' };
+        return { success: false, message: result.message || 'Failed to send verification code' };
       }
     } catch (error) {
       console.error('Send verification code error:', error);
