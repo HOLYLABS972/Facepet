@@ -197,6 +197,18 @@
       "title": "אופס... החיה לא נמצאה!",
       "subtitle": "לא הצלחנו למצוא את חיית המחמד שחיפשת. אנא נסה שוב או צור קשר עם התמיכה."
     },
+    "TagFound": {
+      "title": "תג נמצא!",
+      "description": "מצאנו תג חיית מחמד עם מזהה: {petId}",
+      "tagDetected": "תג NFC זוהה",
+      "tagInfo": "התג הזה עדיין לא רשום. האם תרצה לרשום אותו?",
+      "welcomeBack": "ברוכים השבים, {name}!",
+      "needAccount": "נדרש חשבון",
+      "registerPet": "רשום את חיית המחמד הזו",
+      "createAccountAndRegister": "צור חשבון ורשום",
+      "alreadyHaveAccount": "כבר יש לך חשבון? התחבר",
+      "processing": "מעבד..."
+    },
     "TermsAndConditionsPage": {
       "title": "תנאי השימוש",
       "subtitle": "יופיעו פה!"
@@ -207,6 +219,7 @@
       "noResults": "לא נמצאו חיות.",
       "noPetsYet": "עדיין אין חיות",
       "addFirstPet": "התחילו בהוספת חיית המחמד הראשונה שלכם כדי לשמור עליה ולחבר אותה!",
+      "scanToAddPet": "סרוק תג NFC כדי להוסיף את חיית המחמד הראשונה שלך!",
       "managePetsDescription": "נהלו את החיות שלכם ושמרו עליהן בטוחות עם FacePet",
       "welcomeBack": "ברוכים השבים!",
       "loadingPets": "טוען חיות...",

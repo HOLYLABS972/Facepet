@@ -127,7 +127,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
       return;
     }
     
-    if (userRating > 0 && commentText.trim() && service.id) {
+    if (userRating > 0 && service.id) {
       setIsSubmittingComment(true);
       
       try {
@@ -136,7 +136,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           adTitle: service.name,
           userName: user.displayName || user.email?.split('@')[0] || 'User',
           userEmail: user.email || '',
-          content: commentText.trim(),
+          content: commentText.trim() || '', // Allow empty content
           rating: userRating
         });
 
@@ -160,7 +160,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         setIsSubmittingComment(false);
       }
     } else {
-      alert('אנא מלא את כל השדות הנדרשים');
+      alert('אנא בחר דירוג');
     }
   };
 
@@ -345,12 +345,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="comment">תגובה</Label>
+                      <Label htmlFor="comment">תגובה (אופציונלי)</Label>
                       <Textarea
                         id="comment"
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
-                        placeholder="שתף את החוויה שלך..."
+                        placeholder="שתף את החוויה שלך... (אופציונלי)"
                         rows={3}
                         className="mt-1"
                       />

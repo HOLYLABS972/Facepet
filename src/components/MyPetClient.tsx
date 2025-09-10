@@ -2,7 +2,7 @@
 'use client';
 
 import MyPetCard from '@/components/MyPetCard';
-import { EditIcon, Plus } from 'lucide-react';
+import { EditIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
@@ -98,17 +98,19 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <div className="flex items-center gap-2">
-          <Button
-            variant={isEditMode ? 'default' : 'ghost'}
-            className="h-9 w-9"
-            onClick={() => setIsEditMode(!isEditMode)}
-          >
-            <EditIcon
-              className={cn('h-6 w-6', isEditMode ? '' : 'text-gray-400')}
-            />
-          </Button>
-        </div>
+        {filteredPets.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isEditMode ? 'default' : 'ghost'}
+              className="h-9 w-9"
+              onClick={() => setIsEditMode(!isEditMode)}
+            >
+              <EditIcon
+                className={cn('h-6 w-6', isEditMode ? '' : 'text-gray-400')}
+              />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="mb-4">
@@ -125,11 +127,6 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
         </div>
       ) : filteredPets.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="mb-4">
-            <div className="mx-auto h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center">
-              <Plus className="h-12 w-12 text-gray-400" />
-            </div>
-          </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             {t('noPetsYet')}
           </h3>
