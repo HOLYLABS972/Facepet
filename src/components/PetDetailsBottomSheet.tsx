@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MoreVertical, X, Trash2, Share2, Edit, Wifi, List } from 'lucide-react';
+import { MoreVertical, X, Trash2, Share2, Edit, Wifi, List, PawPrint } from 'lucide-react';
 import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -139,7 +139,7 @@ export default function PetDetailsBottomSheet({
 
         <div className="space-y-4">
           {/* Pet Image */}
-          {pet.image && pet.image !== '/default-pet.png' ? (
+          {pet.image && pet.image !== '/default-pet.png' && !pet.image.includes('default') ? (
             <div className="relative w-full h-48 rounded-lg overflow-hidden">
               <Image
                 src={pet.image}
@@ -152,8 +152,8 @@ export default function PetDetailsBottomSheet({
               />
             </div>
           ) : (
-            <div className="w-full h-48 rounded-lg bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400 text-6xl">🐾</span>
+            <div className="w-full h-48 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <PawPrint className="h-16 w-16 text-gray-400" />
             </div>
           )}
 

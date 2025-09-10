@@ -7,6 +7,7 @@ import PetActions from '@/components/admin/PetActions';
 import EditableTableCell from '@/components/admin/EditableTableCell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PawPrint } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -308,7 +309,7 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                     />
                   </TableCell>
                   <TableCell>
-                    {pet.imageUrl ? (
+                    {pet.imageUrl && pet.imageUrl !== '/default-pet.png' && !pet.imageUrl.includes('default') ? (
                       <img 
                         src={pet.imageUrl} 
                         alt={pet.name}
@@ -316,7 +317,7 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                       />
                     ) : (
                       <div className="h-12 w-12 rounded bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No image</span>
+                        <PawPrint className="h-6 w-6 text-gray-400" />
                       </div>
                     )}
                   </TableCell>
