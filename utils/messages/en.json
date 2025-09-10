@@ -208,15 +208,14 @@
     },
     "TagFound": {
       "title": "Tag Found!",
-      "description": "We found a pet tag with ID: {petId}",
-      "tagDetected": "NFC Tag Detected",
-      "tagInfo": "This tag is not yet registered. Would you like to register it?",
+      "subtitle": "This pet tag has been detected. Register your pet to get started.",
       "welcomeBack": "Welcome back, {name}!",
-      "needAccount": "Account Required",
-      "registerPet": "Register This Pet",
-      "createAccountAndRegister": "Create Account & Register",
-      "alreadyHaveAccount": "Already have an account? Sign In",
-      "processing": "Processing..."
+      "needAccount": "You need an account to register this pet.",
+      "registerPet": "Register Pet",
+      "createAccountAndRegister": "Create Account & Register Pet",
+      "alreadyHaveAccount": "Already have an account? Sign in",
+      "processing": "Processing...",
+      "goBack": "Go Back"
     },
     "TermsAndConditionsPage": {
       "title": "Terms & Conditions",

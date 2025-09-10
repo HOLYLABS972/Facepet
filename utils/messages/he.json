@@ -199,15 +199,14 @@
     },
     "TagFound": {
       "title": "תג נמצא!",
-      "description": "מצאנו תג חיית מחמד עם מזהה: {petId}",
-      "tagDetected": "תג NFC זוהה",
-      "tagInfo": "התג הזה עדיין לא רשום. האם תרצה לרשום אותו?",
-      "welcomeBack": "ברוכים השבים, {name}!",
-      "needAccount": "נדרש חשבון",
-      "registerPet": "רשום את חיית המחמד הזו",
-      "createAccountAndRegister": "צור חשבון ורשום",
+      "subtitle": "תג חיית המחמד הזה זוהה. הרשם את חיית המחמד שלך כדי להתחיל.",
+      "welcomeBack": "ברוך שובך, {name}!",
+      "needAccount": "אתה צריך חשבון כדי לרשום את חיית המחמד הזו.",
+      "registerPet": "רשום חיית מחמד",
+      "createAccountAndRegister": "צור חשבון ורשום חיית מחמד",
       "alreadyHaveAccount": "כבר יש לך חשבון? התחבר",
-      "processing": "מעבד..."
+      "processing": "מעבד...",
+      "goBack": "חזור"
     },
     "TermsAndConditionsPage": {
       "title": "תנאי השימוש",
