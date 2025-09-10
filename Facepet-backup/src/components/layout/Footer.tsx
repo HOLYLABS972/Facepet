@@ -1,0 +1,29 @@
+import { Heart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+
+const Footer = () => {
+  const t = useTranslations('components.Footer');
+
+  return (
+    <footer className="mt-auto border-t">
+      <div className="py-8">
+        <div className="flex flex-col items-center gap-6">
+          {/* Links */}
+          <div className="flex gap-6 text-sm">
+            <p>{t('privacyPolicy')}</p> {/* TODO: Add link */}
+            <p>{t('termsOfService')}</p>
+            <p>{t('contact')}</p>
+          </div>
+
+          {/* Love Message */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="opacity-90">{t('madeWithLove')}</span>
+            <Heart className="text-primary m-1 h-4 w-4" />
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

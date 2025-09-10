@@ -1,0 +1,40 @@
+{
+  "Admin": {
+    "dashboard": "Admin Dashboard",
+    "welcome": "Welcome to the Admin Dashboard",
+    "loggedInAs": "You are logged in as",
+    "adsManagement": "Advertisements Management",
+    "manageAdsDescription": "Create, edit, and manage advertisements displayed on the platform.",
+    "manageAds": "Manage Ads",
+    "userManagement": "User Management",
+    "manageUsersDescription": "Manage user accounts, roles, and permissions.",
+    "manageUsers": "Manage Users",
+    "statistics": {
+      "users": "User Statistics",
+      "totalUsers": "Total Users",
+      "newUsers": "New Users (30d)",
+      "admins": "Admins",
+      "regularUsers": "Regular Users",
+      "ads": "Ad Statistics",
+      "totalAds": "Total Ads",
+      "activeAds": "Active",
+      "scheduledAds": "Scheduled",
+      "inactiveAds": "Inactive",
+      "pets": "Pet Statistics",
+      "totalPets": "Total Pets",
+      "petsDescription": "Pets are the core of our platform. Each pet has a unique profile with details about their owner, vet, and breed."
+    },
+    "activity": {
+      "recentUsers": "Recent Users",
+      "name": "Name",
+      "email": "Email",
+      "joined": "Joined",
+      "noUsers": "No users found.",
+      "recentAds": "Recent Ads",
+      "title": "Title",
+      "type": "Type",
+      "status": "Status",
+      "noAds": "No ads found."
+    }
+  }
+}

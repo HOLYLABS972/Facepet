@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import React from 'react';
 import { cn } from '../lib/utils';
+import { PawPrint } from 'lucide-react';
 
 interface PetCardProps {
   pet: {
@@ -23,26 +24,18 @@ const PetCard = React.memo(({ pet }: PetCardProps) => {
     >
       <Card className="relative flex w-full flex-col overflow-hidden rounded-3xl border-none shadow-md">
         <CardContent className="relative p-0">
-          {pet.imageUrl && pet.imageUrl.trim() !== '' ? (
+          {pet.imageUrl && pet.imageUrl !== '/default-pet.png' && !pet.imageUrl.includes('default') ? (
             <Image
               src={pet.imageUrl}
               alt={pet.name}
               width={704}
               height={448}
-              loading="lazy"
               className="h-full w-full object-cover"
-              onError={(e) => {
-                console.error('Failed to load pet image:', pet.imageUrl);
-                e.currentTarget.style.display = 'none';
-              }}
+              priority
             />
-          ) : null}
-          {/* Fallback for missing image */}
-          {(!pet.imageUrl || pet.imageUrl.trim() === '') && (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500">
-              <span className="text-6xl font-bold text-white">
-                {pet.name.charAt(0).toUpperCase()}
-              </span>
+          ) : (
+            <div className="flex h-[448px] w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+              <PawPrint className="h-24 w-24 text-gray-400" />
             </div>
           )}
 
@@ -50,7 +43,7 @@ const PetCard = React.memo(({ pet }: PetCardProps) => {
             <div
               className={cn(
                 'h-32 w-full opacity-50',
-                pet.imageUrl.includes('figures')
+                pet.imageUrl && pet.imageUrl.includes('figures')
                   ? 'bg-gradient-to-t from-gray-900 to-transparent'
                   : 'from-primary bg-gradient-to-t to-transparent'
               )}

@@ -2,7 +2,7 @@
 
 import { useDirection } from '@radix-ui/react-direction';
 import { motion } from 'framer-motion';
-import { ArrowRight, Pencil } from 'lucide-react';
+import { ArrowRight, Pencil, PawPrint } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { cn } from '../lib/utils';
@@ -124,7 +124,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         style={{ width: `${imageWidth}px` }}
       >
         <div className="flex items-center justify-end">
-          {image && image.trim() !== '' ? (
+          {image && image.trim() !== '' && image !== '/default-pet.png' && !image.includes('default') ? (
             <>
               <img
                 alt={name}
@@ -155,10 +155,8 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
               />
             </>
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500 rounded-e-2xl">
-              <span className="text-4xl font-bold text-white">
-                {name.charAt(0).toUpperCase()}
-              </span>
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-e-2xl">
+              <PawPrint className="h-8 w-8 text-gray-400" />
             </div>
           )}
         </div>

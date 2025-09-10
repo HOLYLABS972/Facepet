@@ -1,0 +1,1 @@
+ALTER TABLE "pets" ALTER COLUMN "vet_id" SET NOT NULL;

@@ -6,7 +6,6 @@ import { ArrowLeft, Smartphone, Tag, Download, ExternalLink } from 'lucide-react
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { getMobileAppLinks } from '@/src/lib/actions/admin';
 
@@ -136,11 +135,14 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
               <CardTitle className="flex items-center space-x-3">
                 <div className="relative w-16 h-16 rounded-full overflow-hidden">
                   {pet.imageUrl ? (
-                    <Image
+                    <img
                       src={pet.imageUrl}
                       alt={pet.name}
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error('Failed to load pet image:', pet.imageUrl);
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">

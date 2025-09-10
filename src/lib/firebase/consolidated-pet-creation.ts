@@ -123,7 +123,7 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       allData: petData
     });
     
-    // Resolve breed name - try multiple approaches
+    // Resolve breed name from local data
     let breedName = petData.breedName || petData.breed;
     console.log('Initial breedName from petData:', breedName);
     
@@ -132,32 +132,25 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       console.log('Using existing breedName from petData:', breedName);
     } else if (!breedName && petData.breedId) {
       try {
-        const { collection, getDocs } = await import('firebase/firestore');
-        const breedsRef = collection(db, 'breeds');
-        const allBreedsSnapshot = await getDocs(breedsRef);
+        // Use local breed data instead of Firebase collection
+        const { breedsByType } = await import('@/src/lib/data/breeds');
+        const petType = petData.type || 'dog';
+        const breeds = breedsByType[petType as keyof typeof breedsByType] || [];
+        const breed = breeds.find(b => b.id === String(petData.breedId));
         
-        console.log('All breeds from Firebase:', allBreedsSnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
-        
-        const breedDoc = allBreedsSnapshot.docs.find(doc => {
-          const data = doc.data();
-          return data.id === petData.breedId || data.id === String(petData.breedId) || doc.id === String(petData.breedId);
-        });
-        
-        if (breedDoc) {
-          const breedData = breedDoc.data();
-          console.log('Found breed:', breedData);
-          breedName = breedData.labels?.en || breedData.name || breedData.en || `Breed ${petData.breedId}`;
-          console.log('Resolved breed name:', breedName);
+        if (breed) {
+          breedName = breed.name;
+          console.log('Found breed from local data:', breedName);
         } else {
           breedName = 'Unknown Breed';
         }
       } catch (error) {
-        console.error('Error getting breed name:', error);
+        console.error('Error getting breed name from local data:', error);
         breedName = 'Unknown Breed';
       }
     }
     
-    // Resolve gender name - try multiple approaches
+    // Resolve gender name from local data
     let gender = petData.gender;
     console.log('Initial gender from petData:', gender);
     
@@ -166,27 +159,22 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       console.log('Using existing gender from petData:', gender);
     } else if (!gender && petData.genderId) {
       try {
-        const { collection, getDocs } = await import('firebase/firestore');
-        const gendersRef = collection(db, 'genders');
-        const allGendersSnapshot = await getDocs(gendersRef);
+        // Use local gender data instead of Firebase collection
+        const genders = [
+          { id: 1, name: 'Male', labels: { en: 'Male', he: 'זכר' } },
+          { id: 2, name: 'Female', labels: { en: 'Female', he: 'נקבה' } }
+        ];
         
-        console.log('All genders from Firebase:', allGendersSnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
+        const genderData = genders.find(g => g.id === petData.genderId);
         
-        const genderDoc = allGendersSnapshot.docs.find(doc => {
-          const data = doc.data();
-          return data.id === petData.genderId || data.id === String(petData.genderId) || doc.id === String(petData.genderId);
-        });
-        
-        if (genderDoc) {
-          const genderData = genderDoc.data();
-          console.log('Found gender:', genderData);
-          gender = genderData.labels?.en || genderData.name || genderData.en || `Gender ${petData.genderId}`;
-          console.log('Resolved gender name:', gender);
+        if (genderData) {
+          gender = genderData.name;
+          console.log('Found gender from local data:', gender);
         } else {
           gender = 'Unknown Gender';
         }
       } catch (error) {
-        console.error('Error getting gender name:', error);
+        console.error('Error getting gender name from local data:', error);
         gender = 'Unknown Gender';
       }
     }
