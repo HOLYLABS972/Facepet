@@ -42,10 +42,10 @@ export default function PetProfilePage({
   // Determine available tabs (exclude Vet if no vet data)
   const availableTabs: TabName[] = ['pet', 'owner'];
   if (
-    pet.vet?.name ||
-    pet.vet?.phoneNumber ||
-    pet.vet?.email ||
-    pet.vet?.address
+    vet?.name ||
+    vet?.phoneNumber ||
+    vet?.email ||
+    vet?.address
   ) {
     availableTabs.push('vet');
   }
@@ -127,27 +127,27 @@ export default function PetProfilePage({
       ]
     : [];
 
-  const vetInfo = pet.vet
+  const vetInfo = vet
     ? [
         {
           label: t('labels.name'),
-          value: pet.vet.isNamePrivate ? t('labels.private') : pet.vet.name
+          value: vet.isNamePrivate ? t('labels.private') : vet.name
         },
         {
           label: t('labels.contact'),
-          value: pet.vet.isPhonePrivate
+          value: vet.isPhonePrivate
             ? t('labels.private')
-            : pet.vet.phoneNumber
+            : vet.phoneNumber
         },
         {
           label: t('labels.email'),
-          value: pet.vet.isEmailPrivate ? t('labels.private') : pet.vet.email
+          value: vet.isEmailPrivate ? t('labels.private') : vet.email
         },
         {
           label: t('labels.address'),
-          value: pet.vet.isAddressPrivate
+          value: vet.isAddressPrivate
             ? t('labels.private')
-            : pet.vet.address
+            : vet.address
         }
       ]
     : [];
