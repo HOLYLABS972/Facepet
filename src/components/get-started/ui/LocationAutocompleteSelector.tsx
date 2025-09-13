@@ -15,12 +15,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { autocomplete, getPlaceFormattedAddress } from '@/lib/google'; // your autocomplete function
 import { cn } from '@/lib/utils';
-import {
-  Language,
-  PlaceAutocompleteResult
-} from '@googlemaps/google-maps-services-js';
 import { Check, ChevronDown } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
@@ -28,7 +23,8 @@ import React, { useEffect, useState } from 'react';
 interface LocationAutocompleteComboSelectProps {
   label: string;
   id: string;
-  value: string; // store the selected place_id
+  // Selected value is the human-readable address string
+  value: string;
   required?: boolean;
   hasError?: boolean;
   errorMessage?: string;
@@ -51,45 +47,93 @@ const LocationAutocompleteComboSelect: React.FC<
   const t = useTranslations('components.searchbar');
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [predictions, setPredictions] = useState<PlaceAutocompleteResult[]>([]);
+  const [predictions, setPredictions] = useState<Array<{ description: string; place_id: string }>>([]);
   // This state holds the description that will be displayed on the button.
   const [displayValue, setDisplayValue] = useState('');
+  const [isReady, setIsReady] = useState(false);
   const locale = useLocale();
 
-  // When the user types a query, fetch autocomplete predictions.
+  // Keep AutocompleteService instance
+  const autocompleteServiceRef = React.useRef<any>(null);
+
+  // Initialize display from the provided value (address string)
   useEffect(() => {
-    const fetchPredictions = async () => {
-      if (!searchQuery) {
-        setPredictions([]);
-        return;
-      }
-      const preds = await autocomplete(searchQuery, locale as Language);
-      setPredictions(preds ?? []);
-    };
-    fetchPredictions();
-  }, [searchQuery]);
-
-  // When a place_id is provided (via props.value), fetch its details to get a description.
-  useEffect(() => {
-    const fetchPlaceDescription = async () => {
-      if (value) {
-        try {
-          const formatted_address = await getPlaceFormattedAddress(
-            value,
-            locale as Language
-          );
-
-          if (formatted_address) {
-            setDisplayValue(formatted_address);
-          }
-        } catch (error) {
-          console.error('Error fetching place details:', error);
-        }
-      }
-    };
-
-    fetchPlaceDescription();
+    setDisplayValue(value || '');
   }, [value]);
+
+  // Load Google Maps Places library in the browser
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ((window as any).google?.maps?.places) {
+      try {
+        autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
+        setIsReady(true);
+      } catch (e) {
+        console.error('Failed to init AutocompleteService:', e);
+      }
+      return;
+    }
+
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      console.warn('NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set. Client-side address search disabled.');
+      return;
+    }
+
+    const existing = document.querySelector('script[data-facepet-google]') as HTMLScriptElement | null;
+    if (!existing) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${locale}`;
+      script.async = true;
+      script.defer = true;
+      script.setAttribute('data-facepet-google', 'true');
+      script.onload = () => {
+        try {
+          autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
+          setIsReady(true);
+        } catch (e) {
+          console.error('Failed to init AutocompleteService:', e);
+        }
+      };
+      script.onerror = () => console.error('Failed to load Google Maps script');
+      document.head.appendChild(script);
+    } else {
+      // Wait a tick and try initializing
+      const init = () => {
+        if ((window as any).google?.maps?.places) {
+          try {
+            autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
+            setIsReady(true);
+          } catch (e) {
+            console.error('Failed to init AutocompleteService:', e);
+          }
+        }
+      };
+      setTimeout(init, 0);
+    }
+  }, [locale]);
+
+  // Fetch predictions when the user types
+  useEffect(() => {
+    if (!isReady || !searchQuery) {
+      setPredictions([]);
+      return;
+    }
+    const svc = autocompleteServiceRef.current;
+    if (!svc) return;
+
+    let cancelled = false;
+    const raf = requestAnimationFrame(() => {
+      svc.getPlacePredictions({ input: searchQuery, language: locale as string }, (res: any[] | null) => {
+        if (cancelled) return;
+        setPredictions((res || []).map((p: any) => ({ description: p.description, place_id: p.place_id })));
+      });
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [searchQuery, isReady, locale]);
 
   return (
     <div className="relative w-full">
@@ -121,9 +165,7 @@ const LocationAutocompleteComboSelect: React.FC<
             )}
             onClick={() => setOpen(true)}
           >
-            <span className="overflow-x-scroll font-normal">
-              {displayValue}
-            </span>
+            <span className="overflow-x-scroll font-normal">{displayValue}</span>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -143,12 +185,9 @@ const LocationAutocompleteComboSelect: React.FC<
                         key={prediction.place_id}
                         value={prediction.description}
                         onSelect={() => {
-                          // When a prediction is selected:
-                          // - update the button display with the description
-                          // - send the place_id to the parent via onChange
-                          // - clear the search query and predictions
+                          // When selected: update display and return address string
                           setDisplayValue(prediction.description);
-                          onChange(prediction.place_id);
+                          onChange(prediction.description);
                           setSearchQuery('');
                           setOpen(false);
                         }}
@@ -158,9 +197,7 @@ const LocationAutocompleteComboSelect: React.FC<
                         <Check
                           className={cn(
                             'ml-auto',
-                            prediction.place_id === value
-                              ? 'opacity-100'
-                              : 'opacity-0'
+                            prediction.description === value ? 'opacity-100' : 'opacity-0'
                           )}
                           size={16}
                         />
@@ -169,7 +206,7 @@ const LocationAutocompleteComboSelect: React.FC<
                   </CommandGroup>
                 </ScrollArea>
               ) : (
-                <CommandEmpty>{t('noResult')}</CommandEmpty>
+                <CommandEmpty>{isReady ? t('noResult') : 'Search unavailable'}</CommandEmpty>
               )}
             </CommandList>
           </Command>

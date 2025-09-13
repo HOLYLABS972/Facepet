@@ -11,10 +11,10 @@ import toast from 'react-hot-toast';
 
 interface EditableTableCellProps {
   value: string;
-  field: 'type' | 'breed' | 'gender';
+  field: 'type' | 'breed' | 'gender' | 'weight';
   petId: string;
   className?: string;
-  onUpdate?: (petId: string, field: 'type' | 'breed' | 'gender', newValue: string) => void;
+  onUpdate?: (petId: string, field: 'type' | 'breed' | 'gender' | 'weight', newValue: string) => void;
 }
 
 export default function EditableTableCell({ 
@@ -104,22 +104,32 @@ export default function EditableTableCell({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Select value={editValue} onValueChange={setEditValue} disabled={isLoading}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder={isLoading ? 'Loading...' : `Select ${field}`} />
-        </SelectTrigger>
-        <SelectContent>
-          {isLoading ? (
-            <SelectItem value="loading" disabled>Loading...</SelectItem>
-          ) : (
-            options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))
-          )}
-        </SelectContent>
-      </Select>
+      {field === 'weight' ? (
+        <Input
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          placeholder="Enter weight (e.g., 5 kg, 10 lbs)"
+          disabled={isLoading}
+          className="w-full"
+        />
+      ) : (
+        <Select value={editValue} onValueChange={setEditValue} disabled={isLoading}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={isLoading ? 'Loading...' : `Select ${field}`} />
+          </SelectTrigger>
+          <SelectContent>
+            {isLoading ? (
+              <SelectItem value="loading" disabled>Loading...</SelectItem>
+            ) : (
+              options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      )}
       
       <Button
         size="sm"

@@ -6,11 +6,11 @@ import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import he from 'react-phone-number-input/locale/he';
-import { MapPin, Map } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import GetStartedInput from './ui/GetStartedInput';
 import { GetStartedPhoneInput } from './ui/GetStartedPhoneInput';
 import PrivacyLockToggle from './ui/PrivacyLockToggle';
-import AddressMapSelector from '@/components/AddressMapSelector';
+import LocationAutocompleteComboSelect from './ui/LocationAutocompleteSelector';
 
 const OwnerDetailsPage = () => {
   const {
@@ -21,10 +21,6 @@ const OwnerDetailsPage = () => {
   } = useFormContext();
   const t = useTranslations('pages.OwnerDetailsPage');
   const locale = useLocale();
-  const [showMap, setShowMap] = useState(false);
-  
-  // Watch the address field to get current value
-  const currentAddress = watch('ownerHomeAddress');
 
   useEffect(() => {
     Object.values(errors).forEach((error) => {
@@ -34,11 +30,6 @@ const OwnerDetailsPage = () => {
     });
   }, [errors]);
 
-  const handleAddressSelect = (address: string, coordinates: { lat: number; lng: number }) => {
-    setValue('ownerHomeAddress', address);
-    setValue('ownerCoordinates', coordinates);
-    setShowMap(false);
-  };
 
   return (
     <div className="flex h-full grow flex-col">
@@ -134,11 +125,14 @@ const OwnerDetailsPage = () => {
                   name="ownerHomeAddress"
                   control={control}
                   render={({ field }) => (
-                    <GetStartedInput
+                    <LocationAutocompleteComboSelect
                       label={t('form.HomeAddress')}
                       id="homeAddress"
-                      {...field}
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                       hasError={!!errors.ownerHomeAddress}
+                      required
                     />
                   )}
                 />
@@ -155,45 +149,10 @@ const OwnerDetailsPage = () => {
                 )}
               />
             </div>
-            
-            {/* Map Selector Button */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowMap(true)}
-              className="w-full flex items-center gap-2"
-            >
-              <Map className="w-4 h-4" />
-              {t('form.selectOnMap')}
-            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Map Selector Modal */}
-      {showMap && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{t('form.selectAddressOnMap')}</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowMap(false)}
-              >
-                ✕
-              </Button>
-            </div>
-            <div className="h-[calc(100%-80px)]">
-              <AddressMapSelector
-                onAddressSelect={handleAddressSelect}
-                initialAddress={currentAddress}
-                onClose={() => setShowMap(false)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

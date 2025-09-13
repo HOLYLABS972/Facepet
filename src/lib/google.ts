@@ -52,3 +52,36 @@ export const getPlaceFormattedAddress = async (
     return place_id;
   }
 };
+
+/**
+ * Get coordinates from place_id
+ */
+export const getPlaceCoordinates = async (
+  place_id: string
+): Promise<{ lat: number; lng: number } | null> => {
+  try {
+    const response = await client.placeDetails({
+      params: {
+        place_id,
+        key: process.env.GOOGLE_API_KEY!
+      }
+    });
+
+    if (
+      response.data &&
+      response.data.result &&
+      response.data.result.geometry &&
+      response.data.result.geometry.location
+    ) {
+      return {
+        lat: response.data.result.geometry.location.lat,
+        lng: response.data.result.geometry.location.lng
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error in getPlaceCoordinates:', error);
+    return null;
+  }
+};

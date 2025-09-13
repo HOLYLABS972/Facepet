@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Phone, MapPin, Check, Map } from 'lucide-react';
+import { X, Phone, MapPin, Check, Map, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
@@ -13,7 +13,7 @@ import { updateUserInFirestore } from '@/src/lib/firebase/users';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-import AddressMapSelector from './AddressMapSelector';
+import LocationAutocompleteComboSelect from './get-started/ui/LocationAutocompleteSelector';
 
 interface GoogleSignupBottomSheetProps {
   isOpen: boolean;
@@ -28,17 +28,30 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
 }) => {
   const t = useTranslations('pages.GoogleSignupBottomSheet');
   const { user } = useAuth();
+  const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
+  // Fetch name from Google account when component mounts
+  useEffect(() => {
+    if (user?.displayName) {
+      setName(user.displayName);
+    }
+  }, [user]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
       toast.error('User not authenticated');
+      return;
+    }
+    
+    if (!name.trim()) {
+      toast.error(t('errors.nameRequired'));
       return;
     }
     
@@ -61,8 +74,9 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Save phone number, address, and coordinates to Firestore
+      // Save name, phone number, address, and coordinates to Firestore
       const result = await updateUserInFirestore(user.uid, {
+        displayName: name.trim(),
         phone: phoneNumber.trim(),
         address: address.trim(),
         coordinates: coordinates
@@ -73,6 +87,7 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
       }
       
       toast.success(t('success'));
+      setName('');
       setPhoneNumber('');
       setAddress('');
       setCoordinates(null);
@@ -92,6 +107,7 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
 
   const handleClose = () => {
     if (!isSubmitting) {
+      setName('');
       setPhoneNumber('');
       setAddress('');
       setCoordinates(null);
@@ -137,7 +153,7 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Phone className="h-5 w-5 text-blue-600" />
+                    <User className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">{t('title')}</h2>
@@ -157,6 +173,37 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
             {/* Form */}
             <form onSubmit={handleSubmit} className="px-6 pb-8">
               <div className="space-y-6">
+                {/* Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="rtl:text-right">{t('form.nameLabel')}</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder={t('form.namePlaceholder')}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      disabled={isSubmitting}
+                      className="pl-10 h-12"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div className="space-y-2">
+                  <LocationAutocompleteComboSelect
+                    label={t('form.addressLabel')}
+                    id="address"
+                    value={address}
+                    onChange={(value) => setAddress(value)}
+                    hasError={!address.trim()}
+                    required
+                  />
+                </div>
+
                 {/* Phone Number */}
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="rtl:text-right">{t('form.phoneLabel')}</Label>
@@ -183,29 +230,10 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
                   </p>
                 </div>
 
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="rtl:text-right">{t('form.addressLabel')}</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <Input
-                      id="address"
-                      name="address"
-                      type="text"
-                      placeholder={t('form.addressPlaceholder')}
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      disabled={isSubmitting}
-                      className="pl-10 h-12"
-                      required
-                    />
-                  </div>
-                </div>
-
                 <div className="pt-4">
                   <Button
                     type="submit"
-                    disabled={isSubmitting || !phoneNumber.trim() || !address.trim()}
+                    disabled={isSubmitting || !name.trim() || !phoneNumber.trim() || !address.trim()}
                     className="w-full bg-blue-600 hover:bg-blue-700 rtl:flex-row-reverse"
                   >
                     {isSubmitting ? (

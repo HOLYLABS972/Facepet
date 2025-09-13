@@ -15,6 +15,7 @@ import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, Che
 import toast from 'react-hot-toast';
 import { uploadProfileImage, testStorageConnection } from '@/src/lib/firebase/simple-upload';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
+import LocationAutocompleteComboSelect from '../get-started/ui/LocationAutocompleteSelector';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -269,7 +270,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (showToast: boolean = true) => {
     setSaving(true);
     try {
       if (!user) {
@@ -306,16 +307,35 @@ export default function SettingsPage() {
       
       if (!userResult.success) {
         console.error('Failed to update user in Firestore:', userResult.error);
-        toast.error('Failed to save some preferences');
+        if (showToast) {
+          toast.error('Failed to save some preferences');
+        }
       } else {
-        toast.success('Profile updated successfully!');
+        if (showToast) {
+          toast.success('Profile updated successfully!');
+        }
       }
       
     } catch (error) {
       console.error('Error saving profile:', error);
-      toast.error('Failed to save profile');
+      if (showToast) {
+        toast.error('Failed to save profile');
+      }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleBackWithSave = async () => {
+    try {
+      // Auto-save before navigating back (without showing success toast)
+      await handleSave(false);
+      // Navigate back after saving
+      router.back();
+    } catch (error) {
+      console.error('Error auto-saving on back:', error);
+      // Still navigate back even if save fails
+      router.back();
     }
   };
 
@@ -379,11 +399,16 @@ export default function SettingsPage() {
         <div className="mb-6">
           <Button
             variant="ghost"
-            onClick={() => router.back()}
+            onClick={handleBackWithSave}
+            disabled={saving}
             className="mb-4 p-2"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t('back')}
+            {saving ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <ArrowLeft className="h-4 w-4 mr-2" />
+            )}
+            {saving ? t('saving') : t('back')}
           </Button>
           
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -551,17 +576,13 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">{t('address')}</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder={t('addressPlaceholder')}
-                  className="pl-10"
-                />
-              </div>
+              <LocationAutocompleteComboSelect
+                label={t('address')}
+                id="address"
+                value={formData.address}
+                onChange={(value) => handleInputChange('address', value)}
+                hasError={false}
+              />
             </div>
           </CardContent>
         </Card>

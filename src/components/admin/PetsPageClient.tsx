@@ -25,6 +25,7 @@ interface Pet {
   type: string;
   breed: string;
   gender: string;
+  weight?: string;
   imageUrl: string;
   ownerName: string;
   ownerId: string;
@@ -40,9 +41,10 @@ interface PetsPageClientProps {
     sort?: string;
     order?: 'asc' | 'desc';
   };
+  hideOwnerColumn?: boolean;
 }
 
-export default function PetsPageClient({ pets, searchParams }: PetsPageClientProps) {
+export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = false }: PetsPageClientProps) {
   const [petsData, setPetsData] = useState(pets);
 
   // Parse query parameters
@@ -254,8 +256,22 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                   )}
                 </a>
               </TableHead>
+              <TableHead>
+                <a href={getSortUrl('weight')} className="flex items-center">
+                  Weight
+                  {sort === 'weight' && (
+                    <span className="ml-1">
+                      {order === 'asc' ? (
+                        <ArrowUp className="h-4 w-4" />
+                      ) : (
+                        <ArrowDown className="h-4 w-4" />
+                      )}
+                    </span>
+                  )}
+                </a>
+              </TableHead>
               <TableHead>Image</TableHead>
-              <TableHead>Owner Name</TableHead>
+              {!hideOwnerColumn && <TableHead>Owner Name</TableHead>}
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
                   Created
@@ -276,7 +292,7 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
           <TableBody>
             {paginatedPets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={hideOwnerColumn ? 8 : 9} className="h-24 text-center">
                   No pets found.
                 </TableCell>
               </TableRow>
@@ -309,6 +325,14 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                     />
                   </TableCell>
                   <TableCell>
+                    <EditableTableCell
+                      value={pet.weight || ''}
+                      field="weight"
+                      petId={pet.id}
+                      onUpdate={handlePetUpdate}
+                    />
+                  </TableCell>
+                  <TableCell>
                     {pet.imageUrl && pet.imageUrl !== '/default-pet.png' && !pet.imageUrl.includes('default') ? (
                       <img 
                         src={pet.imageUrl} 
@@ -321,7 +345,7 @@ export default function PetsPageClient({ pets, searchParams }: PetsPageClientPro
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="font-medium">{pet.ownerName}</TableCell>
+                  {!hideOwnerColumn && <TableCell className="font-medium">{pet.ownerName}</TableCell>}
                   <TableCell>{formatDate(pet.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <PetActions petId={pet.id} petName={pet.name} />

@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { deletePet } from '@/lib/actions/admin';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -70,6 +70,16 @@ export default function PetActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => {
+              setIsDropdownOpen(false);
+              window.open(`/pet/${petId}`, '_blank');
+            }}
+            className="cursor-pointer"
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            {t('view')}
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               setIsDropdownOpen(false);

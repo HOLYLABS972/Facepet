@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
-import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2, ShieldX, PawPrint, MessageSquare, Phone, Settings, Mail } from 'lucide-react';
+import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Phone, Settings, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -115,15 +115,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <AppWindow className="h-6 w-6" />
                 Manage Ads
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={`/${locale}/admin/pets`}
-                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
-              >
-                <PawPrint className="h-6 w-6" />
-                Manage Pets
               </Link>
             </li>
             <li>

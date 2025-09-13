@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select';
 import { deleteUser, updateUserRole, restrictUser, unrestrictUser } from '@/lib/actions/admin';
 import { updateUserInFirestore } from '@/lib/firebase/users';
-import { MoreHorizontal, Phone } from 'lucide-react';
+import { MoreHorizontal, Phone, PawPrint } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -238,6 +238,13 @@ export default function UserActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => {
+            setIsDropdownOpen(false);
+            router.push(`/admin/users/${userId}/pets`);
+          }}>
+            <PawPrint className="h-4 w-4 mr-2" />
+            View Pets
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleOpenEditDialog}>
             Edit
           </DropdownMenuItem>

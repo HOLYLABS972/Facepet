@@ -847,6 +847,7 @@ export async function getAllPetsForAdmin() {
           type: petData.type || 'Unknown',
           breed: breedName,
           gender: petData.gender || 'Unknown',
+          weight: petData.weight || '',
           imageUrl: petData.imageUrl || petData.image || '',
           ownerName: ownerName,
           ownerId: petData.ownerId || '',
@@ -863,9 +864,47 @@ export async function getAllPetsForAdmin() {
 }
 
 /**
+ * Get pets by user email for admin
+ */
+export async function getPetsByUserEmail(userEmail: string) {
+  try {
+    const petsSnapshot = await getDocs(
+      query(collection(db, 'pets'), where('userEmail', '==', userEmail))
+    );
+    
+    const pets = await Promise.all(
+      petsSnapshot.docs.map(async (petDoc) => {
+        const petData = petDoc.data();
+        
+        // Get breed name - use breedName directly since that's what's stored
+        let breedName = petData.breedName || petData.breed || 'Unknown Breed';
+
+        return {
+          id: petDoc.id,
+          name: petData.name || '',
+          type: petData.type || 'Unknown',
+          breed: breedName,
+          gender: petData.gender || 'Unknown',
+          weight: petData.weight || '',
+          imageUrl: petData.imageUrl || petData.image || '',
+          ownerName: userEmail, // Use email as owner name since we're filtering by user
+          ownerId: petData.ownerId || '',
+          createdAt: petData.createdAt?.toDate() || new Date()
+        };
+      })
+    );
+
+    return pets;
+  } catch (error) {
+    console.error('Error getting pets by user email:', error);
+    return [];
+  }
+}
+
+/**
  * Update pet type, breed, or gender
  */
-export async function updatePetField(petId: string, field: 'type' | 'breed' | 'gender', value: string) {
+export async function updatePetField(petId: string, field: 'type' | 'breed' | 'gender' | 'weight', value: string) {
   try {
     const petRef = doc(db, 'pets', petId);
     

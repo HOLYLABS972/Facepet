@@ -6,6 +6,7 @@ import he from 'react-phone-number-input/locale/he';
 import GetStartedInput from './ui/GetStartedInput';
 import { GetStartedPhoneInput } from './ui/GetStartedPhoneInput';
 import PrivacyLockToggle from './ui/PrivacyLockToggle';
+import LocationAutocompleteComboSelect from './ui/LocationAutocompleteSelector';
 
 const VetDetailsPage = () => {
   const {
@@ -121,11 +122,14 @@ const VetDetailsPage = () => {
                 name="vetAddress"
                 control={control}
                 render={({ field }) => (
-                  <GetStartedInput
+                  <LocationAutocompleteComboSelect
                     label={t('form.VeterinaryAddress')}
                     id="vetAddress"
-                    {...field}
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
                     hasError={!!errors.vetAddress}
+                    required
                   />
                 )}
               />

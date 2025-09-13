@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import GetStartedInput from './get-started/ui/GetStartedInput';
 import { GetStartedPhoneInput } from './get-started/ui/GetStartedPhoneInput';
 import PrivacyLockToggle from './get-started/ui/PrivacyLockToggle';
+import LocationAutocompleteComboSelect from './get-started/ui/LocationAutocompleteSelector';
 import { Plus, Edit, X } from 'lucide-react';
 import he from 'react-phone-number-input/locale/he';
 
@@ -212,12 +213,14 @@ export default function VetDataModal({
                     name="address"
                     control={control}
                     render={({ field }) => (
-                      <GetStartedInput
+                      <LocationAutocompleteComboSelect
                         label="Veterinary Address"
                         id="vetAddress"
-                        {...field}
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                         hasError={!!errors.address}
-                        errorMessage={errors.address?.message}
+                        required
                       />
                     )}
                   />
