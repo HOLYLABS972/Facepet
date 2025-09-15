@@ -168,14 +168,14 @@ export default async function AdsPage({
                   )}
                 </a>
               </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">{t('adsManagement.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ads.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
-                  No advertisements found.
+                  {t('adsManagement.table.noAds')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -195,12 +195,12 @@ export default async function AdsPage({
                         ))}
                         {ad.tags.length > 3 && (
                           <span className="text-xs text-gray-500">
-                            +{ad.tags.length - 3} more
+                            +{ad.tags.length - 3} {t('adActions.moreTags')}
                           </span>
                         )}
                       </div>
                     ) : (
-                      <span className="text-gray-400 text-sm">No tags</span>
+                      <span className="text-gray-400 text-sm">{t('adActions.noTags')}</span>
                     )}
                   </TableCell>
                   <TableCell>

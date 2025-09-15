@@ -79,8 +79,8 @@ export default async function CommentsPage({
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Manage Comments</h1>
-        <p className="text-gray-600 mt-2">Review and manage user comments and reviews</p>
+        <h1 className="text-3xl font-bold">{t('commentsManagementPage.title')}</h1>
+        <p className="text-gray-600 mt-2">{t('commentsManagementPage.description')}</p>
       </div>
 
       <div className="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:space-x-4">
@@ -89,7 +89,7 @@ export default async function CommentsPage({
             <Input
               type="text"
               name="search"
-              placeholder="Search by content, user name, or email..."
+              placeholder={t('commentsManagementPage.searchPlaceholder')}
               defaultValue={search}
               className="bg-white pr-4 pl-10"
             />
@@ -98,7 +98,7 @@ export default async function CommentsPage({
             <input type="hidden" name="order" value={order} />
             {approvedOnly && <input type="hidden" name="approved" value="true" />}
             <button type="submit" className="sr-only">
-              Search
+              {t('commentsManagementPage.searchPlaceholder')}
             </button>
           </form>
         </div>
@@ -113,7 +113,7 @@ export default async function CommentsPage({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              All
+              {t('commentsManagementPage.filters.all')}
             </a>
             <a
               href={getFilterUrl(true)}
@@ -123,7 +123,7 @@ export default async function CommentsPage({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Approved Only
+              {t('commentsManagementPage.filters.approvedOnly')}
             </a>
           </div>
           <LimitSelector
@@ -143,14 +143,14 @@ export default async function CommentsPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Content</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead>Ad/Service</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('commentsManagementPage.table.user')}</TableHead>
+              <TableHead>{t('commentsManagementPage.table.content')}</TableHead>
+              <TableHead>{t('commentsManagementPage.table.rating')}</TableHead>
+              <TableHead>{t('commentsManagementPage.table.adService')}</TableHead>
+              <TableHead>{t('commentsManagementPage.table.status')}</TableHead>
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
-                  Created
+                  {t('commentsManagementPage.table.created')}
                   {sort === 'createdAt' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -162,14 +162,14 @@ export default async function CommentsPage({
                   )}
                 </a>
               </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">{t('commentsManagementPage.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {comments.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
-                  No comments found.
+                  {t('commentsManagementPage.table.noComments')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -193,7 +193,7 @@ export default async function CommentsPage({
                         <span className="ml-1">{comment.rating}/5</span>
                       </div>
                     ) : (
-                      <span className="text-gray-400">No rating</span>
+                      <span className="text-gray-400">{t('commentsManagementPage.table.noRating')}</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -203,7 +203,7 @@ export default async function CommentsPage({
                         <div className="text-gray-500">ID: {comment.adId}</div>
                       </div>
                     ) : (
-                      <span className="text-gray-400">General comment</span>
+                      <span className="text-gray-400">{t('commentsManagementPage.table.generalComment')}</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -214,7 +214,7 @@ export default async function CommentsPage({
                           : 'bg-yellow-100 text-yellow-800'
                       }`}
                     >
-                      {comment.isApproved ? 'Approved' : 'Pending'}
+                      {comment.isApproved ? t('commentsManagementPage.table.approved') : t('commentsManagementPage.table.pending')}
                     </span>
                   </TableCell>
                   <TableCell>{formatDate(comment.createdAt)}</TableCell>

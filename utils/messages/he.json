@@ -258,9 +258,39 @@
     },
     "commentsManagement": "ניהול תגובות",
     "manageCommentsDescription": "נהל ובדוק תגובות משתמשים בפלטפורמה.",
+    "commentsManagementPage": {
+      "title": "נהל תגובות",
+      "description": "סקור ונהל תגובות וביקורות משתמשים",
+      "searchPlaceholder": "חפש לפי תוכן, שם משתמש או אימייל...",
+      "filters": {
+        "all": "הכל",
+        "approvedOnly": "מאושרות בלבד"
+      },
+      "table": {
+        "user": "משתמש",
+        "content": "תוכן",
+        "rating": "דירוג",
+        "adService": "פרסומת/שירות",
+        "status": "סטטוס",
+        "created": "נוצר",
+        "actions": "פעולות",
+        "noComments": "לא נמצאו תגובות.",
+        "noRating": "אין דירוג",
+        "generalComment": "תגובה כללית",
+        "approved": "מאושר",
+        "pending": "ממתין"
+      }
+    },
     "commentActions": {
       "actions": "פעולות",
-      "delete": "מחק תגובה"
+      "delete": "מחק תגובה",
+      "deleteComment": "מחק תגובה",
+      "deleteTitle": "מחק תגובה",
+      "deleteMessage": "האם אתה בטוח שברצונך למחוק את התגובה הזו? פעולה זו לא ניתנת לביטול.",
+      "comment": "תגובה:",
+      "cancel": "ביטול",
+      "deleting": "מוחק...",
+      "deleteCommentButton": "מחק תגובה"
     },
     "contactManagement": "פניות קשר",
     "manageContactDescription": "צפה והגב לפניות מטופסי הקשר.",
@@ -340,7 +370,58 @@
       "viewUser": "הצג משתמש",
       "deleting": "מוחק...",
       "deleteSuccess": "המשתמש נמחק בהצלחה",
-      "deleteError": "נכשל במחיקת המשתמש"
+      "deleteError": "נכשל במחיקת המשתמש",
+      "selectRole": "בחר תפקיד",
+      "enterPhone": "הזן מספר טלפון",
+      "enterAddress": "הזן כתובת",
+      "enterRestrictionReason": "הזן סיבת הגבלה",
+      "restricted": "מוגבל",
+      "active": "פעיל",
+      "savingChanges": "שומר שינויים...",
+      "saveChanges": "שמור שינויים",
+      "updateRoleError": "נכשל בעדכון התפקיד",
+      "deleteUserError": "נכשל במחיקת המשתמש",
+      "restrictUserError": "נכשל בהגבלת המשתמש",
+      "unrestrictUserError": "נכשל בהסרת הגבלת המשתמש",
+      "updateRestrictionError": "נכשל בעדכון סטטוס ההגבלה",
+      "updateUserInfoError": "נכשל בעדכון פרטי המשתמש",
+      "saveChangesError": "נכשל בשמירת השינויים",
+      "editUserDescription": "נהל תפקיד משתמש, הגבלות ופרטי קשר",
+      "userRole": "תפקיד משתמש",
+      "phoneNumber": "מספר טלפון",
+      "address": "כתובת",
+      "accountStatus": "סטטוס חשבון",
+      "restrictionReason": "סיבת הגבלה",
+      "roles": {
+        "user": "משתמש",
+        "admin": "מנהל",
+        "super_admin": "מנהל על"
+      }
+    },
+    "petsManagement": {
+      "title": "נהל חיות מחמד",
+      "searchPlaceholder": "חפש לפי שם, סוג, גזע או בעלים...",
+      "table": {
+        "name": "שם",
+        "type": "סוג",
+        "breed": "גזע",
+        "gender": "מין",
+        "weight": "משקל",
+        "image": "תמונה",
+        "ownerName": "שם בעלים",
+        "created": "נוצר",
+        "actions": "פעולות",
+        "noPets": "לא נמצאו חיות מחמד."
+      }
+    },
+    "userPetsPage": {
+      "backToUsers": "חזור למשתמשים",
+      "title": "חיות המחמד של המשתמש",
+      "description": "חיות מחמד בבעלות",
+      "petsFound": "חיית מחמד נמצאה",
+      "petsFoundPlural": "חיות מחמד נמצאו",
+      "noPetsTitle": "לא נמצאו חיות מחמד",
+      "noPetsDescription": "למשתמש הזה עדיין לא נרשמו חיות מחמד."
     },
     "petActions": {
       "actions": "פעולות",
@@ -370,7 +451,25 @@
       "rejecting": "דוחה...",
       "rejectSuccess": "הפרסומת נדחתה בהצלחה",
       "rejectError": "נכשל בדחיית הפרסומת",
-      "cancel": "ביטול"
+      "cancel": "ביטול",
+      "confirmDeletion": "אישור מחיקה",
+      "deleteMessage": "האם אתה בטוח שברצונך למחוק את הפרסומת הזו? פעולה זו לא ניתנת לביטול.",
+      "title": "כותרת",
+      "description": "תיאור",
+      "phoneNumber": "מספר טלפון",
+      "location": "מיקום",
+      "tags": "תגיות",
+      "content": "תוכן",
+      "addTag": "הוסף",
+      "addTagPlaceholder": "הוסף תגית ולחץ Enter",
+      "descriptionPlaceholder": "הזן תיאור שירות...",
+      "phonePlaceholder": "+972-XX-XXX-XXXX",
+      "locationPlaceholder": "עיר, מדינה",
+      "updating": "מעדכן...",
+      "updateAd": "עדכן פרסומת",
+      "deleteAd": "מחק פרסומת",
+      "noTags": "אין תגיות",
+      "moreTags": "עוד"
     },
     "forms": {
       "addUser": {
@@ -807,6 +906,7 @@
         "nameRequired": "אנא הזינו את השם המלא שלכם",
         "phoneRequired": "אנא הזינו מספר טלפון",
         "addressRequired": "אנא הזינו את הכתובת שלכם",
+        "completeRequiredFields": "אנא השלימו את כל השדות הנדרשים לפני הסגירה",
         "phoneInvalid": "אנא הזינו מספר טלפון תקין",
         "saveFailed": "שמירת המידע נכשלה. אנא נסו שוב."
       }

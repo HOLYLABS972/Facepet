@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { ArrowDown, ArrowUp, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface Pet {
   id: string;
@@ -45,6 +46,7 @@ interface PetsPageClientProps {
 }
 
 export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = false }: PetsPageClientProps) {
+  const t = useTranslations('Admin');
   const [petsData, setPetsData] = useState(pets);
 
   // Parse query parameters
@@ -159,7 +161,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold">Manage Pets</h1>
+        <h1 className="text-3xl font-bold">{t('petsManagement.title')}</h1>
       </div>
 
       {/* Search and Filters */}
@@ -169,7 +171,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
             <Input
               type="text"
               name="search"
-              placeholder="Search by name, type, breed, or owner..."
+              placeholder={t('petsManagement.searchPlaceholder')}
               defaultValue={search}
               className="bg-white pr-4 pl-10"
             />
@@ -177,7 +179,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
             <input type="hidden" name="sort" value={sort} />
             <input type="hidden" name="order" value={order} />
             <Button type="submit" className="sr-only">
-              Search
+              {t('petsManagement.searchPlaceholder')}
             </Button>
           </form>
         </div>
@@ -202,7 +204,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
             <TableRow>
               <TableHead>
                 <a href={getSortUrl('name')} className="flex items-center">
-                  Name
+                  {t('petsManagement.table.name')}
                   {sort === 'name' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -216,7 +218,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('type')} className="flex items-center">
-                  Type
+                  {t('petsManagement.table.type')}
                   {sort === 'type' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -230,7 +232,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('breed')} className="flex items-center">
-                  Breed
+                  {t('petsManagement.table.breed')}
                   {sort === 'breed' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -244,7 +246,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('gender')} className="flex items-center">
-                  Gender
+                  {t('petsManagement.table.gender')}
                   {sort === 'gender' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -258,7 +260,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('weight')} className="flex items-center">
-                  Weight
+                  {t('petsManagement.table.weight')}
                   {sort === 'weight' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -270,11 +272,11 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
                   )}
                 </a>
               </TableHead>
-              <TableHead>Image</TableHead>
-              {!hideOwnerColumn && <TableHead>Owner Name</TableHead>}
+              <TableHead>{t('petsManagement.table.image')}</TableHead>
+              {!hideOwnerColumn && <TableHead>{t('petsManagement.table.ownerName')}</TableHead>}
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
-                  Created
+                  {t('petsManagement.table.created')}
                   {sort === 'createdAt' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -286,14 +288,14 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
                   )}
                 </a>
               </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">{t('petsManagement.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedPets.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={hideOwnerColumn ? 8 : 9} className="h-24 text-center">
-                  No pets found.
+                  {t('petsManagement.table.noPets')}
                 </TableCell>
               </TableRow>
             ) : (

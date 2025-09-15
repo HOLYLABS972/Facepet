@@ -50,7 +50,7 @@ export default function UserActions({
   phoneNumber?: string;
   userAddress?: string;
 }) {
-  const t = useTranslations('Admin.userActions');
+  const t = useTranslations('Admin');
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [newRole, setNewRole] = useState(currentRole);
@@ -80,7 +80,7 @@ export default function UserActions({
       setIsEditOpen(false);
       router.refresh();
     } catch (err) {
-      setError('Failed to update role');
+      setError(t('userActions.updateRoleError'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -100,13 +100,13 @@ export default function UserActions({
       const result = await deleteUser(userId);
 
       if (!result.success) {
-        setError(result.error || 'Failed to delete user');
+        setError(result.error || t('userActions.deleteUserError'));
       } else {
         setIsDeleting(false);
         router.refresh();
       }
     } catch (err) {
-      setError('Failed to delete user');
+      setError(t('userActions.deleteUserError'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -123,10 +123,10 @@ export default function UserActions({
         setRestrictionReason('');
         router.refresh();
       } else {
-        setError(result.error || 'Failed to restrict user');
+        setError(result.error || t('userActions.restrictUserError'));
       }
     } catch (err) {
-      setError('Failed to restrict user');
+      setError(t('userActions.restrictUserError'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -142,10 +142,10 @@ export default function UserActions({
       if (result.success) {
         router.refresh();
       } else {
-        setError(result.error || 'Failed to unrestrict user');
+        setError(result.error || t('userActions.unrestrictUserError'));
       }
     } catch (err) {
-      setError('Failed to unrestrict user');
+      setError(t('userActions.unrestrictUserError'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -171,7 +171,7 @@ export default function UserActions({
       setRestrictionReason('');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update restriction status');
+      setError(err instanceof Error ? err.message : t('userActions.updateRestrictionError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -194,14 +194,14 @@ export default function UserActions({
           ...(currentAddress !== userAddress ? { address: currentAddress } : {})
         });
         if (!result.success) {
-          throw new Error(result.error || 'Failed to update user information');
+          throw new Error(result.error || t('userActions.updateUserInfoError'));
         }
       }
 
       setIsEditOpen(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save changes');
+      setError(err instanceof Error ? err.message : t('userActions.saveChangesError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -276,7 +276,7 @@ export default function UserActions({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t('userActions.editUser')}</DialogTitle>
-            <DialogDescription>Manage user role, restrictions, and contact information</DialogDescription>
+            <DialogDescription>{t('userActions.editUserDescription')}</DialogDescription>
           </DialogHeader>
 
           {error && (
@@ -294,32 +294,32 @@ export default function UserActions({
               <>
                 {/* Role Selection */}
                 <div className="space-y-2">
-                  <Label>User Role</Label>
+                  <Label>{t('userActions.userRole')}</Label>
                   <Select
                     value={newRole}
                     onValueChange={(value) => setNewRole(value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a role" />
+                      <SelectValue placeholder={t('userActions.selectRole')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="super_admin">Super Admin</SelectItem>
+                      <SelectItem value="user">{t('userActions.roles.user')}</SelectItem>
+                      <SelectItem value="admin">{t('userActions.roles.admin')}</SelectItem>
+                      <SelectItem value="super_admin">{t('userActions.roles.super_admin')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Phone Number */}
                 <div className="space-y-2">
-                  <Label>Phone Number</Label>
+                  <Label>{t('userActions.phoneNumber')}</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Enter phone number"
+                      placeholder={t('userActions.enterPhone')}
                       className="pl-10"
                     />
                   </div>
@@ -327,13 +327,13 @@ export default function UserActions({
 
                 {/* Address */}
                 <div className="space-y-2">
-                  <Label>Address</Label>
+                  <Label>{t('userActions.address')}</Label>
                   <div className="relative">
                     <Input
                       type="text"
                       value={currentAddress}
                       onChange={(e) => setCurrentAddress(e.target.value)}
-                      placeholder="Enter address"
+                      placeholder={t('userActions.enterAddress')}
                     />
                   </div>
                 </div>
@@ -342,7 +342,7 @@ export default function UserActions({
               </>
             )}
             <div className="space-y-2">
-              <Label>Account Status</Label>
+              <Label>{t('userActions.accountStatus')}</Label>
               <div className="flex items-center space-x-2">
                 <Switch
                   checked={!isRestricted}
@@ -354,18 +354,18 @@ export default function UserActions({
                     }
                   }}
                 />
-                <span>{isRestricted ? 'Restricted' : 'Active'}</span>
+                <span>{isRestricted ? t('userActions.restricted') : t('userActions.active')}</span>
               </div>
             </div>
 
             {/* Restriction Reason Input */}
             {showRestrictionReasonInput && (
               <div className="space-y-2">
-                <Label>Restriction Reason</Label>
+                <Label>{t('userActions.restrictionReason')}</Label>
                 <Textarea
                   value={restrictionReason}
                   onChange={(e) => setRestrictionReason(e.target.value)}
-                  placeholder="Enter reason for restriction"
+                  placeholder={t('userActions.enterRestrictionReason')}
                   rows={3}
                 />
               </div>
@@ -374,10 +374,10 @@ export default function UserActions({
 
           <DialogFooter className="flex space-x-2">
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-              Cancel
+              {t('userActions.cancel')}
             </Button>
             <Button onClick={handleSaveChanges} disabled={isSubmitting || isLoading}>
-              {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+              {isSubmitting ? t('userActions.savingChanges') : t('userActions.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>

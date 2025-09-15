@@ -2,6 +2,7 @@
 
 import { DirectionProvider } from '@radix-ui/react-direction';
 import { Toaster } from 'react-hot-toast';
+import ProfileCompletionGuard from '@/components/auth/ProfileCompletionGuard';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -13,7 +14,9 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
     <main className="flex min-h-dvh flex-col">
       <DirectionProvider dir={direction}>
         <Toaster />
-        {children}
+        <ProfileCompletionGuard>
+          {children}
+        </ProfileCompletionGuard>
       </DirectionProvider>
     </main>
   );

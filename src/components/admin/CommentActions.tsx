@@ -96,15 +96,15 @@ export default function CommentActions({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Comment</DialogTitle>
+            <DialogTitle>{t('commentActions.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this comment? This action cannot be undone.
+              {t('commentActions.deleteMessage')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="my-4 p-3 bg-gray-50 rounded border">
             <p className="text-sm text-gray-700">
-              <strong>Comment:</strong> {content}
+              <strong>{t('commentActions.comment')}</strong> {content}
             </p>
           </div>
 
@@ -116,14 +116,14 @@ export default function CommentActions({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleting(false)}>
-              Cancel
+              {t('commentActions.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete Comment'}
+              {isSubmitting ? t('commentActions.deleting') : t('commentActions.deleteCommentButton')}
             </Button>
           </DialogFooter>
         </DialogContent>

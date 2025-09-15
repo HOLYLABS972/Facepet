@@ -27,7 +27,7 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
   onComplete
 }) => {
   const t = useTranslations('pages.GoogleSignupBottomSheet');
-  const { user } = useAuth();
+  const { user, completeProfile } = useAuth();
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
@@ -87,6 +87,7 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
       }
       
       toast.success(t('success'));
+      completeProfile(); // Mark profile as completed
       setName('');
       setPhoneNumber('');
       setAddress('');
@@ -107,12 +108,19 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setName('');
-      setPhoneNumber('');
-      setAddress('');
-      setCoordinates(null);
-      setShowMap(false);
-      onClose();
+      // Check if required fields are filled
+      if (name.trim() && phoneNumber.trim() && address.trim()) {
+        // All required fields are filled, allow closing
+        setName('');
+        setPhoneNumber('');
+        setAddress('');
+        setCoordinates(null);
+        setShowMap(false);
+        onClose();
+      } else {
+        // Show error message for missing required fields
+        toast.error(t('errors.completeRequiredFields'));
+      }
     }
   };
 

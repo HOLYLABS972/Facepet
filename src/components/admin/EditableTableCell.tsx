@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { updatePetField } from '@/lib/actions/admin';
 import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
+import { getPetTypes, getBreeds, getGenders } from '@/src/lib/hardcoded-data';
 import toast from 'react-hot-toast';
+import { useLocale } from 'next-intl';
 
 interface EditableTableCellProps {
   value: string;
@@ -24,6 +26,7 @@ export default function EditableTableCell({
   className = '',
   onUpdate
 }: EditableTableCellProps) {
+  const locale = useLocale() as 'en' | 'he';
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
   const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
@@ -43,13 +46,13 @@ export default function EditableTableCell({
       
       switch (field) {
         case 'type':
-          data = await getPetTypesForDropdown();
+          data = await getPetTypesForDropdown(locale);
           break;
         case 'breed':
-          data = await getBreedsForDropdown();
+          data = await getBreedsForDropdown(undefined, locale);
           break;
         case 'gender':
-          data = await getGendersForDropdown();
+          data = await getGendersForDropdown(locale);
           break;
       }
       
@@ -59,6 +62,33 @@ export default function EditableTableCell({
       toast.error('Failed to load options');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Get the translated label for the current value
+  const getTranslatedLabel = (value: string): string => {
+    if (field === 'weight') return value;
+    
+    try {
+      let data: { value: string; label: string }[] = [];
+      
+      switch (field) {
+        case 'type':
+          data = getPetTypes(locale);
+          break;
+        case 'breed':
+          data = getBreeds(locale);
+          break;
+        case 'gender':
+          data = getGenders(locale);
+          break;
+      }
+      
+      const option = data.find(opt => opt.value === value);
+      return option ? option.label : value;
+    } catch (error) {
+      console.error('Error getting translated label:', error);
+      return value;
     }
   };
 
@@ -95,7 +125,7 @@ export default function EditableTableCell({
         onClick={() => setIsEditing(true)}
       >
         <div className="flex items-center justify-between">
-          <span>{value || 'Not specified'}</span>
+          <span>{getTranslatedLabel(value) || 'Not specified'}</span>
           <Edit className="h-4 w-4 text-gray-400" />
         </div>
       </div>

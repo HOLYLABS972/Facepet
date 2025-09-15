@@ -15,19 +15,19 @@ import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 const AuthPage = () => {
   const t = useTranslations('pages.AuthPage');
-  const { signIn, signUp, signInWithGoogle, sendVerificationCode, user, loading: authLoading } = useAuth();
+  const { signIn, signUp, signInWithGoogle, sendVerificationCode, user, loading: authLoading, needsProfileCompletion } = useAuth();
   const router = useRouter();
   
   // Debug logging
-  console.log('AuthPage rendered:', { user, authLoading });
+  console.log('AuthPage rendered:', { user, authLoading, needsProfileCompletion });
   
-  // Redirect if user is already authenticated
+  // Redirect if user is already authenticated and profile is complete
   useEffect(() => {
-    if (!authLoading && user) {
-      console.log('User already authenticated, redirecting to dashboard');
+    if (!authLoading && user && !needsProfileCompletion) {
+      console.log('User already authenticated with complete profile, redirecting to dashboard');
       router.push('/pages/my-pets');
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, needsProfileCompletion, router]);
   
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +62,7 @@ const AuthPage = () => {
       } else {
         await signIn(formData.email, formData.password);
         toast.success(t('signInSuccess'));
-        router.push('/pages/my-pets');
+        // Don't redirect here - let ProfileCompletionGuard handle it
       }
     } catch (error: any) {
       console.error('Auth error:', error);
@@ -77,7 +77,7 @@ const AuthPage = () => {
     try {
       await signInWithGoogle();
       toast.success(t('signInSuccessGoogle'));
-      router.push('/pages/my-pets');
+      // Don't redirect here - let ProfileCompletionGuard handle it
     } catch (error: any) {
       console.error('Google auth error:', error);
       toast.error(error.message || t('authErrorGoogle'));

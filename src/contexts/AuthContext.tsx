@@ -46,6 +46,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   needsGoogleProfileCompletion: boolean;
+  needsProfileCompletion: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string, phone?: string, address?: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -55,6 +56,8 @@ interface AuthContextType {
   sendVerificationCode: (email: string, userName?: string) => Promise<VerificationResult>;
   verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => Promise<{ success: boolean; user: User | null }>;
   completeGoogleProfile: () => void;
+  completeProfile: () => void;
+  checkProfileCompletion: (user: User) => Promise<boolean>;
   getStoredOTPCode: () => string | null;
 }
 
@@ -76,6 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsGoogleProfileCompletion, setNeedsGoogleProfileCompletion] = useState(false);
+  const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
   const [storedOTPCode, setStoredOTPCode] = useState<string | null>(() => {
     // Initialize from localStorage if available
     if (typeof window !== 'undefined') {
@@ -130,6 +134,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           await firebaseSignOut(auth);
           throw new Error(`Your account has been restricted by an administrator. Reason: ${userData.restrictionReason || 'No reason provided'}`);
         }
+        
+        // Check if user has completed their profile (phone and address)
+        await checkProfileCompletion(userCredential.user);
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
@@ -247,6 +254,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           // Check if user needs profile completion (missing phone or address)
           if (authResult.isNewUser || !userData?.phone || !userData?.address) {
             setNeedsGoogleProfileCompletion(true);
+          } else {
+            // Check profile completion for existing users
+            await checkProfileCompletion(userCredential.user);
           }
         }
       }
@@ -379,10 +389,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setNeedsGoogleProfileCompletion(false);
   };
 
+  const completeProfile = () => {
+    setNeedsProfileCompletion(false);
+  };
+
+  // Check if user has completed their profile (has phone and address)
+  const checkProfileCompletion = async (user: User) => {
+    try {
+      const userResult = await getUserFromFirestore(user.uid);
+      if (userResult.success && userResult.user) {
+        const userData = userResult.user as UserData;
+        const hasPhone = userData.phone && userData.phone.trim() !== '';
+        const hasAddress = userData.address && userData.address.trim() !== '';
+        
+        if (!hasPhone || !hasAddress) {
+          setNeedsProfileCompletion(true);
+          return false;
+        }
+      }
+      setNeedsProfileCompletion(false);
+      return true;
+    } catch (error) {
+      console.error('Error checking profile completion:', error);
+      setNeedsProfileCompletion(true);
+      return false;
+    }
+  };
+
   const value = {
     user,
     loading,
     needsGoogleProfileCompletion,
+    needsProfileCompletion,
     signIn,
     signUp,
     signInWithGoogle,
@@ -392,6 +430,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     sendVerificationCode,
     verifyCodeAndCreateAccount,
     completeGoogleProfile,
+    completeProfile,
+    checkProfileCompletion,
     getStoredOTPCode: () => storedOTPCode
   };
 

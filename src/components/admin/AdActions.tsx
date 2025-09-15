@@ -219,7 +219,7 @@ export default function AdActions({ ad }: { ad: Ad }) {
 
           <form onSubmit={handleUpdate} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">{t('adActions.title')}</Label>
               <Input
                 id="title"
                 name="title"
@@ -230,52 +230,52 @@ export default function AdActions({ ad }: { ad: Ad }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('adActions.description')}</Label>
               <Textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Enter service description..."
+                placeholder={t('adActions.descriptionPlaceholder')}
                 rows={3}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">{t('adActions.phoneNumber')}</Label>
                 <Input
                   id="phone"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+972-XX-XXX-XXXX"
+                  placeholder={t('adActions.phonePlaceholder')}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
+                <Label htmlFor="location">{t('adActions.location')}</Label>
                 <Input
                   id="location"
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  placeholder="City, Country"
+                  placeholder={t('adActions.locationPlaceholder')}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tags">Tags</Label>
+              <Label htmlFor="tags">{t('adActions.tags')}</Label>
               <div className="flex gap-2">
                 <Input
                   id="tags"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyPress={handleTagKeyPress}
-                  placeholder="Add a tag and press Enter"
+                  placeholder={t('adActions.addTagPlaceholder')}
                 />
-                <Button type="button" onClick={addTag} variant="outline">Add</Button>
+                <Button type="button" onClick={addTag} variant="outline">{t('adActions.addTag')}</Button>
               </div>
               {formData.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
@@ -290,7 +290,7 @@ export default function AdActions({ ad }: { ad: Ad }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">Content</Label>
+              <Label htmlFor="content">{t('adActions.content')}</Label>
               <MediaUpload
                 type={formData.type}
                 value={formData.content}
@@ -308,10 +308,10 @@ export default function AdActions({ ad }: { ad: Ad }) {
                 variant="outline"
                 onClick={() => setIsEditOpen(false)}
               >
-                Cancel
+                {t('adActions.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Updating...' : 'Update Ad'}
+                {isSubmitting ? t('adActions.updating') : t('adActions.updateAd')}
               </Button>
             </DialogFooter>
           </form>
@@ -331,10 +331,9 @@ export default function AdActions({ ad }: { ad: Ad }) {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>{t('adActions.confirmDeletion')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this advertisement? This action
-              cannot be undone.
+              {t('adActions.deleteMessage')}
             </DialogDescription>
           </DialogHeader>
 
@@ -346,7 +345,7 @@ export default function AdActions({ ad }: { ad: Ad }) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleting(false)}>
-              Cancel
+              {t('adActions.cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -356,7 +355,7 @@ export default function AdActions({ ad }: { ad: Ad }) {
               }}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete Ad'}
+              {isSubmitting ? t('adActions.deleting') : t('adActions.deleteAd')}
             </Button>
           </DialogFooter>
         </DialogContent>
