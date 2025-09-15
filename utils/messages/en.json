@@ -889,7 +889,9 @@
         "phonePlaceholder": "Enter your phone number",
         "countryCodeNote": "Country code is automatically included - just enter your number",
         "addressLabel": "Address",
-        "addressPlaceholder": "Enter your address"
+        "addressPlaceholder": "123 Main Street, Tel Aviv, Israel",
+        "requiredFieldsNotice": "All fields are required",
+        "requiredFieldsDescription": "Please fill out all the information below to complete your profile setup."
       },
       "buttons": {
         "save": "Save Information",
@@ -900,7 +902,6 @@
         "nameRequired": "Please enter your full name",
         "phoneRequired": "Please enter a phone number",
         "addressRequired": "Please enter your address",
-        "completeRequiredFields": "Please complete all required fields before closing",
         "phoneInvalid": "Please enter a valid phone number",
         "saveFailed": "Failed to save information. Please try again."
       }

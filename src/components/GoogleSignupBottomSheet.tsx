@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Phone, MapPin, Check, Map, User } from 'lucide-react';
+import { Phone, MapPin, Check, Map, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
@@ -27,7 +27,7 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
   onComplete
 }) => {
   const t = useTranslations('pages.GoogleSignupBottomSheet');
-  const { user, completeProfile } = useAuth();
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
@@ -87,7 +87,6 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
       }
       
       toast.success(t('success'));
-      completeProfile(); // Mark profile as completed
       setName('');
       setPhoneNumber('');
       setAddress('');
@@ -106,23 +105,6 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
     }
   };
 
-  const handleClose = () => {
-    if (!isSubmitting) {
-      // Check if required fields are filled
-      if (name.trim() && phoneNumber.trim() && address.trim()) {
-        // All required fields are filled, allow closing
-        setName('');
-        setPhoneNumber('');
-        setAddress('');
-        setCoordinates(null);
-        setShowMap(false);
-        onClose();
-      } else {
-        // Show error message for missing required fields
-        toast.error(t('errors.completeRequiredFields'));
-      }
-    }
-  };
 
   const handleAddressSelect = (selectedAddress: string, selectedCoordinates: { lat: number; lng: number }) => {
     setAddress(selectedAddress);
@@ -140,7 +122,6 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 z-50"
-            onClick={handleClose}
           />
           
           {/* Bottom Sheet */}
@@ -158,23 +139,14 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
 
             {/* Header */}
             <div className="px-6 pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">{t('title')}</h2>
-                    <p className="text-sm text-gray-600">{t('description')}</p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-blue-600" />
                 </div>
-                <button
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
-                >
-                  <X className="h-5 w-5 text-gray-500" />
-                </button>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">{t('title')}</h2>
+                  <p className="text-sm text-gray-600">{t('description')}</p>
+                </div>
               </div>
             </div>
 
@@ -183,7 +155,9 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
               <div className="space-y-6">
                 {/* Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="rtl:text-right">{t('form.nameLabel')}</Label>
+                  <Label htmlFor="name" className="rtl:text-right">
+                    {t('form.nameLabel')} <span className="text-red-500">*</span>
+                  </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -202,19 +176,23 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
 
                 {/* Address */}
                 <div className="space-y-2">
+                  <Label htmlFor="address" className="rtl:text-right">
+                    {t('form.addressLabel')} <span className="text-red-500">*</span>
+                  </Label>
                   <LocationAutocompleteComboSelect
-                    label={t('form.addressLabel')}
+                    label=""
                     id="address"
                     value={address}
+                    placeholder={t('form.addressPlaceholder')}
                     onChange={(value) => setAddress(value)}
-                    hasError={!address.trim()}
-                    required
                   />
                 </div>
 
                 {/* Phone Number */}
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="rtl:text-right">{t('form.phoneLabel')}</Label>
+                  <Label htmlFor="phone" className="rtl:text-right">
+                    {t('form.phoneLabel')} <span className="text-red-500">*</span>
+                  </Label>
                   <PhoneInput
                     id="phone"
                     value={phoneNumber}

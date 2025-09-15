@@ -895,7 +895,9 @@
         "phonePlaceholder": "הזינו את מספר הטלפון שלכם",
         "countryCodeNote": "קוד המדינה כלול אוטומטית - פשוט הזינו את המספר שלכם",
         "addressLabel": "כתובת",
-        "addressPlaceholder": "הזינו את הכתובת שלכם"
+        "addressPlaceholder": "רחוב הרצל 123, תל אביב, ישראל",
+        "requiredFieldsNotice": "כל השדות נדרשים",
+        "requiredFieldsDescription": "אנא מלאו את כל המידע למטה כדי להשלים את הגדרת הפרופיל שלכם."
       },
       "buttons": {
         "save": "שמור מידע",
@@ -906,7 +908,6 @@
         "nameRequired": "אנא הזינו את השם המלא שלכם",
         "phoneRequired": "אנא הזינו מספר טלפון",
         "addressRequired": "אנא הזינו את הכתובת שלכם",
-        "completeRequiredFields": "אנא השלימו את כל השדות הנדרשים לפני הסגירה",
         "phoneInvalid": "אנא הזינו מספר טלפון תקין",
         "saveFailed": "שמירת המידע נכשלה. אנא נסו שוב."
       }

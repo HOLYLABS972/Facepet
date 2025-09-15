@@ -28,6 +28,7 @@ interface LocationAutocompleteComboSelectProps {
   required?: boolean;
   hasError?: boolean;
   errorMessage?: string;
+  placeholder?: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
 }
@@ -41,6 +42,7 @@ const LocationAutocompleteComboSelect: React.FC<
   required = false,
   hasError = false,
   errorMessage,
+  placeholder,
   onChange,
   onBlur
 }) => {
@@ -165,7 +167,12 @@ const LocationAutocompleteComboSelect: React.FC<
             )}
             onClick={() => setOpen(true)}
           >
-            <span className="overflow-x-scroll font-normal">{displayValue}</span>
+            <span className={cn(
+              "overflow-x-scroll font-normal",
+              !displayValue && placeholder ? "text-gray-400" : ""
+            )}>
+              {displayValue || placeholder || ""}
+            </span>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
