@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import breedsData from '../breeds.json';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDM3nU5ifIk5wF3kcdToWpjDD6U5VP5Jk",
@@ -15,29 +16,21 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const breeds = [
-  // Dogs
-  { name: 'Labrador Retriever', type: 'dog', labels: { en: 'Labrador Retriever', he: 'לברדור רטריבר' } },
-  { name: 'Golden Retriever', type: 'dog', labels: { en: 'Golden Retriever', he: 'גולדן רטריבר' } },
-  { name: 'German Shepherd', type: 'dog', labels: { en: 'German Shepherd', he: 'רועה גרמני' } },
-  { name: 'French Bulldog', type: 'dog', labels: { en: 'French Bulldog', he: 'בולדוג צרפתי' } },
-  { name: 'Bulldog', type: 'dog', labels: { en: 'Bulldog', he: 'בולדוג' } },
-  { name: 'Poodle', type: 'dog', labels: { en: 'Poodle', he: 'פודל' } },
-  { name: 'Beagle', type: 'dog', labels: { en: 'Beagle', he: 'ביגל' } },
-  { name: 'Rottweiler', type: 'dog', labels: { en: 'Rottweiler', he: 'רוטוויילר' } },
-  { name: 'Siberian Husky', type: 'dog', labels: { en: 'Siberian Husky', he: 'האסקי סיבירי' } },
-  { name: 'Border Collie', type: 'dog', labels: { en: 'Border Collie', he: 'בורדר קולי' } },
-  { name: 'Mixed Breed', type: 'dog', labels: { en: 'Mixed Breed', he: 'גזע מעורב' } },
+  // Dogs - All breeds from breeds.json (IDs 1-174)
+  ...breedsData.filter(breed => breed.id >= 1 && breed.id <= 174).map(breed => ({
+    name: breed.en,
+    type: 'dog',
+    labels: { en: breed.en, he: breed.he }
+  })),
   
-  // Cats
-  { name: 'Persian', type: 'cat', labels: { en: 'Persian', he: 'פרסי' } },
-  { name: 'Maine Coon', type: 'cat', labels: { en: 'Maine Coon', he: 'מיין קון' } },
-  { name: 'British Shorthair', type: 'cat', labels: { en: 'British Shorthair', he: 'בריטי קצר שיער' } },
-  { name: 'Ragdoll', type: 'cat', labels: { en: 'Ragdoll', he: 'ראגדול' } },
-  { name: 'Siamese', type: 'cat', labels: { en: 'Siamese', he: 'סיאמי' } },
-  { name: 'American Shorthair', type: 'cat', labels: { en: 'American Shorthair', he: 'אמריקאי קצר שיער' } },
-  { name: 'Mixed Breed', type: 'cat', labels: { en: 'Mixed Breed', he: 'גזע מעורב' } },
+  // Cats - All breeds from breeds.json (IDs 175-209)
+  ...breedsData.filter(breed => breed.id >= 175 && breed.id <= 209).map(breed => ({
+    name: breed.en,
+    type: 'cat',
+    labels: { en: breed.en, he: breed.he }
+  })),
   
-  // Birds
+  // Birds (keeping existing bird breeds)
   { name: 'Budgerigar', type: 'bird', labels: { en: 'Budgerigar (Budgie)', he: 'תוכי אוסטרלי' } },
   { name: 'Cockatiel', type: 'bird', labels: { en: 'Cockatiel', he: 'קוקטיל' } },
   { name: 'Canary', type: 'bird', labels: { en: 'Canary', he: 'קנרית' } },

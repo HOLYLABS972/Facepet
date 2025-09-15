@@ -8,19 +8,23 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface LimitSelectorProps {
   currentLimit: number;
   baseUrl: string;
   searchParams: Record<string, string>;
+  translationPath?: string;
 }
 
 export function LimitSelector({
   currentLimit,
   baseUrl,
-  searchParams
+  searchParams,
+  translationPath = 'adsManagement'
 }: LimitSelectorProps) {
   const router = useRouter();
+  const t = useTranslations('Admin');
 
   const handleLimitChange = (value: string) => {
     const params = new URLSearchParams();
@@ -46,13 +50,13 @@ export function LimitSelector({
       onValueChange={handleLimitChange}
     >
       <SelectTrigger className="w-[120px] bg-white">
-        <SelectValue placeholder="10 per page" />
+        <SelectValue placeholder={t(`${translationPath}.pagination.10PerPage`)} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="5">5 per page</SelectItem>
-        <SelectItem value="10">10 per page</SelectItem>
-        <SelectItem value="20">20 per page</SelectItem>
-        <SelectItem value="50">50 per page</SelectItem>
+        <SelectItem value="5">{t(`${translationPath}.pagination.5PerPage`)}</SelectItem>
+        <SelectItem value="10">{t(`${translationPath}.pagination.10PerPage`)}</SelectItem>
+        <SelectItem value="20">{t(`${translationPath}.pagination.20PerPage`)}</SelectItem>
+        <SelectItem value="50">{t(`${translationPath}.pagination.50PerPage`)}</SelectItem>
       </SelectContent>
     </Select>
   );

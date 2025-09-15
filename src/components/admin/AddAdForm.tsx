@@ -17,9 +17,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { createAd } from '@/lib/actions/admin';
 import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 export default function AddAdForm() {
+  const t = useTranslations('Admin');
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -121,12 +123,12 @@ export default function AddAdForm() {
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <PlusCircle className="h-4 w-4" />
-          Add New Ad
+          {t('adsManagement.addNewAd')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Advertisement</DialogTitle>
+          <DialogTitle>{t('adsManagement.addNewAdvertisement')}</DialogTitle>
         </DialogHeader>
 
         {error && (

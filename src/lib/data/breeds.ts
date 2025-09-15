@@ -1,49 +1,17 @@
-// Breed data organized by pet type
+// Import comprehensive breed data from breeds.json
+import { breedsByType as comprehensiveBreedsByType, getBreedsForType as getComprehensiveBreedsForType } from './comprehensive-breeds';
+
+// Legacy breed data structure for backward compatibility
+// Maps comprehensive breeds to the old format
 export const breedsByType = {
-  cat: [
-    { id: 'cat-1', name: 'Persian' },
-    { id: 'cat-2', name: 'Maine Coon' },
-    { id: 'cat-3', name: 'British Shorthair' },
-    { id: 'cat-4', name: 'Ragdoll' },
-    { id: 'cat-5', name: 'Siamese' },
-    { id: 'cat-6', name: 'American Shorthair' },
-    { id: 'cat-7', name: 'Abyssinian' },
-    { id: 'cat-8', name: 'Scottish Fold' },
-    { id: 'cat-9', name: 'Sphynx' },
-    { id: 'cat-10', name: 'Bengal' },
-    { id: 'cat-11', name: 'Russian Blue' },
-    { id: 'cat-12', name: 'Norwegian Forest Cat' },
-    { id: 'cat-13', name: 'Birman' },
-    { id: 'cat-14', name: 'Oriental Shorthair' },
-    { id: 'cat-15', name: 'Devon Rex' },
-    { id: 'cat-16', name: 'Himalayan' },
-    { id: 'cat-17', name: 'Exotic Shorthair' },
-    { id: 'cat-18', name: 'Manx' },
-    { id: 'cat-19', name: 'Burmese' },
-    { id: 'cat-20', name: 'Mixed Breed' }
-  ],
-  dog: [
-    { id: 'dog-1', name: 'Labrador Retriever' },
-    { id: 'dog-2', name: 'Golden Retriever' },
-    { id: 'dog-3', name: 'German Shepherd' },
-    { id: 'dog-4', name: 'French Bulldog' },
-    { id: 'dog-5', name: 'Bulldog' },
-    { id: 'dog-6', name: 'Poodle' },
-    { id: 'dog-7', name: 'Beagle' },
-    { id: 'dog-8', name: 'Rottweiler' },
-    { id: 'dog-9', name: 'German Shorthaired Pointer' },
-    { id: 'dog-10', name: 'Siberian Husky' },
-    { id: 'dog-11', name: 'Dachshund' },
-    { id: 'dog-12', name: 'Boxer' },
-    { id: 'dog-13', name: 'Great Dane' },
-    { id: 'dog-14', name: 'Chihuahua' },
-    { id: 'dog-15', name: 'Shih Tzu' },
-    { id: 'dog-16', name: 'Boston Terrier' },
-    { id: 'dog-17', name: 'Border Collie' },
-    { id: 'dog-18', name: 'Australian Shepherd' },
-    { id: 'dog-19', name: 'Cocker Spaniel' },
-    { id: 'dog-20', name: 'Mixed Breed' }
-  ],
+  cat: comprehensiveBreedsByType.cat.map(breed => ({
+    id: `cat-${breed.id}`,
+    name: breed.en
+  })),
+  dog: comprehensiveBreedsByType.dog.map(breed => ({
+    id: `dog-${breed.id}`,
+    name: breed.en
+  })),
   bird: [
     { id: 'bird-1', name: 'Budgerigar (Budgie)' },
     { id: 'bird-2', name: 'Cockatiel' },

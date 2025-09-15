@@ -9,8 +9,8 @@ export default async function SettingsPage() {
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-gray-600 mt-2">Manage your contact information and application settings</p>
+        <h1 className="text-3xl font-bold">{t('settingsManagement')}</h1>
+        <p className="text-gray-600 mt-2">{t('manageSettingsDescription')}</p>
       </div>
 
       <div className="max-w-2xl">

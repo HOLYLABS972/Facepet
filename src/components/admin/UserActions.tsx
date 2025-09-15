@@ -233,20 +233,20 @@ export default function UserActions({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{t('userActions.actions')}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('userActions.actions')}</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => {
             setIsDropdownOpen(false);
             router.push(`/admin/users/${userId}/pets`);
           }}>
             <PawPrint className="h-4 w-4 mr-2" />
-            View Pets
+            {t('userActions.viewUser')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleOpenEditDialog}>
-            Edit
+            {t('userActions.editUser')}
           </DropdownMenuItem>
           {!isSuperAdmin && (
             <DropdownMenuItem
@@ -256,7 +256,7 @@ export default function UserActions({
               }}
               className="text-red-600 hover:text-red-700 focus:text-red-700"
             >
-              Delete User
+              {t('userActions.deleteUser')}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
@@ -275,7 +275,7 @@ export default function UserActions({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>{t('userActions.editUser')}</DialogTitle>
             <DialogDescription>Manage user role, restrictions, and contact information</DialogDescription>
           </DialogHeader>
 

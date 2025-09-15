@@ -160,24 +160,187 @@
       }
     }
   },
-  "pages": {
-      "Admin": {
+  "Admin": {
     "dashboard": "לוח בקרה של מנהל",
     "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
     "loggedInAs": "אתה מחובר כ",
-    "adsManagement": "ניהול פרסומות",
-    "manageAdsDescription": "צרו, ערכו ונהלו פרסומות המוצגות בפלטפורמה.",
-    "manageAds": "נהל פרסומות",
+    "loading": "טוען...",
+    "unauthorized": "גישה לא מורשית",
+    "unauthorizedMessage": "אין לך הרשאה לגשת לדף זה.",
+    "goBack": "חזור",
+    "navigation": {
+      "dashboard": "לוח בקרה",
+      "manageAds": "נהל פרסומות",
+      "manageComments": "נהל תגובות",
+      "contactSubmissions": "פניות קשר",
+      "settings": "הגדרות",
+      "manageUsers": "נהל משתמשים",
+      "addUser": "הוסף משתמש"
+    },
+    "stats": {
+      "totalAds": "סה\"כ פרסומות",
+      "advertisements": "פרסומות",
+      "contactForms": "טפסי קשר",
+      "submissions": "פניות",
+      "totalUsers": "סה\"כ משתמשים",
+      "users": "משתמשים",
+      "newUsers": "משתמשים חדשים",
+      "thisWeek": "השבוע",
+      "totalPets": "סה\"כ חיות מחמד",
+      "pets": "חיות מחמד",
+      "newPets": "חיות מחמד חדשות",
+      "totalComments": "סה\"כ תגובות",
+      "comments": "תגובות",
+      "averageRating": "דירוג ממוצע",
+      "rating": "דירוג"
+    },
+    "adsManagement": {
+      "title": "ניהול פרסומות",
+      "description": "צרו, ערכו ונהלו פרסומות המוצגות בפלטפורמה.",
+      "manageAds": "נהל פרסומות",
+      "searchPlaceholder": "חפש לפי כותרת...",
+      "addNewAd": "הוסף פרסומת חדשה",
+      "addNewAdvertisement": "הוסף פרסומת חדשה",
+      "table": {
+        "title": "כותרת",
+        "type": "סוג",
+        "status": "סטטוס",
+        "tags": "תגיות",
+        "image": "תמונה",
+        "created": "נוצר",
+        "actions": "פעולות",
+        "noAds": "לא נמצאו פרסומות."
+      },
+      "status": {
+        "active": "פעיל",
+        "scheduled": "מתוכנן",
+        "draft": "טיוטה",
+        "inactive": "לא פעיל"
+      },
+      "pagination": {
+        "perPage": "לעמוד",
+        "5PerPage": "5 לעמוד",
+        "10PerPage": "10 לעמוד",
+        "20PerPage": "20 לעמוד",
+        "50PerPage": "50 לעמוד"
+      }
+    },
     "userManagement": "ניהול משתמשים",
     "manageUsersDescription": "נהל חשבונות משתמשים, תפקידים והרשאות.",
     "manageUsers": "נהל משתמשים",
-    "loading": "טוען...",
-    "uploading": "מעלה...",
+    "usersManagement": {
+      "title": "ניהול משתמשים",
+      "searchPlaceholder": "חפש לפי אימייל...",
+      "table": {
+        "name": "שם",
+        "email": "אימייל",
+        "phone": "טלפון",
+        "role": "תפקיד",
+        "joined": "הצטרף",
+        "status": "סטטוס",
+        "actions": "פעולות",
+        "noUsers": "לא נמצאו משתמשים.",
+        "active": "פעיל",
+        "restricted": "מוגבל"
+      },
+      "roles": {
+        "super_admin": "מנהל על",
+        "admin": "מנהל",
+        "user": "משתמש"
+      },
+      "pagination": {
+        "perPage": "לעמוד",
+        "5PerPage": "5 לעמוד",
+        "10PerPage": "10 לעמוד",
+        "20PerPage": "20 לעמוד",
+        "50PerPage": "50 לעמוד"
+      }
+    },
+    "commentsManagement": "ניהול תגובות",
+    "manageCommentsDescription": "נהל ובדוק תגובות משתמשים בפלטפורמה.",
+    "commentActions": {
+      "actions": "פעולות",
+      "delete": "מחק תגובה"
+    },
+    "contactManagement": "פניות קשר",
+    "manageContactDescription": "צפה והגב לפניות מטופסי הקשר.",
+    "settingsManagement": "הגדרות",
+    "manageSettingsDescription": "הגדר הגדרות והעדפות הפלטפורמה.",
+    "contactSubmissions": {
+      "title": "פניות קשר",
+      "subtitle": "צפה ונהל פניות מטופסי הקשר של המשתמשים",
+      "searchPlaceholder": "חפש לפי שם, אימייל, נושא או הודעה...",
+      "searchPlaceholderShort": "חפש לפי שם, אימייל או הודעה...",
+      "filters": {
+        "all": "הכל",
+        "unreadOnly": "לא נקרא בלבד"
+      },
+      "table": {
+        "contactInfo": "פרטי קשר",
+        "message": "הודעה",
+        "status": "סטטוס",
+        "submitted": "נשלח",
+        "actions": "פעולות",
+        "noSubmissions": "לא נמצאו פניות קשר.",
+        "read": "נקרא",
+        "unread": "לא נקרא"
+      },
+      "actions": {
+        "openMenu": "פתח תפריט",
+        "actions": "פעולות",
+        "viewDetails": "הצג פרטים",
+        "markAsRead": "סמן כנקרא",
+        "markAsUnread": "סמן כלא נקרא",
+        "deleteSubmission": "מחק פנייה"
+      },
+      "viewDialog": {
+        "title": "פרטי פניית קשר",
+        "description": "פרטים מלאים של פניית הקשר",
+        "name": "שם",
+        "email": "אימייל",
+        "phone": "טלפון",
+        "message": "הודעה",
+        "submitted": "נשלח",
+        "status": "סטטוס",
+        "close": "סגור",
+        "markAsRead": "סמן כנקרא"
+      },
+      "deleteDialog": {
+        "title": "מחק פניית קשר",
+        "description": "האם אתה בטוח שברצונך למחוק את פניית הקשר הזו? פעולה זו לא ניתנת לביטול.",
+        "from": "מאת:",
+        "cancel": "ביטול",
+        "deleteSubmission": "מחק פנייה",
+        "deleting": "מוחק..."
+      },
+      "errors": {
+        "deleteFailed": "נכשל במחיקת הפנייה",
+        "updateStatusFailed": "נכשל בעדכון סטטוס הקריאה"
+      },
+      "pagination": {
+        "perPage": "לעמוד",
+        "5PerPage": "5 לעמוד",
+        "10PerPage": "10 לעמוד",
+        "20PerPage": "20 לעמוד",
+        "50PerPage": "50 לעמוד"
+      }
+    },
+    "recentActivity": "פעילות אחרונה",
+    "userActivity": "פעילות משתמשים",
+    "petActivity": "פעילות חיות מחמד",
+    "adActivity": "פעילות פרסומות",
+    "noActivity": "אין פעילות אחרונה",
     "userActions": {
+      "actions": "פעולות",
       "confirmDeletion": "אישור מחיקה",
       "deleteUserMessage": "האם אתה בטוח שברצונך למחוק את המשתמש הזה? פעולה זו לא ניתנת לביטול.",
       "cancel": "ביטול",
-      "deleteUser": "מחק משתמש"
+      "deleteUser": "מחק משתמש",
+      "editUser": "ערוך משתמש",
+      "viewUser": "הצג משתמש",
+      "deleting": "מוחק...",
+      "deleteSuccess": "המשתמש נמחק בהצלחה",
+      "deleteError": "נכשל במחיקת המשתמש"
     },
     "petActions": {
       "actions": "פעולות",
@@ -189,8 +352,55 @@
       "deleteSuccess": "חיית המחמד נמחקה בהצלחה",
       "deleteError": "נכשל במחיקת חיית המחמד",
       "cancel": "ביטול"
+    },
+    "adActions": {
+      "actions": "פעולות",
+      "view": "הצג פרסומת",
+      "edit": "ערוך",
+      "delete": "מחק",
+      "approve": "אשר",
+      "reject": "דחה",
+      "confirmDelete": "האם אתה בטוח שברצונך למחוק את הפרסומת הזו?",
+      "deleting": "מוחק...",
+      "deleteSuccess": "הפרסומת נמחקה בהצלחה",
+      "deleteError": "נכשל במחיקת הפרסומת",
+      "approving": "מאשר...",
+      "approveSuccess": "הפרסומת אושרה בהצלחה",
+      "approveError": "נכשל באישור הפרסומת",
+      "rejecting": "דוחה...",
+      "rejectSuccess": "הפרסומת נדחתה בהצלחה",
+      "rejectError": "נכשל בדחיית הפרסומת",
+      "cancel": "ביטול"
+    },
+    "forms": {
+      "addUser": {
+        "title": "הוסף משתמש חדש",
+        "email": "אימייל",
+        "emailPlaceholder": "הכנס כתובת אימייל",
+        "password": "סיסמה",
+        "passwordPlaceholder": "הכנס סיסמה",
+        "role": "תפקיד",
+        "rolePlaceholder": "בחר תפקיד",
+        "submit": "הוסף משתמש",
+        "creating": "יוצר...",
+        "success": "המשתמש נוצר בהצלחה",
+        "error": "נכשל ביצירת המשתמש"
+      }
+    },
+    "roles": {
+      "admin": "מנהל",
+      "super_admin": "מנהל על",
+      "user": "משתמש"
+    },
+    "status": {
+      "active": "פעיל",
+      "inactive": "לא פעיל",
+      "pending": "ממתין",
+      "approved": "אושר",
+      "rejected": "נדחה"
     }
   },
+  "pages": {
     "WelcomePage": {
       "upperTitle": "כל מה שחיית המחמד שלך צריכה",
       "lowerTitle": "במקום אחד.",

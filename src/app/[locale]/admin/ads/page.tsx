@@ -32,7 +32,7 @@ export default async function AdsPage({
   };
 }) {
   const t = await getTranslations('Admin');
-  const locale = 'en'; // Force English for admin panel
+  const locale = await getLocale();
 
   // Note: Authentication is handled client-side in AdminLayout component
   // Server-side auth check removed since we're using Firebase client-side auth
@@ -93,7 +93,7 @@ export default async function AdsPage({
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">{t('adsManagement')}</h1>
+        <h1 className="text-3xl font-bold">{t('adsManagement.title')}</h1>
       </div>
 
       {/* Search and Filters */}
@@ -103,7 +103,7 @@ export default async function AdsPage({
             <Input
               type="text"
               name="search"
-              placeholder="Search by title..."
+              placeholder={t('adsManagement.searchPlaceholder')}
               defaultValue={search}
               className="bg-white pr-4 pl-10"
             />
@@ -139,7 +139,7 @@ export default async function AdsPage({
             <TableRow>
               <TableHead>
                 <a href={getSortUrl('title')} className="flex items-center">
-                  Title
+                  {t('adsManagement.table.title')}
                   {sort === 'title' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -152,11 +152,11 @@ export default async function AdsPage({
                 </a>
               </TableHead>
 
-              <TableHead>Tags</TableHead>
-              <TableHead>Image</TableHead>
+              <TableHead>{t('adsManagement.table.tags')}</TableHead>
+              <TableHead>{t('adsManagement.table.image')}</TableHead>
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
-                  Created
+                  {t('adsManagement.table.created')}
                   {sort === 'createdAt' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -185,7 +185,7 @@ export default async function AdsPage({
                   <TableCell>
                     {ad.tags && ad.tags.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {ad.tags.slice(0, 3).map((tag, index) => (
+                        {ad.tags.slice(0, 3).map((tag: string, index: number) => (
                           <span
                             key={index}
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"

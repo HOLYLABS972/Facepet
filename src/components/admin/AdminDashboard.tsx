@@ -8,7 +8,11 @@ import Link from 'next/link';
 
 export default function AdminDashboard() {
   const t = useTranslations('Admin');
-  const locale = 'en'; // Force English for admin panel
+  
+  // Get locale from URL or default to 'en'
+  const locale = typeof window !== 'undefined' 
+    ? window.location.pathname.split('/')[1] || 'en'
+    : 'en';
 
   const [stats, setStats] = useState({
     users: { total: 0, new: 0, byRole: {} },
@@ -84,7 +88,7 @@ export default function AdminDashboard() {
         {/* Total Ads */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Total Ads</h3>
+            <h3 className="text-lg font-semibold">{t('stats.totalAds')}</h3>
             <div className="rounded-lg bg-blue-100 p-2 text-blue-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -106,14 +110,14 @@ export default function AdminDashboard() {
             <div className="text-4xl font-bold text-blue-600">
               {stats.ads.total}
             </div>
-            <div className="mt-1 text-sm text-gray-500">Advertisements</div>
+            <div className="mt-1 text-sm text-gray-500">{t('stats.advertisements')}</div>
           </div>
         </div>
 
         {/* Contact Forms */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Contact Forms</h3>
+            <h3 className="text-lg font-semibold">{t('stats.contactForms')}</h3>
             <div className="rounded-lg bg-green-100 p-2 text-green-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -135,14 +139,14 @@ export default function AdminDashboard() {
             <div className="text-4xl font-bold text-green-600">
               {stats.contactSubmissions.total}
             </div>
-            <div className="mt-1 text-sm text-gray-500">Submissions</div>
+            <div className='mt-1 text-sm text-gray-500'>{t('stats.submissions')}</div>
           </div>
         </div>
 
         {/* Ad Comments */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Ad Comments</h3>
+            <h3 className="text-lg font-semibold">{t('stats.totalComments')}</h3>
             <div className="rounded-lg bg-purple-100 p-2 text-purple-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -164,14 +168,14 @@ export default function AdminDashboard() {
             <div className="text-4xl font-bold text-purple-600">
               {stats.comments.total}
             </div>
-            <div className="mt-1 text-sm text-gray-500">Comments</div>
+            <div className='mt-1 text-sm text-gray-500'>{t('stats.comments')}</div>
           </div>
         </div>
 
         {/* Rating */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Rating</h3>
+            <h3 className="text-lg font-semibold">{t('stats.rating')}</h3>
             <div className="rounded-lg bg-yellow-100 p-2 text-yellow-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -193,14 +197,14 @@ export default function AdminDashboard() {
             <div className="text-4xl font-bold text-yellow-600">
               {stats.rating.average}
             </div>
-            <div className="mt-1 text-sm text-gray-500">Average Rating</div>
+            <div className='mt-1 text-sm text-gray-500'>{t('stats.averageRating')}</div>
           </div>
         </div>
 
         {/* Total Users */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Total Users</h3>
+            <h3 className="text-lg font-semibold">{t('stats.totalUsers')}</h3>
             <div className="rounded-lg bg-indigo-100 p-2 text-indigo-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -222,14 +226,14 @@ export default function AdminDashboard() {
             <div className="text-4xl font-bold text-indigo-600">
               {stats.users.total}
             </div>
-            <div className="mt-1 text-sm text-gray-500">Users</div>
+            <div className='mt-1 text-sm text-gray-500'>{t('stats.users')}</div>
           </div>
         </div>
 
         {/* Total Pets */}
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Total Pets</h3>
+            <h3 className="text-lg font-semibold">{t('stats.totalPets')}</h3>
             <div className="rounded-lg bg-pink-100 p-2 text-pink-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -251,7 +255,7 @@ export default function AdminDashboard() {
             <div className="text-4xl font-bold text-pink-600">
               {stats.pets.total}
             </div>
-            <div className="mt-1 text-sm text-gray-500">Pets</div>
+            <div className='mt-1 text-sm text-gray-500'>{t('stats.pets')}</div>
           </div>
         </div>
       </div>
@@ -260,7 +264,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Recent Users</h3>
+            <h3 className="text-lg font-semibold">{t('userActivity')}</h3>
             <Link
               href={`/${locale}/admin/users`}
               className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
@@ -272,9 +276,9 @@ export default function AdminDashboard() {
             <table className="min-w-full bg-white">
               <thead>
                 <tr className="h-10 w-full border-b">
-                  <th className="p-2 text-left">Name</th>
-                  <th className="p-2 text-left">Email</th>
-                  <th className="p-2 text-left">Joined</th>
+                  <th className="p-2 text-left">{t('usersManagement.table.name')}</th>
+                  <th className="p-2 text-left">{t('usersManagement.table.email')}</th>
+                  <th className="p-2 text-left">{t('usersManagement.table.joined')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -289,8 +293,8 @@ export default function AdminDashboard() {
                 ))}
                 {activity.users.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="p-2 text-center text-gray-500">
-                      No users found.
+                    <td colSpan={3} className='p-2 text-center text-gray-500'>
+                      {t('noActivity')}
                     </td>
                   </tr>
                 )}
@@ -301,21 +305,21 @@ export default function AdminDashboard() {
 
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Recent Ads</h3>
+            <h3 className="text-lg font-semibold">{t('adActivity')}</h3>
             <Link
               href={`/${locale}/admin/ads`}
               className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
             >
-              {t('manageAds')}
+              {t('adsManagement.manageAds')}
             </Link>
           </div>
           <div className="overflow-hidden">
             <table className="min-w-full bg-white">
               <thead>
                 <tr className="h-10 w-full border-b">
-                  <th className="p-2 text-left">Title</th>
-                  <th className="p-2 text-left">Type</th>
-                  <th className="p-2 text-left">Status</th>
+                  <th className="p-2 text-left">{t('adsManagement.table.title')}</th>
+                  <th className="p-2 text-left">{t('adsManagement.table.type')}</th>
+                  <th className="p-2 text-left">{t('adsManagement.table.status')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -333,15 +337,15 @@ export default function AdminDashboard() {
                               : 'bg-gray-100 text-gray-800'
                         }`}
                       >
-                        {ad.status}
+                        {t(`adsManagement.status.${ad.status}`)}
                       </span>
                     </td>
                   </tr>
                 ))}
                 {activity.ads.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="p-2 text-center text-gray-500">
-                      No ads found.
+                    <td colSpan={3} className='p-2 text-center text-gray-500'>
+                      {t('noActivity')}
                     </td>
                   </tr>
                 )}

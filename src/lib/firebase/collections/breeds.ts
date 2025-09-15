@@ -78,24 +78,23 @@ export async function initializeBreedsCollection() {
       return;
     }
 
+    // Import comprehensive breed data from breeds.json
+    const breedsData = await import('../../../../breeds.json');
+    
     const defaultBreeds = [
-      // Dogs
-      { name: 'Labrador Retriever', type: 'dog', labels: { en: 'Labrador Retriever', he: 'לברדור רטריבר' } },
-      { name: 'Golden Retriever', type: 'dog', labels: { en: 'Golden Retriever', he: 'גולדן רטריבר' } },
-      { name: 'German Shepherd', type: 'dog', labels: { en: 'German Shepherd', he: 'רועה גרמני' } },
-      { name: 'French Bulldog', type: 'dog', labels: { en: 'French Bulldog', he: 'בולדוג צרפתי' } },
-      { name: 'Bulldog', type: 'dog', labels: { en: 'Bulldog', he: 'בולדוג' } },
-      { name: 'Poodle', type: 'dog', labels: { en: 'Poodle', he: 'פודל' } },
-      { name: 'Beagle', type: 'dog', labels: { en: 'Beagle', he: 'ביגל' } },
-      { name: 'Mixed Breed', type: 'dog', labels: { en: 'Mixed Breed', he: 'גזע מעורב' } },
+      // Dogs - All breeds from breeds.json (IDs 1-174)
+      ...breedsData.default.filter(breed => breed.id >= 1 && breed.id <= 174).map(breed => ({
+        name: breed.en,
+        type: 'dog',
+        labels: { en: breed.en, he: breed.he }
+      })),
       
-      // Cats
-      { name: 'Persian', type: 'cat', labels: { en: 'Persian', he: 'פרסי' } },
-      { name: 'Maine Coon', type: 'cat', labels: { en: 'Maine Coon', he: 'מיין קון' } },
-      { name: 'British Shorthair', type: 'cat', labels: { en: 'British Shorthair', he: 'בריטי קצר שיער' } },
-      { name: 'Ragdoll', type: 'cat', labels: { en: 'Ragdoll', he: 'ראגדול' } },
-      { name: 'Siamese', type: 'cat', labels: { en: 'Siamese', he: 'סיאמי' } },
-      { name: 'Mixed Breed', type: 'cat', labels: { en: 'Mixed Breed', he: 'גזע מעורב' } },
+      // Cats - All breeds from breeds.json (IDs 175-209)
+      ...breedsData.default.filter(breed => breed.id >= 175 && breed.id <= 209).map(breed => ({
+        name: breed.en,
+        type: 'cat',
+        labels: { en: breed.en, he: breed.he }
+      }))
     ];
 
     for (const breed of defaultBreeds) {

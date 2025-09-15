@@ -30,7 +30,7 @@ export default async function UsersPage({
   };
 }) {
   const t = await getTranslations('Admin');
-  const locale = 'en'; // Force English for admin panel
+  const locale = await getLocale();
 
   // Note: Authentication is handled client-side in AdminLayout component
   // Server-side auth check removed since we're using Firebase client-side auth
@@ -103,7 +103,7 @@ export default async function UsersPage({
             <Input
               type="text"
               name="search"
-              placeholder="Search by email..."
+              placeholder={t('usersManagement.searchPlaceholder')}
               defaultValue={search}
               className="bg-white pr-4 pl-10"
             />
@@ -125,6 +125,7 @@ export default async function UsersPage({
               order,
               ...(search ? { search } : {})
             }}
+            translationPath="usersManagement"
           />
         </div>
       </div>
@@ -136,7 +137,7 @@ export default async function UsersPage({
             <TableRow>
               <TableHead>
                 <a href={getSortUrl('fullName')} className="flex items-center">
-                  Name
+                  {t('usersManagement.table.name')}
                   {sort === 'fullName' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -150,7 +151,7 @@ export default async function UsersPage({
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('email')} className="flex items-center">
-                  Email
+                  {t('usersManagement.table.email')}
                   {sort === 'email' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -164,7 +165,7 @@ export default async function UsersPage({
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('phone')} className="flex items-center">
-                  Phone
+                  {t('usersManagement.table.phone')}
                   {sort === 'phone' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -178,7 +179,7 @@ export default async function UsersPage({
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('role')} className="flex items-center">
-                  Role
+                  {t('usersManagement.table.role')}
                   {sort === 'role' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -192,7 +193,7 @@ export default async function UsersPage({
               </TableHead>
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
-                  Joined
+                  {t('usersManagement.table.joined')}
                   {sort === 'createdAt' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -204,15 +205,15 @@ export default async function UsersPage({
                   )}
                 </a>
               </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('usersManagement.table.status')}</TableHead>
+              <TableHead className="text-right">{t('usersManagement.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
-                  No users found.
+                  {t('usersManagement.table.noUsers')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -231,7 +232,7 @@ export default async function UsersPage({
                             : 'bg-gray-100 text-gray-800'
                       }`}
                     >
-                      {user.role}
+                      {t(`usersManagement.roles.${user.role}`)}
                     </span>
                   </TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
@@ -243,7 +244,7 @@ export default async function UsersPage({
                           : 'bg-green-100 text-green-800'
                       }`}
                     >
-                      {user.isRestricted ? 'Restricted' : 'Active'}
+                      {user.isRestricted ? t('usersManagement.table.restricted') : t('usersManagement.table.active')}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">

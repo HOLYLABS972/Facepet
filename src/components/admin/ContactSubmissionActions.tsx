@@ -22,6 +22,7 @@ import { MoreHorizontal, Eye, EyeOff, Trash2, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { type ContactSubmission } from '@/lib/actions/admin';
+import { useTranslations } from 'next-intl';
 
 export default function ContactSubmissionActions({
   submissionId,
@@ -32,7 +33,7 @@ export default function ContactSubmissionActions({
   isRead: boolean;
   submission: ContactSubmission;
 }) {
-
+  const t = useTranslations('Admin');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -49,13 +50,13 @@ export default function ContactSubmissionActions({
       const result = await deleteContactSubmission(submissionId);
 
       if (!result.success) {
-        setError(result.error || 'Failed to delete submission');
+        setError(result.error || t('contactSubmissions.errors.deleteFailed'));
       } else {
         setIsDeleting(false);
         router.refresh();
       }
     } catch (err) {
-      setError('Failed to delete submission');
+      setError(t('contactSubmissions.errors.deleteFailed'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -70,12 +71,12 @@ export default function ContactSubmissionActions({
       const result = await updateContactSubmissionReadStatus(submissionId, read);
 
       if (!result.success) {
-        setError(result.error || 'Failed to update read status');
+        setError(result.error || t('contactSubmissions.errors.updateStatusFailed'));
       } else {
         router.refresh();
       }
     } catch (err) {
-      setError('Failed to update read status');
+      setError(t('contactSubmissions.errors.updateStatusFailed'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -88,11 +89,11 @@ export default function ContactSubmissionActions({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{t('contactSubmissions.actions.openMenu')}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('contactSubmissions.actions.actions')}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
               setIsDropdownOpen(false);
@@ -101,7 +102,7 @@ export default function ContactSubmissionActions({
             className="text-blue-600 hover:text-blue-700 focus:text-blue-700"
           >
             <Eye className="h-4 w-4 mr-2" />
-            View Details
+            {t('contactSubmissions.actions.viewDetails')}
           </DropdownMenuItem>
           {!isRead ? (
             <DropdownMenuItem
@@ -112,7 +113,7 @@ export default function ContactSubmissionActions({
               className="text-green-600 hover:text-green-700 focus:text-green-700"
             >
               <Eye className="h-4 w-4 mr-2" />
-              Mark as Read
+              {t('contactSubmissions.actions.markAsRead')}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem
@@ -123,7 +124,7 @@ export default function ContactSubmissionActions({
               className="text-yellow-600 hover:text-yellow-700 focus:text-yellow-700"
             >
               <EyeOff className="h-4 w-4 mr-2" />
-              Mark as Unread
+              {t('contactSubmissions.actions.markAsUnread')}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem
@@ -134,7 +135,7 @@ export default function ContactSubmissionActions({
             className="text-red-600 hover:text-red-700 focus:text-red-700"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Delete Submission
+            {t('contactSubmissions.actions.deleteSubmission')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -153,34 +154,34 @@ export default function ContactSubmissionActions({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5" />
-              Contact Submission Details
+              {t('contactSubmissions.viewDialog.title')}
             </DialogTitle>
             <DialogDescription>
-              Full details of the contact form submission
+              {t('contactSubmissions.viewDialog.description')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Name</label>
+                <label className="text-sm font-medium text-gray-700">{t('contactSubmissions.viewDialog.name')}</label>
                 <p className="text-sm text-gray-900">{submission.name}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Email</label>
+                <label className="text-sm font-medium text-gray-700">{t('contactSubmissions.viewDialog.email')}</label>
                 <p className="text-sm text-gray-900">{submission.email}</p>
               </div>
             </div>
 
             {submission.phone && (
               <div>
-                <label className="text-sm font-medium text-gray-700">Phone</label>
+                <label className="text-sm font-medium text-gray-700">{t('contactSubmissions.viewDialog.phone')}</label>
                 <p className="text-sm text-gray-900">{submission.phone}</p>
               </div>
             )}
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Message</label>
+              <label className="text-sm font-medium text-gray-700">{t('contactSubmissions.viewDialog.message')}</label>
               <div className="mt-1 p-3 bg-gray-50 rounded border text-sm text-gray-900 whitespace-pre-wrap">
                 {submission.message}
               </div>
@@ -188,13 +189,13 @@ export default function ContactSubmissionActions({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Submitted</label>
+                <label className="text-sm font-medium text-gray-700">{t('contactSubmissions.viewDialog.submitted')}</label>
                 <p className="text-sm text-gray-900">
                   {new Date(submission.createdAt).toLocaleString()}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Status</label>
+                <label className="text-sm font-medium text-gray-700">{t('contactSubmissions.viewDialog.status')}</label>
                 <p className="text-sm">
                   <span
                     className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
@@ -203,7 +204,7 @@ export default function ContactSubmissionActions({
                         : 'bg-orange-100 text-orange-800'
                     }`}
                   >
-                    {submission.isRead ? 'Read' : 'Unread'}
+                    {submission.isRead ? t('contactSubmissions.table.read') : t('contactSubmissions.table.unread')}
                   </span>
                 </p>
               </div>
@@ -212,11 +213,11 @@ export default function ContactSubmissionActions({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsViewing(false)}>
-              Close
+              {t('contactSubmissions.viewDialog.close')}
             </Button>
             {!isRead && (
               <Button onClick={() => handleReadStatusChange(true)}>
-                Mark as Read
+                {t('contactSubmissions.viewDialog.markAsRead')}
               </Button>
             )}
           </DialogFooter>
@@ -235,15 +236,15 @@ export default function ContactSubmissionActions({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Contact Submission</DialogTitle>
+            <DialogTitle>{t('contactSubmissions.deleteDialog.title')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this contact submission? This action cannot be undone.
+              {t('contactSubmissions.deleteDialog.description')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="my-4 p-3 bg-gray-50 rounded border">
             <p className="text-sm text-gray-700">
-              <strong>From:</strong> {submission.name} ({submission.email})
+              <strong>{t('contactSubmissions.deleteDialog.from')}</strong> {submission.name} ({submission.email})
             </p>
           </div>
 
@@ -255,14 +256,14 @@ export default function ContactSubmissionActions({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleting(false)}>
-              Cancel
+              {t('contactSubmissions.deleteDialog.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete Submission'}
+              {isSubmitting ? t('contactSubmissions.deleteDialog.deleting') : t('contactSubmissions.deleteDialog.deleteSubmission')}
             </Button>
           </DialogFooter>
         </DialogContent>

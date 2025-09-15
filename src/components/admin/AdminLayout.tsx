@@ -16,8 +16,12 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const locale = 'en'; // Force English for admin panel
   const t = useTranslations('Admin');
+  
+  // Get locale from URL or default to 'en'
+  const locale = typeof window !== 'undefined' 
+    ? window.location.pathname.split('/')[1] || 'en'
+    : 'en';
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
 
@@ -67,18 +71,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md mx-auto">
           <ShieldX className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('unauthorized')}</h1>
           <p className="text-gray-600 mb-6">
-            You don't have permission to access the admin panel. Only administrators can view this page.
+            {t('unauthorizedMessage')}
           </p>
           <div className="space-y-3">
-            <Link href="/">
+            <Link href={`/${locale}`}>
               <Button className="w-full">
-                Go Back to Website
+                {t('goBack')}
               </Button>
             </Link>
             {!user && (
-              <Link href="/auth/signin">
+              <Link href={`/${locale}/signin`}>
                 <Button variant="outline" className="w-full">
                   Sign In
                 </Button>
@@ -105,7 +109,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <LayoutDashboard className="h-6 w-6" />
-                Dashboard
+                {t('navigation.dashboard')}
               </Link>
             </li>
             <li>
@@ -114,7 +118,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <AppWindow className="h-6 w-6" />
-                Manage Ads
+                {t('navigation.manageAds')}
               </Link>
             </li>
             <li>
@@ -123,7 +127,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <MessageSquare className="h-6 w-6" />
-                Manage Comments
+                {t('navigation.manageComments')}
               </Link>
             </li>
             <li>
@@ -132,7 +136,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <Mail className="h-6 w-6" />
-                Contact Submissions
+                {t('navigation.contactSubmissions')}
               </Link>
             </li>
             <li>
@@ -141,7 +145,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <Settings className="h-6 w-6" />
-                Settings
+                {t('navigation.settings')}
               </Link>
             </li>
             {isAdmin(userRole) && (
@@ -151,7 +155,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
                 >
                   <Users className="h-6 w-6" />
-                  Manage Users
+                  {t('navigation.manageUsers')}
                 </Link>
               </li>
             )}
@@ -160,9 +164,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* User info */}
         <div className="mt-8 p-2 bg-white/10 rounded">
-          <p className="text-sm text-gray-600">Logged in as:</p>
+          <p className="text-sm text-gray-600">{t('loggedInAs')}</p>
           <p className="font-medium">{user.email}</p>
-          <p className="text-xs text-gray-500 capitalize">{userRole}</p>
+          <p className="text-xs text-gray-500 capitalize">{t(`roles.${userRole}`)}</p>
         </div>
 
         {/* Positioned at the bottom of the sidebar */}
@@ -173,7 +177,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               className="justify-center- hover:text-primary w-full items-center gap-2 align-middle hover:shadow-xs"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Go Back to Website</span>
+              <span>{t('goBack')}</span>
             </Button>
           </Link>
         </div>

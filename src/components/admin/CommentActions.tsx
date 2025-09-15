@@ -20,6 +20,7 @@ import {
 import { deleteComment } from '@/lib/actions/admin';
 import { MoreHorizontal, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 export default function CommentActions({
@@ -29,7 +30,7 @@ export default function CommentActions({
   commentId: string;
   content: string;
 }) {
-
+  const t = useTranslations('Admin');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,11 +67,11 @@ export default function CommentActions({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{t('commentActions.actions')}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('commentActions.actions')}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
               setIsDropdownOpen(false);
@@ -79,7 +80,7 @@ export default function CommentActions({
             className="text-red-600 hover:text-red-700 focus:text-red-700"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Delete Comment
+            {t('commentActions.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

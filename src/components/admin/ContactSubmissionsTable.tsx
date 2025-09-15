@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { ArrowDown, ArrowUp, Search, Mail, Phone, User, MessageSquare } from 'lucide-react';
 import ContactSubmissionActions from '@/components/admin/ContactSubmissionActions';
 import { type ContactSubmission } from '@/lib/actions/admin';
+import { useTranslations } from 'next-intl';
 
 interface ContactSubmissionsTableProps {
   submissions: ContactSubmission[];
@@ -37,6 +38,7 @@ export default function ContactSubmissionsTable({
   searchParams
 }: ContactSubmissionsTableProps) {
   const router = useRouter();
+  const t = useTranslations('Admin');
   const [search, setSearch] = useState(searchParams.search);
 
   const formatDate = (date: Date | string | null | undefined) => {
@@ -92,7 +94,7 @@ export default function ContactSubmissionsTable({
           <form onSubmit={handleSearch}>
             <Input
               type="text"
-              placeholder="Search by name, email, or message..."
+              placeholder={t('contactSubmissions.searchPlaceholderShort')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-white pr-4 pl-10"
@@ -114,7 +116,7 @@ export default function ContactSubmissionsTable({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              All
+              {t('contactSubmissions.filters.all')}
             </a>
             <a
               href={getFilterUrl(true)}
@@ -124,7 +126,7 @@ export default function ContactSubmissionsTable({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Unread Only
+              {t('contactSubmissions.filters.unreadOnly')}
             </a>
           </div>
           <LimitSelector
@@ -145,12 +147,12 @@ export default function ContactSubmissionsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Contact Info</TableHead>
-              <TableHead>Message</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('contactSubmissions.table.contactInfo')}</TableHead>
+              <TableHead>{t('contactSubmissions.table.message')}</TableHead>
+              <TableHead>{t('contactSubmissions.table.status')}</TableHead>
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
-                  Submitted
+                  {t('contactSubmissions.table.submitted')}
                   {searchParams.sort === 'createdAt' && (
                     <span className="ml-1">
                       {searchParams.order === 'asc' ? (
@@ -162,14 +164,14 @@ export default function ContactSubmissionsTable({
                   )}
                 </a>
               </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">{t('contactSubmissions.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {submissions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
-                  No contact submissions found.
+                  {t('contactSubmissions.table.noSubmissions')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -207,7 +209,7 @@ export default function ContactSubmissionsTable({
                           : 'bg-orange-100 text-orange-800'
                       }`}
                     >
-                      {submission.isRead ? 'Read' : 'Unread'}
+                      {submission.isRead ? t('contactSubmissions.table.read') : t('contactSubmissions.table.unread')}
                     </span>
                   </TableCell>
                   <TableCell>{formatDate(submission.createdAt)}</TableCell>

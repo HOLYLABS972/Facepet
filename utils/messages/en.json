@@ -165,17 +165,95 @@
     "welcome": "Welcome to the Admin Dashboard",
     "loggedInAs": "You are logged in as",
     "loading": "Loading...",
-    "adsManagement": "Advertisements Management",
-    "manageAdsDescription": "Create, edit, and manage advertisements displayed on the platform.",
-    "manageAds": "Manage Ads",
+    "unauthorized": "Unauthorized Access",
+    "unauthorizedMessage": "You don't have permission to access this page.",
+    "goBack": "Go Back",
+    "navigation": {
+      "dashboard": "Dashboard",
+      "manageAds": "Manage Ads",
+      "manageComments": "Manage Comments",
+      "contactSubmissions": "Contact Submissions",
+      "settings": "Settings",
+      "manageUsers": "Manage Users",
+      "addUser": "Add User"
+    },
+    "stats": {
+      "totalAds": "Total Ads",
+      "advertisements": "Advertisements",
+      "contactForms": "Contact Forms",
+      "submissions": "Submissions",
+      "totalUsers": "Total Users",
+      "users": "Users",
+      "newUsers": "New Users",
+      "thisWeek": "This Week",
+      "totalPets": "Total Pets",
+      "pets": "Pets",
+      "newPets": "New Pets",
+      "totalComments": "Total Comments",
+      "comments": "Comments",
+      "averageRating": "Average Rating",
+      "rating": "Rating"
+    },
+    "adsManagement": {
+      "title": "Advertisements Management",
+      "description": "Create, edit, and manage advertisements displayed on the platform.",
+      "manageAds": "Manage Ads",
+      "searchPlaceholder": "Search by title...",
+      "addNewAd": "Add New Ad",
+      "addNewAdvertisement": "Add New Advertisement",
+      "table": {
+        "title": "Title",
+        "type": "Type",
+        "status": "Status",
+        "tags": "Tags",
+        "image": "Image",
+        "created": "Created",
+        "actions": "Actions",
+        "noAds": "No advertisements found."
+      },
+      "status": {
+        "active": "Active",
+        "scheduled": "Scheduled",
+        "draft": "Draft",
+        "inactive": "Inactive"
+      },
+      "pagination": {
+        "perPage": "per page",
+        "5PerPage": "5 per page",
+        "10PerPage": "10 per page",
+        "20PerPage": "20 per page",
+        "50PerPage": "50 per page"
+      }
+    },
     "userManagement": "User Management",
     "manageUsersDescription": "Manage user accounts, roles, and permissions.",
     "manageUsers": "Manage Users",
+    "commentsManagement": "Comments Management",
+    "manageCommentsDescription": "Moderate and manage user comments across the platform.",
+    "commentActions": {
+      "actions": "Actions",
+      "delete": "Delete Comment"
+    },
+    "contactManagement": "Contact Submissions",
+    "manageContactDescription": "View and respond to contact form submissions.",
+    "settingsManagement": "Settings",
+    "manageSettingsDescription": "Configure platform settings and preferences.",
+    "recentActivity": "Recent Activity",
+    "userActivity": "User Activity",
+    "petActivity": "Pet Activity",
+    "adActivity": "Ad Activity",
+    "noActivity": "No recent activity",
     "userActions": {
+      "actions": "Actions",
       "confirmDeletion": "Confirm Deletion",
       "deleteUserMessage": "Are you sure you want to delete this user? This action cannot be undone.",
       "cancel": "Cancel",
-      "deleteUser": "Delete User"
+      "deleteUser": "Delete User",
+      "editUser": "Edit User",
+      "viewUser": "View User",
+      "deleting": "Deleting...",
+      "deleteSuccess": "User deleted successfully",
+      "deleteError": "Failed to delete user"
     },
     "petActions": {
       "actions": "Actions",
@@ -187,6 +265,132 @@
       "deleteSuccess": "Pet deleted successfully",
       "deleteError": "Failed to delete pet",
       "cancel": "Cancel"
+    },
+    "adActions": {
+      "actions": "Actions",
+      "view": "View Ad",
+      "edit": "Edit",
+      "delete": "Delete",
+      "approve": "Approve",
+      "reject": "Reject",
+      "confirmDelete": "Are you sure you want to delete this ad?",
+      "deleting": "Deleting...",
+      "deleteSuccess": "Ad deleted successfully",
+      "deleteError": "Failed to delete ad",
+      "approving": "Approving...",
+      "approveSuccess": "Ad approved successfully",
+      "approveError": "Failed to approve ad",
+      "rejecting": "Rejecting...",
+      "rejectSuccess": "Ad rejected successfully",
+      "rejectError": "Failed to reject ad",
+      "cancel": "Cancel"
+    },
+    "forms": {
+      "addUser": {
+        "title": "Add New User",
+        "email": "Email",
+        "emailPlaceholder": "Enter email address",
+        "password": "Password",
+        "passwordPlaceholder": "Enter password",
+        "role": "Role",
+        "rolePlaceholder": "Select role",
+        "submit": "Add User",
+        "creating": "Creating...",
+        "success": "User created successfully",
+        "error": "Failed to create user"
+      }
+    },
+    "roles": {
+      "admin": "Admin",
+      "super_admin": "Super Admin",
+      "user": "User"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "contactSubmissions": {
+      "title": "Contact Submissions",
+      "subtitle": "View and manage contact form submissions from users",
+      "searchPlaceholder": "Search by name, email, subject, or message...",
+      "searchPlaceholderShort": "Search by name, email, or message...",
+      "filters": {
+        "all": "All",
+        "unreadOnly": "Unread Only"
+      },
+      "table": {
+        "contactInfo": "Contact Info",
+        "message": "Message",
+        "status": "Status",
+        "submitted": "Submitted",
+        "actions": "Actions",
+        "noSubmissions": "No contact submissions found.",
+        "read": "Read",
+        "unread": "Unread"
+      },
+      "actions": {
+        "openMenu": "Open menu",
+        "actions": "Actions",
+        "viewDetails": "View Details",
+        "markAsRead": "Mark as Read",
+        "markAsUnread": "Mark as Unread",
+        "deleteSubmission": "Delete Submission"
+      },
+      "viewDialog": {
+        "title": "Contact Submission Details",
+        "description": "Full details of the contact form submission",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "message": "Message",
+        "submitted": "Submitted",
+        "status": "Status",
+        "close": "Close",
+        "markAsRead": "Mark as Read"
+      },
+      "deleteDialog": {
+        "title": "Delete Contact Submission",
+        "description": "Are you sure you want to delete this contact submission? This action cannot be undone.",
+        "from": "From:",
+        "cancel": "Cancel",
+        "deleteSubmission": "Delete Submission",
+        "deleting": "Deleting..."
+      },
+      "errors": {
+        "deleteFailed": "Failed to delete submission",
+        "updateStatusFailed": "Failed to update read status"
+      }
+    },
+    "usersManagement": {
+      "title": "User Management",
+      "searchPlaceholder": "Search by email...",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "role": "Role",
+        "joined": "Joined",
+        "status": "Status",
+        "actions": "Actions",
+        "noUsers": "No users found.",
+        "active": "Active",
+        "restricted": "Restricted"
+      },
+      "pagination": {
+        "perPage": "per page",
+        "5PerPage": "5 per page",
+        "10PerPage": "10 per page",
+        "20PerPage": "20 per page",
+        "50PerPage": "50 per page"
+      },
+      "roles": {
+        "super_admin": "Super Admin",
+        "admin": "Admin",
+        "user": "User"
+      }
     }
   },
   "pages": {

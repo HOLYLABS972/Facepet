@@ -25,81 +25,36 @@ export const PET_TYPES_HEBREW: HardcodedOption[] = [
   { value: 'other', label: 'אחר' }
 ];
 
-// Dog Breeds (15 breeds)
-export const DOG_BREEDS: HardcodedBreed[] = [
-  { value: 'labrador-retriever', label: 'Labrador Retriever', type: 'dog' },
-  { value: 'golden-retriever', label: 'Golden Retriever', type: 'dog' },
-  { value: 'german-shepherd', label: 'German Shepherd', type: 'dog' },
-  { value: 'french-bulldog', label: 'French Bulldog', type: 'dog' },
-  { value: 'bulldog', label: 'Bulldog', type: 'dog' },
-  { value: 'poodle', label: 'Poodle', type: 'dog' },
-  { value: 'beagle', label: 'Beagle', type: 'dog' },
-  { value: 'rottweiler', label: 'Rottweiler', type: 'dog' },
-  { value: 'siberian-husky', label: 'Siberian Husky', type: 'dog' },
-  { value: 'border-collie', label: 'Border Collie', type: 'dog' },
-  { value: 'pomeranian', label: 'Pomeranian', type: 'dog' },
-  { value: 'dachshund', label: 'Dachshund', type: 'dog' },
-  { value: 'boxer', label: 'Boxer', type: 'dog' },
-  { value: 'great-dane', label: 'Great Dane', type: 'dog' },
-  { value: 'chihuahua', label: 'Chihuahua', type: 'dog' }
-];
+// Import comprehensive breed data
+import { breedsByType as comprehensiveBreedsByType } from './data/comprehensive-breeds';
 
-// Dog Breeds in Hebrew (15 breeds)
-export const DOG_BREEDS_HEBREW: HardcodedBreed[] = [
-  { value: 'labrador-retriever', label: 'לברדור רטריבר', type: 'dog' },
-  { value: 'golden-retriever', label: 'גולדן רטריבר', type: 'dog' },
-  { value: 'german-shepherd', label: 'רועה גרמני', type: 'dog' },
-  { value: 'french-bulldog', label: 'בולדוג צרפתי', type: 'dog' },
-  { value: 'bulldog', label: 'בולדוג', type: 'dog' },
-  { value: 'poodle', label: 'פודל', type: 'dog' },
-  { value: 'beagle', label: 'ביגל', type: 'dog' },
-  { value: 'rottweiler', label: 'רוטוויילר', type: 'dog' },
-  { value: 'siberian-husky', label: 'האסקי סיבירי', type: 'dog' },
-  { value: 'border-collie', label: 'בורדר קולי', type: 'dog' },
-  { value: 'pomeranian', label: 'פומרניאן', type: 'dog' },
-  { value: 'dachshund', label: 'דכשונד', type: 'dog' },
-  { value: 'boxer', label: 'בוקסר', type: 'dog' },
-  { value: 'great-dane', label: 'דני גדול', type: 'dog' },
-  { value: 'chihuahua', label: 'צ\'יוואווה', type: 'dog' }
-];
+// Dog Breeds - All breeds from breeds.json (174 breeds)
+export const DOG_BREEDS: HardcodedBreed[] = comprehensiveBreedsByType.dog.map(breed => ({
+  value: breed.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+  label: breed.en,
+  type: 'dog'
+}));
 
-// Cat Breeds (15 breeds)
-export const CAT_BREEDS: HardcodedBreed[] = [
-  { value: 'persian', label: 'Persian', type: 'cat' },
-  { value: 'maine-coon', label: 'Maine Coon', type: 'cat' },
-  { value: 'british-shorthair', label: 'British Shorthair', type: 'cat' },
-  { value: 'ragdoll', label: 'Ragdoll', type: 'cat' },
-  { value: 'siamese', label: 'Siamese', type: 'cat' },
-  { value: 'american-shorthair', label: 'American Shorthair', type: 'cat' },
-  { value: 'abyssinian', label: 'Abyssinian', type: 'cat' },
-  { value: 'scottish-fold', label: 'Scottish Fold', type: 'cat' },
-  { value: 'sphynx', label: 'Sphynx', type: 'cat' },
-  { value: 'bengal', label: 'Bengal', type: 'cat' },
-  { value: 'russian-blue', label: 'Russian Blue', type: 'cat' },
-  { value: 'norwegian-forest', label: 'Norwegian Forest Cat', type: 'cat' },
-  { value: 'birman', label: 'Birman', type: 'cat' },
-  { value: 'oriental-shorthair', label: 'Oriental Shorthair', type: 'cat' },
-  { value: 'devon-rex', label: 'Devon Rex', type: 'cat' }
-];
+// Dog Breeds in Hebrew - All breeds from breeds.json (174 breeds)
+export const DOG_BREEDS_HEBREW: HardcodedBreed[] = comprehensiveBreedsByType.dog.map(breed => ({
+  value: breed.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+  label: breed.he,
+  type: 'dog'
+}));
 
-// Cat Breeds in Hebrew (15 breeds)
-export const CAT_BREEDS_HEBREW: HardcodedBreed[] = [
-  { value: 'persian', label: 'פרסי', type: 'cat' },
-  { value: 'maine-coon', label: 'מיין קון', type: 'cat' },
-  { value: 'british-shorthair', label: 'בריטי קצר שיער', type: 'cat' },
-  { value: 'ragdoll', label: 'רגדול', type: 'cat' },
-  { value: 'siamese', label: 'סיאמי', type: 'cat' },
-  { value: 'american-shorthair', label: 'אמריקאי קצר שיער', type: 'cat' },
-  { value: 'abyssinian', label: 'אביסיני', type: 'cat' },
-  { value: 'scottish-fold', label: 'סקוטי מקופל אוזניים', type: 'cat' },
-  { value: 'sphynx', label: 'ספינקס', type: 'cat' },
-  { value: 'bengal', label: 'בנגל', type: 'cat' },
-  { value: 'russian-blue', label: 'רוסי כחול', type: 'cat' },
-  { value: 'norwegian-forest', label: 'נורווגי יער', type: 'cat' },
-  { value: 'birman', label: 'בירמן', type: 'cat' },
-  { value: 'oriental-shorthair', label: 'אוריינטלי קצר שיער', type: 'cat' },
-  { value: 'devon-rex', label: 'דבון רקס', type: 'cat' }
-];
+// Cat Breeds - All breeds from breeds.json (35 breeds)
+export const CAT_BREEDS: HardcodedBreed[] = comprehensiveBreedsByType.cat.map(breed => ({
+  value: breed.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+  label: breed.en,
+  type: 'cat'
+}));
+
+// Cat Breeds in Hebrew - All breeds from breeds.json (35 breeds)
+export const CAT_BREEDS_HEBREW: HardcodedBreed[] = comprehensiveBreedsByType.cat.map(breed => ({
+  value: breed.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+  label: breed.he,
+  type: 'cat'
+}));
 
 // Genders
 export const GENDERS: HardcodedOption[] = [

@@ -78,8 +78,8 @@ export default async function ContactSubmissionsPage({
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Contact Submissions</h1>
-        <p className="text-gray-600 mt-2">View and manage contact form submissions from users</p>
+        <h1 className="text-3xl font-bold">{t('contactSubmissions.title')}</h1>
+        <p className="text-gray-600 mt-2">{t('contactSubmissions.subtitle')}</p>
       </div>
 
       {/* Search and Filters */}
@@ -89,7 +89,7 @@ export default async function ContactSubmissionsPage({
             <Input
               type="text"
               name="search"
-              placeholder="Search by name, email, subject, or message..."
+              placeholder={t('contactSubmissions.searchPlaceholder')}
               defaultValue={search}
               className="bg-white pr-4 pl-10"
             />
@@ -113,7 +113,7 @@ export default async function ContactSubmissionsPage({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              All
+              {t('contactSubmissions.filters.all')}
             </a>
             <a
               href={getFilterUrl(true)}
@@ -123,7 +123,7 @@ export default async function ContactSubmissionsPage({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Unread Only
+              {t('contactSubmissions.filters.unreadOnly')}
             </a>
           </div>
           <LimitSelector
@@ -135,6 +135,7 @@ export default async function ContactSubmissionsPage({
               ...(search ? { search } : {}),
               ...(unreadOnly ? { unread: 'true' } : {})
             }}
+            translationPath="contactSubmissions"
           />
         </div>
       </div>
@@ -144,12 +145,12 @@ export default async function ContactSubmissionsPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Contact Info</TableHead>
-              <TableHead>Message</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('contactSubmissions.table.contactInfo')}</TableHead>
+              <TableHead>{t('contactSubmissions.table.message')}</TableHead>
+              <TableHead>{t('contactSubmissions.table.status')}</TableHead>
               <TableHead>
                 <a href={getSortUrl('createdAt')} className="flex items-center">
-                  Submitted
+                  {t('contactSubmissions.table.submitted')}
                   {sort === 'createdAt' && (
                     <span className="ml-1">
                       {order === 'asc' ? (
@@ -161,14 +162,14 @@ export default async function ContactSubmissionsPage({
                   )}
                 </a>
               </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">{t('contactSubmissions.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {submissions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
-                  No contact submissions found.
+                  {t('contactSubmissions.table.noSubmissions')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -196,7 +197,7 @@ export default async function ContactSubmissionsPage({
                           : 'bg-orange-100 text-orange-800'
                       }`}
                     >
-                      {submission.isRead ? 'Read' : 'Unread'}
+                      {submission.isRead ? t('contactSubmissions.table.read') : t('contactSubmissions.table.unread')}
                     </span>
                   </TableCell>
                   <TableCell>{formatDate(submission.createdAt)}</TableCell>

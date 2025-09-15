@@ -30,6 +30,7 @@ import {
 import { AdStatus, AdType, deleteAd, updateAd } from '@/lib/actions/admin';
 import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 interface Ad {
@@ -44,6 +45,7 @@ interface Ad {
 }
 
 export default function AdActions({ ad }: { ad: Ad }) {
+  const t = useTranslations('Admin');
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
@@ -161,19 +163,19 @@ export default function AdActions({ ad }: { ad: Ad }) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{t('adActions.actions')}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('adActions.actions')}</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-            Edit Ad
+            {t('adActions.edit')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setIsDeleting(true)}
             className="text-red-600 hover:text-red-700 focus:text-red-700"
           >
-            Delete Ad
+            {t('adActions.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -206,7 +208,7 @@ export default function AdActions({ ad }: { ad: Ad }) {
       >
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Advertisement</DialogTitle>
+            <DialogTitle>{t('adActions.edit')}</DialogTitle>
           </DialogHeader>
 
           {error && (
