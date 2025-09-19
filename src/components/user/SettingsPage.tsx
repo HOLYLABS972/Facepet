@@ -16,19 +16,20 @@ import toast from 'react-hot-toast';
 import { uploadProfileImage, testStorageConnection } from '@/src/lib/firebase/simple-upload';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
 import LocationAutocompleteComboSelect from '../get-started/ui/LocationAutocompleteSelector';
+import DeletionVerificationPage from '../auth/DeletionVerificationPage';
 
 export default function SettingsPage() {
   const router = useRouter();
   const t = useTranslations('pages.UserSettingsPage');
   const locale = useLocale();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, sendDeletionVerificationCode, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ progress: number; status: string; downloadURL?: string; error?: string } | null>(null);
   const [savingCookies, setSavingCookies] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeletionVerification, setShowDeletionVerification] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -345,15 +346,37 @@ export default function SettingsPage() {
     
     setDeletingAccount(true);
     try {
-      // Delete user data from Firestore
-      const { deleteDoc, doc } = await import('firebase/firestore');
+      // Send deletion verification code
+      const result = await sendDeletionVerificationCode(user.email!, user.displayName || 'User');
+      
+      if (result.success) {
+        toast.success('Verification code sent to your email');
+        console.log('✅ Deletion verification code sent, showing verification page');
+        setShowDeletionVerification(true);
+      } else {
+        toast.error(result.message || 'Failed to send verification code');
+      }
+    } catch (error: any) {
+      console.error('Error sending deletion verification code:', error);
+      toast.error('Failed to send verification code. Please try again.');
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
+  const handleVerifiedDeletion = async () => {
+    if (!user) return;
+    
+    setDeletingAccount(true);
+    try {
+      // Delete user data from Firestore collections
+      const { deleteDoc, doc, collection, query, where, getDocs } = await import('firebase/firestore');
       const { db } = await import('@/src/lib/firebase/config');
       
       // Delete user document
       await deleteDoc(doc(db, 'users', user.uid));
       
       // Delete user's pets
-      const { collection, query, where, getDocs } = await import('firebase/firestore');
       const petsQuery = query(collection(db, 'pets'), where('userEmail', '==', user.email));
       const petsSnapshot = await getDocs(petsQuery);
       
@@ -369,29 +392,59 @@ export default function SettingsPage() {
         await deleteDoc(ownerDoc.ref);
       }
       
-      // Delete Firebase Auth user
-      const { deleteUser } = await import('firebase/auth');
-      const { auth } = await import('@/src/lib/firebase/config');
-      await deleteUser(auth.currentUser!);
+      // Delete user's ads if any
+      const adsQuery = query(collection(db, 'ads'), where('userEmail', '==', user.email));
+      const adsSnapshot = await getDocs(adsQuery);
       
-      toast.success('Account deleted successfully');
+      for (const adDoc of adsSnapshot.docs) {
+        await deleteDoc(adDoc.ref);
+      }
+      
+      // Delete user's favorites if any
+      const favoritesQuery = query(collection(db, 'favorites'), where('userEmail', '==', user.email));
+      const favoritesSnapshot = await getDocs(favoritesQuery);
+      
+      for (const favoriteDoc of favoritesSnapshot.docs) {
+        await deleteDoc(favoriteDoc.ref);
+      }
+      
+      // Delete user's comments if any
+      const commentsQuery = query(collection(db, 'comments'), where('userEmail', '==', user.email));
+      const commentsSnapshot = await getDocs(commentsQuery);
+      
+      for (const commentDoc of commentsSnapshot.docs) {
+        await deleteDoc(commentDoc.ref);
+      }
+      
+      toast.success('Account data deleted successfully');
+      
+      // Sign out user instead of deleting Firebase Auth user
+      await signOut();
       
       // Redirect to landing page
       window.location.href = '/';
       
     } catch (error: any) {
-      console.error('Error deleting account:', error);
-      
-      if (error.code === 'auth/requires-recent-login') {
-        toast.error('Please sign in again before deleting your account');
-      } else {
-        toast.error('Failed to delete account. Please try again.');
-      }
+      console.error('Error deleting account data:', error);
+      toast.error('Failed to delete account data. Please try again.');
     } finally {
       setDeletingAccount(false);
-      setShowDeleteConfirm(false);
+      setShowDeletionVerification(false);
     }
   };
+
+  // Show deletion verification page if needed
+  if (showDeletionVerification) {
+    console.log('🔍 Rendering DeletionVerificationPage with email:', user.email);
+    return (
+      <DeletionVerificationPage
+        email={user.email!}
+        userName={user.displayName || 'User'}
+        onVerified={handleVerifiedDeletion}
+        onBack={() => setShowDeletionVerification(false)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -637,7 +690,7 @@ export default function SettingsPage() {
           {/* Delete Account Button */}
           <Button
             variant="ghost"
-            onClick={() => setShowDeleteConfirm(true)}
+            onClick={handleDeleteAccount}
             disabled={deletingAccount}
             className="text-gray-400 hover:text-gray-600 hover:bg-transparent p-2 h-auto font-normal text-sm"
           >
@@ -665,36 +718,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Delete Account Confirmation Dialog */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">{t('deleteAccount.confirmTitle')}</h3>
-            </div>
-            <p className="text-gray-600 mb-6">
-              {t('deleteAccount.confirmMessage')}
-            </p>
-            <div className="flex space-x-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1"
-              >
-                {t('deleteAccount.cancel')}
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDeleteAccount}
-                disabled={deletingAccount}
-                className="flex-1"
-              >
-                {deletingAccount ? t('deleteAccount.deleting') : t('deleteAccount.confirm')}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

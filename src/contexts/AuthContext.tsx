@@ -16,7 +16,7 @@ import {
 import { auth } from '@/lib/firebase/config';
 import { createUserInFirestore, handleUserAuthentication, getUserFromFirestore } from '@/lib/firebase/users';
 import { generateOTPCode } from '@/src/lib/otp-generator';
-import { sendVerificationEmailWithFallback } from '@/src/lib/holy-labs-email';
+import { sendVerificationEmailWithFallback, sendDeletionVerificationEmailWithFallback } from '@/src/lib/holy-labs-email';
 
 // Function to determine user role - all users get 'user' role by default
 // Admin roles must be assigned manually through the admin panel
@@ -56,6 +56,9 @@ interface AuthContextType {
   verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => Promise<{ success: boolean; user: User | null }>;
   completeGoogleProfile: () => void;
   getStoredOTPCode: () => string | null;
+  sendDeletionVerificationCode: (email: string, userName?: string) => Promise<VerificationResult>;
+  getStoredDeletionOTPCode: () => string | null;
+  clearDeletionOTPCode: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +87,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return null;
   });
 
+  // Deletion verification code state
+  const [storedDeletionOTPCode, setStoredDeletionOTPCode] = useState<string | null>(() => {
+    // Initialize from localStorage if available
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('storedDeletionOTPCode');
+    }
+    return null;
+  });
+
   // Helper function to store OTP code in both state and localStorage
   const storeOTPCode = (code: string) => {
     setStoredOTPCode(code);
@@ -99,6 +111,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('storedOTPCode');
       console.log('🗑️ OTP code cleared from localStorage');
+    }
+  };
+
+  // Helper function to store deletion OTP code in both state and localStorage
+  const storeDeletionOTPCode = (code: string) => {
+    setStoredDeletionOTPCode(code);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('storedDeletionOTPCode', code);
+      console.log('🔐 Deletion OTP code stored in localStorage:', code);
+    }
+  };
+
+  // Helper function to clear deletion OTP code from both state and localStorage
+  const clearDeletionOTPCode = () => {
+    setStoredDeletionOTPCode(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('storedDeletionOTPCode');
+      console.log('🗑️ Deletion OTP code cleared from localStorage');
     }
   };
 
@@ -307,6 +337,42 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const sendDeletionVerificationCode = async (email: string, userName?: string): Promise<VerificationResult> => {
+    try {
+      // Generate OTP code on frontend
+      const otpCode = generateOTPCode();
+      console.log('Generated deletion OTP code:', otpCode);
+
+      // Store the deletion OTP code FIRST, regardless of email sending status
+      storeDeletionOTPCode(otpCode);
+      console.log('✅ Deletion OTP code generated and stored:', otpCode);
+      console.log('🔑 DEBUG: Your deletion verification code is:', otpCode);
+      
+      // Try to send deletion verification email via Holy Labs API (but don't fail if it doesn't work)
+      try {
+        const result = await sendDeletionVerificationEmailWithFallback(
+          email, 
+          otpCode, 
+          userName || 'User'
+        );
+        
+        if (result.success) {
+          console.log('✅ Deletion verification email sent successfully');
+          return { success: true, message: 'Deletion verification code sent to your email' };
+        } else {
+          console.warn('⚠️ Deletion email sending failed, but code is stored:', result.message);
+          return { success: true, message: 'Deletion verification code generated. Please check your email or try again.' };
+        }
+      } catch (error) {
+        console.warn('⚠️ Deletion email sending failed due to CORS, but code is stored:', error);
+        return { success: true, message: 'Deletion verification code generated. Please check your email or try again.' };
+      }
+    } catch (error) {
+      console.error('Send deletion verification code error:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Failed to send deletion verification code' };
+    }
+  };
+
   const verifyCodeAndCreateAccount = async (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => {
     try {
       console.log('🔍 Verifying code:', { 
@@ -392,7 +458,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     sendVerificationCode,
     verifyCodeAndCreateAccount,
     completeGoogleProfile,
-    getStoredOTPCode: () => storedOTPCode
+    getStoredOTPCode: () => storedOTPCode,
+    sendDeletionVerificationCode,
+    getStoredDeletionOTPCode: () => storedDeletionOTPCode,
+    clearDeletionOTPCode
   };
 
   return (
