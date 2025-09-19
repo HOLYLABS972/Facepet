@@ -3,14 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useRouter } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
-import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 interface DeletionVerificationPageProps {
   email: string;
@@ -20,7 +18,6 @@ interface DeletionVerificationPageProps {
 }
 
 const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: DeletionVerificationPageProps) => {
-  const t = useTranslations('pages.DeletionVerification');
   const { getStoredDeletionOTPCode, clearDeletionOTPCode } = useAuth();
   const router = useRouter();
   
@@ -36,14 +33,14 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
       const storedCode = getStoredDeletionOTPCode();
       
       if (!storedCode || storedCode !== verificationCode) {
-        toast.error('Invalid verification code');
+        toast.error('קוד אימות לא תקין');
         return;
       }
 
       // Clear the stored code after successful verification
       clearDeletionOTPCode();
       
-      toast.success('Account deletion verified successfully!');
+      toast.success('מחיקת החשבון אומתה בהצלחה!');
       
       // Call the onVerified callback if provided
       if (onVerified) {
@@ -54,7 +51,7 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
       }
     } catch (error: any) {
       console.error('Deletion verification error:', error);
-      toast.error(error.message || 'Failed to verify code');
+      toast.error(error.message || 'נכשל באימות הקוד');
     } finally {
       setLoading(false);
     }
@@ -68,16 +65,11 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
         <div className="text-center mb-8">
           <Image
             src="/assets/Facepet-logo.png"
-            alt="Facepet Logo"
+            alt="לוגו Facepet"
             width={120}
             height={120}
             className="mx-auto mb-4"
           />
-        </div>
-
-        {/* Language Switcher */}
-        <div className="flex justify-end mb-4">
-          <LocaleSwitcher />
         </div>
 
         <Card className="shadow-lg">
@@ -88,13 +80,13 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
               </div>
             </div>
             <CardTitle className="text-2xl font-bold text-red-800">
-              Account Deletion Verification
+              אימות מחיקת חשבון
             </CardTitle>
             <p className="text-gray-600 mt-2">
-              We've sent a verification code to <strong>{email}</strong>
+              שלחנו קוד אימות לכתובת <strong>{email}</strong>
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              Please enter the code to confirm account deletion
+              אנא הזן את הקוד לאישור מחיקת החשבון
             </p>
           </CardHeader>
           
@@ -102,14 +94,14 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
             <form onSubmit={handleVerifyCode} className="space-y-4">
               <div>
                 <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-2">
-                  Verification Code
+                  קוד אימות
                 </label>
                 <Input
                   id="verificationCode"
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="Enter 6-digit code"
+                  placeholder="הזן קוד בן 6 ספרות"
                   className="text-center text-lg tracking-widest"
                   maxLength={6}
                   required
@@ -124,10 +116,10 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
                 {loading ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying...
+                    מאמת...
                   </>
                 ) : (
-                  'Verify & Delete Account'
+                  'אמת ומחק חשבון'
                 )}
               </Button>
             </form>
@@ -141,7 +133,7 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
                   className="text-gray-600 hover:text-gray-800"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
+                  חזור
                 </Button>
               </div>
             )}
