@@ -572,7 +572,15 @@
     "ServicesPage": {
       "title": "Services And Professionals",
       "searchPlaceholder": "Search Services And Professionals...",
-      "noResults": "No Services And Professionals found."
+      "noResults": "No Services And Professionals found.",
+      "filters": {
+        "all": "All",
+        "favorites": "Favorites"
+      },
+      "tagsFilter": {
+        "placeholder": "Filter by tags...",
+        "clearAll": "Clear all"
+      }
     },
 
     "SignUpPage": {
@@ -775,9 +783,9 @@
         "shopPlaceholder": "Coming soon"
       },
       "popup": {
-        "title": "You Got a New Gift!",
-        "text": "A welcome gift is waiting for you!",
-        "buttonLabel": "Take me to my gifts page"
+        "title": "",
+        "text": "",
+        "buttonLabel": ""
       }
     },
     "HomePage": {
@@ -1033,16 +1041,6 @@
       "shareText": "Check out FacePet app for pets!",
       "linkCopied": "Link copied to clipboard!",
       "shareError": "Something went wrong"
-    },
-    "PointsBreakdownNotification": {
-      "title": "🎯 Points Breakdown",
-      "registration": "Registration",
-      "phoneSetup": "Phone Setup",
-      "addPet": "Add Pet",
-      "share": "Share App",
-      "total": "Total",
-      "points": "points",
-      "claimPrize": "Claim Prize"
     },
     "EarningNotification": {
       "title": "🎉 Points Earned!",

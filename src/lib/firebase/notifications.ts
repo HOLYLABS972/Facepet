@@ -21,7 +21,7 @@ export interface Notification {
   type: 'action' | 'prize_available' | 'admin_message' | 'system_update' | 'pet_reminder';
   title: string;
   message: string;
-  actionType?: 'registration' | 'phone_setup' | 'add_pet' | 'share' | 'prize_claim';
+  actionType?: 'registration' | 'phone_setup' | 'add_pet' | 'share'; // 'prize_claim' disabled
   isRead: boolean;
   isActive: boolean;
   priority: 'low' | 'medium' | 'high';
@@ -355,8 +355,8 @@ function getActionTitle(actionType: Notification['actionType']): string {
       return '🐾 Pet Added!';
     case 'share':
       return '📤 Share Bonus!';
-    case 'prize_claim':
-      return '🎁 Prize Claimed!';
+    // case 'prize_claim':
+    //   return '🎁 Prize Claimed!';
     default:
       return '🎯 Points Earned!';
   }
@@ -372,8 +372,8 @@ function getActionMessage(actionType: Notification['actionType'], points: number
       return `Awesome! You added a pet to your profile with 10 points.`;
     case 'share':
       return `Thanks for sharing FacePet with 10 points!`;
-    case 'prize_claim':
-      return `Congratulations! You claimed your prize with 10 points.`;
+    // case 'prize_claim':
+    //   return `Congratulations! You claimed your prize with 10 points.`;
     default:
       return `Action completed successfully with 10 points!`;
   }

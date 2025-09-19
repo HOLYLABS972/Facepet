@@ -11,16 +11,21 @@ interface AdImageThumbnailProps {
 export default function AdImageThumbnail({ src, alt, title }: AdImageThumbnailProps) {
   const [imageError, setImageError] = useState(false);
 
-  if (!src) {
+  // Debug log
+  console.log('AdImageThumbnail - src:', src, 'alt:', alt, 'title:', title);
+
+  if (!src || src === 'image' || src === 'text') {
     return (
-      <span className="text-gray-400 text-sm">No image</span>
+      <div className="w-16 h-12 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
+        {src === 'image' ? 'Image' : 'No Image'}
+      </div>
     );
   }
 
   if (imageError) {
     return (
       <div className="w-16 h-12 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
-        No Image
+        Error
       </div>
     );
   }
@@ -32,7 +37,11 @@ export default function AdImageThumbnail({ src, alt, title }: AdImageThumbnailPr
         alt={alt}
         title={title}
         className="w-full h-full object-cover rounded border"
-        onError={() => setImageError(true)}
+        onError={() => {
+          console.log('Image failed to load:', src);
+          setImageError(true);
+        }}
+        onLoad={() => console.log('Image loaded successfully:', src)}
       />
     </div>
   );

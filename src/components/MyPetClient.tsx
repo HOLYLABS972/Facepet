@@ -13,6 +13,8 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { db } from '@/src/lib/firebase/config';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { useRouter } from '@/i18n/routing';
+import { getBreedNameFromId, convertBreedSlugToName } from '@/src/lib/firebase/breed-utils';
+import { useLocale } from 'next-intl';
 
 interface Pet {
   id: string;
@@ -27,6 +29,7 @@ interface MyPetClientProps {
 
 const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
   const t = useTranslations('pages.MyPetsPage');
+  const locale = useLocale() as 'en' | 'he';
   const { user, loading } = useAuth();
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -49,17 +52,40 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
           );
           
           const querySnapshot = await getDocs(q);
+          console.log('Query snapshot size:', querySnapshot.size); // Debug log
+          console.log('User email:', user.email); // Debug log
           
           if (!querySnapshot.empty) {
-            const petsData = querySnapshot.docs.map(doc => {
+            const petsData = await Promise.all(querySnapshot.docs.map(async doc => {
               const data = doc.data();
+              console.log('Pet data:', data); // Debug log
+              
+              // Try different breed field names and formats
+              let breedId = data.breedId || data.breed || data.breedName || '';
+              let localizedBreed = 'Unknown Breed';
+              
+              // If breedId is a number, convert to string
+              if (typeof breedId === 'number') {
+                breedId = breedId.toString();
+              }
+              
+              // If breedId is a slug format, try to convert it
+              if (breedId && breedId.includes('-')) {
+                localizedBreed = convertBreedSlugToName(breedId, locale);
+              } else if (breedId) {
+                localizedBreed = getBreedNameFromId(breedId, locale);
+              }
+              
+              console.log('Breed ID:', breedId, 'Localized breed:', localizedBreed); // Debug log
+              
               return {
                 id: doc.id,
                 name: data.name || 'Unknown Pet',
-                breed: data.breedName || data.breed || 'Unknown Breed',
+                breed: localizedBreed,
                 image: data.imageUrl || '/default-pet.png'
               };
-            });
+            }));
+            console.log('Processed pets data:', petsData); // Debug log
             setPets(petsData);
           } else {
             setPets([]);

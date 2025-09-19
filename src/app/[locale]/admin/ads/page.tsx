@@ -105,9 +105,9 @@ export default async function AdsPage({
               name="search"
               placeholder={t('adsManagement.searchPlaceholder')}
               defaultValue={search}
-              className="bg-white pr-4 pl-10"
+              className="bg-white pr-4 ltr:pl-10 rtl:pr-10"
             />
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+            <Search className="absolute top-1/2 ltr:left-3 rtl:right-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <input type="hidden" name="sort" value={sort} />
             <input type="hidden" name="order" value={order} />
             <Button type="submit" className="sr-only">

@@ -36,11 +36,11 @@ export async function createShareNotification(user: User) {
 }
 
 /**
- * Create prize claim notification
+ * Create prize claim notification - DISABLED
  */
-export async function createPrizeClaimNotification(user: User) {
-  return await createNotificationWithPoints(user, 'prize_claim');
-}
+// export async function createPrizeClaimNotification(user: User) {
+//   return await createNotificationWithPoints(user, 'prize_claim');
+// }
 
 /**
  * Batch create multiple notifications for new users

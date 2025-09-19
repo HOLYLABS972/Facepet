@@ -194,10 +194,7 @@ const ImageUpload = ({
         <p className="mt-2 text-sm text-red-600">{error}</p>
       )}
       
-      {/* Required indicator */}
-      {required && !value && (
-        <p className="mt-1 text-sm text-gray-600">* Image is required</p>
-      )}
+      {/* Required indicator removed - image is now optional */}
     </div>
   );
 };

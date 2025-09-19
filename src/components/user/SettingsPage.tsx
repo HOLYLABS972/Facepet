@@ -8,10 +8,10 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Switch } from '../ui/switch';
+import { Checkbox } from '../ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
-import { ArrowLeft, User, Phone, Mail, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle, Trash2, AlertTriangle, MapPin } from 'lucide-react';
+import { ArrowLeft, User, Phone, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle, AlertTriangle, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadProfileImage, testStorageConnection } from '@/src/lib/firebase/simple-upload';
 import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
@@ -34,7 +34,6 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-    email: '',
     address: '',
     profileImage: null as File | null,
     profileImageURL: '',
@@ -70,7 +69,6 @@ export default function SettingsPage() {
             setFormData(prev => ({
               ...prev,
               fullName: user.displayName || userResult.user.displayName || '',
-              email: user.email || '',
               phone: userResult.user.phone || '',
               address: userResult.user.address || '',
               profileImageURL: userResult.user.profileImage || user.photoURL || '',
@@ -82,7 +80,6 @@ export default function SettingsPage() {
             setFormData(prev => ({
               ...prev,
               fullName: user.displayName || '',
-              email: user.email || '',
               address: '',
               profileImageURL: user.photoURL || '',
               acceptCookies: localStorage.getItem('acceptCookies') === 'true',
@@ -95,7 +92,6 @@ export default function SettingsPage() {
           setFormData(prev => ({
             ...prev,
             fullName: user.displayName || '',
-            email: user.email || '',
             address: '',
             profileImageURL: user.photoURL || '',
             acceptCookies: localStorage.getItem('acceptCookies') === 'true',
@@ -288,6 +284,11 @@ export default function SettingsPage() {
         language: formData.language
       };
 
+      // Add full name if provided
+      if (formData.fullName) {
+        updateData.displayName = formData.fullName;
+      }
+
       // Add phone if provided
       if (formData.phone) {
         updateData.phone = formData.phone;
@@ -450,7 +451,9 @@ export default function SettingsPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="h-8 w-8 text-gray-400" />
+                    <div className="flex items-center justify-center w-full h-full">
+                      <span className="text-gray-500 text-sm font-medium">Profile</span>
+                    </div>
                   )}
                 </div>
                 {uploading && (
@@ -557,25 +560,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('emailAddress')}</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder={t('emailPlaceholder')}
-                  className="pl-10"
-                  disabled
-                />
-              </div>
-              <p className="text-sm text-gray-500">
-                {t('emailNote')}
-              </p>
-            </div>
-
-            <div className="space-y-2">
+            <div className="space-y-2 mt-8">
               <LocationAutocompleteComboSelect
                 label={t('address')}
                 id="address"
@@ -593,24 +578,22 @@ export default function SettingsPage() {
             <CardTitle>{t('privacySettings')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label htmlFor="acceptCookies">{t('acceptCookies')}</Label>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="acceptCookies"
+                checked={formData.acceptCookies}
+                onCheckedChange={(checked) => handleInputChange('acceptCookies', checked)}
+                disabled={savingCookies}
+              />
+              <div className="space-y-1 flex-1">
+                <Label htmlFor="acceptCookies" className="cursor-pointer">{t('acceptCookies')}</Label>
                 <p className="text-sm text-gray-500">
                   {t('acceptCookiesDescription')}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="acceptCookies"
-                  checked={formData.acceptCookies}
-                  onCheckedChange={(checked) => handleInputChange('acceptCookies', checked)}
-                  disabled={savingCookies}
-                />
-                {savingCookies && (
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                )}
-              </div>
+              {savingCookies && (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -653,12 +636,11 @@ export default function SettingsPage() {
         <div className="flex justify-between items-center gap-4">
           {/* Delete Account Button */}
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={deletingAccount}
-            className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400"
+            className="text-gray-400 hover:text-gray-600 hover:bg-transparent p-2 h-auto font-normal text-sm"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
             {deletingAccount ? t('deleteAccount.deleting') : t('deleteAccount.button')}
           </Button>
 
@@ -687,8 +669,7 @@ export default function SettingsPage() {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
-            <div className="flex items-center mb-4">
-              <Trash2 className="w-6 h-6 text-gray-500 mr-2" />
+            <div className="mb-4">
               <h3 className="text-lg font-semibold text-gray-800">{t('deleteAccount.confirmTitle')}</h3>
             </div>
             <p className="text-gray-600 mb-6">

@@ -17,6 +17,8 @@ import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
+import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
+import { useLocale } from 'next-intl';
 
 interface Pet {
   id: string;
@@ -41,6 +43,7 @@ export default function PetDetailsBottomSheet({
   pet,
   onDeletePet
 }: PetDetailsBottomSheetProps) {
+  const locale = useLocale() as 'en' | 'he';
   const router = useRouter();
 
   if (!pet) return null;
@@ -165,7 +168,7 @@ export default function PetDetailsBottomSheet({
             <CardContent className="space-y-3">
               <div className="flex justify-between">
                 <span className="font-medium text-gray-600">Breed:</span>
-                <span>{pet.breed}</span>
+                <span>{getBreedNameFromId(pet.breed, locale)}</span>
               </div>
               
               {pet.age && (

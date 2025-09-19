@@ -24,6 +24,7 @@ interface TagsFilterProps {
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
   placeholder?: string;
+  clearAllText?: string;
   className?: string;
 }
 
@@ -32,6 +33,7 @@ export function TagsFilter({
   selectedTags, 
   onTagsChange, 
   placeholder = "Filter by tags...",
+  clearAllText = "Clear all",
   className 
 }: TagsFilterProps) {
   const [open, setOpen] = useState(false);
@@ -77,7 +79,7 @@ export function TagsFilter({
             onClick={clearAllTags}
             className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
           >
-            Clear all
+            {clearAllText}
           </Button>
         </div>
       )}
@@ -98,7 +100,7 @@ export function TagsFilter({
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="w-full p-0" align="start" side="bottom" sideOffset={4}>
           <Command>
             <CommandInput placeholder="Search tags..." />
             <CommandList>

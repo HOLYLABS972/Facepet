@@ -145,7 +145,7 @@ const LocationAutocompleteComboSelect: React.FC<
         className={cn(
           'absolute top-2.5 left-3 text-sm text-gray-500 transition-all duration-200 ease-in-out rtl:right-3',
           value
-            ? 'text-primary -top-6 text-sm font-medium'
+            ? 'text-gray-700 -top-6 text-sm font-medium'
             : 'top-2.5 text-gray-500',
           hasError ? 'text-red-800' : ''
         )}
@@ -168,7 +168,7 @@ const LocationAutocompleteComboSelect: React.FC<
             onClick={() => setOpen(true)}
           >
             <span className={cn(
-              "overflow-x-scroll font-normal",
+              "overflow-x-scroll font-normal text-black",
               !displayValue && placeholder ? "text-gray-400" : ""
             )}>
               {displayValue || placeholder || ""}

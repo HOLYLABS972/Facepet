@@ -318,7 +318,6 @@ export default function AdminDashboard() {
               <thead>
                 <tr className="h-10 w-full border-b">
                   <th className="p-2 text-left">{t('adsManagement.table.title')}</th>
-                  <th className="p-2 text-left">{t('adsManagement.table.type')}</th>
                   <th className="p-2 text-left">{t('adsManagement.table.status')}</th>
                 </tr>
               </thead>
@@ -326,7 +325,6 @@ export default function AdminDashboard() {
                 {activity.ads.map((ad) => (
                   <tr key={ad.id} className="border-b hover:bg-gray-50">
                     <td className="p-2">{ad.title}</td>
-                    <td className="p-2 text-sm">{ad.type}</td>
                     <td className="p-2">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${
@@ -344,7 +342,7 @@ export default function AdminDashboard() {
                 ))}
                 {activity.ads.length === 0 && (
                   <tr>
-                    <td colSpan={3} className='p-2 text-center text-gray-500'>
+                    <td colSpan={2} className='p-2 text-center text-gray-500'>
                       {t('noActivity')}
                     </td>
                   </tr>

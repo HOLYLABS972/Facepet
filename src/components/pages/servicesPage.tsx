@@ -108,12 +108,12 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
   const filterChips: FilterChip[] = [
     {
       id: 'all',
-      label: 'All',
+      label: t('filters.all'),
       active: filterType === 'all'
     },
     {
       id: 'favorites',
-      label: 'Favorites',
+      label: t('filters.favorites'),
       active: filterType === 'favorites'
     }
   ];
@@ -136,7 +136,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
           placeholder={t('searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg p-2 pl-10"
+          className="w-full rounded-lg p-2 ltr:pl-10 rtl:pr-10"
         />
       </div>
 
@@ -156,7 +156,8 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
             tags={availableTags}
             selectedTags={selectedTags}
             onTagsChange={setSelectedTags}
-            placeholder="Filter by tags..."
+            placeholder={t('tagsFilter.placeholder')}
+            clearAllText={t('tagsFilter.clearAll')}
             className="w-full"
           />
         </div>

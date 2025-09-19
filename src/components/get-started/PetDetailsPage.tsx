@@ -106,7 +106,7 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
               folder="pets"
               value={field.value} // Controlled value
               onFileChange={field.onChange} // Controlled onChange
-              required={true}
+              required={false}
               error={errors.imageUrl?.message}
             />
           )}

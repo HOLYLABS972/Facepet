@@ -103,6 +103,13 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
                     : optionsPanelWidth
                   : 0
               }
+            : isEditMode
+            ? {
+                width: `calc(100% - ${optionsPanelWidth}px)`,
+                x: direction === 'rtl'
+                  ? -optionsPanelWidth
+                  : optionsPanelWidth
+              }
             : { width: '100%', x: 0 }
         }
         transition={{ type: 'spring', stiffness: 200, damping: 10 }}
@@ -123,37 +130,21 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         className="absolute top-0 bottom-0 ltr:right-0 rtl:left-0"
         style={{ width: `${imageWidth}px` }}
       >
-        <div className="flex items-center justify-end">
+        <div className="h-full w-full">
           {image && image.trim() !== '' && image !== '/default-pet.png' && !image.includes('default') ? (
-            <>
-              <img
-                alt={name}
-                src={image}
-                width={imageWidth}
-                height={cardHeight}
-                loading="lazy"
-                style={{ transform: 'scaleX(-1)' }}
-                className="h-full w-full bg-gray-200 object-cover object-center rounded-e-2xl"
-                onLoad={handleImageLoad}
-                onError={(e) => {
-                  console.error('Failed to load pet image:', image);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-              <img
-                alt={name}
-                src={image}
-                width={imageWidth}
-                height={cardHeight}
-                loading="lazy"
-                className="inset-0 h-full w-full rounded-e-2xl bg-gray-200 object-cover"
-                onLoad={handleImageLoad}
-                onError={(e) => {
-                  console.error('Failed to load pet image:', image);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </>
+            <img
+              alt={name}
+              src={image}
+              width={imageWidth}
+              height={cardHeight}
+              loading="lazy"
+              className="h-full w-full object-cover rounded-e-2xl"
+              onLoad={handleImageLoad}
+              onError={(e) => {
+                console.error('Failed to load pet image:', image);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-e-2xl">
               <PawPrint className="h-8 w-8 text-gray-400" />

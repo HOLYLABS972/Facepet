@@ -570,7 +570,15 @@
     "ServicesPage": {
       "title": "שירותים ואנשי מקצוע",
       "searchPlaceholder": "חפש שירותים ואנשי מקצוע...",
-      "noResults": "לא נמצאו שירותים ואנשי מקצוע."
+      "noResults": "לא נמצאו שירותים ואנשי מקצוע.",
+      "filters": {
+        "all": "הכל",
+        "favorites": "מועדפים"
+      },
+      "tagsFilter": {
+        "placeholder": "סנן לפי תגיות...",
+        "clearAll": "נקה הכל"
+      }
     },
 
     "ConfirmationPage": {
@@ -822,9 +830,9 @@
         "shopPlaceholder": "בקרוב"
       },
       "popup": {
-        "title": "קיבלת מתנה חדשה!",
-        "text": "מחכה לך מתנת הצטרפות בסל המתנות!",
-        "buttonLabel": "קח אותי למתנות שלי"
+        "title": "",
+        "text": "",
+        "buttonLabel": ""
       }
     },
     "HomePage": {
@@ -1036,16 +1044,6 @@
       "shareText": "בדוק את אפליקציית FacePet לחיות!",
       "linkCopied": "הלינק הועתק ללוח!",
       "shareError": "משהו השתבש"
-    },
-    "PointsBreakdownNotification": {
-      "title": "🎯 פירוט נקודות",
-      "registration": "הרשמה",
-      "phoneSetup": "הגדרת טלפון",
-      "addPet": "הוספת חיית מחמד",
-      "share": "שיתוף אפליקציה",
-      "total": "סה״כ",
-      "points": "נקודות",
-      "claimPrize": "קבל פרס"
     },
     "EarningNotification": {
       "title": "🎉 נקודות הרווחת!",

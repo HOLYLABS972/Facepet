@@ -157,18 +157,19 @@ export default function PetProfilePage({
     prevTabRef.current = activeTab;
   }, [activeTab]);
 
-  useEffect(() => {
-    const hasSeenGift = localStorage.getItem(`giftShown_${pet.id}`);
+  // Gift popup disabled temporarily
+  // useEffect(() => {
+  //   const hasSeenGift = localStorage.getItem(`giftShown_${pet.id}`);
 
-    if (!hasSeenGift) {
-      const timer = setTimeout(() => {
-        setShowPopup(true);
-        localStorage.setItem(`giftShown_${pet.id}`, 'true');
-      }, 1000 * 5); // 5 seconds delay
+  //   if (!hasSeenGift) {
+  //     const timer = setTimeout(() => {
+  //       setShowPopup(true);
+  //       localStorage.setItem(`giftShown_${pet.id}`, 'true');
+  //     }, 1000 * 5); // 5 seconds delay
 
-      return () => clearTimeout(timer);
-    }
-  }, [pet.id]);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [pet.id]);
 
   // Event handlers
   const handleTabChange = (tab: TabName) => {
@@ -224,14 +225,15 @@ export default function PetProfilePage({
     </div>
       </motion.div>
       <ShareButton />
-      {showPopup && (
+      {/* Gift popup disabled temporarily */}
+      {/* {showPopup && (
         <GiftPopup
           onClose={() => setShowPopup(false)}
           title={t('popup.title')}
           text={t('popup.text')}
           buttonText={t('popup.buttonLabel')}
         />
-      )}
+      )} */}
     </>
   );
 }

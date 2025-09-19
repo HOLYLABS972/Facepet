@@ -2,15 +2,17 @@
 import { breedsByType as comprehensiveBreedsByType, getBreedsForType as getComprehensiveBreedsForType } from './comprehensive-breeds';
 
 // Legacy breed data structure for backward compatibility
-// Maps comprehensive breeds to the old format
+// Maps comprehensive breeds to the old format with localization support
 export const breedsByType = {
   cat: comprehensiveBreedsByType.cat.map(breed => ({
     id: `cat-${breed.id}`,
-    name: breed.en
+    name: breed.en,
+    nameHe: breed.he
   })),
   dog: comprehensiveBreedsByType.dog.map(breed => ({
     id: `dog-${breed.id}`,
-    name: breed.en
+    name: breed.en,
+    nameHe: breed.he
   })),
   bird: [
     { id: 'bird-1', name: 'Budgerigar (Budgie)' },
@@ -112,8 +114,25 @@ export const breedsByType = {
 };
 
 export type PetType = keyof typeof breedsByType;
-export type Breed = { id: string; name: string };
+export type Breed = { id: string; name: string; nameHe?: string };
 
 export function getBreedsForType(petType: PetType): Breed[] {
   return breedsByType[petType] || breedsByType.other;
+}
+
+// Get localized breed name based on locale
+export function getLocalizedBreedName(breed: Breed, locale: 'en' | 'he' = 'en'): string {
+  if (locale === 'he' && breed.nameHe) {
+    return breed.nameHe;
+  }
+  return breed.name;
+}
+
+// Get breeds for type with localized names
+export function getLocalizedBreedsForType(petType: PetType, locale: 'en' | 'he' = 'en'): Array<{ id: string; name: string }> {
+  const breeds = getBreedsForType(petType);
+  return breeds.map(breed => ({
+    id: breed.id,
+    name: getLocalizedBreedName(breed, locale)
+  }));
 }

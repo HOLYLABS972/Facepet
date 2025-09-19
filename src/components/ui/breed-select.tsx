@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Check, ChevronsUpDown, Search } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/src/lib/utils';
 import { Button } from './button';
 import {
@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from './popover';
-import { getBreedsForType, type PetType, type Breed } from '@/src/lib/data/breeds';
+import { getLocalizedBreedsForType, type PetType } from '@/src/lib/data/breeds';
 
 interface BreedSelectProps {
   petType: PetType;
@@ -36,10 +36,11 @@ export function BreedSelect({
   className
 }: BreedSelectProps) {
   const t = useTranslations('Pet.add.form.breed');
+  const locale = useLocale() as 'en' | 'he';
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
-  const breeds = useMemo(() => getBreedsForType(petType), [petType]);
+  const breeds = useMemo(() => getLocalizedBreedsForType(petType, locale), [petType, locale]);
   
   const filteredBreeds = useMemo(() => {
     if (!searchValue) return breeds;

@@ -233,6 +233,16 @@ export async function getPetById(
         breedId = getBreedIdFromName(breedName);
       }
       
+      // Convert breed slug to human-readable text if needed
+      if (breedName && !breedName.includes('Unknown') && !breedName.includes('Breed')) {
+        try {
+          const { convertBreedSlugToName } = await import('@/src/lib/firebase/breed-utils');
+          breedName = convertBreedSlugToName(breedName);
+        } catch (error) {
+          console.error('Error converting breed slug:', error);
+        }
+      }
+      
       // Resolve gender name if genderId is provided instead of gender
       let gender = data.gender;
       if (!gender && data.genderId) {

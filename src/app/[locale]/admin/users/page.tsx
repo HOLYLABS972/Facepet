@@ -21,13 +21,13 @@ import { getLocale, getTranslations } from 'next-intl/server';
 export default async function UsersPage({
   searchParams
 }: {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     limit?: string;
     search?: string;
     sort?: string;
     order?: 'asc' | 'desc';
-  };
+  }>;
 }) {
   const t = await getTranslations('Admin');
   const locale = await getLocale();
@@ -35,12 +35,13 @@ export default async function UsersPage({
   // Note: Authentication is handled client-side in AdminLayout component
   // Server-side auth check removed since we're using Firebase client-side auth
 
-  // Parse query parameters - searchParams is already available, no need to await
-  const pageParam = searchParams?.page;
-  const limitParam = searchParams?.limit;
-  const searchParam = searchParams?.search;
-  const sortParam = searchParams?.sort;
-  const orderParam = searchParams?.order;
+  // Parse query parameters - await searchParams
+  const params = await searchParams;
+  const pageParam = params?.page;
+  const limitParam = params?.limit;
+  const searchParam = params?.search;
+  const sortParam = params?.sort;
+  const orderParam = params?.order;
 
   const page = parseInt(pageParam || '1');
   const limit = parseInt(limitParam || '10');

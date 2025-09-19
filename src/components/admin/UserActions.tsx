@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { getUserFromFirestore } from '@/lib/firebase/users';
 import {
@@ -153,11 +153,6 @@ export default function UserActions({
   };
 
   const handleRestrictionToggle = async (checked: boolean) => {
-    if (!checked && !restrictionReason) {
-      setShowRestrictionReasonInput(true);
-      return;
-    }
-
     setIsSubmitting(true);
     setError(null);
 
@@ -165,10 +160,8 @@ export default function UserActions({
       if (checked) {
         await unrestrictUser(userId);
       } else {
-        await restrictUser(userId, restrictionReason);
+        await restrictUser(userId, '');
       }
-      setShowRestrictionReasonInput(false);
-      setRestrictionReason('');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('userActions.updateRestrictionError'));
@@ -338,38 +331,22 @@ export default function UserActions({
                   </div>
                 </div>
 
-                {/* Restriction Status */}
+                {/* User Status */}
+                <div className="space-y-2">
+                  <Label>{t('userActions.accountStatus')}</Label>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={!isRestricted}
+                      onCheckedChange={(checked) => {
+                        handleRestrictionToggle(checked);
+                      }}
+                    />
+                    <span>{isRestricted ? t('userActions.restricted') : t('userActions.active')}</span>
+                  </div>
+                </div>
               </>
             )}
-            <div className="space-y-2">
-              <Label>{t('userActions.accountStatus')}</Label>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={!isRestricted}
-                  onCheckedChange={(checked) => {
-                    if (!checked && !restrictionReason) {
-                      setShowRestrictionReasonInput(true);
-                    } else {
-                      handleRestrictionToggle(checked);
-                    }
-                  }}
-                />
-                <span>{isRestricted ? t('userActions.restricted') : t('userActions.active')}</span>
-              </div>
-            </div>
 
-            {/* Restriction Reason Input */}
-            {showRestrictionReasonInput && (
-              <div className="space-y-2">
-                <Label>{t('userActions.restrictionReason')}</Label>
-                <Textarea
-                  value={restrictionReason}
-                  onChange={(e) => setRestrictionReason(e.target.value)}
-                  placeholder={t('userActions.enterRestrictionReason')}
-                  rows={3}
-                />
-              </div>
-            )}
           </div>
 
           <DialogFooter className="flex space-x-2">
@@ -396,15 +373,15 @@ export default function UserActions({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('confirmDeletion')}</DialogTitle>
+            <DialogTitle>{t('userActions.confirmDeletion')}</DialogTitle>
             <DialogDescription>
-              {t('deleteUserMessage')}
+              {t('userActions.deleteUserMessage')}
             </DialogDescription>
           </DialogHeader>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleting(false)}>
-              {t('cancel')}
+              {t('userActions.cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -413,7 +390,7 @@ export default function UserActions({
                 handleDelete();
               }}
             >
-              {t('deleteUser')}
+              {t('userActions.deleteUser')}
             </Button>
           </DialogFooter>
         </DialogContent>

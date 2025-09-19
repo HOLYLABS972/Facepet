@@ -170,13 +170,13 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       <div className="p-4 border-b">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute ltr:left-3 rtl:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={t('searchPlaceholder')}
-              className="pl-10"
+              className="ltr:pl-10 rtl:pr-10"
               disabled={isLoading}
             />
           </div>

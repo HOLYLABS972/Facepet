@@ -127,9 +127,15 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
     let breedName = petData.breedName || petData.breed;
     console.log('Initial breedName from petData:', breedName);
     
-    // If breedName is already saved and not a placeholder, use it
+    // Convert slug to human-readable text if needed
     if (breedName && !breedName.includes('Unknown') && !breedName.includes('Breed')) {
-      console.log('Using existing breedName from petData:', breedName);
+      try {
+        const { convertBreedSlugToName } = await import('@/src/lib/firebase/breed-utils');
+        breedName = convertBreedSlugToName(breedName);
+        console.log('Converted breedName:', breedName);
+      } catch (error) {
+        console.error('Error converting breed slug:', error);
+      }
     } else if (!breedName && petData.breedId) {
       try {
         // Use local breed data instead of Firebase collection
