@@ -66,10 +66,19 @@ export default function SettingsPage() {
           const userResult = await getUserFromFirestore(user.uid);
           
           if (userResult.success && userResult.user) {
-            // Use Firestore data if available
+            // Use Firestore data if available - prioritize Firestore over Firebase Auth
+            console.log('Loading user data from Firestore:');
+            console.log('- Firebase Auth user.displayName:', user.displayName);
+            console.log('- Firestore userResult.user.displayName:', userResult.user.displayName);
+            console.log('- Firestore userResult.user:', userResult.user);
+            
+            // Prioritize Firestore displayName over Firebase Auth displayName
+            const fullName = userResult.user.displayName || user.displayName || '';
+            console.log('- Final fullName being set (prioritizing Firestore):', fullName);
+            
             setFormData(prev => ({
               ...prev,
-              fullName: user.displayName || userResult.user.displayName || '',
+              fullName: fullName,
               phone: userResult.user.phone || '',
               address: userResult.user.address || '',
               profileImageURL: userResult.user.profileImage || user.photoURL || '',
@@ -132,10 +141,16 @@ export default function SettingsPage() {
   }
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    console.log(`Input change - field: "${field}", value:`, value);
+    
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      };
+      console.log('New formData after input change:', newData);
+      return newData;
+    });
 
     // Auto-save cookie preference immediately
     if (field === 'acceptCookies' && user) {
@@ -275,6 +290,9 @@ export default function SettingsPage() {
         return;
       }
 
+      console.log('Saving profile with formData:', formData);
+      console.log('Full name being saved:', formData.fullName);
+
       // Save to localStorage for immediate access
       localStorage.setItem('acceptCookies', formData.acceptCookies.toString());
       localStorage.setItem('preferredLanguage', formData.language);
@@ -288,6 +306,7 @@ export default function SettingsPage() {
       // Add full name if provided
       if (formData.fullName) {
         updateData.displayName = formData.fullName;
+        console.log('Adding displayName to updateData:', formData.fullName);
       }
 
       // Add phone if provided
@@ -313,8 +332,39 @@ export default function SettingsPage() {
           toast.error('Failed to save some preferences');
         }
       } else {
+        // Also update Firebase Auth profile if displayName was changed
+        if (formData.fullName && formData.fullName !== user.displayName) {
+          try {
+            const { updateProfile } = await import('firebase/auth');
+            await updateProfile(user, {
+              displayName: formData.fullName
+            });
+            console.log('Firebase Auth displayName updated successfully');
+          } catch (authError) {
+            console.error('Failed to update Firebase Auth displayName:', authError);
+            // Don't show error to user since Firestore was updated successfully
+          }
+        }
+        
         if (showToast) {
           toast.success('Profile updated successfully!');
+        }
+        
+        // Reload user data to ensure latest information is displayed
+        if (user) {
+          const userResult = await getUserFromFirestore(user.uid);
+          if (userResult.success && userResult.user) {
+            console.log('Reloading user data after save:', userResult.user);
+            setFormData(prev => ({
+              ...prev,
+              fullName: userResult.user.displayName || user.displayName || '',
+              phone: userResult.user.phone || '',
+              address: userResult.user.address || '',
+              profileImageURL: userResult.user.profileImage || user.photoURL || '',
+              acceptCookies: userResult.user.acceptCookies || false,
+              language: locale
+            }));
+          }
         }
       }
       

@@ -119,13 +119,21 @@ export async function updateUserInFirestore(
   updateData: Partial<UserData>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log('updateUserInFirestore called with:');
+    console.log('- uid:', uid);
+    console.log('- updateData:', updateData);
+    
     const userDocRef = doc(db, 'users', uid);
-    await setDoc(userDocRef, {
+    const finalData = {
       ...updateData,
       updatedAt: new Date(),
-    }, { merge: true });
+    };
+    
+    console.log('Final data being saved to Firestore:', finalData);
+    
+    await setDoc(userDocRef, finalData, { merge: true });
 
-    console.log('User updated in Firestore:', uid);
+    console.log('User updated in Firestore successfully:', uid);
     return { success: true };
   } catch (error: any) {
     console.error('Error updating user in Firestore:', error);
