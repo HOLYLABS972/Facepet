@@ -111,9 +111,10 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
     const petData = petDoc.data();
     
     // Debug: Log the raw pet data
-    console.log('Raw pet data from Firebase:', {
+    console.log('Raw pet data from Firebase (consolidated):', {
       id: petDoc.id,
       name: petData.name,
+      imageUrl: petData.imageUrl,
       breedName: petData.breedName,
       breedId: petData.breedId,
       gender: petData.gender,

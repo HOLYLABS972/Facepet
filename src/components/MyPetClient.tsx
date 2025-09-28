@@ -11,9 +11,8 @@ import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { db } from '@/src/lib/firebase/config';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from '@/i18n/routing';
-import { getBreedNameFromId, convertBreedSlugToName } from '@/src/lib/firebase/breed-utils';
 import { useLocale } from 'next-intl';
 
 interface Pet {
@@ -43,55 +42,65 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
       if (user?.uid && !loading) {
         setPetsLoading(true);
         try {
-          // Query Firestore directly for user's pets
+          // Use the same method as the pet details page for consistency
+          const { getPetWithConsolidatedOwner } = await import('@/src/lib/firebase/consolidated-pet-creation');
+          
+          // First get all pets for this user with a simple query
           const petsRef = collection(db, 'pets');
           const q = query(
             petsRef, 
-            where('userEmail', '==', user.email),
-            orderBy('createdAt', 'desc')
+            where('userEmail', '==', user.email)
           );
           
           const querySnapshot = await getDocs(q);
-          console.log('Query snapshot size:', querySnapshot.size); // Debug log
-          console.log('User email:', user.email); // Debug log
+          console.log('Query snapshot size:', querySnapshot.size);
+          console.log('User email:', user.email);
           
           if (!querySnapshot.empty) {
+            // Use the same data fetching method as pet details page
             const petsData = await Promise.all(querySnapshot.docs.map(async doc => {
-              const data = doc.data();
-              console.log('Pet data:', data); // Debug log
-              
-              // Try different breed field names and formats
-              let breedId = data.breedId || data.breed || data.breedName || '';
-              let localizedBreed = 'Unknown Breed';
-              
-              // If breedId is a number, convert to string
-              if (typeof breedId === 'number') {
-                breedId = breedId.toString();
+              try {
+                // Use the same function that works for the details page
+                const result = await getPetWithConsolidatedOwner(doc.id);
+                
+                if (result.success && result.pet) {
+                  console.log('Pet data from consolidated method:', result.pet);
+                  return {
+                    id: result.pet.id,
+                    name: result.pet.name || 'Unknown Pet',
+                    breed: result.pet.breedName || result.pet.breed || 'Unknown Breed',
+                    image: result.pet.imageUrl || '/default-pet.png'
+                  };
+                } else {
+                  // Fallback to basic data if consolidated method fails
+                  const data = doc.data();
+                  return {
+                    id: doc.id,
+                    name: data.name || 'Unknown Pet',
+                    breed: data.breedName || data.breed || 'Unknown Breed',
+                    image: data.imageUrl || '/default-pet.png'
+                  };
+                }
+              } catch (error) {
+                console.error('Error fetching pet with consolidated method:', error);
+                // Fallback to basic data
+                const data = doc.data();
+                return {
+                  id: doc.id,
+                  name: data.name || 'Unknown Pet',
+                  breed: data.breedName || data.breed || 'Unknown Breed',
+                  image: data.imageUrl || '/default-pet.png'
+                };
               }
-              
-              // If breedId is a slug format, try to convert it
-              if (breedId && breedId.includes('-')) {
-                localizedBreed = convertBreedSlugToName(breedId, locale);
-              } else if (breedId) {
-                localizedBreed = getBreedNameFromId(breedId, locale);
-              }
-              
-              console.log('Breed ID:', breedId, 'Localized breed:', localizedBreed); // Debug log
-              
-              return {
-                id: doc.id,
-                name: data.name || 'Unknown Pet',
-                breed: localizedBreed,
-                image: data.imageUrl || '/default-pet.png'
-              };
             }));
-            console.log('Processed pets data:', petsData); // Debug log
+            
+            console.log('Final processed pets data:', petsData);
             setPets(petsData);
           } else {
             setPets([]);
           }
         } catch (error) {
-          console.log('Error fetching pets from Firestore:', error);
+          console.error('Error fetching pets:', error);
           setPets([]);
         } finally {
           setPetsLoading(false);

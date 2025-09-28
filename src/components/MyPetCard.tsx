@@ -23,6 +23,11 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
   image,
   isEditMode
 }) => {
+  console.log('MyPetCard received image URL:', image);
+  console.log('Image URL type:', typeof image);
+  console.log('Image URL length:', image?.length);
+  console.log('Image URL starts with http:', image?.startsWith('http'));
+  console.log('Image URL starts with https:', image?.startsWith('https'));
   const router = useRouter();
   const direction = useDirection();
 
@@ -37,6 +42,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
   const allImagesLoaded = imagesLoaded === totalImages;
 
   const handleImageLoad = () => {
+    console.log('Image loaded successfully for pet:', name);
     setImagesLoaded((prev) => prev + 1);
   };
 
@@ -62,7 +68,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
     <div
       onClick={handleCardClick}
       className={cn(
-        `bg-primary relative h-[120px] w-full cursor-pointer rounded-2xl shadow-md transition duration-200 hover:shadow-lg active:shadow-lg overflow-hidden`
+        `bg-white relative h-[120px] w-full cursor-pointer rounded-2xl shadow-md transition duration-200 hover:shadow-lg active:shadow-lg overflow-hidden`
       )}
     >
       {/* Options Panel (revealed in edit mode) */}
@@ -93,25 +99,14 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
       <motion.div
         className="absolute top-0 bottom-0 z-10 rounded-2xl bg-white shadow-xs ltr:left-0 rtl:right-0"
         initial={{ width: '100%', x: 0 }}
-        animate={
-          allImagesLoaded
-            ? {
-                width: `calc(100% - ${imageWidth}px + 10px)`,
-                x: isEditMode
-                  ? direction === 'rtl'
-                    ? -optionsPanelWidth
-                    : optionsPanelWidth
-                  : 0
-              }
-            : isEditMode
-            ? {
-                width: `calc(100% - ${optionsPanelWidth}px)`,
-                x: direction === 'rtl'
-                  ? -optionsPanelWidth
-                  : optionsPanelWidth
-              }
-            : { width: '100%', x: 0 }
-        }
+        animate={{
+          width: `calc(100% - ${imageWidth}px - 10px)`, // Always leave space for image
+          x: isEditMode
+            ? direction === 'rtl'
+              ? -optionsPanelWidth
+              : optionsPanelWidth
+            : 0
+        }}
         transition={{ type: 'spring', stiffness: 200, damping: 10 }}
       >
         <div className="flex h-full flex-col justify-between p-4">
@@ -127,10 +122,10 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
 
       {/* Static Image Container */}
       <div
-        className="absolute top-0 bottom-0 ltr:right-0 rtl:left-0"
+        className="absolute top-0 bottom-0 ltr:right-0 rtl:left-0 z-5 bg-transparent"
         style={{ width: `${imageWidth}px` }}
       >
-        <div className="h-full w-full">
+        <div className="h-full w-full bg-transparent">
           {image && image.trim() !== '' && image !== '/default-pet.png' && !image.includes('default') ? (
             <img
               alt={name}
@@ -138,7 +133,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
               width={imageWidth}
               height={cardHeight}
               loading="lazy"
-              className="h-full w-full object-cover rounded-e-2xl"
+              className="h-full w-full object-cover rounded-e-2xl bg-transparent"
               onLoad={handleImageLoad}
               onError={(e) => {
                 console.error('Failed to load pet image:', image);
@@ -146,8 +141,13 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
               }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-e-2xl">
-              <PawPrint className="h-8 w-8 text-gray-400" />
+            <div className="flex h-full w-full items-center justify-center bg-white rounded-e-2xl">
+              <div className="text-center">
+                <PawPrint className="h-8 w-8 text-gray-400 mx-auto mb-1" />
+                <div className="text-xs text-gray-500">
+                  {image ? 'Invalid URL' : 'No Image'}
+                </div>
+              </div>
             </div>
           )}
         </div>

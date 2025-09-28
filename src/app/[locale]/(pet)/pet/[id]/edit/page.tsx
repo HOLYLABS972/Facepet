@@ -11,7 +11,7 @@ interface EditPetPageProps {
 }
 
 export default async function EditPet({ params }: EditPetPageProps) {
-  const { id } = params;
+  const { id } = await params;
   
   const result = await getPetById(id);
   

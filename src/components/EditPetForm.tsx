@@ -119,13 +119,51 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({
-        ...prev,
-        image: file,
-      }));
+    if (!file) return;
+
+    if (!user) {
+      toast.error('Please log in to upload images');
+      return;
+    }
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image size must be less than 10MB');
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      image: file,
+    }));
+
+    setUploadProgress({ progress: 0, status: 'uploading' });
+
+    try {
+      const result = await uploadPetImage(file, user);
+      
+      if (result.success && result.downloadURL) {
+        setFormData(prev => ({
+          ...prev,
+          imageUrl: result.downloadURL || ''
+        }));
+        setUploadProgress({ progress: 100, status: 'completed' });
+        toast.success('Image uploaded successfully');
+      } else {
+        setUploadProgress({ progress: 0, status: 'error' });
+        toast.error(result.error || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploadProgress({ progress: 0, status: 'error' });
+      toast.error('Upload failed. Please try again.');
     }
   };
 
@@ -136,42 +174,32 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     setIsSubmitting(true);
 
     try {
-      let imageUrl = formData.imageUrl;
-
-      // Upload new image if one was selected
-      if (formData.image) {
-        setUploadProgress({ progress: 0, status: 'uploading' });
-        
-        const uploadResult = await uploadPetImage(
-          formData.image,
-          user.uid,
-          (progress) => {
-            setUploadProgress({ progress, status: 'uploading' });
-          }
-        );
-
-        if (uploadResult.success && uploadResult.downloadURL) {
-          imageUrl = uploadResult.downloadURL;
-          setUploadProgress({ progress: 100, status: 'completed' });
-        } else {
-          throw new Error(uploadResult.error || 'Failed to upload image');
-        }
-      }
-
       const petData = {
         name: formData.name,
         type: formData.type,
         breedName: formData.breed,
-        imageUrl,
+        imageUrl: formData.imageUrl, // Use the already uploaded image URL
         birthDate: formData.birthDate,
         gender: formData.gender,
         weight: formData.weight,
         notes: formData.notes,
       };
 
-      await updatePetInFirestore(pet.id, petData);
-      toast.success(t('success'));
-      router.push('/pages/my-pets');
+      console.log('Updating pet with data:', petData);
+      console.log('Original pet name:', pet.name);
+      console.log('Form data name:', formData.name);
+      console.log('Pet data name being sent:', petData.name);
+      
+      const updateResult = await updatePetInFirestore(pet.id, petData);
+      console.log('Update result:', updateResult);
+      
+      if (updateResult.success) {
+        toast.success(t('success'));
+        // Force refresh the page to ensure updated data is displayed
+        window.location.href = '/pages/my-pets';
+      } else {
+        throw new Error(updateResult.error || 'Failed to update pet');
+      }
     } catch (error) {
       console.error('Error updating pet:', error);
       toast.error(t('error'));

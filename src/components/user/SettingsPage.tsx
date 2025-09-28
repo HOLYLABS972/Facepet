@@ -458,11 +458,10 @@ export default function SettingsPage() {
             className="mb-4 p-2"
           >
             {saving ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-4 w-4" />
             )}
-            {saving ? t('saving') : t('back')}
           </Button>
           
           <h1 className="text-3xl font-bold text-gray-900 mb-2">

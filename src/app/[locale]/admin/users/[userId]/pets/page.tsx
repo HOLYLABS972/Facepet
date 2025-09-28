@@ -21,7 +21,7 @@ interface UserPetsPageProps {
 }
 
 export default async function UserPetsPage({ params, searchParams }: UserPetsPageProps) {
-  const { userId } = params;
+  const { userId } = await params;
   const t = await getTranslations('Admin');
   
   // Get user information
@@ -42,14 +42,13 @@ export default async function UserPetsPage({ params, searchParams }: UserPetsPag
         <div className="flex items-center space-x-4">
           <Link href="/admin/users">
             <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t('userPetsPage.backToUsers')}
+              <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
           <div>
             <h1 className="text-3xl font-bold">{t('userPetsPage.title')}</h1>
             <p className="text-gray-600">
-              {t('userPetsPage.description')} <span className="font-medium">{user.fullName || user.email}</span>
+              {t('userPetsPage.description')} <span className="font-medium">{(user as any).fullName || user.email}</span>
             </p>
           </div>
         </div>
