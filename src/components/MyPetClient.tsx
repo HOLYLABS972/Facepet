@@ -137,12 +137,13 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
           <div className="flex items-center gap-2">
             <Button
               variant={isEditMode ? 'default' : 'ghost'}
-              className="h-9 w-9"
+              className="h-9 px-3 flex items-center gap-2"
               onClick={() => setIsEditMode(!isEditMode)}
             >
               <EditIcon
-                className={cn('h-6 w-6', isEditMode ? '' : 'text-gray-400')}
+                className={cn('h-4 w-4', isEditMode ? '' : 'text-gray-400')}
               />
+              <span className="text-sm">{t('edit')}</span>
             </Button>
           </div>
         )}

@@ -378,17 +378,8 @@ export default function SettingsPage() {
     }
   };
 
-  const handleBackWithSave = async () => {
-    try {
-      // Auto-save before navigating back (without showing success toast)
-      await handleSave(false);
-      // Navigate back after saving
-      router.back();
-    } catch (error) {
-      console.error('Error auto-saving on back:', error);
-      // Still navigate back even if save fails
-      router.back();
-    }
+  const handleBack = () => {
+    router.back();
   };
 
   const handleDeleteAccount = async () => {
@@ -501,25 +492,48 @@ export default function SettingsPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Button
-            variant="ghost"
-            onClick={handleBackWithSave}
-            disabled={saving}
-            className="mb-4 p-2"
-          >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowLeft className="h-4 w-4" />
-            )}
-          </Button>
-          
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {t('title')}
-          </h1>
-          <p className="text-gray-600">
-            {t('subtitle')}
-          </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+            <div className="flex items-center gap-4">
+              {/* Back Button */}
+              <Button
+                variant="ghost"
+                onClick={handleBack}
+                className="p-2"
+              >
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+              </Button>
+              
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {t('title')}
+                </h1>
+                <p className="text-gray-600">
+                  {t('subtitle')}
+                </p>
+              </div>
+            </div>
+            
+            {/* Save Button */}
+            <div className="flex justify-end md:justify-start">
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="bg-primary hover:bg-primary/90 text-white px-8"
+              >
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>{t('saving')}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Save className="h-4 w-4" />
+                    <span>{t('saveChanges')}</span>
+                  </div>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Profile Image Section */}
@@ -744,25 +758,6 @@ export default function SettingsPage() {
             className="text-gray-400 hover:text-gray-600 hover:bg-transparent p-2 h-auto font-normal text-sm"
           >
             {deletingAccount ? t('deleteAccount.deleting') : t('deleteAccount.button')}
-          </Button>
-
-          {/* Save Button */}
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-primary hover:bg-primary/90 text-white px-8"
-          >
-            {saving ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>{t('saving')}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Save className="h-4 w-4" />
-                <span>{t('saveChanges')}</span>
-              </div>
-            )}
           </Button>
         </div>
       </div>

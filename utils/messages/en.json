@@ -538,6 +538,7 @@
       "searchPlaceholder": "Search pets...",
       "noResults": "No pets found.",
       "addPet": "Add Pet",
+      "edit": "Edit",
       "noPetsYet": "No pets yet",
       "addFirstPet": "Start by adding your first pet to keep them safe and connected!",
       "scanToAddPet": "Scan an NFC tag to add your first pet!",
