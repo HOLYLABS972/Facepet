@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import GetStartedDatePicker from './get-started/ui/GetStartedDatePicker';
+import FloatingStoreButton from './FloatingStoreButton';
 
 interface Pet {
   id: string;
@@ -64,7 +65,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     breed: pet.breedName || '',
     image: null,
     imageUrl: pet.imageUrl || '',
-    birthDate: pet.birthDate ? (typeof pet.birthDate === 'string' ? pet.birthDate : pet.birthDate.toISOString()) : '',
+    birthDate: pet.birthDate || '',
     gender: pet.gender || '',
     weight: pet.weight || '',
     notes: pet.notes || '',
@@ -451,6 +452,9 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
           </Card>
         </motion.div>
       </div>
+      
+      {/* Floating Store Button */}
+      <FloatingStoreButton />
     </div>
   );
 }

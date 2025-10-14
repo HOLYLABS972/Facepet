@@ -1012,7 +1012,8 @@
       "signOut": "התנתק",
       "signIn": "התחבר",
       "signUp": "הירשם",
-      "adminPanel": "לוח בקרה"
+      "adminPanel": "לוח בקרה",
+      "store": "חנות"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",

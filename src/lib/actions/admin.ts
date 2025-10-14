@@ -1101,6 +1101,7 @@ export interface ContactInfo {
   whatsapp?: string;
   androidAppUrl?: string;
   iosAppUrl?: string;
+  storeUrl?: string;
   isEnabled: boolean;
   updatedAt: Date;
 }
@@ -1129,6 +1130,7 @@ export async function getContactInfo(): Promise<ContactInfo | null> {
       whatsapp: data.whatsapp || '',
       androidAppUrl: data.androidAppUrl || '',
       iosAppUrl: data.iosAppUrl || '',
+      storeUrl: data.storeUrl || '',
       isEnabled: data.isEnabled || false,
       updatedAt: data.updatedAt?.toDate() || new Date()
     };

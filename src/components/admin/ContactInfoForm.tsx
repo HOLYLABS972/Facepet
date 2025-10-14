@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { saveContactInfo, type ContactInfo } from '@/lib/actions/admin';
-import { Loader2, Save, Phone, Mail, MapPin, Settings, Smartphone } from 'lucide-react';
+import { Loader2, Save, Phone, Mail, MapPin, Settings, Smartphone, ShoppingBag } from 'lucide-react';
 
 interface ContactInfoFormProps {
   initialData?: ContactInfo | null;
@@ -29,6 +29,7 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
     whatsapp: '',
     androidAppUrl: '',
     iosAppUrl: '',
+    storeUrl: '',
     isEnabled: false
   });
 
@@ -43,6 +44,7 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
         whatsapp: initialData.whatsapp || '',
         androidAppUrl: initialData.androidAppUrl || '',
         iosAppUrl: initialData.iosAppUrl || '',
+        storeUrl: initialData.storeUrl || '',
         isEnabled: initialData.isEnabled || false
       });
     }
@@ -79,6 +81,7 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
         whatsapp: formData.whatsapp,
         androidAppUrl: formData.androidAppUrl,
         iosAppUrl: formData.iosAppUrl,
+        storeUrl: formData.storeUrl,
         isEnabled: formData.isEnabled
       };
 
@@ -254,6 +257,29 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
                   placeholder="https://apps.apple.com/app/facepet/id123456789"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Store Link */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <ShoppingBag className="h-4 w-4" />
+              Store Link
+            </h3>
+            
+            <div className="space-y-2">
+              <Label htmlFor="storeUrl">Store URL</Label>
+              <Input
+                id="storeUrl"
+                name="storeUrl"
+                type="url"
+                value={formData.storeUrl}
+                onChange={handleChange}
+                placeholder="https://yourstore.com/pets"
+              />
+              <p className="text-sm text-gray-600">
+                This link will appear in the pet edit form dropdown for users to access your store
+              </p>
             </div>
           </div>
 

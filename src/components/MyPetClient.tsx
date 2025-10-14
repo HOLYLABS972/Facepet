@@ -14,6 +14,7 @@ import { db } from '@/src/lib/firebase/config';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
+import FloatingStoreButton from './FloatingStoreButton';
 
 interface Pet {
   id: string;
@@ -185,7 +186,8 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
         </div>
       )}
 
-      {/* Floating Action Button - Removed to force pet creation only through scanning */}
+      {/* Floating Store Button */}
+      <FloatingStoreButton />
     </div>
   );
 };

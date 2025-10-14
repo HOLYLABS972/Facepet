@@ -1009,7 +1009,8 @@
       "signOut": "Sign Out",
       "signIn": "Sign In",
       "signUp": "Sign Up",
-      "adminPanel": "Admin Panel"
+      "adminPanel": "Admin Panel",
+      "store": "Store"
     },
     "Footer": {
       "usefulLinks": "Useful Links",

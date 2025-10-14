@@ -13,7 +13,8 @@ import {
   UserRoundPlus,
   X,
   LayoutDashboard,
-  Mail
+  Mail,
+  ShoppingBag
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -23,6 +24,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { useNotifications } from '@/src/contexts/NotificationsContext';
 import PointsExplenationPopup from '../PointsExplenationPopup';
 import { getUserFromFirestore } from '@/src/lib/firebase/users';
+import { getContactInfo } from '@/src/lib/actions/admin';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import {
@@ -47,10 +49,11 @@ const Navbar = () => {
   const { user, loading, signOut } = useAuth();
   const { notifications } = useNotifications();
   const [userRole, setUserRole] = useState<'user' | 'admin' | 'super_admin' | null>(null);
+  const [storeUrl, setStoreUrl] = useState<string | null>(null);
   const locale = useLocale();
   const router = useRouter();
 
-  // Fetch user role
+  // Fetch user role and store URL
   useEffect(() => {
     const checkUserRole = async () => {
       if (!user) {
@@ -71,7 +74,19 @@ const Navbar = () => {
       }
     };
 
+    const fetchStoreUrl = async () => {
+      try {
+        const contactInfo = await getContactInfo();
+        if (contactInfo?.storeUrl) {
+          setStoreUrl(contactInfo.storeUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching store URL:', error);
+      }
+    };
+
     checkUserRole();
+    fetchStoreUrl();
   }, [user]);
 
   const handleLogout = async () => {
@@ -196,6 +211,19 @@ const Navbar = () => {
                           <span>{t('services')}</span>
                         </Link>
                       </DropdownMenuItem>
+                      {storeUrl && (
+                        <DropdownMenuItem asChild>
+                          <a
+                            href={storeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center cursor-pointer"
+                          >
+                            <ShoppingBag className="mr-2 h-4 w-4" />
+                            <span>{t('store')}</span>
+                          </a>
+                        </DropdownMenuItem>
+                      )}
                       {(userRole === 'admin' || userRole === 'super_admin') && (
                         <DropdownMenuItem asChild>
                           <Link href="/admin" className="flex items-center">

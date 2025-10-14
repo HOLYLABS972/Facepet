@@ -11,6 +11,7 @@ import AdFullPage from './get-started/AdFullPage';
 import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
 import ShareButton from './ShareButton';
+import FloatingStoreButton from './FloatingStoreButton';
 
 const computeAge = (birthDate: string) => {
   const birth = new Date(birthDate);
@@ -225,6 +226,7 @@ export default function PetProfilePage({
     </div>
       </motion.div>
       <ShareButton />
+      <FloatingStoreButton />
       {/* Gift popup disabled temporarily */}
       {/* {showPopup && (
         <GiftPopup
