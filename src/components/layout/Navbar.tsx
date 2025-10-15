@@ -323,6 +323,20 @@ const Navbar = () => {
                         {link.label}
                       </MobileNavLink>
                     ))}
+                    {storeUrl && (
+                      <Button
+                        variant={'ghost'}
+                        type="button"
+                        onClick={() => {
+                          window.open(storeUrl, '_blank', 'noopener,noreferrer');
+                          setIsMenuOpen(false);
+                        }}
+                        className="active:bg-accent flex w-full justify-start gap-5 rounded-md p-2 text-left text-base font-medium text-black transition-colors rtl:text-right"
+                      >
+                        <ShoppingBag className="h-5 w-5" />
+                        {t('store')}
+                      </Button>
+                    )}
                     {(userRole === 'admin' || userRole === 'super_admin') && (
                       <MobileNavLink
                         key="admin"
