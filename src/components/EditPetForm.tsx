@@ -8,11 +8,11 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Upload, Loader2, CheckCircle, XCircle, Save, ArrowLeft } from 'lucide-react';
+import { Upload, Loader2, CheckCircle, XCircle, Save, ArrowLeft, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
 import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import GetStartedDatePicker from './get-started/ui/GetStartedDatePicker';
@@ -59,6 +59,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
   const { user } = useAuth();
   const router = useRouter();
   const t = useTranslations('Pet.edit');
+  const locale = useLocale() as 'en' | 'he';
   const [formData, setFormData] = useState<PetFormData>({
     name: pet.name || '',
     type: pet.type || '',
@@ -75,6 +76,8 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     status: 'completed',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [breeds, setBreeds] = useState<{ value: string; label: string }[]>([]);
   const [genders, setGenders] = useState<{ value: string; label: string }[]>([]);
   const [petTypes, setPetTypes] = useState<{ value: string; label: string }[]>([]);
@@ -86,9 +89,9 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
       try {
         setIsLoadingDropdowns(true);
         const [breedsData, gendersData, typesData] = await Promise.all([
-          getBreedsForDropdown(),
-          getGendersForDropdown(),
-          getPetTypesForDropdown()
+          getBreedsForDropdown(undefined, locale),
+          getGendersForDropdown(locale),
+          getPetTypesForDropdown(locale)
         ]);
         
         setBreeds(breedsData);
@@ -103,7 +106,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     };
 
     fetchDropdownData();
-  }, []);
+  }, [locale]);
 
   const handleInputChange = (field: keyof PetFormData, value: string) => {
     setFormData(prev => ({
@@ -165,6 +168,37 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
       console.error('Upload error:', error);
       setUploadProgress({ progress: 0, status: 'error' });
       toast.error('Upload failed. Please try again.');
+    }
+  };
+
+  const handleDeletePet = async () => {
+    if (!pet.id) {
+      toast.error('Pet ID not found');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/pets/${pet.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        toast.success(t('deleteSuccess'));
+        router.push('/pages/my-pets');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || t('deleteError'));
+      }
+    } catch (error) {
+      console.error('Delete pet error:', error);
+      toast.error(t('deleteError'));
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -360,7 +394,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
 
 
                 {/* Birth Date and Gender */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                   <div className="space-y-2">
                     <GetStartedDatePicker
                       label={t('form.birthDate')}
@@ -383,7 +417,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                       value={formData.gender}
                       onChange={(e) => handleInputChange('gender', e.target.value)}
                       disabled={isLoadingDropdowns}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                      className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                     >
                       <option value="">{isLoadingDropdowns ? 'Loading...' : t('form.selectGender')}</option>
                       {genders.map((gender) => (
@@ -427,8 +461,21 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
 
 
 
-                {/* Action Button */}
-                <div className="flex justify-center pt-6">
+                {/* Action Buttons */}
+                <div className="flex justify-between pt-6">
+                  {/* Delete Button */}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={isSubmitting || isDeleting || uploadProgress.status === 'uploading'}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {t('form.delete')}
+                  </Button>
+
+                  {/* Save Button */}
                   <Button
                     type="submit"
                     disabled={isSubmitting || uploadProgress.status === 'uploading'}
@@ -452,6 +499,47 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
           </Card>
         </motion.div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {t('deleteConfirm.title')}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {t('deleteConfirm.message')}
+            </p>
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+              >
+                {t('deleteConfirm.cancel')}
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeletePet}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t('deleteConfirm.deleting')}
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {t('deleteConfirm.delete')}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Floating Store Button */}
       <FloatingStoreButton />

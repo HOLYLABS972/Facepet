@@ -1,14 +1,21 @@
 import { breedsByType, getLocalizedBreedName } from '../data/breeds';
+import { breedsData } from '../data/comprehensive-breeds';
 
 /**
  * Get breed name from breed ID string
  */
 export function getBreedNameFromId(breedId: string, locale: 'en' | 'he' = 'en'): string {
-  // Iterate through all pet types
+  // First try to find by ID in comprehensive breeds data
+  const breed = breedsData.find(b => String(b.id) === breedId);
+  if (breed) {
+    return locale === 'he' ? breed.he : breed.en;
+  }
+  
+  // Fallback to legacy breed data
   for (const [_, breeds] of Object.entries(breedsByType)) {
-    const breed = breeds.find(b => b.id === breedId);
-    if (breed) {
-      return getLocalizedBreedName(breed, locale);
+    const legacyBreed = breeds.find(b => b.id === breedId);
+    if (legacyBreed) {
+      return getLocalizedBreedName(legacyBreed, locale);
     }
   }
   return locale === 'he' ? 'גזע לא ידוע' : 'Unknown Breed';
@@ -18,11 +25,20 @@ export function getBreedNameFromId(breedId: string, locale: 'en' | 'he' = 'en'):
  * Get breed ID from breed name
  */
 export function getBreedIdFromName(breedName: string): string {
-  // Iterate through all pet types
+  // First try to find in comprehensive breeds data
+  const breed = breedsData.find(b => 
+    b.en.toLowerCase() === breedName.toLowerCase() || 
+    b.he === breedName
+  );
+  if (breed) {
+    return String(breed.id);
+  }
+  
+  // Fallback to legacy breed data
   for (const [_, breeds] of Object.entries(breedsByType)) {
-    const breed = breeds.find(b => b.name === breedName);
-    if (breed) {
-      return breed.id;
+    const legacyBreed = breeds.find(b => b.name === breedName);
+    if (legacyBreed) {
+      return legacyBreed.id;
     }
   }
   return '';
@@ -47,14 +63,23 @@ export function convertBreedSlugToName(breedSlug: string, locale: 'en' | 'he' = 
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
   
-  // Try to find exact match in breed data
+  // Try to find exact match in comprehensive breeds data first
+  const breed = breedsData.find(b => 
+    b.en.toLowerCase() === humanReadable.toLowerCase() ||
+    b.en.toLowerCase() === breedSlug.toLowerCase()
+  );
+  if (breed) {
+    return locale === 'he' ? breed.he : breed.en;
+  }
+  
+  // Fallback to legacy breed data
   for (const [_, breeds] of Object.entries(breedsByType)) {
-    const breed = breeds.find(b => 
+    const legacyBreed = breeds.find(b => 
       b.name.toLowerCase() === humanReadable.toLowerCase() ||
       b.name.toLowerCase() === breedSlug.toLowerCase()
     );
-    if (breed) {
-      return getLocalizedBreedName(breed, locale);
+    if (legacyBreed) {
+      return getLocalizedBreedName(legacyBreed, locale);
     }
   }
   

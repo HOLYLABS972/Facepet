@@ -73,10 +73,10 @@ const GetStartedDatePicker = ({
       <label
         htmlFor={id}
         className={cn(
-          'absolute top-2.5 left-3 w-fit text-sm text-gray-500 transition-all duration-200 ease-in-out rtl:right-3',
+          'absolute top-2.5 left-3 w-fit text-sm text-black transition-all duration-200 ease-in-out rtl:right-3',
           value
-            ? 'text-primary -top-6 text-sm font-medium'
-            : 'top-2.5 text-gray-500'
+            ? 'text-black -top-6 text-sm font-medium'
+            : 'top-2.5 text-black'
         )}
       >
         {label}

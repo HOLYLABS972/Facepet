@@ -1,4 +1,5 @@
 import { getPetTypes, getBreedsByType, getGenders, ALL_BREEDS, ALL_BREEDS_HEBREW } from '../hardcoded-data';
+import { getLocalizedBreedsForType } from '../data/breeds';
 
 export interface DropdownOption {
   value: string;
@@ -11,19 +12,24 @@ export interface DropdownOption {
 export async function getBreedsForDropdown(petType?: string, locale: 'en' | 'he' = 'en'): Promise<DropdownOption[]> {
   try {
     if (petType) {
-      const breeds = getBreedsByType(petType, locale);
+      // Use comprehensive breeds data with proper Hebrew translations
+      const breeds = getLocalizedBreedsForType(petType as 'dog' | 'cat' | 'other', locale);
       return breeds.map(breed => ({
-        value: breed.value,
-        label: breed.label
+        value: breed.id,
+        label: breed.name
       }));
     }
     
-    // Return all breeds if no type specified
-    const allBreeds = locale === 'he' ? ALL_BREEDS_HEBREW : ALL_BREEDS;
+    // Return all breeds if no type specified - combine dog and cat breeds
+    const dogBreeds = getLocalizedBreedsForType('dog', locale);
+    const catBreeds = getLocalizedBreedsForType('cat', locale);
+    const otherBreeds = getLocalizedBreedsForType('other', locale);
+    
+    const allBreeds = [...dogBreeds, ...catBreeds, ...otherBreeds];
     
     return allBreeds.map(breed => ({
-      value: breed.value,
-      label: breed.label
+      value: breed.id,
+      label: breed.name
     }));
   } catch (error) {
     console.error('Error getting breeds for dropdown:', error);

@@ -12,6 +12,7 @@ import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
 import ShareButton from './ShareButton';
 import FloatingStoreButton from './FloatingStoreButton';
+import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
 
 const computeAge = (birthDate: string) => {
   const birth = new Date(birthDate);
@@ -72,7 +73,7 @@ export default function PetProfilePage({
     },
     {
       label: t('labels.breed'),
-      value: pet.breed || pet.breedName || t('labels.notSpecified')
+      value: pet.breed || pet.breedName ? getBreedNameFromId(pet.breed || pet.breedName, locale as 'en' | 'he') : t('labels.notSpecified')
     },
     {
       label: t('labels.gender'),

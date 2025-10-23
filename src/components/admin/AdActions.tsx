@@ -32,6 +32,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
 
 interface Ad {
   id: string;
@@ -46,6 +47,7 @@ interface Ad {
 
 export default function AdActions({ ad }: { ad: Ad }) {
   const t = useTranslations('Admin');
+  const tCommon = useTranslations('common');
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
@@ -68,7 +70,6 @@ export default function AdActions({ ad }: { ad: Ad }) {
 
   const router = useRouter();
 
-  const [tagInput, setTagInput] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -82,13 +83,13 @@ export default function AdActions({ ad }: { ad: Ad }) {
     }));
   };
 
-  const addTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+
+  const addPredefinedTag = (tag: string) => {
+    if (!formData.tags.includes(tag)) {
       setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, tagInput.trim()]
+        tags: [...prev.tags, tag]
       }));
-      setTagInput('');
     }
   };
 
@@ -99,12 +100,6 @@ export default function AdActions({ ad }: { ad: Ad }) {
     }));
   };
 
-  const handleTagKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addTag();
-    }
-  };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -267,24 +262,41 @@ export default function AdActions({ ad }: { ad: Ad }) {
 
             <div className="space-y-2">
               <Label htmlFor="tags">{t('adActions.tags')}</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="tags"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={handleTagKeyPress}
-                  placeholder={t('adActions.addTagPlaceholder')}
-                />
-                <Button type="button" onClick={addTag} variant="outline">{t('adActions.addTag')}</Button>
-              </div>
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.tags.map((tag, index) => (
-                    <span key={index} className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1">
+              
+              {/* Predefined Hebrew Service Tags */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-600">Service Tags (Click to add):</Label>
+                <div className="flex flex-wrap gap-2">
+                  {HEBREW_SERVICE_TAGS.map((tag, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => addPredefinedTag(tag)}
+                      disabled={formData.tags.includes(tag)}
+                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                        formData.tags.includes(tag)
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                      }`}
+                    >
                       {tag}
-                      <button type="button" onClick={() => removeTag(tag)} className="ml-1 hover:text-red-300">×</button>
-                    </span>
+                    </button>
                   ))}
+                </div>
+              </div>
+              
+              {/* Selected Tags */}
+              {formData.tags.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-600">Selected Tags:</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag, index) => (
+                      <span key={index} className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1">
+                        {tag}
+                        <button type="button" onClick={() => removeTag(tag)} className="ml-1 hover:text-red-300">×</button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

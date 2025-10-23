@@ -168,7 +168,7 @@ export default function PetDetailsBottomSheet({
             <CardContent className="space-y-3">
               <div className="flex justify-between">
                 <span className="font-medium text-gray-600">Breed:</span>
-                <span>{getBreedNameFromId(pet.breed, locale)}</span>
+                <span>{getBreedNameFromId(pet.breed, locale as 'en' | 'he')}</span>
               </div>
               
               {pet.age && (

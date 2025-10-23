@@ -19,9 +19,11 @@ import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
 
 export default function AddAdForm() {
   const t = useTranslations('Admin');
+  const tCommon = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -31,7 +33,6 @@ export default function AddAdForm() {
     description: '',
     tags: [] as string[]
   });
-  const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,13 +50,13 @@ export default function AddAdForm() {
     }));
   };
 
-  const addTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+
+  const addPredefinedTag = (tag: string) => {
+    if (!formData.tags.includes(tag)) {
       setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, tagInput.trim()]
+        tags: [...prev.tags, tag]
       }));
-      setTagInput('');
     }
   };
 
@@ -66,12 +67,6 @@ export default function AddAdForm() {
     }));
   };
 
-  const handleTagKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addTag();
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,35 +195,51 @@ export default function AddAdForm() {
 
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>
-            <div className="flex gap-2">
-              <Input
-                id="tags"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={handleTagKeyPress}
-                placeholder="Add a tag and press Enter"
-              />
-              <Button type="button" onClick={addTag} variant="outline">
-                Add
-              </Button>
-            </div>
-            {formData.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {formData.tags.map((tag, index) => (
-                  <span
+            
+            {/* Predefined Hebrew Service Tags */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-600">{tCommon('serviceTags')}</Label>
+              <div className="flex flex-wrap gap-2">
+                {HEBREW_SERVICE_TAGS.map((tag, index) => (
+                  <button
                     key={index}
-                    className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1"
+                    type="button"
+                    onClick={() => addPredefinedTag(tag)}
+                    disabled={formData.tags.includes(tag)}
+                    className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                      formData.tags.includes(tag)
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                    }`}
                   >
                     {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-1 hover:text-red-300"
-                    >
-                      ×
-                    </button>
-                  </span>
+                  </button>
                 ))}
+              </div>
+            </div>
+
+            
+            {/* Selected Tags */}
+            {formData.tags.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-600">{tCommon('selectedTags')}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="ml-1 hover:text-red-300"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>

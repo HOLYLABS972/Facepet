@@ -72,12 +72,22 @@ export interface Pet {
  * Create a new pet in Firestore
  */
 /**
- * Get breed name from breedId
+ * Get breed name from breedId with locale support
  */
-async function getBreedName(breedId: number): Promise<string> {
+async function getBreedName(breedId: number, locale: 'en' | 'he' = 'en'): Promise<string> {
   try {
-    console.log('Looking for breed with ID:', breedId);
-    // Query the breeds collection from Firebase
+    console.log('Looking for breed with ID:', breedId, 'locale:', locale);
+    
+    // First try to find in comprehensive breeds data from breeds.json
+    const { breedsData } = await import('../data/comprehensive-breeds');
+    const breed = breedsData.find(b => b.id === breedId);
+    if (breed) {
+      const breedName = locale === 'he' ? breed.he : breed.en;
+      console.log('Found breed in comprehensive data:', breedName);
+      return breedName;
+    }
+    
+    // Fallback to Firebase breeds collection
     const { collection, query, where, getDocs } = await import('firebase/firestore');
     const breedsRef = collection(db, 'breeds');
     const q = query(breedsRef, where('id', '==', breedId));
@@ -89,9 +99,9 @@ async function getBreedName(breedId: number): Promise<string> {
       const breedDoc = querySnapshot.docs[0];
       const breedData = breedDoc.data();
       console.log('Found breed data:', breedData);
-      const breedName = breedData.labels?.en || breedData.name || 'Unknown Breed';
+      const breedName = locale === 'he' ? (breedData.labels?.he || breedData.he) : (breedData.labels?.en || breedData.en || breedData.name);
       console.log('Returning breed name:', breedName);
-      return breedName;
+      return breedName || 'Unknown Breed';
     }
     
     // If not found by ID, try to get all breeds to see what's available
@@ -99,10 +109,10 @@ async function getBreedName(breedId: number): Promise<string> {
     const allBreedsSnapshot = await getDocs(breedsRef);
     console.log('All breeds in collection:', allBreedsSnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
     
-    return 'Unknown Breed';
+    return locale === 'he' ? 'גזע לא ידוע' : 'Unknown Breed';
   } catch (error) {
     console.error('Error getting breed name:', error);
-    return 'Unknown Breed';
+    return locale === 'he' ? 'גזע לא ידוע' : 'Unknown Breed';
   }
 }
 

@@ -133,7 +133,17 @@
         "notes": "הערות",
         "notesPlaceholder": "הזן הערות או מידע מיוחד",
         "updating": "מעדכן...",
-        "save": "שמור שינויים"
+        "save": "שמור שינויים",
+        "delete": "מחק",
+        "deleteSuccess": "החיה נמחקה בהצלחה",
+        "deleteError": "שגיאה במחיקת החיה",
+        "deleteConfirm": {
+          "title": "מחק חיה",
+          "message": "האם אתה בטוח שברצונך למחוק את החיה הזו? פעולה זו לא ניתנת לביטול.",
+          "cancel": "בטל",
+          "delete": "מחק",
+          "deleting": "מוחק..."
+        }
       },
       "success": "חיית המחמד עודכנה בהצלחה!",
       "error": "שגיאה בעדכון חיית המחמד"
@@ -163,7 +173,6 @@
   "Admin": {
     "dashboard": "לוח בקרה של מנהל",
     "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
-    "loggedInAs": "אתה מחובר כ",
     "loading": "טוען...",
     "unauthorized": "גישה לא מורשית",
     "unauthorizedMessage": "אין לך הרשאה לגשת לדף זה.",
@@ -1013,7 +1022,7 @@
       "signIn": "התחבר",
       "signUp": "הירשם",
       "adminPanel": "לוח בקרה",
-      "store": "חנות"
+      "store": "חנות פייספט"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",
@@ -1044,6 +1053,8 @@
     "InviteFriendsCard": {
       "shareTitle": "הצטרף ל-FacePet",
       "shareText": "בדוק את אפליקציית FacePet לחיות!",
+      "serviceTags": "תגי שירות (לחץ להוספה):",
+      "selectedTags": "תגים נבחרים:",
       "linkCopied": "הלינק הועתק ללוח!",
       "shareError": "משהו השתבש"
     },

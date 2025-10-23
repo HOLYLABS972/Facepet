@@ -99,7 +99,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Sidebar */}
       <div className="bg-secondary-background text-primary sticky top-0 h-screen w-64 p-4">
         <h1 className="text-primary mb-4 p-2 font-['Lobster'] text-4xl">
-          FacePet
+          פייספט
         </h1>
         <nav>
           <ul className="space-y-2">

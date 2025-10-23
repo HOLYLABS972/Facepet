@@ -214,7 +214,7 @@ export default function PetProfilePage({ pet, owner, vet }: PetProfilePageProps)
                     onClick={() => router.push('/')}
                     className="text-primary font-['Lobster'] text-2xl font-bold hover:opacity-80 transition-opacity cursor-pointer"
                   >
-                    FacePet
+                    פייספט
                   </button>
                   <div className="text-xs text-gray-500 mt-1">
                     Powered by NFC technology

@@ -15,6 +15,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import FloatingStoreButton from './FloatingStoreButton';
+import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
 
 interface Pet {
   id: string;
@@ -66,19 +67,51 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
                 
                 if (result.success && result.pet) {
                   console.log('Pet data from consolidated method:', result.pet);
+                  // Get breed name with proper translation
+                  let breedDisplay = result.pet.breedName || result.pet.breed || 'Unknown Breed';
+                  if (result.pet.breedId) {
+                    breedDisplay = getBreedNameFromId(String(result.pet.breedId), locale as 'en' | 'he');
+                  } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
+                    // Try to find the breed in comprehensive data and translate it
+                    const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
+                    const breed = breedsData.find(b => 
+                      b.en.toLowerCase() === breedDisplay.toLowerCase() || 
+                      b.he === breedDisplay
+                    );
+                    if (breed) {
+                      breedDisplay = locale === 'he' ? breed.he : breed.en;
+                    }
+                  }
+                  
                   return {
                     id: result.pet.id,
                     name: result.pet.name || 'Unknown Pet',
-                    breed: result.pet.breedName || result.pet.breed || 'Unknown Breed',
+                    breed: breedDisplay,
                     image: result.pet.imageUrl || '/default-pet.png'
                   };
                 } else {
                   // Fallback to basic data if consolidated method fails
                   const data = doc.data();
+                  // Get breed name with proper translation
+                  let breedDisplay = data.breedName || data.breed || 'Unknown Breed';
+                  if (data.breedId) {
+                    breedDisplay = getBreedNameFromId(String(data.breedId), locale as 'en' | 'he');
+                  } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
+                    // Try to find the breed in comprehensive data and translate it
+                    const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
+                    const breed = breedsData.find(b => 
+                      b.en.toLowerCase() === breedDisplay.toLowerCase() || 
+                      b.he === breedDisplay
+                    );
+                    if (breed) {
+                      breedDisplay = locale === 'he' ? breed.he : breed.en;
+                    }
+                  }
+                  
                   return {
                     id: doc.id,
                     name: data.name || 'Unknown Pet',
-                    breed: data.breedName || data.breed || 'Unknown Breed',
+                    breed: breedDisplay,
                     image: data.imageUrl || '/default-pet.png'
                   };
                 }
@@ -86,10 +119,26 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
                 console.error('Error fetching pet with consolidated method:', error);
                 // Fallback to basic data
                 const data = doc.data();
+                // Get breed name with proper translation
+                let breedDisplay = data.breedName || data.breed || 'Unknown Breed';
+                if (data.breedId) {
+                  breedDisplay = getBreedNameFromId(String(data.breedId), locale as 'en' | 'he');
+                } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
+                  // Try to find the breed in comprehensive data and translate it
+                  const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
+                  const breed = breedsData.find(b => 
+                    b.en.toLowerCase() === breedDisplay.toLowerCase() || 
+                    b.he === breedDisplay
+                  );
+                  if (breed) {
+                    breedDisplay = locale === 'he' ? breed.he : breed.en;
+                  }
+                }
+                
                 return {
                   id: doc.id,
                   name: data.name || 'Unknown Pet',
-                  breed: data.breedName || data.breed || 'Unknown Breed',
+                  breed: breedDisplay,
                   image: data.imageUrl || '/default-pet.png'
                 };
               }

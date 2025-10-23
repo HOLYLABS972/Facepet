@@ -114,7 +114,7 @@ const AuthPage = () => {
           </div>
           <div className="text-center space-y-4">
             <h1 className="text-4xl font-['Lobster'] text-primary">
-              FacePet
+              פייספט
             </h1>
             <p className="text-xl text-gray-600 max-w-md">
               {t('tagline')}

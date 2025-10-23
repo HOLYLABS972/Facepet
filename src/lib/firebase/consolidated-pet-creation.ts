@@ -124,36 +124,27 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       allData: petData
     });
     
-    // Resolve breed name from local data
+    // Resolve breed name from comprehensive breeds data
     let breedName = petData.breedName || petData.breed;
     console.log('Initial breedName from petData:', breedName);
     
-    // Convert slug to human-readable text if needed
-    if (breedName && !breedName.includes('Unknown') && !breedName.includes('Breed')) {
+    // If we have breedId, use it to get the localized breed name
+    if (petData.breedId) {
+      try {
+        const { getBreedNameFromId } = await import('@/src/lib/firebase/breed-utils');
+        breedName = getBreedNameFromId(String(petData.breedId), 'en'); // Default to English for storage
+        console.log('Found breed from breedId:', breedName);
+      } catch (error) {
+        console.error('Error getting breed name from breedId:', error);
+        breedName = 'Unknown Breed';
+      }
+    } else if (breedName && !breedName.includes('Unknown') && !breedName.includes('Breed')) {
       try {
         const { convertBreedSlugToName } = await import('@/src/lib/firebase/breed-utils');
-        breedName = convertBreedSlugToName(breedName);
+        breedName = convertBreedSlugToName(breedName, 'en'); // Default to English for storage
         console.log('Converted breedName:', breedName);
       } catch (error) {
         console.error('Error converting breed slug:', error);
-      }
-    } else if (!breedName && petData.breedId) {
-      try {
-        // Use local breed data instead of Firebase collection
-        const { breedsByType } = await import('@/src/lib/data/breeds');
-        const petType = petData.type || 'dog';
-        const breeds = breedsByType[petType as keyof typeof breedsByType] || [];
-        const breed = breeds.find(b => b.id === String(petData.breedId));
-        
-        if (breed) {
-          breedName = breed.name;
-          console.log('Found breed from local data:', breedName);
-        } else {
-          breedName = 'Unknown Breed';
-        }
-      } catch (error) {
-        console.error('Error getting breed name from local data:', error);
-        breedName = 'Unknown Breed';
       }
     }
     

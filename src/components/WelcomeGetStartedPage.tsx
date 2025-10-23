@@ -52,7 +52,7 @@ export default function WelcomeGetStartedPage() {
       {/* Main Content */}
       <div className="mt-36 px-7">
         <h1 className="text-primary text-center font-['Lobster'] text-[50px] tracking-wide">
-          FacePet
+          פייספט
         </h1>
 
         <div className="text-center text-2xl">

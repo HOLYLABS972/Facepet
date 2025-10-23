@@ -6,8 +6,9 @@ import { ArrowLeft, Smartphone, Tag, Download, ExternalLink } from 'lucide-react
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { getMobileAppLinks } from '@/src/lib/actions/admin';
+import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
 
 interface Pet {
   id: string;
@@ -29,6 +30,7 @@ interface NFCScanPageProps {
 
 export default function NFCScanPage({ pet }: NFCScanPageProps) {
   const t = useTranslations('Pet.nfcTag');
+  const locale = useLocale();
   const [mobileAppLinks, setMobileAppLinks] = useState({
     androidAppUrl: '',
     iosAppUrl: ''
@@ -152,7 +154,7 @@ export default function NFCScanPage({ pet }: NFCScanPageProps) {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">{pet.name}</h2>
-                  <p className="text-gray-600">{pet.breedName}</p>
+                  <p className="text-gray-600">{getBreedNameFromId(pet.breed || pet.breedName, locale as 'en' | 'he')}</p>
                 </div>
               </CardTitle>
             </CardHeader>
