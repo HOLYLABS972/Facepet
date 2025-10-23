@@ -151,7 +151,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
 
         
         <h1 className="text-primary py-4 text-center font-['Lobster'] text-5xl tracking-wide lg:text-7xl">
-          פייספט
+          {t('brand')}
         </h1>
 
         <div className="text-center text-3xl lg:text-4xl">
