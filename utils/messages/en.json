@@ -1041,6 +1041,8 @@
     "InviteFriendsCard": {
       "shareTitle": "Join FacePet",
       "shareText": "Check out FacePet app for pets!",
+      "serviceTags": "Service Tags (Click to add):",
+      "selectedTags": "Selected Tags:",
       "linkCopied": "Link copied to clipboard!",
       "shareError": "Something went wrong"
     },
