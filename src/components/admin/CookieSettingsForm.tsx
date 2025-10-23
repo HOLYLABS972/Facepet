@@ -22,7 +22,7 @@ export default function CookieSettingsForm({ initialData }: CookieSettingsFormPr
   const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
-    cookiesEnabled: false,
+    cookiesEnabled: true, // Always enabled by default
     analyticsEnabled: false,
     marketingEnabled: false,
     necessaryCookiesEnabled: true,
@@ -33,7 +33,7 @@ export default function CookieSettingsForm({ initialData }: CookieSettingsFormPr
   useEffect(() => {
     if (initialData) {
       setFormData({
-        cookiesEnabled: initialData.cookiesEnabled || false,
+        cookiesEnabled: true, // Always enabled
         analyticsEnabled: initialData.analyticsEnabled || false,
         marketingEnabled: initialData.marketingEnabled || false,
         necessaryCookiesEnabled: initialData.necessaryCookiesEnabled !== false,
@@ -119,29 +119,8 @@ export default function CookieSettingsForm({ initialData }: CookieSettingsFormPr
           )}
 
           {/* Main Cookie Toggle */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Cookie Management
-            </h3>
-            
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="space-y-1">
-                <Label htmlFor="cookiesEnabled" className="text-base font-medium">
-                  Enable Cookies
-                </Label>
-                <p className="text-sm text-gray-600">
-                  Allow cookies to be used on your website
-                </p>
-              </div>
-              <Switch
-                id="cookiesEnabled"
-                checked={formData.cookiesEnabled}
-                onCheckedChange={(checked) => handleSwitchChange('cookiesEnabled', checked)}
-              />
-            </div>
-          </div>
-
+          {/* Cookie Management - Removed Enable Cookies switch, cookies work by default */}
+          
           {/* Cookie Categories */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Cookie Categories</h3>

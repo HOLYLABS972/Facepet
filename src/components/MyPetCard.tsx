@@ -81,7 +81,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         <Button
           variant={'secondary'}
           onClick={handleEdit}
-          className="h-[70%] w-full font-medium shadow-none hover:bg-white/20 active:bg-white/20"
+          className="h-[70%] w-full font-medium shadow-none"
         >
           <Pencil className="h-6 w-6" />
         </Button>

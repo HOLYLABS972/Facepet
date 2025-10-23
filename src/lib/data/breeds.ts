@@ -29,7 +29,7 @@ export const breedsByType = {
     { id: 'bird-12', name: 'Quaker Parrot' },
     { id: 'bird-13', name: 'Senegal Parrot' },
     { id: 'bird-14', name: 'Sun Conure' },
-    { id: 'bird-15', name: 'Mixed Breed' }
+    { id: 'bird-15', name: 'Mixed Breed', nameHe: 'גזע מעורב' }
   ],
   fish: [
     { id: 'fish-1', name: 'Goldfish' },
@@ -44,7 +44,7 @@ export const breedsByType = {
     { id: 'fish-10', name: 'Oscar' },
     { id: 'fish-11', name: 'Cichlid' },
     { id: 'fish-12', name: 'Koi' },
-    { id: 'fish-13', name: 'Mixed Breed' }
+    { id: 'fish-13', name: 'Mixed Breed', nameHe: 'גזע מעורב' }
   ],
   rabbit: [
     { id: 'rabbit-1', name: 'Holland Lop' },
@@ -64,7 +64,7 @@ export const breedsByType = {
     { id: 'hamster-3', name: 'Dwarf Winter White' },
     { id: 'hamster-4', name: 'Roborovski Dwarf' },
     { id: 'hamster-5', name: 'Chinese Hamster' },
-    { id: 'hamster-6', name: 'Mixed Breed' }
+    { id: 'hamster-6', name: 'Mixed Breed', nameHe: 'גזע מעורב' }
   ],
   'guinea-pig': [
     { id: 'gp-1', name: 'American' },
@@ -73,7 +73,7 @@ export const breedsByType = {
     { id: 'gp-4', name: 'Silkie' },
     { id: 'gp-5', name: 'Teddy' },
     { id: 'gp-6', name: 'Texel' },
-    { id: 'gp-7', name: 'Mixed Breed' }
+    { id: 'gp-7', name: 'Mixed Breed', nameHe: 'גזע מעורב' }
   ],
   turtle: [
     { id: 'turtle-1', name: 'Red-Eared Slider' },
@@ -105,11 +105,11 @@ export const breedsByType = {
   ferret: [
     { id: 'ferret-1', name: 'Standard' },
     { id: 'ferret-2', name: 'Angora' },
-    { id: 'ferret-3', name: 'Mixed Breed' }
+    { id: 'ferret-3', name: 'Mixed Breed', nameHe: 'גזע מעורב' }
   ],
   other: [
-    { id: 'other-1', name: 'Mixed Breed' },
-    { id: 'other-2', name: 'Unknown' }
+    { id: 'other-1', name: 'Mixed Breed', nameHe: 'גזע מעורב' },
+    { id: 'other-2', name: 'Unknown', nameHe: 'לא ידוע' }
   ]
 };
 

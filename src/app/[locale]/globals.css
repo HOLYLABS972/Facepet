@@ -18,6 +18,58 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+  
+  /* Reset all margins and padding */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  main {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Prevent browser translation overlays */
+  [translate="no"] {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Hide browser translation icons and overlays */
+  .goog-te-banner-frame,
+  .goog-te-gadget-icon,
+  .goog-te-gadget-simple,
+  .goog-te-combo,
+  .goog-te-gadget,
+  .goog-te-menu-value,
+  .goog-te-menu-value span,
+  .goog-te-menu-value:before,
+  .goog-te-menu-value:after,
+  [class*="goog-te"],
+  [id*="goog-te"],
+  .skiptranslate,
+  .notranslate {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Prevent translation overlay on specific elements */
+  button[translate="no"],
+  input[translate="no"],
+  select[translate="no"] {
+    position: relative !important;
+    z-index: 9999 !important;
+  }
 }
 
 @layer utilities {

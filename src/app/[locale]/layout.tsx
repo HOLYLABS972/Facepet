@@ -39,7 +39,9 @@ export const metadata: Metadata = {
   // For meta tags that are not directly supported (like Microsoft's navbutton color),
   // you can add them under the `other` property.
   other: {
-    'msapplication-navbutton-color': '#eff1f6'
+    'msapplication-navbutton-color': '#eff1f6',
+    'google': 'notranslate',
+    'translate': 'no'
   }
 };
 
@@ -66,8 +68,12 @@ export default async function LocaleLayout({
   const direction = locale === 'he' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={direction}>
-      <body className={`${rubik.className} antialiased`}>
+    <html lang={locale} dir={direction} suppressHydrationWarning={true}>
+      <body 
+        className={`${rubik.className} antialiased`} 
+        suppressHydrationWarning={true}
+        data-testim-main-word-scripts-loaded="false"
+      >
         <AuthProvider>
           <NotificationsProvider>
             <NextIntlClientProvider messages={messages}>

@@ -97,17 +97,17 @@ export default function ContactSubmissionsTable({
               placeholder={t('contactSubmissions.searchPlaceholderShort')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-white pr-4 pl-10"
+              className="bg-white pr-4 pl-10 rtl:pr-10 rtl:pl-4"
             />
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+            <Search className="absolute top-1/2 left-3 rtl:right-3 rtl:left-auto h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <button type="submit" className="sr-only">
               Search
             </button>
           </form>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <div className="flex gap-2">
+        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <div className="flex gap-2 rtl:gap-reverse">
             <a
               href={getFilterUrl(null)}
               className={`px-3 py-1 rounded text-sm ${

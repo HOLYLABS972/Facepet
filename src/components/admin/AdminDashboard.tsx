@@ -5,6 +5,7 @@ import { getDashboardStats, getRecentActivity } from '@/lib/actions/admin';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function AdminDashboard() {
   const t = useTranslations('Admin');
@@ -264,68 +265,68 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('userActivity')}</h3>
             <Link
               href={`/${locale}/admin/users`}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 rtl:order-2"
             >
               {t('manageUsers')}
             </Link>
+            <h3 className="text-lg font-semibold text-right rtl:text-right rtl:order-1">{t('userActivity')}</h3>
           </div>
           <div className="overflow-hidden">
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr className="h-10 w-full border-b">
-                  <th className="p-2 text-left">{t('usersManagement.table.name')}</th>
-                  <th className="p-2 text-left">{t('usersManagement.table.email')}</th>
-                  <th className="p-2 text-left">{t('usersManagement.table.joined')}</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('usersManagement.table.name')}</TableHead>
+                  <TableHead>{t('usersManagement.table.email')}</TableHead>
+                  <TableHead>{t('usersManagement.table.joined')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {activity.users.map((user) => (
-                  <tr key={user.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2">{user.fullName}</td>
-                    <td className="p-2 text-sm text-gray-600">{user.email}</td>
-                    <td className="p-2 text-sm">
+                  <TableRow key={user.id}>
+                    <TableCell>{user.fullName}</TableCell>
+                    <TableCell className="text-sm text-gray-600">{user.email}</TableCell>
+                    <TableCell className="text-sm">
                       {formatDate(user.createdAt)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
                 {activity.users.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className='p-2 text-center text-gray-500'>
+                  <TableRow>
+                    <TableCell colSpan={3} className='text-center text-gray-500'>
                       {t('noActivity')}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
 
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('adActivity')}</h3>
             <Link
               href={`/${locale}/admin/ads`}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 rtl:order-2"
             >
               {t('adsManagement.manageAds')}
             </Link>
+            <h3 className="text-lg font-semibold text-right rtl:text-right rtl:order-1">{t('adActivity')}</h3>
           </div>
           <div className="overflow-hidden">
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr className="h-10 w-full border-b">
-                  <th className="p-2 text-left">{t('adsManagement.table.title')}</th>
-                  <th className="p-2 text-left">{t('adsManagement.table.status')}</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('adsManagement.table.title')}</TableHead>
+                  <TableHead>{t('adsManagement.table.status')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {activity.ads.map((ad) => (
-                  <tr key={ad.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2">{ad.title}</td>
-                    <td className="p-2">
+                  <TableRow key={ad.id}>
+                    <TableCell>{ad.title}</TableCell>
+                    <TableCell>
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${
                           ad.status === 'active'
@@ -337,18 +338,18 @@ export default function AdminDashboard() {
                       >
                         {t(`adsManagement.status.${ad.status}`)}
                       </span>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
                 {activity.ads.length === 0 && (
-                  <tr>
-                    <td colSpan={2} className='p-2 text-center text-gray-500'>
+                  <TableRow>
+                    <TableCell colSpan={2} className='text-center text-gray-500'>
                       {t('noActivity')}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { saveContactInfo, type ContactInfo } from '@/lib/actions/admin';
 import { Loader2, Save, Phone, Mail, MapPin, Settings, Smartphone, ShoppingBag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ContactInfoFormProps {
   initialData?: ContactInfo | null;
@@ -16,6 +17,7 @@ interface ContactInfoFormProps {
 
 export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
   const router = useRouter();
+  const t = useTranslations('Admin.settings');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -29,8 +31,7 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
     whatsapp: '',
     androidAppUrl: '',
     iosAppUrl: '',
-    storeUrl: '',
-    isEnabled: false
+    storeUrl: ''
   });
 
   useEffect(() => {
@@ -44,8 +45,7 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
         whatsapp: initialData.whatsapp || '',
         androidAppUrl: initialData.androidAppUrl || '',
         iosAppUrl: initialData.iosAppUrl || '',
-        storeUrl: initialData.storeUrl || '',
-        isEnabled: initialData.isEnabled || false
+        storeUrl: initialData.storeUrl || ''
       });
     }
   }, [initialData]);
@@ -58,12 +58,6 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
     }));
   };
 
-  const handleSwitchChange = (checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      isEnabled: checked
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,8 +75,7 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
         whatsapp: formData.whatsapp,
         androidAppUrl: formData.androidAppUrl,
         iosAppUrl: formData.iosAppUrl,
-        storeUrl: formData.storeUrl,
-        isEnabled: formData.isEnabled
+        storeUrl: formData.storeUrl
       };
 
       console.log('Saving contact info with mobile app links:', contactInfo);
@@ -112,10 +105,10 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
-          Settings
+          {t('title')}
         </CardTitle>
         <CardDescription>
-          Manage your contact information and application settings
+          {t('description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -128,7 +121,7 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
 
           {success && (
             <div className="rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700">
-              Contact information saved successfully!
+              {t('saveSuccess')}
             </div>
           )}
 
@@ -136,45 +129,45 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Phone className="h-4 w-4" />
-              Contact Information
+              {t('contactInformation')}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
+                <Label htmlFor="email">{t('emailAddress')} *</Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="contact@example.com"
+                  placeholder={t('emailPlaceholder')}
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone">{t('phoneNumber')} *</Label>
                 <Input
                   id="phone"
                   name="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder={t('phonePlaceholder')}
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Address *</Label>
+              <Label htmlFor="address">{t('address')} *</Label>
               <Input
                 id="address"
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                placeholder="123 Main Street, City, State, ZIP Code"
+                placeholder={t('addressPlaceholder')}
                 required
               />
             </div>
@@ -184,44 +177,44 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Mail className="h-4 w-4" />
-              Social Media
+              {t('socialMedia')}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="facebook">Facebook</Label>
+                <Label htmlFor="facebook">{t('facebook')}</Label>
                 <Input
                   id="facebook"
                   name="facebook"
                   type="url"
                   value={formData.facebook}
                   onChange={handleChange}
-                  placeholder="https://facebook.com/yourpage"
+                  placeholder={t('facebookPlaceholder')}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram</Label>
+                <Label htmlFor="instagram">{t('instagram')}</Label>
                 <Input
                   id="instagram"
                   name="instagram"
                   type="url"
                   value={formData.instagram}
                   onChange={handleChange}
-                  placeholder="https://instagram.com/yourpage"
+                  placeholder={t('instagramPlaceholder')}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="whatsapp">WhatsApp</Label>
+              <Label htmlFor="whatsapp">{t('whatsapp')}</Label>
               <Input
                 id="whatsapp"
                 name="whatsapp"
                 type="url"
                 value={formData.whatsapp}
                 onChange={handleChange}
-                placeholder="https://wa.me/1234567890"
+                placeholder={t('whatsappPlaceholder')}
               />
             </div>
           </div>
@@ -230,31 +223,31 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Smartphone className="h-4 w-4" />
-              Mobile App Links
+              {t('mobileAppLinks')}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="androidAppUrl">Android App Store URL</Label>
+                <Label htmlFor="androidAppUrl">{t('androidAppStoreUrl')}</Label>
                 <Input
                   id="androidAppUrl"
                   name="androidAppUrl"
                   type="url"
                   value={formData.androidAppUrl}
                   onChange={handleChange}
-                  placeholder="https://play.google.com/store/apps/details?id=com.facepet.app"
+                  placeholder={t('androidPlaceholder')}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="iosAppUrl">iOS App Store URL</Label>
+                <Label htmlFor="iosAppUrl">{t('iosAppStoreUrl')}</Label>
                 <Input
                   id="iosAppUrl"
                   name="iosAppUrl"
                   type="url"
                   value={formData.iosAppUrl}
                   onChange={handleChange}
-                  placeholder="https://apps.apple.com/app/facepet/id123456789"
+                  placeholder={t('iosPlaceholder')}
                 />
               </div>
             </div>
@@ -264,60 +257,38 @@ export default function ContactInfoForm({ initialData }: ContactInfoFormProps) {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <ShoppingBag className="h-4 w-4" />
-              Store Link
+              {t('storeLink')}
             </h3>
             
             <div className="space-y-2">
-              <Label htmlFor="storeUrl">Store URL</Label>
+              <Label htmlFor="storeUrl">{t('storeUrl')}</Label>
               <Input
                 id="storeUrl"
                 name="storeUrl"
                 type="url"
                 value={formData.storeUrl}
                 onChange={handleChange}
-                placeholder="https://yourstore.com/pets"
+                placeholder={t('storePlaceholder')}
               />
               <p className="text-sm text-gray-600">
-                This link will appear in the pet edit form dropdown for users to access your store
+                {t('storeDescription')}
               </p>
             </div>
           </div>
 
-          {/* Cookie Notice Setting */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Cookie Notice
-            </h3>
-            
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="space-y-1">
-                <Label htmlFor="isEnabled" className="text-base font-medium">
-                  Show Cookie Notice
-                </Label>
-                <p className="text-sm text-gray-600">
-                  Display cookie consent banner to website visitors
-                </p>
-              </div>
-              <Switch
-                id="isEnabled"
-                checked={formData.isEnabled}
-                onCheckedChange={handleSwitchChange}
-              />
-            </div>
-          </div>
+          {/* Cookie Notice Setting - Removed, cookies work by default without notice */}
 
           <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Contact Information
+                  {t('saveChanges')}
                 </>
               )}
             </Button>

@@ -9,7 +9,9 @@ import GetStartedDatePicker from './ui/GetStartedDatePicker';
 import GetStartedInput from './ui/GetStartedInput';
 import GetStartedSelect from './ui/GetStartedSelect';
 import ImageUpload from './ui/ImageUpload';
-import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
+import { BreedSelect } from '@/components/ui/breed-select';
+import { cn } from '@/lib/utils';
+import { getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
 
 interface PetDetailsPageProps {
   // No longer need to pass genders and breeds as we'll fetch them from database
@@ -24,7 +26,6 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
   } = useFormContext();
   const t = useTranslations('pages.PetDetailsPage');
   const locale = useLocale() as 'en' | 'he';
-  const [breeds, setBreeds] = useState<{ value: string; label: string }[]>([]);
   const [genders, setGenders] = useState<{ value: string; label: string }[]>([]);
   const [petTypes, setPetTypes] = useState<{ value: string; label: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,33 +66,12 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
     fetchInitialData();
   }, [locale]);
 
-  // Fetch breeds when pet type changes
+  // Reset breed selection when pet type changes
   useEffect(() => {
-    const fetchBreedsForType = async () => {
-      if (selectedPetType) {
-        try {
-          setIsLoading(true);
-          const breedsData = await getBreedsForDropdown(selectedPetType, locale);
-          setBreeds(breedsData);
-          
-          // Reset breed selection when type changes
-          setValue('breed', '');
-        } catch (error) {
-          console.error('Error fetching breeds for type:', error);
-          toast.error('Failed to load breeds');
-          setBreeds([]);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        // Clear breeds when no type is selected
-        setBreeds([]);
-        setValue('breed', '');
-      }
-    };
-
-    fetchBreedsForType();
-  }, [selectedPetType, setValue, locale]);
+    if (selectedPetType) {
+      setValue('breed', '');
+    }
+  }, [selectedPetType, setValue]);
 
   return (
     <Card className="border-none bg-transparent shadow-none">
@@ -149,16 +129,15 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
           name="breed"
           control={control}
           render={({ field }) => (
-            <GetStartedSelect
-              label={t('form.Breed')}
-              id="breed"
-              selectOptions={breeds}
-              hasError={!!errors.breed}
-              disabled={isLoading || !selectedPetType}
+            <BreedSelect
+              petType={selectedPetType as any}
               value={field.value || ''}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              placeholder={!selectedPetType ? t('form.selectTypeFirst') : undefined}
+              onValueChange={field.onChange}
+              className="h-10 border-gray-300 bg-white text-base"
+              label={t('form.Breed')}
+              required={true}
+              hasError={!!errors.breed}
+              disabled={!selectedPetType || (selectedPetType !== 'dog' && selectedPetType !== 'cat')}
             />
           )}
         />

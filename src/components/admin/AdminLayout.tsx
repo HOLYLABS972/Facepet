@@ -164,7 +164,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* User info */}
         <div className="mt-8 p-2 bg-white/10 rounded">
-          <p className="text-sm text-gray-600">{t('loggedInAs')}</p>
           <p className="font-medium">{user.email}</p>
           <p className="text-xs text-gray-500 capitalize">{t(`roles.${userRole}`)}</p>
         </div>

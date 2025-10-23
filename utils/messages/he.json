@@ -171,6 +171,7 @@
     }
   },
   "Admin": {
+    "brand": "פייספט",
     "dashboard": "לוח בקרה של מנהל",
     "welcome": "ברוכים הבאים ללוח הבקרה של המנהל",
     "loading": "טוען...",
@@ -305,6 +306,40 @@
     "manageContactDescription": "צפה והגב לפניות מטופסי הקשר.",
     "settingsManagement": "הגדרות",
     "manageSettingsDescription": "הגדר הגדרות והעדפות הפלטפורמה.",
+    "settings": {
+      "title": "הגדרות",
+      "description": "נהל את פרטי הקשר והגדרות האפליקציה",
+      "contactInformation": "פרטי קשר",
+      "emailAddress": "כתובת אימייל",
+      "phoneNumber": "מספר טלפון",
+      "address": "כתובת",
+      "website": "אתר אינטרנט",
+      "socialMedia": "רשתות חברתיות",
+      "facebook": "פייסבוק",
+      "instagram": "אינסטגרם",
+      "twitter": "טוויטר",
+      "whatsapp": "ווטסאפ",
+      "saveSuccess": "פרטי הקשר נשמרו בהצלחה!",
+      "saveChanges": "שמור שינויים",
+      "saving": "שומר...",
+      "emailPlaceholder": "contact@example.com",
+      "phonePlaceholder": "+972-50-123-4567",
+      "addressPlaceholder": "רחוב הרצל 123, תל אביב",
+      "websitePlaceholder": "https://www.example.com",
+      "facebookPlaceholder": "https://facebook.com/yourpage",
+      "instagramPlaceholder": "https://instagram.com/yourpage",
+      "twitterPlaceholder": "https://twitter.com/yourpage",
+      "whatsappPlaceholder": "+972-50-123-4567",
+      "mobileAppLinks": "קישורי אפליקציה ניידת",
+      "androidAppStoreUrl": "קישור חנות אפליקציות אנדרואיד",
+      "iosAppStoreUrl": "קישור חנות אפליקציות iOS",
+      "storeLink": "קישור חנות",
+      "storeUrl": "כתובת חנות",
+      "storeDescription": "קישור זה יופיע בתפריט הנפתח של עריכת חיית המחמד כדי שמשתמשים יוכלו לגשת לחנות שלך",
+      "androidPlaceholder": "http://android.theholylabs.com/",
+      "iosPlaceholder": "http://ios.theholylabs.com/",
+      "storePlaceholder": "https://www.youtube.com/"
+    },
     "contactSubmissions": {
       "title": "פניות קשר",
       "subtitle": "צפה ונהל פניות מטופסי הקשר של המשתמשים",
@@ -570,7 +605,8 @@
       "feature3Title": "קשר חירום",
       "feature3Description": "וודאו שחיית המחמד שלכם תוחזר במהירות אם היא תלך לאיבוד.",
       "addPetButton": "הוסף את חיית המחמד שלי",
-      "creating": "יוצר..."
+      "creating": "יוצר...",
+      "redirecting": "מפנה לרישום חיית מחמד..."
     },
     "MyGiftsPage": {
       "title": "המתנות שלי",
@@ -738,7 +774,8 @@
         "Gender": "מין",
         "BirthDate": "תאריך לידה",
         "weight": "משקל (קילוגרם)",
-        "Notes": "הערות/ רגישויות/ סוג מזון"
+        "Notes": "הערות/ רגישויות/ סוג מזון",
+        "selectTypeFirst": "אנא בחר סוג חיית מחמד תחילה"
       }
     },
     "OwnerDetailsPage": {
@@ -799,7 +836,7 @@
         "contactDetails": "פרטי התקשרות",
         "veterinaryName": "שם הוטרינר",
         "veterinaryClinic": "מרפאה וטרינרית",
-        "shop": "חנות",
+        "shop": "חנות פייספט",
         "notSpecified": "לא צוין"
       },
       "sections": {
@@ -858,6 +895,7 @@
       "loading": "טוען..."
     },
     "AuthPage": {
+      "brand": "פייספט",
       "welcomeBack": "ברוכים השבים!",
       "createAccount": "צרו את החשבון שלכם",
       "signInToAccount": "התחברו לחשבון FacePet שלכם",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { useTranslations, useLocale } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
@@ -20,6 +20,7 @@ import DeletionVerificationPage from '../auth/DeletionVerificationPage';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations('pages.UserSettingsPage');
   const locale = useLocale();
   const { user, loading: authLoading, sendDeletionVerificationCode, signOut } = useAuth();
@@ -250,7 +251,7 @@ export default function SettingsPage() {
     try {
       console.log('Language change requested:', newLanguage);
       console.log('Current locale:', locale);
-      console.log('Current formData.language:', formData.language);
+      console.log('Current pathname:', pathname);
       
       setFormData(prev => ({
         ...prev,
@@ -260,22 +261,18 @@ export default function SettingsPage() {
       // Save language preference
       localStorage.setItem('preferredLanguage', newLanguage);
       
-      // Get current pathname and remove locale prefix
+      // Use window.location to get the full path and manually construct the new URL
+      // This ensures we don't double up locales
       const currentPath = window.location.pathname;
-      console.log('Current path:', currentPath);
-      
-      // Remove locale prefix if it exists (e.g., /he/settings -> /settings)
       const pathWithoutLocale = currentPath.replace(/^\/[a-z]{2}/, '') || '/';
-      console.log('Path without locale:', pathWithoutLocale);
-      console.log('New language:', newLanguage);
-      
-      // Use window.location to navigate to the new locale
-      // This ensures proper URL construction
       const newUrl = `/${newLanguage}${pathWithoutLocale}`;
+      
+      console.log('Current path:', currentPath);
+      console.log('Path without locale:', pathWithoutLocale);
       console.log('New URL:', newUrl);
       
-      // Navigate to the new URL
-      window.location.href = newUrl;
+      // Use window.location.replace to avoid history issues and ensure proper navigation
+      window.location.replace(newUrl);
     } catch (error) {
       console.error('Error changing language:', error);
       toast.error('Failed to change language');
@@ -379,7 +376,9 @@ export default function SettingsPage() {
   };
 
   const handleBack = () => {
-    router.back();
+    // Navigate to dashboard in current language instead of using browser back
+    // This prevents going back to the previous language route
+    router.push('/pages/my-pets');
   };
 
   const handleDeleteAccount = async () => {

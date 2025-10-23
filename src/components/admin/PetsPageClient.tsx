@@ -173,9 +173,9 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
               name="search"
               placeholder={t('petsManagement.searchPlaceholder')}
               defaultValue={search}
-              className="bg-white pr-4 pl-10"
+              className="bg-white pr-4 pl-10 rtl:pr-10 rtl:pl-4"
             />
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+            <Search className="absolute top-1/2 left-3 rtl:right-3 rtl:left-auto h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <input type="hidden" name="sort" value={sort} />
             <input type="hidden" name="order" value={order} />
             <Button type="submit" className="sr-only">

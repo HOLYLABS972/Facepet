@@ -161,9 +161,9 @@
     }
   },
   "Admin": {
+    "brand": "FacePet",
     "dashboard": "Admin Dashboard",
     "welcome": "Welcome to the Admin Dashboard",
-    "loggedInAs": "You are logged in as",
     "loading": "Loading...",
     "unauthorized": "Unauthorized Access",
     "unauthorizedMessage": "You don't have permission to access this page.",
@@ -268,6 +268,40 @@
     "manageContactDescription": "View and respond to contact form submissions.",
     "settingsManagement": "Settings",
     "manageSettingsDescription": "Configure platform settings and preferences.",
+    "settings": {
+      "title": "Settings",
+      "description": "Manage your contact information and application settings",
+      "contactInformation": "Contact Information",
+      "emailAddress": "Email Address",
+      "phoneNumber": "Phone Number",
+      "address": "Address",
+      "website": "Website",
+      "socialMedia": "Social Media",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "twitter": "Twitter",
+      "whatsapp": "WhatsApp",
+      "saveSuccess": "Contact information saved successfully!",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "emailPlaceholder": "contact@example.com",
+      "phonePlaceholder": "+1-555-123-4567",
+      "addressPlaceholder": "123 Main St, City, State",
+      "websitePlaceholder": "https://www.example.com",
+      "facebookPlaceholder": "https://facebook.com/yourpage",
+      "instagramPlaceholder": "https://instagram.com/yourpage",
+      "twitterPlaceholder": "https://twitter.com/yourpage",
+      "whatsappPlaceholder": "+1-555-123-4567",
+      "mobileAppLinks": "Mobile App Links",
+      "androidAppStoreUrl": "Android App Store URL",
+      "iosAppStoreUrl": "iOS App Store URL",
+      "storeLink": "Store Link",
+      "storeUrl": "Store URL",
+      "storeDescription": "This link will appear in the pet edit form dropdown for users to access your store",
+      "androidPlaceholder": "http://android.theholylabs.com/",
+      "iosPlaceholder": "http://ios.theholylabs.com/",
+      "storePlaceholder": "https://www.youtube.com/"
+    },
     "recentActivity": "Recent Activity",
     "userActivity": "User Activity",
     "petActivity": "Pet Activity",
@@ -563,7 +597,8 @@
       "feature3Title": "Emergency Contact",
       "feature3Description": "Ensure your pet can be quickly returned if they get lost.",
       "addPetButton": "Add My Pet",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "redirecting": "Redirecting to pet registration..."
     },
     "MyGiftsPage": {
       "title": "My Gifts",
@@ -843,6 +878,7 @@
       }
     },
     "AuthPage": {
+      "brand": "FacePet",
       "welcomeBack": "Welcome back!",
       "createAccount": "Create your account",
       "signInToAccount": "Sign in to your FacePet account",
@@ -1010,7 +1046,7 @@
       "signIn": "Sign In",
       "signUp": "Sign Up",
       "adminPanel": "Admin Panel",
-      "store": "Store"
+      "store": "Store Facepet"
     },
     "Footer": {
       "usefulLinks": "Useful Links",

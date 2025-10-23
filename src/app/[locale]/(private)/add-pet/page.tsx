@@ -2,9 +2,11 @@
 
 import { useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 
 export default function AddPetRedirect() {
   const router = useRouter();
+  const t = useTranslations('pages.AddPetPage');
 
   useEffect(() => {
     // Generate a unique pet ID
@@ -24,7 +26,7 @@ export default function AddPetRedirect() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p className="mt-4 text-gray-600">Redirecting to pet registration...</p>
+        <p className="mt-4 text-gray-600">{t('redirecting')}</p>
       </div>
     </div>
   );

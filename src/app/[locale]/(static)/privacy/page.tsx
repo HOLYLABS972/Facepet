@@ -3,21 +3,30 @@
 import { motion } from 'motion/react';
 import { Shield, Eye, Lock, Database, UserCheck, Mail } from 'lucide-react';
 import Footer from '@/src/components/layout/Footer';
+import Navbar from '@/src/components/layout/Navbar';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 export default function PrivacyPage() {
   const t = useTranslations('pages.PrivacyPage');
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-center">
-            <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-          </div>
+    <>
+      {/* Navbar - completely outside all containers */}
+      <Navbar />
+      
+      <div className="min-h-screen bg-gray-50 pt-16">
+        {/* Traffic Light Image */}
+        <div className="flex justify-center py-4 bg-white">
+          <Image 
+            src="/traffic_light.svg" 
+            alt="Traffic Light" 
+            width={100} 
+            height={200}
+            className="object-contain"
+          />
         </div>
-      </div>
-
+        
+        <div className="flex flex-col">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white py-16">
         <div className="container mx-auto px-4 text-center">
@@ -254,8 +263,10 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <Footer />
+        {/* Footer */}
+        <Footer />
+      </div>
     </div>
+    </>
   );
 }

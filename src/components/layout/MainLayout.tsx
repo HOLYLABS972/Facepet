@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children, direction }: MainLayoutProps) => {
   return (
-    <main className="flex min-h-dvh flex-col">
+    <main className="flex min-h-dvh flex-col m-0 p-0 pt-16">
       <DirectionProvider dir={direction}>
         <Toaster />
         {children}
