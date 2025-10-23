@@ -265,7 +265,7 @@ export default function AdActions({ ad }: { ad: Ad }) {
               
               {/* Predefined Hebrew Service Tags */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-600">Service Tags (Click to add):</Label>
+                <Label className="text-sm font-medium text-gray-600">{tCommon('serviceTags')}</Label>
                 <div className="flex flex-wrap gap-2">
                   {HEBREW_SERVICE_TAGS.map((tag, index) => (
                     <button
@@ -288,7 +288,7 @@ export default function AdActions({ ad }: { ad: Ad }) {
               {/* Selected Tags */}
               {formData.tags.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-600">Selected Tags:</Label>
+                  <Label className="text-sm font-medium text-gray-600">{tCommon('selectedTags')}</Label>
                   <div className="flex flex-wrap gap-2">
                     {formData.tags.map((tag, index) => (
                       <span key={index} className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1">
