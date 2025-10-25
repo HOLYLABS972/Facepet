@@ -1,8 +1,10 @@
 'use server';
 
 import { db } from '@/lib/firebase/config';
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp } from 'firebase/firestore';
 import { hash } from 'bcryptjs';
+import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
+import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData } from '@/types/promo';
 
 // DASHBOARD STATISTICS FUNCTIONS
 
@@ -1603,5 +1605,357 @@ export async function saveCookieSettings(cookieSettings: Omit<CookieSettings, 'i
   } catch (error) {
     console.error('Error saving cookie settings:', error);
     return { success: false, error: 'Failed to save cookie settings' };
+  }
+}
+
+// COUPON MANAGEMENT FUNCTIONS
+
+/**
+ * Create a new coupon
+ */
+export async function createCoupon(couponData: CreateCouponData, createdBy: string) {
+  try {
+    const docRef = await addDoc(collection(db, 'coupons'), {
+      ...couponData,
+      isActive: true,
+      createdBy,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error creating coupon:', error);
+    return { success: false, error: 'Failed to create coupon' };
+  }
+}
+
+/**
+ * Get all coupons
+ */
+export async function getCoupons() {
+  try {
+    const q = query(collection(db, 'coupons'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const coupons = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      validFrom: doc.data().validFrom?.toDate() || new Date(),
+      validTo: doc.data().validTo?.toDate() || new Date()
+    }));
+    
+    return { success: true, coupons };
+  } catch (error) {
+    console.error('Error fetching coupons:', error);
+    return { success: false, error: 'Failed to fetch coupons' };
+  }
+}
+
+/**
+ * Get coupon by ID
+ */
+export async function getCouponById(id: string) {
+  try {
+    const docRef = doc(db, 'coupons', id);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const coupon = {
+        id: docSnap.id,
+        ...docSnap.data(),
+        createdAt: docSnap.data().createdAt?.toDate() || new Date(),
+        updatedAt: docSnap.data().updatedAt?.toDate() || new Date(),
+        validFrom: docSnap.data().validFrom?.toDate() || new Date(),
+        validTo: docSnap.data().validTo?.toDate() || new Date()
+      };
+      return { success: true, coupon };
+    }
+    return { success: false, error: 'Coupon not found' };
+  } catch (error) {
+    console.error('Error fetching coupon:', error);
+    return { success: false, error: 'Failed to fetch coupon' };
+  }
+}
+
+/**
+ * Update a coupon
+ */
+export async function updateCoupon(id: string, updateData: UpdateCouponData) {
+  try {
+    const docRef = doc(db, 'coupons', id);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: serverTimestamp()
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating coupon:', error);
+    return { success: false, error: 'Failed to update coupon' };
+  }
+}
+
+/**
+ * Delete a coupon
+ */
+export async function deleteCoupon(id: string) {
+  try {
+    const docRef = doc(db, 'coupons', id);
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting coupon:', error);
+    return { success: false, error: 'Failed to delete coupon' };
+  }
+}
+
+// AUDIENCE MANAGEMENT FUNCTIONS
+
+/**
+ * Create a new audience
+ */
+export async function createAudience(audienceData: CreateAudienceData, createdBy: string) {
+  try {
+    const docRef = await addDoc(collection(db, 'audiences'), {
+      ...audienceData,
+      isActive: true,
+      createdBy,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error creating audience:', error);
+    return { success: false, error: 'Failed to create audience' };
+  }
+}
+
+/**
+ * Get all audiences
+ */
+export async function getAudiences() {
+  try {
+    const q = query(collection(db, 'audiences'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const audiences = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date()
+    }));
+    
+    return { success: true, audiences };
+  } catch (error) {
+    console.error('Error fetching audiences:', error);
+    return { success: false, error: 'Failed to fetch audiences' };
+  }
+}
+
+/**
+ * Update an audience
+ */
+export async function updateAudience(id: string, updateData: UpdateAudienceData) {
+  try {
+    const docRef = doc(db, 'audiences', id);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: serverTimestamp()
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating audience:', error);
+    return { success: false, error: 'Failed to update audience' };
+  }
+}
+
+/**
+ * Delete an audience
+ */
+export async function deleteAudience(id: string) {
+  try {
+    const docRef = doc(db, 'audiences', id);
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting audience:', error);
+    return { success: false, error: 'Failed to delete audience' };
+  }
+}
+
+// BUSINESS MANAGEMENT FUNCTIONS
+
+/**
+ * Create a new business
+ */
+export async function createBusiness(businessData: CreateBusinessData, createdBy: string) {
+  try {
+    const docRef = await addDoc(collection(db, 'businesses'), {
+      ...businessData,
+      isActive: true,
+      createdBy,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error creating business:', error);
+    return { success: false, error: 'Failed to create business' };
+  }
+}
+
+/**
+ * Get all businesses
+ */
+export async function getBusinesses() {
+  try {
+    const q = query(collection(db, 'businesses'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const businesses = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date()
+    }));
+    
+    return { success: true, businesses };
+  } catch (error) {
+    console.error('Error fetching businesses:', error);
+    return { success: false, error: 'Failed to fetch businesses' };
+  }
+}
+
+/**
+ * Update a business
+ */
+export async function updateBusiness(id: string, updateData: UpdateBusinessData) {
+  try {
+    const docRef = doc(db, 'businesses', id);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: serverTimestamp()
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating business:', error);
+    return { success: false, error: 'Failed to update business' };
+  }
+}
+
+/**
+ * Delete a business
+ */
+export async function deleteBusiness(id: string) {
+  try {
+    const docRef = doc(db, 'businesses', id);
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting business:', error);
+    return { success: false, error: 'Failed to delete business' };
+  }
+}
+
+// PROMO MANAGEMENT FUNCTIONS
+
+/**
+ * Create a new promo
+ */
+export async function createPromo(promoData: CreatePromoData, createdBy: string) {
+  try {
+    const docRef = await addDoc(collection(db, 'promos'), {
+      ...promoData,
+      isActive: true,
+      createdBy,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error creating promo:', error);
+    return { success: false, error: 'Failed to create promo' };
+  }
+}
+
+/**
+ * Get all promos
+ */
+export async function getPromos() {
+  try {
+    const q = query(collection(db, 'promos'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const promos = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      startDate: doc.data().startDate?.toDate() || undefined,
+      endDate: doc.data().endDate?.toDate() || undefined
+    }));
+    
+    return { success: true, promos };
+  } catch (error) {
+    console.error('Error fetching promos:', error);
+    return { success: false, error: 'Failed to fetch promos' };
+  }
+}
+
+/**
+ * Get promo by ID
+ */
+export async function getPromoById(id: string) {
+  try {
+    const docRef = doc(db, 'promos', id);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const promo = {
+        id: docSnap.id,
+        ...docSnap.data(),
+        createdAt: docSnap.data().createdAt?.toDate() || new Date(),
+        updatedAt: docSnap.data().updatedAt?.toDate() || new Date(),
+        startDate: docSnap.data().startDate?.toDate() || undefined,
+        endDate: docSnap.data().endDate?.toDate() || undefined
+      };
+      return { success: true, promo };
+    }
+    return { success: false, error: 'Promo not found' };
+  } catch (error) {
+    console.error('Error fetching promo:', error);
+    return { success: false, error: 'Failed to fetch promo' };
+  }
+}
+
+/**
+ * Update a promo
+ */
+export async function updatePromo(id: string, updateData: UpdatePromoData) {
+  try {
+    const docRef = doc(db, 'promos', id);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: serverTimestamp()
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating promo:', error);
+    return { success: false, error: 'Failed to update promo' };
+  }
+}
+
+/**
+ * Delete a promo
+ */
+export async function deletePromo(id: string) {
+  try {
+    const docRef = doc(db, 'promos', id);
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting promo:', error);
+    return { success: false, error: 'Failed to delete promo' };
   }
 }

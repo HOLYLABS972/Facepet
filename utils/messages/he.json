@@ -185,7 +185,8 @@
       "contactSubmissions": "פניות קשר",
       "settings": "הגדרות",
       "manageUsers": "נהל משתמשים",
-      "addUser": "הוסף משתמש"
+      "addUser": "הוסף משתמש",
+      "manageCoupons": "נהל קופונים"
     },
     "stats": {
       "totalAds": "סה\"כ פרסומות",
@@ -211,6 +212,11 @@
       "searchPlaceholder": "חפש לפי כותרת...",
       "addNewAd": "הוסף פרסומת חדשה",
       "addNewAdvertisement": "הוסף פרסומת חדשה",
+      "tabs": {
+        "promo": "קידום",
+        "audience": "קהל יעד",
+        "businesses": "עסקים"
+      },
       "table": {
         "title": "כותרת",
         "type": "סוג",
@@ -457,6 +463,74 @@
         "actions": "פעולות",
         "noPets": "לא נמצאו חיות מחמד."
       }
+    },
+    "couponsManagement": {
+      "title": "ניהול קופונים",
+      "description": "צור, ערוך ונהל קופוני הנחה ללקוחות שלך.",
+      "addNewCoupon": "הוסף קופון חדש",
+      "name": "שם הקופון",
+      "namePlaceholder": "הזן שם קופון",
+      "description": "תיאור",
+      "descriptionPlaceholder": "הזן תיאור קופון",
+      "price": "מחיר",
+      "pricePlaceholder": "0.00",
+      "points": "נקודות",
+      "pointsPlaceholder": "הזן ערך נקודות",
+      "image": "תמונה",
+      "validFrom": "תקף מ",
+      "validTo": "תקף עד",
+      "status": "סטטוס",
+      "createdAt": "נוצר ב",
+      "noCoupons": "לא נמצאו קופונים.",
+      "createCoupon": "צור קופון",
+      "confirmDelete": "האם אתה בטוח שברצונך למחוק את הקופון \"{name}\"?",
+      "activate": "הפעל",
+      "deactivate": "השבת"
+    },
+    "promoManagement": {
+      "title": "ניהול קידומים",
+      "description": "צור, ערוך ונהל קמפיינים קידומיים.",
+      "addNewPromo": "הוסף קידום חדש",
+      "name": "שם הקידום",
+      "namePlaceholder": "הזן שם קידום",
+      "description": "תיאור",
+      "descriptionPlaceholder": "הזן תיאור קידום",
+      "image": "תמונה",
+      "business": "עסק",
+      "businessPlaceholder": "בחר עסק",
+      "audience": "קהל יעד",
+      "audiencePlaceholder": "בחר קהל יעד",
+      "startDate": "תאריך התחלה",
+      "endDate": "תאריך סיום",
+      "status": "סטטוס",
+      "createdAt": "נוצר ב",
+      "noPromos": "לא נמצאו קידומים.",
+      "createPromo": "צור קידום",
+      "confirmDelete": "האם אתה בטוח שברצונך למחוק את הקידום \"{name}\"?",
+      "activate": "הפעל",
+      "deactivate": "השבת"
+    },
+    "audienceManagement": {
+      "title": "ניהול קהל יעד",
+      "description": "צור ונהל קהלי יעד לקמפיינים שלך.",
+      "addNewAudience": "הוסף קהל יעד חדש",
+      "name": "שם קהל היעד",
+      "description": "תיאור",
+      "status": "סטטוס",
+      "createdAt": "נוצר ב",
+      "noAudiences": "לא נמצאו קהלי יעד."
+    },
+    "businessManagement": {
+      "title": "ניהול עסקים",
+      "description": "נהל שותפים עסקיים ואת המידע שלהם.",
+      "addNewBusiness": "הוסף עסק חדש",
+      "name": "שם העסק",
+      "description": "תיאור",
+      "image": "תמונה",
+      "category": "קטגוריה",
+      "status": "סטטוס",
+      "createdAt": "נוצר ב",
+      "noBusinesses": "לא נמצאו עסקים."
     },
     "userPetsPage": {
       "backToUsers": "חזור למשתמשים",
@@ -1060,7 +1134,25 @@
       "signIn": "התחבר",
       "signUp": "הירשם",
       "adminPanel": "לוח בקרה",
-      "store": "חנות פייספט"
+      "store": "חנות פייספט",
+      "coupons": "קופונים"
+    },
+    "UserCoupons": {
+      "title": "חנות קופונים",
+      "description": "קנו קופונים באמצעות הנקודות שלכם ושתפו את קישור ההפניה שלכם כדי להרוויח עוד נקודות!",
+      "myPoints": "הנקודות שלי",
+      "pointsDescription": "הרוויחו נקודות על ידי הרשמה ושיתוף קישור ההפניה שלכם",
+      "referralProgram": "תוכנית הפניה",
+      "referralDescription": "שתפו את הקישור הייחודי שלכם כדי להרוויח נקודות כשאחרים נרשמים",
+      "copyLink": "העתק קישור",
+      "copied": "הועתק!",
+      "availableCoupons": "קופונים זמינים",
+      "noCoupons": "אין קופונים זמינים כרגע",
+      "price": "מחיר",
+      "pointsRequired": "נקודות נדרשות",
+      "validUntil": "תקף עד",
+      "purchase": "קנה",
+      "insufficientPoints": "נקודות לא מספיקות"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",

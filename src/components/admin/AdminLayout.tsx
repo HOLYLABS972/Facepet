@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
-import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Phone, Settings, Mail } from 'lucide-react';
+import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Phone, Settings, Mail, Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -146,6 +146,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Settings className="h-6 w-6" />
                 {t('navigation.settings')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/admin/coupons`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Ticket className="h-6 w-6" />
+                {t('navigation.manageCoupons')}
               </Link>
             </li>
             {isAdmin(userRole) && (

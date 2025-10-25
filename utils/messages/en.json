@@ -175,7 +175,8 @@
       "contactSubmissions": "Contact Submissions",
       "settings": "Settings",
       "manageUsers": "Manage Users",
-      "addUser": "Add User"
+      "addUser": "Add User",
+      "manageCoupons": "Manage Coupons"
     },
     "stats": {
       "totalAds": "Total Ads",
@@ -201,6 +202,11 @@
       "searchPlaceholder": "Search by title...",
       "addNewAd": "Add New Ad",
       "addNewAdvertisement": "Add New Advertisement",
+      "tabs": {
+        "promo": "Promo",
+        "audience": "Audience",
+        "businesses": "Businesses"
+      },
       "table": {
         "title": "Title",
         "type": "Type",
@@ -360,6 +366,74 @@
         "actions": "Actions",
         "noPets": "No pets found."
       }
+    },
+    "couponsManagement": {
+      "title": "Coupons Management",
+      "description": "Create, edit, and manage discount coupons for your customers.",
+      "addNewCoupon": "Add New Coupon",
+      "name": "Coupon Name",
+      "namePlaceholder": "Enter coupon name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter coupon description",
+      "price": "Price",
+      "pricePlaceholder": "0.00",
+      "points": "Points",
+      "pointsPlaceholder": "Enter points value",
+      "image": "Image",
+      "validFrom": "Valid From",
+      "validTo": "Valid To",
+      "status": "Status",
+      "createdAt": "Created At",
+      "noCoupons": "No coupons found.",
+      "createCoupon": "Create Coupon",
+      "confirmDelete": "Are you sure you want to delete the coupon \"{name}\"?",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "promoManagement": {
+      "title": "Promo Management",
+      "description": "Create, edit, and manage promotional campaigns.",
+      "addNewPromo": "Add New Promo",
+      "name": "Promo Name",
+      "namePlaceholder": "Enter promo name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter promo description",
+      "image": "Image",
+      "business": "Business",
+      "businessPlaceholder": "Select business",
+      "audience": "Audience",
+      "audiencePlaceholder": "Select audience",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "status": "Status",
+      "createdAt": "Created At",
+      "noPromos": "No promos found.",
+      "createPromo": "Create Promo",
+      "confirmDelete": "Are you sure you want to delete the promo \"{name}\"?",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "audienceManagement": {
+      "title": "Audience Management",
+      "description": "Create and manage target audiences for your campaigns.",
+      "addNewAudience": "Add New Audience",
+      "name": "Audience Name",
+      "description": "Description",
+      "status": "Status",
+      "createdAt": "Created At",
+      "noAudiences": "No audiences found."
+    },
+    "businessManagement": {
+      "title": "Business Management",
+      "description": "Manage business partners and their information.",
+      "addNewBusiness": "Add New Business",
+      "name": "Business Name",
+      "description": "Description",
+      "image": "Image",
+      "category": "Category",
+      "status": "Status",
+      "createdAt": "Created At",
+      "noBusinesses": "No businesses found."
     },
     "userPetsPage": {
       "backToUsers": "Back to Users",
@@ -1046,7 +1120,25 @@
       "signIn": "Sign In",
       "signUp": "Sign Up",
       "adminPanel": "Admin Panel",
-      "store": "Store Facepet"
+      "store": "Store Facepet",
+      "coupons": "Coupons"
+    },
+    "UserCoupons": {
+      "title": "Coupons Store",
+      "description": "Purchase coupons using your points and share your referral link to earn more points!",
+      "myPoints": "My Points",
+      "pointsDescription": "Earn points by registering and sharing your referral link",
+      "referralProgram": "Referral Program",
+      "referralDescription": "Share your unique link to earn points when others register",
+      "copyLink": "Copy Link",
+      "copied": "Copied!",
+      "availableCoupons": "Available Coupons",
+      "noCoupons": "No coupons available at the moment",
+      "price": "Price",
+      "pointsRequired": "Points Required",
+      "validUntil": "Valid Until",
+      "purchase": "Purchase",
+      "insufficientPoints": "Insufficient Points"
     },
     "Footer": {
       "usefulLinks": "Useful Links",

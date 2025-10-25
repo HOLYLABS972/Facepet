@@ -14,7 +14,8 @@ import {
   X,
   LayoutDashboard,
   Mail,
-  ShoppingBag
+  ShoppingBag,
+  Ticket
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -209,6 +210,12 @@ const Navbar = () => {
                         <Link href="/services" className="flex items-center">
                           <Stethoscope className="mr-2 h-4 w-4" />
                           <span>{t('services')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/coupons" className="flex items-center">
+                          <Ticket className="mr-2 h-4 w-4" />
+                          <span>{t('coupons')}</span>
                         </Link>
                       </DropdownMenuItem>
                       {storeUrl && (
