@@ -3,7 +3,7 @@
 import AnimatedTabs, { TabName } from '@/components/AnimatedTabs';
 import PetCard from '@/components/PetCard';
 import TabContent from '@/components/TabContent';
-import { Ad, useRandomAd } from '@/hooks/useRandomAd';
+import { Promo } from '@/types/promo';
 import { motion } from 'framer-motion';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -26,20 +26,24 @@ export default function PetProfilePage({
   pet,
   owner,
   vet,
-  initialAd
+  initialPromo
 }: {
   pet: any;
   owner?: any;
   vet?: any;
-  initialAd?: Ad | null;
+  initialPromo?: Promo | null;
 }) {
   // Place all hook calls at the top level, unconditionally
   const t = useTranslations('pages.PetProfilePage');
   const locale = useLocale();
   const [showPopup, setShowPopup] = useState(false);
-  const { showAd, adData, handleAdClose } = useRandomAd(initialAd);
+  const [showPromo, setShowPromo] = useState(!!initialPromo);
   const [activeTab, setActiveTab] = useState<TabName>('pet');
   const prevTabRef = useRef<TabName>('pet');
+  
+  const handlePromoClose = () => {
+    setShowPromo(false);
+  };
 
   // Determine available tabs (exclude Vet if no vet data)
   const availableTabs: TabName[] = ['pet', 'owner'];
@@ -181,13 +185,13 @@ export default function PetProfilePage({
   };
 
   // Conditional rendering after all hooks
-  if (showAd && adData?.content) {
+  if (showPromo && initialPromo?.imageUrl) {
     return (
       <AdFullPage
-        type={adData.type}
-        time={adData.duration}
-        content={adData.content}
-        onClose={handleAdClose}
+        type="image"
+        time={5}
+        content={initialPromo.imageUrl}
+        onClose={handlePromoClose}
       />
     );
   }

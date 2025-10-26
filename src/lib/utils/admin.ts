@@ -27,14 +27,22 @@ export const isSuperAdmin = (role: UserRole | null): boolean => {
  */
 export const getUserRole = async (user: User): Promise<UserRole | null> => {
   try {
+    console.log('🔍 Fetching user role for:', user.email, 'UID:', user.uid);
     const userResult = await getUserFromFirestore(user.uid);
+    
     if (userResult.success && userResult.user) {
-      return userResult.user.role || 'user';
+      const role = userResult.user.role || 'user';
+      console.log('✅ User role retrieved:', role);
+      return role;
     }
+    
+    console.log('⚠️ User not found in Firestore, defaulting to "user"');
     return 'user';
   } catch (error) {
-    console.error('Error fetching user role:', error);
-    return null;
+    console.error('❌ Error fetching user role:', error);
+    console.error('Error details:', error);
+    // Default to 'user' instead of null to prevent false negatives
+    return 'user';
   }
 };
 

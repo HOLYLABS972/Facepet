@@ -431,6 +431,9 @@
       "description": "Description",
       "image": "Image",
       "category": "Category",
+      "rating": "Rating",
+      "audience": "Audience",
+      "audiencePlaceholder": "Select audience (optional)",
       "status": "Status",
       "createdAt": "Created At",
       "noBusinesses": "No businesses found."

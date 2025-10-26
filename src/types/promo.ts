@@ -19,8 +19,9 @@ export interface Business {
     phone: string;
     address: string;
   };
-  category: string;
   tags: string[];
+  audienceId?: string;
+  rating?: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -57,8 +58,9 @@ export interface CreateBusinessData {
     phone: string;
     address: string;
   };
-  category: string;
   tags: string[];
+  audienceId?: string;
+  rating?: number;
 }
 
 export interface CreatePromoData {

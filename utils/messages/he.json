@@ -528,6 +528,9 @@
       "description": "תיאור",
       "image": "תמונה",
       "category": "קטגוריה",
+      "rating": "דירוג",
+      "audience": "קהל יעד",
+      "audiencePlaceholder": "בחר קהל יעד (אופציונלי)",
       "status": "סטטוס",
       "createdAt": "נוצר ב",
       "noBusinesses": "לא נמצאו עסקים."

@@ -22,6 +22,7 @@ import { useTranslations } from 'next-intl';
 import { Business } from '@/types/promo';
 import { getBusinesses, updateBusiness, deleteBusiness } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
+import EditBusinessDialog from './EditBusinessDialog';
 
 export default function BusinessesTable() {
   const t = useTranslations('Admin');
@@ -29,6 +30,8 @@ export default function BusinessesTable() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     fetchBusinesses();
@@ -67,6 +70,18 @@ export default function BusinessesTable() {
       setError('Failed to update business');
       console.error(err);
     }
+  };
+
+  const handleEdit = (business: Business) => {
+    console.log('Edit clicked for business:', business);
+    setEditingBusiness(business);
+    setIsEditOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchBusinesses();
+    setIsEditOpen(false);
+    setEditingBusiness(null);
   };
 
   const handleDelete = async (business: Business) => {
@@ -124,7 +139,6 @@ export default function BusinessesTable() {
             <TableRow>
               <TableHead>{t('businessManagement.name')}</TableHead>
               <TableHead>{t('businessManagement.description')}</TableHead>
-              <TableHead>{t('businessManagement.category')}</TableHead>
               <TableHead>Image</TableHead>
               <TableHead>Contact Info</TableHead>
               <TableHead>{t('businessManagement.status')}</TableHead>
@@ -135,7 +149,7 @@ export default function BusinessesTable() {
           <TableBody>
             {businesses.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                   {t('businessManagement.noBusinesses')}
                 </TableCell>
               </TableRow>
@@ -145,11 +159,6 @@ export default function BusinessesTable() {
                   <TableCell className="font-medium">{business.name}</TableCell>
                   <TableCell className="max-w-xs truncate">
                     {business.description}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {business.category}
-                    </Badge>
                   </TableCell>
                   <TableCell>
                     {business.imageUrl ? (
@@ -198,6 +207,10 @@ export default function BusinessesTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(business)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(business)}>
                           {business.isActive ? 'Deactivate' : 'Activate'}
                         </DropdownMenuItem>
@@ -217,6 +230,18 @@ export default function BusinessesTable() {
           </TableBody>
         </Table>
       </div>
+      
+      {editingBusiness && (
+        <EditBusinessDialog
+          business={editingBusiness}
+          isOpen={isEditOpen}
+          onClose={() => {
+            setIsEditOpen(false);
+            setEditingBusiness(null);
+          }}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }

@@ -7,20 +7,11 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
-import { createBusiness, getAudiences } from '@/lib/actions/admin';
-import { PlusCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
-import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
-import { Audience } from '@/types/promo';
 import {
   Select,
   SelectContent,
@@ -29,9 +20,21 @@ import {
   SelectValue
 } from '@/components/ui/select';
 
-export default function AddBusinessForm() {
+import { updateBusiness, getAudiences } from '@/lib/actions/admin';
+import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { Business, Audience } from '@/types/promo';
+import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
+
+interface EditBusinessDialogProps {
+  business: Business;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+export default function EditBusinessDialog({ business, isOpen, onClose, onSuccess }: EditBusinessDialogProps) {
   const t = useTranslations('Admin');
-  const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -50,13 +53,26 @@ export default function AddBusinessForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
-
   useEffect(() => {
     if (isOpen) {
       fetchAudiences();
+      if (business) {
+        setFormData({
+          name: business.name || '',
+          description: business.description || '',
+          imageUrl: business.imageUrl || '',
+          contactInfo: {
+            email: business.contactInfo?.email || '',
+            phone: business.contactInfo?.phone || '',
+            address: business.contactInfo?.address || ''
+          },
+          tags: business.tags || [],
+          audienceId: business.audienceId || '',
+          rating: business.rating?.toString() || ''
+        });
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, business]);
 
   const fetchAudiences = async () => {
     setLoading(true);
@@ -123,9 +139,7 @@ export default function AddBusinessForm() {
     setError(null);
 
     try {
-      console.log('Submitting business data:', formData);
-      
-      const result = await createBusiness({
+      const result = await updateBusiness(business.id, {
         name: formData.name,
         description: formData.description,
         imageUrl: formData.imageUrl,
@@ -133,51 +147,27 @@ export default function AddBusinessForm() {
         tags: formData.tags,
         audienceId: formData.audienceId || undefined,
         rating: formData.rating ? Number(formData.rating) : undefined
-      }, 'admin'); // TODO: Get actual user ID
-
-      console.log('Create business result:', result);
+      });
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to create business');
+        throw new Error(result.error || 'Failed to update business');
       }
 
-      // Reset form and close
-      setFormData({
-        name: '',
-        description: '',
-        imageUrl: '',
-        contactInfo: {
-          email: '',
-          phone: '',
-          address: ''
-        },
-        tags: [],
-        audienceId: '',
-        rating: ''
-      });
-      setIsOpen(false);
-
-      // Refresh the page to show the new business
-      window.location.reload();
+      onSuccess();
+      onClose();
     } catch (err: any) {
-      console.error('Error in handleSubmit:', err);
-      setError(err.message || 'Failed to create business. Please try again.');
+      console.error('Error updating business:', err);
+      setError(err.message || 'Failed to update business. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <PlusCircle className="h-4 w-4" />
-          {t('businessManagement.addNewBusiness')}
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t('businessManagement.addNewBusiness')}</DialogTitle>
+          <DialogTitle>Edit Business</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -341,15 +331,11 @@ export default function AddBusinessForm() {
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Business'}
+              {isSubmitting ? 'Updating...' : 'Update Business'}
             </Button>
           </DialogFooter>
         </form>

@@ -22,6 +22,7 @@ import { useTranslations } from 'next-intl';
 import { Audience } from '@/types/promo';
 import { getAudiences, updateAudience, deleteAudience } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
+import EditAudienceDialog from './EditAudienceDialog';
 
 export default function AudiencesTable() {
   const t = useTranslations('Admin');
@@ -29,6 +30,8 @@ export default function AudiencesTable() {
   const [audiences, setAudiences] = useState<Audience[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingAudience, setEditingAudience] = useState<Audience | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchAudiences();
@@ -67,6 +70,18 @@ export default function AudiencesTable() {
       setError('Failed to update audience');
       console.error(err);
     }
+  };
+
+  const handleEdit = (audience: Audience) => {
+    console.log('Edit clicked for audience:', audience);
+    setEditingAudience(audience);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchAudiences();
+    setIsEditDialogOpen(false);
+    setEditingAudience(null);
   };
 
   const handleDelete = async (audience: Audience) => {
@@ -178,6 +193,10 @@ export default function AudiencesTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(audience)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(audience)}>
                           {audience.isActive ? 'Deactivate' : 'Activate'}
                         </DropdownMenuItem>
@@ -197,6 +216,18 @@ export default function AudiencesTable() {
           </TableBody>
         </Table>
       </div>
+      
+      {editingAudience && (
+        <EditAudienceDialog
+          audience={editingAudience}
+          isOpen={isEditDialogOpen}
+          onClose={() => {
+            setIsEditDialogOpen(false);
+            setEditingAudience(null);
+          }}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }

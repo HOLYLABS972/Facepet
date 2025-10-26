@@ -22,6 +22,7 @@ import { useTranslations } from 'next-intl';
 import { Coupon } from '@/types/coupon';
 import { getCoupons, updateCoupon, deleteCoupon } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
+import EditCouponDialog from './EditCouponDialog';
 
 export default function CouponsTable() {
   const t = useTranslations('Admin');
@@ -29,6 +30,8 @@ export default function CouponsTable() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     fetchCoupons();
@@ -67,6 +70,18 @@ export default function CouponsTable() {
       setError('Failed to update coupon');
       console.error(err);
     }
+  };
+
+  const handleEdit = (coupon: Coupon) => {
+    console.log('Edit clicked for coupon:', coupon);
+    setEditingCoupon(coupon);
+    setIsEditOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchCoupons();
+    setIsEditOpen(false);
+    setEditingCoupon(null);
   };
 
   const handleDelete = async (coupon: Coupon) => {
@@ -198,6 +213,10 @@ export default function CouponsTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(coupon)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(coupon)}>
                           {coupon.isActive ? t('couponsManagement.deactivate') : t('couponsManagement.activate')}
                         </DropdownMenuItem>
@@ -217,6 +236,18 @@ export default function CouponsTable() {
           </TableBody>
         </Table>
       </div>
+      
+      {editingCoupon && (
+        <EditCouponDialog
+          coupon={editingCoupon}
+          isOpen={isEditOpen}
+          onClose={() => {
+            setIsEditOpen(false);
+            setEditingCoupon(null);
+          }}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }

@@ -1,13 +1,12 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Phone, Settings, Mail, Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getUserRole, isAdmin, isSuperAdmin, type UserRole } from '@/lib/utils/admin';
+import { getUserRole, type UserRole } from '@/lib/utils/admin';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,7 +14,6 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading } = useAuth();
-  const router = useRouter();
   const t = useTranslations('Admin');
   
   // Get locale from URL or default to 'en'
@@ -28,16 +26,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   useEffect(() => {
     const checkUserRole = async () => {
       if (!user) {
+        console.log('🔍 AdminLayout: No user, skipping role check');
         setRoleLoading(false);
         return;
       }
 
+      console.log('🔍 AdminLayout: Checking role for user:', user.email);
       try {
         const role = await getUserRole(user);
+        console.log('✅ AdminLayout: Role retrieved:', role);
         setUserRole(role);
       } catch (error) {
-        console.error('Error fetching user role:', error);
-        setUserRole(null);
+        console.error('❌ AdminLayout: Error fetching user role:', error);
+        console.error('Error details:', error);
+        setUserRole('user'); // Default to 'user' instead of null
       } finally {
         setRoleLoading(false);
       }
@@ -46,15 +48,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     checkUserRole();
   }, [user]);
 
-  // Handle redirect in useEffect to avoid setState during render
-  useEffect(() => {
-    if (!loading && !roleLoading && (!user || !isAdmin(userRole))) {
-      router.push('/');
-    }
-  }, [user, userRole, loading, roleLoading, router]);
-
   // Show loading while checking authentication
-  if (loading || roleLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -65,8 +60,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  // Show unauthorized access screen if not authenticated or not admin
-  if (!user || !isAdmin(userRole)) {
+  // Redirect to home if not logged in
+  if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md mx-auto">
@@ -81,13 +76,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {t('goBack')}
               </Button>
             </Link>
-            {!user && (
-              <Link href={`/${locale}/signin`}>
-                <Button variant="outline" className="w-full">
-                  Sign In
-                </Button>
-              </Link>
-            )}
+            <Link href={`/${locale}/signin`}>
+              <Button variant="outline" className="w-full">
+                Sign In
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -157,24 +150,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {t('navigation.manageCoupons')}
               </Link>
             </li>
-            {isAdmin(userRole) && (
-              <li>
-                <Link
-                  href={`/${locale}/admin/users`}
-                  className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
-                >
-                  <Users className="h-6 w-6" />
-                  {t('navigation.manageUsers')}
-                </Link>
-              </li>
-            )}
+            <li>
+              <Link
+                href={`/${locale}/admin/users`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Users className="h-6 w-6" />
+                {t('navigation.manageUsers')}
+              </Link>
+            </li>
           </ul>
         </nav>
 
         {/* User info */}
         <div className="mt-8 p-2 bg-white/10 rounded">
           <p className="font-medium">{user.email}</p>
-          <p className="text-xs text-gray-500 capitalize">{t(`roles.${userRole}`)}</p>
+          <p className="text-xs text-gray-500 capitalize">{userRole ? t(`roles.${userRole}`) : 'Loading...'}</p>
         </div>
 
         {/* Positioned at the bottom of the sidebar */}

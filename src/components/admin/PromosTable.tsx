@@ -17,11 +17,12 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Eye, Image } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Promo, Business, Audience } from '@/types/promo';
 import { getPromos, getBusinesses, getAudiences, updatePromo, deletePromo } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
+import EditPromoDialog from './EditPromoDialog';
 
 export default function PromosTable() {
   const t = useTranslations('Admin');
@@ -31,6 +32,8 @@ export default function PromosTable() {
   const [audiences, setAudiences] = useState<Audience[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingPromo, setEditingPromo] = useState<Promo | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -82,6 +85,18 @@ export default function PromosTable() {
       setError('Failed to update promo');
       console.error(err);
     }
+  };
+
+  const handleEdit = (promo: Promo) => {
+    console.log('Edit clicked for promo:', promo);
+    setEditingPromo(promo);
+    setIsEditOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchData();
+    setIsEditOpen(false);
+    setEditingPromo(null);
   };
 
   const handleDelete = async (promo: Promo) => {
@@ -148,6 +163,7 @@ export default function PromosTable() {
           <TableHeader>
             <TableRow>
               <TableHead>{t('promoManagement.name')}</TableHead>
+              <TableHead>Image</TableHead>
               <TableHead>{t('promoManagement.description')}</TableHead>
               <TableHead>{t('promoManagement.business')}</TableHead>
               <TableHead>{t('promoManagement.audience')}</TableHead>
@@ -159,7 +175,7 @@ export default function PromosTable() {
           <TableBody>
             {promos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                   {t('promoManagement.noPromos')}
                 </TableCell>
               </TableRow>
@@ -167,6 +183,21 @@ export default function PromosTable() {
               promos.map((promo) => (
                 <TableRow key={promo.id}>
                   <TableCell className="font-medium">{promo.name}</TableCell>
+                  <TableCell>
+                    {promo.imageUrl ? (
+                      <div className="w-12 h-12 rounded-md overflow-hidden">
+                        <img 
+                          src={promo.imageUrl} 
+                          alt={promo.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-md bg-gray-100 flex items-center justify-center">
+                        <Image className="h-6 w-6 text-gray-400" />
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {promo.description}
                   </TableCell>
@@ -196,6 +227,10 @@ export default function PromosTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(promo)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(promo)}>
                           {promo.isActive ? t('promoManagement.deactivate') : t('promoManagement.activate')}
                         </DropdownMenuItem>
@@ -215,6 +250,18 @@ export default function PromosTable() {
           </TableBody>
         </Table>
       </div>
+      
+      {editingPromo && (
+        <EditPromoDialog
+          promo={editingPromo}
+          isOpen={isEditOpen}
+          onClose={() => {
+            setIsEditOpen(false);
+            setEditingPromo(null);
+          }}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }

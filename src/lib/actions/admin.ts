@@ -1895,6 +1895,53 @@ export async function getPromos() {
 }
 
 /**
+ * Get a random active promo
+ */
+export async function getRandomActivePromo() {
+  try {
+    const now = new Date();
+    
+    // Get all promos and filter for active ones
+    const promosSnapshot = await getDocs(collection(db, 'promos'));
+    const allPromos = promosSnapshot.docs.map(doc => ({
+      id: doc.id,
+      name: doc.data().name || '',
+      description: doc.data().description || '',
+      imageUrl: doc.data().imageUrl || '',
+      businessId: doc.data().businessId || '',
+      audienceId: doc.data().audienceId || '',
+      isActive: doc.data().isActive || false,
+      startDate: doc.data().startDate?.toDate(),
+      endDate: doc.data().endDate?.toDate(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      createdBy: doc.data().createdBy || ''
+    }));
+
+    const activePromos = allPromos.filter(promo => {
+      // Status is 'active'
+      if (promo.isActive) {
+        return true;
+      }
+      
+      return false;
+    });
+
+    // If no promos available, return null
+    if (activePromos.length === 0) {
+      return null;
+    }
+
+    // Pick a random promo from the available ones
+    const randomIndex = Math.floor(Math.random() * activePromos.length);
+    return activePromos[randomIndex];
+  } catch (error) {
+    console.error('Error getting random active promo:', error);
+    return null;
+  }
+}
+
+/**
  * Get promo by ID
  */
 export async function getPromoById(id: string) {
