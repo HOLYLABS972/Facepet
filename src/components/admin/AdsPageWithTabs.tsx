@@ -42,14 +42,14 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
   const [activeTab, setActiveTab] = useState(searchParams.tab || 'promo');
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto p-4 md:p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">{t('adsManagement.title')}</h1>
-        <p className="text-gray-600 mt-2">{t('adsManagement.description')}</p>
+        <h1 className="text-2xl md:text-3xl font-bold">{t('adsManagement.title')}</h1>
+        <p className="text-gray-600 mt-2 text-sm md:text-base">{t('adsManagement.description')}</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-3 overflow-x-auto">
           <TabsTrigger value="promo" className="flex items-center gap-2">
             <Megaphone className="h-4 w-4" />
             {t('adsManagement.tabs.promo')}
@@ -65,12 +65,12 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
         </TabsList>
 
         <TabsContent value="promo" className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {t('promoManagement.title')}
               </h2>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 mt-2 text-sm md:text-base">
                 {t('promoManagement.description')}
               </p>
             </div>
@@ -81,12 +81,12 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
         </TabsContent>
 
         <TabsContent value="audience" className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {t('audienceManagement.title')}
               </h2>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 mt-2 text-sm md:text-base">
                 {t('audienceManagement.description')}
               </p>
             </div>
@@ -97,12 +97,12 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
         </TabsContent>
 
         <TabsContent value="businesses" className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {t('businessManagement.title')}
               </h2>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 mt-2 text-sm md:text-base">
                 {t('businessManagement.description')}
               </p>
             </div>
