@@ -20,6 +20,7 @@ export interface Business {
     address: string;
   };
   category: string;
+  tags: string[];
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -57,6 +58,7 @@ export interface CreateBusinessData {
     address: string;
   };
   category: string;
+  tags: string[];
 }
 
 export interface CreatePromoData {

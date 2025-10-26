@@ -32,8 +32,10 @@ export default function AddBusinessForm() {
       phone: '',
       address: ''
     },
-    category: ''
+    category: '',
+    tags: [] as string[]
   });
+  const [newTag, setNewTag] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +63,23 @@ export default function AddBusinessForm() {
     }
   };
 
+  const addTag = () => {
+    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -74,7 +93,8 @@ export default function AddBusinessForm() {
         description: formData.description,
         imageUrl: formData.imageUrl,
         contactInfo: formData.contactInfo,
-        category: formData.category
+        category: formData.category,
+        tags: formData.tags
       }, 'admin'); // TODO: Get actual user ID
 
       console.log('Create business result:', result);
@@ -93,8 +113,10 @@ export default function AddBusinessForm() {
           phone: '',
           address: ''
         },
-        category: ''
+        category: '',
+        tags: []
       });
+      setNewTag('');
       setIsOpen(false);
 
       // Refresh the page to show the new business
@@ -173,6 +195,47 @@ export default function AddBusinessForm() {
               placeholder="Enter business category"
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <div className="flex gap-2">
+              <Input
+                id="tags"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Enter tag"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
+              />
+              <Button type="button" onClick={addTag} variant="outline">
+                Add
+              </Button>
+            </div>
+            
+            {formData.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="ml-1 hover:text-red-300"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">

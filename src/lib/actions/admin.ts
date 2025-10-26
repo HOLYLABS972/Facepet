@@ -1040,52 +1040,43 @@ export async function getRandomActiveAd() {
  */
 export async function getActiveAdsForServices() {
   try {
-    const now = new Date();
+    // Fetch businesses instead of advertisements
+    const businessesSnapshot = await getDocs(collection(db, 'businesses'));
     
-    // Get all ads and filter for active ones
-    const adsSnapshot = await getDocs(collection(db, 'advertisements'));
-    
-    const allAds = adsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      title: doc.data().title || '',
-      type: doc.data().type || 'banner',
-      content: doc.data().content || '',
-      duration: doc.data().duration || 0,
-      status: doc.data().status || 'draft',
-      startDate: doc.data().startDate?.toDate(),
-      endDate: doc.data().endDate?.toDate(),
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      
-      // Service-specific fields
-      phone: doc.data().phone || '',
-      location: doc.data().location || '',
-      description: doc.data().description || '',
-      tags: doc.data().tags || [],
-      reviews: doc.data().reviews || [],
-      averageRating: doc.data().averageRating || 0,
-      totalReviews: doc.data().totalReviews || 0
-    }));
-
-    const activeAds = allAds.filter(ad => {
-      // Status is 'active'
-      if (ad.status === 'active') {
-        return true;
-      }
-      
-      // Status is 'scheduled' and within date range
-      if (ad.status === 'scheduled' && ad.startDate && ad.endDate) {
-        return now >= ad.startDate && now <= ad.endDate;
-      }
-      
-      return false;
+    const businesses = businessesSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.name || '',
+        type: 'business',
+        content: data.description || '',
+        duration: 0,
+        status: data.isActive ? 'active' : 'inactive',
+        startDate: null,
+        endDate: null,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        
+        // Map business fields to ad structure
+        phone: data.contactInfo?.phone || '',
+        location: data.contactInfo?.address || '',
+        description: data.description || '',
+        tags: data.tags || (data.category ? [data.category] : []),
+        reviews: [],
+        averageRating: 0,
+        totalReviews: 0,
+        imageUrl: data.imageUrl || ''
+      };
     });
 
-    // Sort by creation date (newest first)
-    activeAds.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    // Filter only active businesses
+    const activeBusinesses = businesses.filter(business => business.status === 'active');
 
-    return activeAds;
+    // Sort by creation date (newest first)
+    activeBusinesses.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    return activeBusinesses;
   } catch (error) {
-    console.error('Error getting active ads for services:', error);
+    console.error('Error getting businesses for services:', error);
     return [];
   }
 }

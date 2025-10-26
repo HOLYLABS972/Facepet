@@ -36,11 +36,11 @@ interface ServicesPageProps {
 
 
 // Function to convert ad to service format
-const convertAdToService = (ad: Ad) => {
+const convertAdToService = (ad: Ad & { imageUrl?: string }) => {
   return {
     id: ad.id, // Add ad ID for comments
     location: ad.location || 'ישראל',
-    image: ad.content || 'https://via.placeholder.com/300x200?text=Service+Image',
+    image: ad.imageUrl || ad.content || 'https://via.placeholder.com/300x200?text=Service+Image',
     name: ad.title,
     // Use real tags from the ad - if no tags exist, use empty array instead of fallback
     tags: ad.tags || [],
