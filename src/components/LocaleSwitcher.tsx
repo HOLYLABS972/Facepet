@@ -17,7 +17,7 @@ const LocaleSwitcher: React.FC = () => {
 
   const handleLocaleChange = (newLocale: string) => {
     localStorage.setItem('preferredLocale', newLocale);
-    router.push(`/${newLocale}`);
+    router.push(`/${newLocale}/pages/my-pets`);
   };
 
   return (

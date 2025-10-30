@@ -261,14 +261,9 @@ export default function SettingsPage() {
       // Save language preference
       localStorage.setItem('preferredLanguage', newLanguage);
       
-      // Use window.location to get the full path and manually construct the new URL
-      // This ensures we don't double up locales
-      const currentPath = window.location.pathname;
-      const pathWithoutLocale = currentPath.replace(/^\/[a-z]{2}/, '') || '/';
-      const newUrl = `/${newLanguage}${pathWithoutLocale}`;
+      // Always redirect to My Pets after switching language
+      const newUrl = `/${newLanguage}/pages/my-pets`;
       
-      console.log('Current path:', currentPath);
-      console.log('Path without locale:', pathWithoutLocale);
       console.log('New URL:', newUrl);
       
       // Use window.location.replace to avoid history issues and ensure proper navigation
