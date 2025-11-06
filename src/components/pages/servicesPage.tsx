@@ -1,14 +1,16 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Search, Map, List } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState, useEffect } from 'react';
 import ServiceCard from '../ServiceCard';
 import { Input } from '../ui/input';
 import { FilterChips, FilterChip } from '../ui/filter-chips';
 import { TagsFilter } from '../ui/tags-filter';
+import { Button } from '../ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserFavorites, getAllAdTags } from '@/lib/firebase/favorites';
+import ServicesMapView from './ServicesMapView';
 
 interface Ad {
   id: string;
@@ -60,6 +62,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
   const [favoriteAdIds, setFavoriteAdIds] = useState<string[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'favorites'>('all');
   const [isLoadingTags, setIsLoadingTags] = useState(true);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   // Convert ads to services
   const services = ads.map(convertAdToService);
@@ -124,7 +127,31 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
 
   return (
     <>
-      <h1 className="mb-4 text-2xl font-bold">{t('title')}</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        
+        {/* View Toggle */}
+        <div className="flex gap-2 border rounded-lg p-1 bg-white">
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="flex items-center gap-2"
+          >
+            <List className="w-4 h-4" />
+            <span className="hidden sm:inline">{t('map.listView') || 'List'}</span>
+          </Button>
+          <Button
+            variant={viewMode === 'map' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('map')}
+            className="flex items-center gap-2"
+          >
+            <Map className="w-4 h-4" />
+            <span className="hidden sm:inline">{t('map.mapView') || 'Map'}</span>
+          </Button>
+        </div>
+      </div>
       
       {/* Search Bar */}
       <div className="relative mb-4 h-9 rounded-lg bg-white">
@@ -163,22 +190,45 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
         </div>
       )}
 
-      {/* Results */}
-      {filteredServices.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">{t('noResults')}</p>
-          {ads.length === 0 && (
-            <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
+      {/* Results - List View */}
+      {viewMode === 'list' && (
+        <>
+          {filteredServices.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">{t('noResults')}</p>
+              {ads.length === 0 && (
+                <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
+              )}
+              {filterType === 'favorites' && favoriteAdIds.length === 0 && (
+                <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {filteredServices.map((service, index) => (
+                <ServiceCard key={`${service.name}-${index}`} service={service} />
+              ))}
+            </div>
           )}
-          {filterType === 'favorites' && favoriteAdIds.length === 0 && (
-            <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
+        </>
+      )}
+
+      {/* Results - Map View */}
+      {viewMode === 'map' && (
+        <div className="w-full" style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}>
+          {filteredServices.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">{t('noResults')}</p>
+              {ads.length === 0 && (
+                <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
+              )}
+              {filterType === 'favorites' && favoriteAdIds.length === 0 && (
+                <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
+              )}
+            </div>
+          ) : (
+            <ServicesMapView services={filteredServices} />
           )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {filteredServices.map((service, index) => (
-            <ServiceCard key={`${service.name}-${index}`} service={service} />
-          ))}
         </div>
       )}
     </>

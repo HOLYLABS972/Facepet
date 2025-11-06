@@ -166,8 +166,8 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Business</DialogTitle>
+        <DialogHeader className="text-center pr-8">
+          <DialogTitle className="text-center">Edit Business</DialogTitle>
         </DialogHeader>
 
         {error && (

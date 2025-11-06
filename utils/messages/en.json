@@ -693,6 +693,16 @@
       "tagsFilter": {
         "placeholder": "Filter by tags...",
         "clearAll": "Clear all"
+      },
+      "map": {
+        "listView": "List",
+        "mapView": "Map",
+        "findNearby": "Find services near you",
+        "locationPermission": "Allow location access to see closest services",
+        "useMyLocation": "Use My Location",
+        "locationDenied": "Location access denied. Showing all services.",
+        "closestServices": "Closest Services:",
+        "loading": "Loading map..."
       }
     },
 

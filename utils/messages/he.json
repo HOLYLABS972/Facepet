@@ -701,6 +701,16 @@
       "tagsFilter": {
         "placeholder": "סנן לפי תגיות...",
         "clearAll": "נקה הכל"
+      },
+      "map": {
+        "listView": "רשימה",
+        "mapView": "מפה",
+        "findNearby": "מצא שירותים קרובים",
+        "locationPermission": "אפשר גישה למיקום כדי לראות את השירותים הקרובים ביותר",
+        "useMyLocation": "השתמש במיקום שלי",
+        "locationDenied": "גישה למיקום נדחתה. מציג את כל השירותים.",
+        "closestServices": "השירותים הקרובים ביותר:",
+        "loading": "טוען מפה..."
       }
     },
 
