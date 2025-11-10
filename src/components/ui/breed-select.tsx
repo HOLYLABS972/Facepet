@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { Check, ChevronsUpDown, Filter, Clock, Star } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/src/lib/utils';
 import { Button } from './button';
@@ -18,7 +18,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from './popover';
+import { Badge } from './badge';
 import { getLocalizedBreedsForType, type PetType } from '@/src/lib/data/breeds';
+import { HebrewAlphabetFilter, HebrewLetterRangeSelector } from './hebrew-alphabet-filter';
+import { sortHebrewStrings, compareHebrew } from '@/src/lib/utils/hebrew-sort';
+import { 
+  fuzzySearch, 
+  getSuggestions, 
+  RecentSelectionsManager, 
+  debounce,
+  type AutocompleteItem,
+  type AutocompleteMatch 
+} from '@/src/lib/utils/autocomplete';
 
 interface BreedSelectProps {
   petType: PetType;
@@ -47,22 +58,86 @@ export function BreedSelect({
   const locale = useLocale() as 'en' | 'he';
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [showHebrewFilter, setShowHebrewFilter] = useState(false);
+  const [hebrewFilteredBreeds, setHebrewFilteredBreeds] = useState<Array<{ id: string; name: string }>>([]);
+  const [autocompleteMatches, setAutocompleteMatches] = useState<AutocompleteMatch[]>([]);
+  const [recentSelections, setRecentSelections] = useState<string[]>([]);
+
+  // Initialize recent selections manager
+  const recentManager = useMemo(() => 
+    new RecentSelectionsManager(`breed-recent-${petType}-${locale}`, 5), 
+    [petType, locale]
+  );
+
+  // Load recent selections on mount
+  useEffect(() => {
+    setRecentSelections(recentManager.getRecent());
+  }, [recentManager]);
 
   const breeds = useMemo(() => {
     try {
-      return getLocalizedBreedsForType(petType, locale);
+      const breedList = getLocalizedBreedsForType(petType, locale);
+      // Sort Hebrew breeds alphabetically when in Hebrew locale
+      if (locale === 'he') {
+        return breedList.sort((a, b) => compareHebrew(a.name, b.name));
+      }
+      return breedList;
     } catch (error) {
       console.error('Error getting breeds for type:', petType, error);
       return [];
     }
   }, [petType, locale]);
   
+  // Use Hebrew filtered breeds if Hebrew filter is active, otherwise use all breeds
+  const breedsToFilter = hebrewFilteredBreeds.length > 0 ? hebrewFilteredBreeds : breeds;
+  
+  // Convert breeds to autocomplete items
+  const autocompleteItems: AutocompleteItem[] = useMemo(() => 
+    breedsToFilter.map(breed => ({
+      id: breed.id,
+      name: breed.name,
+      ...breed
+    })), 
+    [breedsToFilter]
+  );
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      const matches = getSuggestions(query, autocompleteItems, recentSelections, {
+        limit: 15,
+        includeRecent: true,
+        minScore: query.trim() ? 5 : 0
+      });
+      setAutocompleteMatches(matches);
+    }, 150),
+    [autocompleteItems, recentSelections]
+  );
+
+  // Update search results when search value changes
+  useEffect(() => {
+    debouncedSearch(searchValue);
+  }, [searchValue, debouncedSearch]);
+
+  // Initialize matches when component mounts or breeds change
+  useEffect(() => {
+    if (autocompleteItems.length > 0) {
+      const initialMatches = getSuggestions('', autocompleteItems, recentSelections, {
+        limit: 15,
+        includeRecent: true
+      });
+      setAutocompleteMatches(initialMatches);
+    }
+  }, [autocompleteItems, recentSelections]);
+
   const filteredBreeds = useMemo(() => {
-    if (!searchValue) return breeds;
-    return breeds.filter(breed =>
-      breed.name.toLowerCase().includes(searchValue.toLowerCase())
-    );
-  }, [breeds, searchValue]);
+    return autocompleteMatches.map(match => ({
+      ...match.item,
+      highlightedName: match.highlightedName,
+      score: match.score,
+      isRecent: recentSelections.includes(match.item.id)
+    }));
+  }, [autocompleteMatches, recentSelections]);
 
   const selectedBreed = breeds.find(breed => breed.id === value);
 
@@ -105,33 +180,191 @@ export function BreedSelect({
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
           <Command>
-            <CommandInput
-              placeholder={t('searchPlaceholder')}
-              value={searchValue}
-              onValueChange={setSearchValue}
-            />
+            <div className="flex items-center border-b px-3">
+              <CommandInput
+                placeholder={t('searchPlaceholder')}
+                value={searchValue}
+                onValueChange={setSearchValue}
+                onKeyDown={(e) => {
+                  // Enhanced keyboard navigation
+                  if (e.key === 'Escape') {
+                    setSearchValue('');
+                    setShowHebrewFilter(false);
+                    setHebrewFilteredBreeds([]);
+                  }
+                  if (e.key === 'Enter' && filteredBreeds.length === 1) {
+                    // Auto-select if only one match
+                    const breed = filteredBreeds[0];
+                    onValueChange(breed.id);
+                    recentManager.addRecent(breed.id);
+                    setRecentSelections(recentManager.getRecent());
+                    setOpen(false);
+                    setSearchValue('');
+                    setShowHebrewFilter(false);
+                    setHebrewFilteredBreeds([]);
+                    e.preventDefault();
+                  }
+                }}
+                className="flex-1"
+              />
+              {locale === 'he' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowHebrewFilter(!showHebrewFilter)}
+                  className={cn(
+                    "ml-2 h-8 w-8 p-0",
+                    showHebrewFilter && "bg-blue-100 text-blue-700"
+                  )}
+                  title={locale === 'he' ? 'סינון עברי' : 'Hebrew Filter'}
+                >
+                  <Filter className="h-4 w-4" />
+                </Button>
+              )}
+              {searchValue && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchValue('');
+                    setShowHebrewFilter(false);
+                    setHebrewFilteredBreeds([]);
+                  }}
+                  className="ml-1 h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
+                  title={locale === 'he' ? 'נקה חיפוש' : 'Clear search'}
+                >
+                  ×
+                </Button>
+              )}
+            </div>
+            
+            {locale === 'he' && showHebrewFilter && (
+              <div className="p-3 border-b bg-gray-50">
+                <HebrewAlphabetFilter
+                  items={breeds}
+                  onFilterChange={(filtered) => {
+                    setHebrewFilteredBreeds(filtered);
+                  }}
+                  className="mb-3"
+                />
+                <HebrewLetterRangeSelector
+                  items={breeds}
+                  onFilterChange={(filtered) => {
+                    setHebrewFilteredBreeds(filtered);
+                  }}
+                />
+              </div>
+            )}
+            
             <CommandList>
               <CommandEmpty>{t('noBreedFound')}</CommandEmpty>
-              <CommandGroup>
-                {filteredBreeds.map((breed) => (
-                  <CommandItem
-                    key={breed.id}
-                    value={breed.id}
-                    onSelect={(currentValue) => {
-                      onValueChange(currentValue === value ? "" : currentValue);
-                      setOpen(false);
-                      setSearchValue('');
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === breed.id ? "opacity-100" : "opacity-0"
+              
+              {/* Recent selections group */}
+              {recentSelections.length > 0 && !searchValue.trim() && (
+                <CommandGroup heading={
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Clock className="h-3 w-3" />
+                    {locale === 'he' ? 'נבחרו לאחרונה' : 'Recently Selected'}
+                  </div>
+                }>
+                  {filteredBreeds
+                    .filter(breed => breed.isRecent)
+                    .slice(0, 3)
+                    .map((breed) => (
+                      <CommandItem
+                        key={`recent-${breed.id}`}
+                        value={breed.id}
+                        onSelect={(currentValue) => {
+                          onValueChange(currentValue === value ? "" : currentValue);
+                          recentManager.addRecent(currentValue);
+                          setRecentSelections(recentManager.getRecent());
+                          setOpen(false);
+                          setSearchValue('');
+                          setShowHebrewFilter(false);
+                          setHebrewFilteredBreeds([]);
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <Check
+                          className={cn(
+                            "h-4 w-4 shrink-0",
+                            value === breed.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        <div className="flex-1 flex items-center gap-2">
+                          <Star className="h-3 w-3 text-yellow-500" />
+                          <span 
+                            dangerouslySetInnerHTML={{ 
+                              __html: breed.highlightedName || breed.name 
+                            }}
+                          />
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {locale === 'he' ? 'אחרון' : 'Recent'}
+                        </Badge>
+                      </CommandItem>
+                    ))}
+                </CommandGroup>
+              )}
+              
+              {/* All breeds group */}
+              <CommandGroup heading={
+                searchValue.trim() ? (
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span>
+                      {locale === 'he' ? 'תוצאות חיפוש' : 'Search Results'}
+                    </span>
+                    <Badge variant="outline" className="text-xs">
+                      {filteredBreeds.length}
+                    </Badge>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500">
+                    {locale === 'he' ? 'כל הגזעים' : 'All Breeds'}
+                  </div>
+                )
+              }>
+                {filteredBreeds
+                  .filter(breed => !searchValue.trim() || !breed.isRecent)
+                  .map((breed) => (
+                    <CommandItem
+                      key={breed.id}
+                      value={breed.id}
+                      onSelect={(currentValue) => {
+                        onValueChange(currentValue === value ? "" : currentValue);
+                        recentManager.addRecent(currentValue);
+                        setRecentSelections(recentManager.getRecent());
+                        setOpen(false);
+                        setSearchValue('');
+                        setShowHebrewFilter(false);
+                        setHebrewFilteredBreeds([]);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <Check
+                        className={cn(
+                          "h-4 w-4 shrink-0",
+                          value === breed.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <div className="flex-1 flex items-center gap-2">
+                        {breed.isRecent && !searchValue.trim() && (
+                          <Star className="h-3 w-3 text-yellow-500" />
+                        )}
+                        <span 
+                          className="flex-1"
+                          dangerouslySetInnerHTML={{ 
+                            __html: breed.highlightedName || breed.name 
+                          }}
+                        />
+                      </div>
+                      {searchValue.trim() && breed.score > 70 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {locale === 'he' ? 'התאמה מדויקת' : 'Exact'}
+                        </Badge>
                       )}
-                    />
-                    {breed.name}
-                  </CommandItem>
-                ))}
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>

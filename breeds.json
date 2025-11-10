@@ -239,5 +239,6 @@
   { "id": 206, "en": "Shorthair colorpoint", "he": "חתול קצר-שיער כהה-חודים" },
   { "id": 207, "en": "Ragdoll", "he": "רגדול " },
   { "id": 208, "en": "Ragamuffin", "he": "רגמפין" },
-  { "id": 209, "en": "Russian blue cat", "he": "חתול רוסי כחול" }
+  { "id": 209, "en": "Russian blue cat", "he": "חתול רוסי כחול" },
+  { "id": 210, "en": "other", "he": "אחר" }
 ]

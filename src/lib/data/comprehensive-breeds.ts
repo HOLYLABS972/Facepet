@@ -15,10 +15,10 @@ export interface BreedByType {
 
 // Separate breeds by type based on their ID ranges
 // Dogs: IDs 1-174 (based on breeds.json structure)
-// Cats: IDs 175-209
+// Cats: IDs 175-210 (includes "other" option at ID 210)
 export const breedsByType: BreedByType = {
   dog: breedsData.filter(breed => breed.id >= 1 && breed.id <= 174),
-  cat: breedsData.filter(breed => breed.id >= 175 && breed.id <= 209),
+  cat: breedsData.filter(breed => breed.id >= 175 && breed.id <= 210),
   other: breedsData.filter(breed => breed.id === 1) // "other" breed
 };
 
