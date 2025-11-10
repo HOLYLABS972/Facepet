@@ -229,19 +229,6 @@ const Navbar = () => {
                           <span>{t('coupons')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      {storeUrl && (
-                        <DropdownMenuItem asChild>
-                          <a
-                            href={storeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center cursor-pointer"
-                          >
-                            <ShoppingBag className="mr-2 h-4 w-4" />
-                            <span>{t('store')}</span>
-                          </a>
-                        </DropdownMenuItem>
-                      )}
                       {(userRole === 'admin' || userRole === 'super_admin') && (
                         <DropdownMenuItem asChild>
                           <Link href="/admin" className="flex items-center">
@@ -341,20 +328,6 @@ const Navbar = () => {
                         {link.label}
                       </MobileNavLink>
                     ))}
-                    {storeUrl && (
-                      <Button
-                        variant={'ghost'}
-                        type="button"
-                        onClick={() => {
-                          window.open(storeUrl, '_blank', 'noopener,noreferrer');
-                          setIsMenuOpen(false);
-                        }}
-                        className="active:bg-accent flex w-full justify-start gap-5 rounded-md p-2 text-left text-base font-medium text-black transition-colors rtl:text-right"
-                      >
-                        <ShoppingBag className="h-5 w-5" />
-                        {t('store')}
-                      </Button>
-                    )}
                     {(userRole === 'admin' || userRole === 'super_admin') && (
                       <MobileNavLink
                         key="admin"

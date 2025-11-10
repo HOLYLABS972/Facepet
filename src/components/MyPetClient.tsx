@@ -14,7 +14,6 @@ import { db } from '@/src/lib/firebase/config';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
-import FloatingStoreButton from './FloatingStoreButton';
 import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
 
 interface Pet {
@@ -234,9 +233,6 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
           ))}
         </div>
       )}
-
-      {/* Floating Store Button */}
-      <FloatingStoreButton />
     </div>
   );
 };
