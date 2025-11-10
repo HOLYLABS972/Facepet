@@ -23,8 +23,8 @@ const breeds = [
     labels: { en: breed.en, he: breed.he }
   })),
   
-  // Cats - All breeds from breeds.json (IDs 175-209)
-  ...breedsData.filter(breed => breed.id >= 175 && breed.id <= 209).map(breed => ({
+  // Cats - All breeds from breeds.json (IDs 175-210, includes "other" option)
+  ...breedsData.filter(breed => breed.id >= 175 && breed.id <= 210).map(breed => ({
     name: breed.en,
     type: 'cat',
     labels: { en: breed.en, he: breed.he }

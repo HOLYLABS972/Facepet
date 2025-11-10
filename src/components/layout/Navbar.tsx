@@ -269,8 +269,20 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <div className="flex md:hidden rtl:flex-row-reverse">
+            {/* Mobile Navigation */}
+            <div className="flex md:hidden items-center gap-2 rtl:flex-row-reverse">
+              {/* Mobile Store Button */}
+              {storeUrl && (
+                <Button
+                  onClick={() => window.open(storeUrl, '_blank', 'noopener,noreferrer')}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-2 text-sm"
+                >
+                  <ShoppingBag className="h-4 w-4 mr-1" />
+                  {t('store')}
+                </Button>
+              )}
+              
+              {/* Mobile Menu Button */}
               <Button
                 variant={'ghost'}
                 type="button"
