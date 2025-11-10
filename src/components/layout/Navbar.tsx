@@ -171,6 +171,17 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4">
+              {/* Store Button - always visible */}
+              {storeUrl && (
+                <Button
+                  onClick={() => window.open(storeUrl, '_blank', 'noopener,noreferrer')}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold"
+                >
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  {t('store')}
+                </Button>
+              )}
+              
               {user ? (
                 <>
                   {/* User Dropdown Menu */}

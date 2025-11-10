@@ -11,7 +11,6 @@ import AdFullPage from './get-started/AdFullPage';
 import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
 import ShareButton from './ShareButton';
-import InlineStoreButton from './InlineStoreButton';
 import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
 
 const computeAge = (birthDate: string) => {
@@ -202,14 +201,6 @@ export default function PetProfilePage({
       <Navbar />
       <div className="relative overflow-hidden">
         <PetCard pet={petCardData} />
-      </div>
-      
-      {/* Store Button - positioned after pet image */}
-      <div className="flex justify-center px-4 py-4">
-        <InlineStoreButton 
-          className="w-full max-w-xs"
-          size="lg"
-        />
       </div>
         <motion.div
         initial={{ y: '100%' }}
