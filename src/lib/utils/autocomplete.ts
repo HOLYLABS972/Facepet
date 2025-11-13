@@ -44,38 +44,97 @@ function levenshteinDistance(str1: string, str2: string): number {
 }
 
 /**
- * Calculate fuzzy match score for autocomplete
+ * Normalize text for better matching (handles Hebrew and other languages)
+ */
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    // Remove Hebrew vowels (nikud) for better matching
+    .replace(/[\u0591-\u05C7]/g, '')
+    // Normalize whitespace
+    .replace(/\s+/g, ' ');
+}
+
+/**
+ * Calculate fuzzy match score for autocomplete with multi-word support
  */
 function calculateFuzzyScore(query: string, target: string): { score: number; matchedIndices: number[] } {
   if (!query.trim()) return { score: 0, matchedIndices: [] };
   
-  const queryLower = query.toLowerCase();
-  const targetLower = target.toLowerCase();
+  const queryNormalized = normalizeText(query);
+  const targetNormalized = normalizeText(target);
   
   // Exact match gets highest score
-  if (targetLower === queryLower) {
+  if (targetNormalized === queryNormalized) {
     return { score: 100, matchedIndices: Array.from({ length: target.length }, (_, i) => i) };
   }
   
   // Starts with match gets high score
-  if (targetLower.startsWith(queryLower)) {
+  if (targetNormalized.startsWith(queryNormalized)) {
     return { score: 90, matchedIndices: Array.from({ length: query.length }, (_, i) => i) };
   }
   
   // Contains match gets medium score
-  const containsIndex = targetLower.indexOf(queryLower);
+  const containsIndex = targetNormalized.indexOf(queryNormalized);
   if (containsIndex !== -1) {
     const matchedIndices = Array.from({ length: query.length }, (_, i) => containsIndex + i);
     return { score: 70 - containsIndex, matchedIndices };
   }
   
-  // Fuzzy matching for partial matches
+  // Multi-word matching: check if all query words are found in target
+  const queryWords = queryNormalized.split(' ').filter(word => word.length > 0);
+  const targetWords = targetNormalized.split(' ').filter(word => word.length > 0);
+  
+  if (queryWords.length > 1) {
+    let matchedWords = 0;
+    let totalScore = 0;
+    const allMatchedIndices: number[] = [];
+    
+    for (const queryWord of queryWords) {
+      let bestWordScore = 0;
+      let bestWordIndices: number[] = [];
+      
+      // Check each target word
+      for (const targetWord of targetWords) {
+        if (targetWord.includes(queryWord)) {
+          const wordScore = queryWord.length === targetWord.length ? 20 : 15;
+          if (wordScore > bestWordScore) {
+            bestWordScore = wordScore;
+            // Find the actual indices in the original target string
+            const wordIndex = targetNormalized.indexOf(targetWord);
+            const queryWordIndex = targetWord.indexOf(queryWord);
+            bestWordIndices = Array.from(
+              { length: queryWord.length }, 
+              (_, i) => wordIndex + queryWordIndex + i
+            );
+          }
+        }
+      }
+      
+      if (bestWordScore > 0) {
+        matchedWords++;
+        totalScore += bestWordScore;
+        allMatchedIndices.push(...bestWordIndices);
+      }
+    }
+    
+    if (matchedWords === queryWords.length) {
+      // All words matched, give bonus
+      totalScore += 30;
+      // Bonus for shorter target strings
+      totalScore += Math.max(0, 20 - target.length);
+      return { score: Math.max(0, totalScore), matchedIndices: allMatchedIndices };
+    }
+  }
+  
+  // Fuzzy matching for partial matches (single word or fallback)
   const matchedIndices: number[] = [];
   let queryIndex = 0;
   let score = 0;
   
-  for (let i = 0; i < targetLower.length && queryIndex < queryLower.length; i++) {
-    if (targetLower[i] === queryLower[queryIndex]) {
+  for (let i = 0; i < targetNormalized.length && queryIndex < queryNormalized.length; i++) {
+    if (targetNormalized[i] === queryNormalized[queryIndex]) {
       matchedIndices.push(i);
       queryIndex++;
       score += 10; // Base score for each matched character
@@ -88,7 +147,7 @@ function calculateFuzzyScore(query: string, target: string): { score: number; ma
   }
   
   // Check if all query characters were matched
-  if (queryIndex === queryLower.length) {
+  if (queryIndex === queryNormalized.length) {
     // Bonus for matching all characters
     score += 20;
     

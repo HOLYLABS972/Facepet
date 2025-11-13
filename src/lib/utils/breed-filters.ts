@@ -73,15 +73,38 @@ export function getAvailableHebrewLettersFromBreeds(breeds: BreedItem[]): string
 }
 
 /**
- * Search breeds by name (case insensitive, works with Hebrew)
+ * Normalize text for better Hebrew and multi-language matching
+ */
+function normalizeSearchText(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    // Remove Hebrew vowels (nikud) for better matching
+    .replace(/[\u0591-\u05C7]/g, '')
+    // Normalize whitespace
+    .replace(/\s+/g, ' ');
+}
+
+/**
+ * Search breeds by name (case insensitive, works with Hebrew and multi-word)
  */
 export function searchBreeds(breeds: BreedItem[], searchTerm: string): BreedItem[] {
   if (!searchTerm.trim()) return breeds;
   
-  const term = searchTerm.toLowerCase().trim();
-  return breeds.filter(breed => 
-    breed.name.toLowerCase().includes(term)
-  );
+  const normalizedTerm = normalizeSearchText(searchTerm);
+  const searchWords = normalizedTerm.split(' ').filter(word => word.length > 0);
+  
+  return breeds.filter(breed => {
+    const normalizedBreedName = normalizeSearchText(breed.name);
+    
+    // For single word search, use simple contains
+    if (searchWords.length === 1) {
+      return normalizedBreedName.includes(normalizedTerm);
+    }
+    
+    // For multi-word search, check if all words are found
+    return searchWords.every(word => normalizedBreedName.includes(word));
+  });
 }
 
 /**

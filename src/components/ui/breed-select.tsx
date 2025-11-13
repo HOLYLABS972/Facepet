@@ -107,7 +107,7 @@ export function BreedSelect({
       const matches = getSuggestions(query, autocompleteItems, recentSelections, {
         limit: 15,
         includeRecent: true,
-        minScore: query.trim() ? 5 : 0
+        minScore: query.trim() ? 1 : 0  // Lower minimum score for better multi-word and Hebrew matching
       });
       setAutocompleteMatches(matches);
     }, 150),
@@ -124,7 +124,8 @@ export function BreedSelect({
     if (autocompleteItems.length > 0) {
       const initialMatches = getSuggestions('', autocompleteItems, recentSelections, {
         limit: 15,
-        includeRecent: true
+        includeRecent: true,
+        minScore: 0
       });
       setAutocompleteMatches(initialMatches);
     }

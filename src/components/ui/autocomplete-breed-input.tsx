@@ -106,7 +106,7 @@ export function AutocompleteBreedInput({
       const matches = getSuggestions(query, autocompleteItems, recentSelections, {
         limit: maxSuggestions,
         includeRecent: true,
-        minScore: query.trim() ? 3 : 0
+        minScore: query.trim() ? 1 : 0  // Lower minimum score for better multi-word and Hebrew matching
       });
       setAutocompleteMatches(matches);
       setSelectedIndex(-1);
