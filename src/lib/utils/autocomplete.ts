@@ -95,10 +95,10 @@ function calculateFuzzyScore(query: string, target: string): { score: number; ma
       let bestWordScore = 0;
       let bestWordIndices: number[] = [];
       
-      // Check each target word
+      // Check each target word for contains match
       for (const targetWord of targetWords) {
         if (targetWord.includes(queryWord)) {
-          const wordScore = queryWord.length === targetWord.length ? 20 : 15;
+          const wordScore = queryWord.length === targetWord.length ? 25 : 20;
           if (wordScore > bestWordScore) {
             bestWordScore = wordScore;
             // Find the actual indices in the original target string
@@ -109,6 +109,18 @@ function calculateFuzzyScore(query: string, target: string): { score: number; ma
               (_, i) => wordIndex + queryWordIndex + i
             );
           }
+        }
+      }
+      
+      // If no exact word match, try partial matching across the entire string
+      if (bestWordScore === 0) {
+        const partialIndex = targetNormalized.indexOf(queryWord);
+        if (partialIndex !== -1) {
+          bestWordScore = 10; // Lower score for partial matches
+          bestWordIndices = Array.from(
+            { length: queryWord.length }, 
+            (_, i) => partialIndex + i
+          );
         }
       }
       
@@ -125,6 +137,10 @@ function calculateFuzzyScore(query: string, target: string): { score: number; ma
       // Bonus for shorter target strings
       totalScore += Math.max(0, 20 - target.length);
       return { score: Math.max(0, totalScore), matchedIndices: allMatchedIndices };
+    } else if (matchedWords > 0) {
+      // Partial multi-word match
+      totalScore += matchedWords * 5; // Bonus for partial matches
+      return { score: Math.max(0, totalScore), matchedIndices: allMatchedIndices };
     }
   }
   
@@ -132,16 +148,20 @@ function calculateFuzzyScore(query: string, target: string): { score: number; ma
   const matchedIndices: number[] = [];
   let queryIndex = 0;
   let score = 0;
+  let consecutiveMatches = 0;
   
   for (let i = 0; i < targetNormalized.length && queryIndex < queryNormalized.length; i++) {
     if (targetNormalized[i] === queryNormalized[queryIndex]) {
       matchedIndices.push(i);
       queryIndex++;
-      score += 10; // Base score for each matched character
+      score += 8; // Base score for each matched character
       
       // Bonus for consecutive matches
       if (matchedIndices.length > 1 && matchedIndices[matchedIndices.length - 1] === matchedIndices[matchedIndices.length - 2] + 1) {
-        score += 5;
+        consecutiveMatches++;
+        score += 3 + consecutiveMatches; // Increasing bonus for longer consecutive sequences
+      } else {
+        consecutiveMatches = 0;
       }
     }
   }
@@ -149,17 +169,23 @@ function calculateFuzzyScore(query: string, target: string): { score: number; ma
   // Check if all query characters were matched
   if (queryIndex === queryNormalized.length) {
     // Bonus for matching all characters
-    score += 20;
+    score += 15;
     
-    // Penalty for distance between matches
+    // Reduced penalty for distance between matches
     if (matchedIndices.length > 1) {
       const spread = matchedIndices[matchedIndices.length - 1] - matchedIndices[0];
-      score -= Math.floor(spread / 2);
+      score -= Math.floor(spread / 4); // Less harsh penalty
     }
     
     // Bonus for shorter target strings (more relevant)
-    score += Math.max(0, 50 - target.length);
+    score += Math.max(0, 30 - target.length);
     
+    return { score: Math.max(0, score), matchedIndices };
+  }
+  
+  // Even if not all characters matched, return partial score if we have some matches
+  if (matchedIndices.length > 0 && matchedIndices.length >= Math.ceil(queryNormalized.length * 0.6)) {
+    score += 5; // Small bonus for partial matches
     return { score: Math.max(0, score), matchedIndices };
   }
   
@@ -195,7 +221,7 @@ export function fuzzySearch(
     searchFields?: string[];
   } = {}
 ): AutocompleteMatch[] {
-  const { limit = 10, minScore = 10, searchFields = ['name'] } = options;
+  const { limit = 10, minScore = 5, searchFields = ['name'] } = options;
   
   if (!query.trim()) {
     return items.slice(0, limit).map(item => ({
@@ -260,7 +286,7 @@ export function getSuggestions(
     minScore?: number;
   } = {}
 ): AutocompleteMatch[] {
-  const { limit = 10, includeRecent = true, minScore = 10 } = options;
+  const { limit = 10, includeRecent = true, minScore = 5 } = options;
   
   // If no query, show recent selections first
   if (!query.trim() && includeRecent && recentSelections.length > 0) {
@@ -286,7 +312,29 @@ export function getSuggestions(
   }
   
   // Perform fuzzy search
-  const matches = fuzzySearch(query, items, { limit, minScore });
+  let matches = fuzzySearch(query, items, { limit, minScore });
+  
+  // If no matches found with fuzzy search, try a simple contains search as fallback
+  if (matches.length === 0 && query.trim()) {
+    const queryLower = query.toLowerCase().trim();
+    const fallbackMatches: AutocompleteMatch[] = [];
+    
+    for (const item of items) {
+      if (item.name.toLowerCase().includes(queryLower)) {
+        fallbackMatches.push({
+          item,
+          score: 30 - item.name.length, // Simple scoring based on length
+          matchedIndices: [],
+          highlightedName: item.name.replace(
+            new RegExp(`(${queryLower})`, 'gi'),
+            '<mark class="bg-yellow-200 text-yellow-900 px-0.5 rounded">$1</mark>'
+          )
+        });
+      }
+    }
+    
+    matches = fallbackMatches.slice(0, limit);
+  }
   
   // Boost score for recent selections
   if (includeRecent && recentSelections.length > 0) {

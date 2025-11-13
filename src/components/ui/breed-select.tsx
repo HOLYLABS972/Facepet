@@ -104,30 +104,61 @@ export function BreedSelect({
   // Debounced search function
   const debouncedSearch = useCallback(
     debounce((query: string) => {
+      if (!autocompleteItems.length) {
+        console.log('No autocomplete items available');
+        return;
+      }
+      
+      console.log(`Searching for: "${query}" in ${autocompleteItems.length} items`);
+      
       const matches = getSuggestions(query, autocompleteItems, recentSelections, {
         limit: 15,
         includeRecent: true,
-        minScore: query.trim() ? 1 : 0  // Lower minimum score for better multi-word and Hebrew matching
+        minScore: query.trim() ? 0 : 0  // Allow all matches, let scoring handle relevance
       });
+      
+      console.log(`Found ${matches.length} matches`);
       setAutocompleteMatches(matches);
-    }, 150),
+    }, 100), // Reduced debounce time for more responsive search
     [autocompleteItems, recentSelections]
   );
 
   // Update search results when search value changes
   useEffect(() => {
-    debouncedSearch(searchValue);
+    try {
+      debouncedSearch(searchValue);
+    } catch (error) {
+      console.error('Error in breed search:', error);
+      // Fallback to showing all breeds
+      setAutocompleteMatches(autocompleteItems.slice(0, 15).map(item => ({
+        item,
+        score: 0,
+        matchedIndices: [],
+        highlightedName: item.name
+      })));
+    }
   }, [searchValue, debouncedSearch]);
 
   // Initialize matches when component mounts or breeds change
   useEffect(() => {
     if (autocompleteItems.length > 0) {
-      const initialMatches = getSuggestions('', autocompleteItems, recentSelections, {
-        limit: 15,
-        includeRecent: true,
-        minScore: 0
-      });
-      setAutocompleteMatches(initialMatches);
+      try {
+        const initialMatches = getSuggestions('', autocompleteItems, recentSelections, {
+          limit: 15,
+          includeRecent: true,
+          minScore: 0
+        });
+        setAutocompleteMatches(initialMatches);
+      } catch (error) {
+        console.error('Error initializing breed matches:', error);
+        // Fallback to showing all breeds
+        setAutocompleteMatches(autocompleteItems.slice(0, 15).map(item => ({
+          item,
+          score: 0,
+          matchedIndices: [],
+          highlightedName: item.name
+        })));
+      }
     }
   }, [autocompleteItems, recentSelections]);
 
@@ -180,7 +211,7 @@ export function BreedSelect({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
-          <Command>
+          <Command shouldFilter={false}>
             <div className="flex items-center border-b px-3">
               <CommandInput
                 placeholder={t('searchPlaceholder')}
