@@ -382,10 +382,13 @@
       "image": "Image",
       "validFrom": "Valid From",
       "validTo": "Valid To",
+      "validPeriod": "Valid Period",
       "status": "Status",
       "createdAt": "Created At",
       "noCoupons": "No coupons found.",
       "createCoupon": "Create Coupon",
+      "edit": "Edit",
+      "delete": "Delete",
       "confirmDelete": "Are you sure you want to delete the coupon \"{name}\"?",
       "activate": "Activate",
       "deactivate": "Deactivate"
@@ -409,6 +412,8 @@
       "createdAt": "Created At",
       "noPromos": "No promos found.",
       "createPromo": "Create Promo",
+      "edit": "Edit",
+      "delete": "Delete",
       "confirmDelete": "Are you sure you want to delete the promo \"{name}\"?",
       "activate": "Activate",
       "deactivate": "Deactivate"
@@ -421,7 +426,11 @@
       "description": "Description",
       "status": "Status",
       "createdAt": "Created At",
-      "noAudiences": "No audiences found."
+      "noAudiences": "No audiences found.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     },
     "businessManagement": {
       "title": "Business Management",
@@ -436,7 +445,12 @@
       "audiencePlaceholder": "Select audience (optional)",
       "status": "Status",
       "createdAt": "Created At",
-      "noBusinesses": "No businesses found."
+      "noBusinesses": "No businesses found.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "contactInfo": "Contact Info"
     },
     "userPetsPage": {
       "backToUsers": "Back to Users",

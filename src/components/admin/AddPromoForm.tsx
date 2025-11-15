@@ -141,7 +141,7 @@ export default function AddPromoForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2 rtl:flex-row-reverse">
           <PlusCircle className="h-4 w-4" />
           {t('promoManagement.addNewPromo')}
         </Button>

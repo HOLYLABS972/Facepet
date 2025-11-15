@@ -65,7 +65,7 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
         </TabsList>
 
         <TabsContent value="promo" className="space-y-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 rtl:md:flex-row-reverse">
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {t('promoManagement.title')}
@@ -81,7 +81,7 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
         </TabsContent>
 
         <TabsContent value="audience" className="space-y-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 rtl:md:flex-row-reverse">
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {t('audienceManagement.title')}
@@ -97,7 +97,7 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
         </TabsContent>
 
         <TabsContent value="businesses" className="space-y-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 rtl:md:flex-row-reverse">
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {t('businessManagement.title')}

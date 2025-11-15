@@ -7,6 +7,9 @@ import { Promo } from '@/types/promo';
 import { motion } from 'framer-motion';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { Button } from './ui/button';
 import AdFullPage from './get-started/AdFullPage';
 import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
@@ -35,6 +38,7 @@ export default function PetProfilePage({
   // Place all hook calls at the top level, unconditionally
   const t = useTranslations('pages.PetProfilePage');
   const locale = useLocale();
+  const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
   const [showPromo, setShowPromo] = useState(!!initialPromo);
   const [activeTab, setActiveTab] = useState<TabName>('pet');
@@ -199,37 +203,116 @@ export default function PetProfilePage({
   return (
     <>
       <Navbar />
-      <div className="relative overflow-hidden">
-        <PetCard pet={petCardData} />
-      </div>
-        <motion.div
-        initial={{ y: '100%' }}
-        animate={{ y: '0%' }}
-        transition={{
-          type: 'spring',
-          bounce: 0.3,
-          duration: 0.7
-        }}
-        className="flex flex-grow flex-col"
-      >
-        <div className="mt-6 mb-2 flex justify-center">
-          <AnimatedTabs
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            showVetTab={availableTabs.includes('vet')}
-          />
+      
+      {/* Mobile View */}
+      <div className="md:hidden">
+        <div className="relative overflow-hidden">
+          {/* Back Button */}
+          <div className="absolute top-[36px] left-[36px] right-[36px] z-10 flex justify-start rtl:justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+              className="bg-white/90 hover:bg-white shadow-md"
+            >
+              {locale === 'he' ? (
+                <ArrowLeft className="h-5 w-5" />
+              ) : (
+                <ArrowRight className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+          <PetCard pet={petCardData} />
         </div>
-        <div className="to-background flex h-full w-full grow rounded-t-3xl bg-linear-to-b from-white">
-          <TabContent
-            activeTab={activeTab}
-            lockedDirection={lockedDirection}
-            petInfo={petInfo}
-            ownerInfo={ownerInfo}
-            vetInfo={vetInfo}
-      />
-    </div>
-      </motion.div>
-      <ShareButton />
+        <motion.div
+          initial={{ y: '100%' }}
+          animate={{ y: '0%' }}
+          transition={{
+            type: 'spring',
+            bounce: 0.3,
+            duration: 0.7
+          }}
+          className="flex flex-grow flex-col"
+        >
+          <div className="mt-6 mb-2 flex justify-center">
+            <AnimatedTabs
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              showVetTab={availableTabs.includes('vet')}
+            />
+          </div>
+          <div className="to-background flex h-full w-full grow rounded-t-3xl bg-linear-to-b from-white">
+            <TabContent
+              activeTab={activeTab}
+              lockedDirection={lockedDirection}
+              petInfo={petInfo}
+              ownerInfo={ownerInfo}
+              vetInfo={vetInfo}
+            />
+          </div>
+        </motion.div>
+        <ShareButton />
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:block min-h-screen bg-gray-50">
+        <div className="mx-auto max-w-7xl w-full px-6 py-8">
+          {/* Back Button */}
+          <div className="mb-6 flex justify-start rtl:justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+            >
+              {locale === 'he' ? (
+                <ArrowLeft className="h-4 w-4" />
+              ) : (
+                <ArrowRight className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+
+          {/* Main Content: Image Left, Cards Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Side - Pet Image */}
+            <div className="flex flex-col">
+              <div className="sticky top-24">
+                <div className="relative w-full" style={{ height: '600px' }}>
+                  <div className="absolute inset-0 [&>div]:!mt-0 [&>div]:!px-0 [&>div>div]:!h-full [&>div>div>div]:!h-full">
+                    <PetCard pet={petCardData} />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 flex justify-center">
+                <ShareButton />
+              </div>
+            </div>
+
+            {/* Right Side - Tabs and Content */}
+            <div className="flex flex-col">
+              <div className="bg-white rounded-2xl shadow-lg flex flex-col" style={{ height: '600px' }}>
+                <div className="p-6 pb-0 flex-shrink-0">
+                  <AnimatedTabs
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                    showVetTab={availableTabs.includes('vet')}
+                  />
+                </div>
+                <div className="flex-1 overflow-y-auto min-h-0 p-6 pt-6">
+                  <TabContent
+                    activeTab={activeTab}
+                    lockedDirection={lockedDirection}
+                    petInfo={petInfo}
+                    ownerInfo={ownerInfo}
+                    vetInfo={vetInfo}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Gift popup disabled temporarily */}
       {/* {showPopup && (
         <GiftPopup

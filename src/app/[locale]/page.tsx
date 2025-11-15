@@ -151,7 +151,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
 
         
         <h1 className="text-primary py-4 text-center font-['Lobster'] text-5xl tracking-wide lg:text-7xl">
-          {t('brand')}
+          FacePet
         </h1>
 
         <div className="text-center text-3xl lg:text-4xl">
@@ -159,14 +159,25 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           <p className="text-black">{t('lowerTitle')}</p>
         </div>
 
-        {/* <div className="mt-12">
+        {/* Mobile Get Started Button */}
+        <div className="mt-8 flex justify-center sm:hidden">
           <Button
             onClick={() => router.push('/auth')}
-            className="w-full h-[60px] bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg"
+            className="h-[48px] w-auto px-8 bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg flex items-center justify-center"
           >
-            Get Started
+            {t('buttonLabel')}
           </Button>
-        </div> */}
+        </div>
+
+        {/* Desktop Get Started Button */}
+        <div className="mt-8 hidden w-full items-center justify-center sm:flex">
+          <Button
+            onClick={() => router.push('/auth')}
+            className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
+          >
+            {t('buttonLabel')}
+          </Button>
+        </div>
       </section>
 
       {/* Animated Pet Characters */}
@@ -175,14 +186,6 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
         <div className="mt-20 lg:mt-32">
           <div className="sm:hidden">
             <ProductHighlights />
-          </div>
-          <div className="hidden w-full items-center justify-center sm:flex">
-            <Button
-              onClick={() => router.push('/auth')}
-              className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
-            >
-              {t('buttonLabel')}
-            </Button>
           </div>
         </div>
         {petCharacters.map((pet, index) => (

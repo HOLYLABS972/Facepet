@@ -139,8 +139,8 @@ export default function BusinessesTable() {
             <TableRow>
               <TableHead>{t('businessManagement.name')}</TableHead>
               <TableHead>{t('businessManagement.description')}</TableHead>
-              <TableHead>Image</TableHead>
-              <TableHead>Contact Info</TableHead>
+              <TableHead>{t('businessManagement.image')}</TableHead>
+              <TableHead>{t('businessManagement.contactInfo')}</TableHead>
               <TableHead>{t('businessManagement.status')}</TableHead>
               <TableHead>{t('businessManagement.createdAt')}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
@@ -208,18 +208,18 @@ export default function BusinessesTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEdit(business)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          <Edit className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('businessManagement.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(business)}>
-                          {business.isActive ? 'Deactivate' : 'Activate'}
+                          {business.isActive ? t('businessManagement.deactivate') : t('businessManagement.activate')}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleDelete(business)}
                           className="text-red-600"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          <Trash2 className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('businessManagement.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

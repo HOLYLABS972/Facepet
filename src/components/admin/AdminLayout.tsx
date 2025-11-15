@@ -113,7 +113,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <h1 className="text-primary mb-4 p-2 font-['Lobster'] text-4xl">
-          {t('brand')}
+          FacePet
         </h1>
         <nav>
           <ul className="space-y-2">

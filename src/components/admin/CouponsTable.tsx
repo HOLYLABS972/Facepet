@@ -150,7 +150,7 @@ export default function CouponsTable() {
               <TableHead>{t('couponsManagement.price')}</TableHead>
               <TableHead>{t('couponsManagement.points')}</TableHead>
               <TableHead>{t('couponsManagement.image')}</TableHead>
-              <TableHead>Valid Period</TableHead>
+              <TableHead>{t('couponsManagement.validPeriod')}</TableHead>
               <TableHead>{t('couponsManagement.status')}</TableHead>
               <TableHead>{t('couponsManagement.createdAt')}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
@@ -214,8 +214,8 @@ export default function CouponsTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEdit(coupon)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          <Edit className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('couponsManagement.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(coupon)}>
                           {coupon.isActive ? t('couponsManagement.deactivate') : t('couponsManagement.activate')}
@@ -224,8 +224,8 @@ export default function CouponsTable() {
                           onClick={() => handleDelete(coupon)}
                           className="text-red-600"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          <Trash2 className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('couponsManagement.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

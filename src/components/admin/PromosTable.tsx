@@ -163,7 +163,7 @@ export default function PromosTable() {
           <TableHeader>
             <TableRow>
               <TableHead>{t('promoManagement.name')}</TableHead>
-              <TableHead>Image</TableHead>
+              <TableHead>{t('promoManagement.image')}</TableHead>
               <TableHead>{t('promoManagement.description')}</TableHead>
               <TableHead>{t('promoManagement.business')}</TableHead>
               <TableHead>{t('promoManagement.audience')}</TableHead>
@@ -228,8 +228,8 @@ export default function PromosTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEdit(promo)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          <Edit className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('promoManagement.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(promo)}>
                           {promo.isActive ? t('promoManagement.deactivate') : t('promoManagement.activate')}
@@ -238,8 +238,8 @@ export default function PromosTable() {
                           onClick={() => handleDelete(promo)}
                           className="text-red-600"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          <Trash2 className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('promoManagement.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

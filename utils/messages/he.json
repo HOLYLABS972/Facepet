@@ -479,10 +479,13 @@
       "image": "תמונה",
       "validFrom": "תקף מ",
       "validTo": "תקף עד",
+      "validPeriod": "תקופת תוקף",
       "status": "סטטוס",
       "createdAt": "נוצר ב",
       "noCoupons": "לא נמצאו קופונים.",
       "createCoupon": "צור קופון",
+      "edit": "ערוך",
+      "delete": "מחק",
       "confirmDelete": "האם אתה בטוח שברצונך למחוק את הקופון \"{name}\"?",
       "activate": "הפעל",
       "deactivate": "השבת"
@@ -506,6 +509,8 @@
       "createdAt": "נוצר ב",
       "noPromos": "לא נמצאו קידומים.",
       "createPromo": "צור קידום",
+      "edit": "ערוך",
+      "delete": "מחק",
       "confirmDelete": "האם אתה בטוח שברצונך למחוק את הקידום \"{name}\"?",
       "activate": "הפעל",
       "deactivate": "השבת"
@@ -518,7 +523,11 @@
       "description": "תיאור",
       "status": "סטטוס",
       "createdAt": "נוצר ב",
-      "noAudiences": "לא נמצאו קהלי יעד."
+      "noAudiences": "לא נמצאו קהלי יעד.",
+      "edit": "ערוך",
+      "delete": "מחק",
+      "activate": "הפעל",
+      "deactivate": "השבת"
     },
     "businessManagement": {
       "title": "ניהול עסקים",
@@ -533,7 +542,12 @@
       "audiencePlaceholder": "בחר קהל יעד (אופציונלי)",
       "status": "סטטוס",
       "createdAt": "נוצר ב",
-      "noBusinesses": "לא נמצאו עסקים."
+      "noBusinesses": "לא נמצאו עסקים.",
+      "edit": "ערוך",
+      "delete": "מחק",
+      "activate": "הפעל",
+      "deactivate": "השבת",
+      "contactInfo": "פרטי קשר"
     },
     "userPetsPage": {
       "backToUsers": "חזור למשתמשים",

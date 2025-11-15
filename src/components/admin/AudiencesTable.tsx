@@ -194,18 +194,18 @@ export default function AudiencesTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEdit(audience)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          <Edit className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('audienceManagement.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleActive(audience)}>
-                          {audience.isActive ? 'Deactivate' : 'Activate'}
+                          {audience.isActive ? t('audienceManagement.deactivate') : t('audienceManagement.activate')}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleDelete(audience)}
                           className="text-red-600"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          <Trash2 className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                          {t('audienceManagement.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
