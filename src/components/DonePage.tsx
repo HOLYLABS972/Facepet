@@ -95,39 +95,6 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
       <Navbar />
       {/* Main Pet Card */}
       <div className="flex flex-col items-center justify-center overflow-hidden">
-        {/* Simple Pet Display */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="mb-6 flex flex-col items-center"
-        >
-          <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-primary shadow-lg">
-            {imageUrl && imageUrl.trim() !== '' ? (
-              <Image
-                src={imageUrl}
-                alt={name}
-                width={128}
-                height={128}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  console.error('Failed to load pet image:', imageUrl);
-                  // Hide the image and show fallback
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            ) : null}
-            {/* Fallback display - always show if no image or image failed to load */}
-            {(!imageUrl || imageUrl.trim() === '') && (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500">
-                <span className="text-4xl font-bold text-white">
-                  {name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-          </div>
-          <h2 className="mt-3 text-2xl font-bold text-primary">{name}</h2>
-        </motion.div>
         {/* NFC Image */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -143,6 +110,15 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
             className="mx-auto block"
             priority
           />
+        </motion.div>
+        {/* Pet Name */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7 }}
+          className="mb-6"
+        >
+          <h2 className="text-2xl font-bold text-primary">{name}</h2>
         </motion.div>
 
         {/* Content */}
