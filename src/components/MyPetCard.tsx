@@ -46,6 +46,25 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
     setImagesLoaded((prev) => prev + 1);
   };
 
+  // Validate if image URL is valid
+  const isValidImageUrl = (url: string): boolean => {
+    if (!url || url.trim() === '') return false;
+    if (url === '/default-pet.png' || url.includes('default')) return false;
+    try {
+      // Check if it's a valid URL
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return true;
+      }
+      // Check if it's a valid relative path
+      if (url.startsWith('/')) {
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   // Only navigate when not in edit mode.
   const handleCardClick = () => {
     if (!isEditMode) {
@@ -126,7 +145,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
         style={{ width: `${imageWidth}px` }}
       >
         <div className="h-full w-full bg-transparent">
-          {image && image.trim() !== '' && image !== '/default-pet.png' && !image.includes('default') ? (
+          {isValidImageUrl(image) ? (
             <img
               alt={name}
               src={image}
@@ -143,10 +162,7 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-white rounded-e-2xl">
               <div className="text-center">
-                <PawPrint className="h-8 w-8 text-gray-400 mx-auto mb-1" />
-                <div className="text-xs text-gray-500">
-                  {image ? 'Invalid URL' : 'No Image'}
-                </div>
+                <PawPrint className="h-8 w-8 text-gray-400 mx-auto" />
               </div>
             </div>
           )}
