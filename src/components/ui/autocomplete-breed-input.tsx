@@ -103,8 +103,9 @@ export function AutocompleteBreedInput({
   // Debounced search function
   const debouncedSearch = useCallback(
     debounce((query: string) => {
+      // Show all breeds when search is empty, limit when searching
       const matches = getSuggestions(query, autocompleteItems, recentSelections, {
-        limit: maxSuggestions,
+        limit: query.trim() ? maxSuggestions : autocompleteItems.length, // Show all when empty
         includeRecent: true,
         minScore: query.trim() ? 1 : 0  // Lower minimum score for better multi-word and Hebrew matching
       });
@@ -114,12 +115,22 @@ export function AutocompleteBreedInput({
     [autocompleteItems, recentSelections, maxSuggestions]
   );
 
-  // Update search results when input value changes
+  // Update search results when input value changes or suggestions are shown
   useEffect(() => {
     if (showSuggestions) {
-      debouncedSearch(inputValue);
+      // If input is empty, show all breeds, otherwise use debounced search
+      if (inputValue === '') {
+        const initialMatches = getSuggestions('', autocompleteItems, recentSelections, {
+          limit: autocompleteItems.length, // Show all breeds
+          includeRecent: true,
+          minScore: 0
+        });
+        setAutocompleteMatches(initialMatches);
+      } else {
+        debouncedSearch(inputValue);
+      }
     }
-  }, [inputValue, debouncedSearch, showSuggestions]);
+  }, [inputValue, debouncedSearch, showSuggestions, autocompleteItems, recentSelections]);
 
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue);

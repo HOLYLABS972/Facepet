@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getUserRole, type UserRole } from '@/lib/utils/admin';
+import Navbar from '@/components/layout/Navbar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -89,26 +90,28 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen relative">
-      {/* Mobile Backdrop */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <>
+      <Navbar />
+      <div className="flex min-h-screen relative pt-16">
+        {/* Mobile Backdrop */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-lg md:hidden"
-      >
-        {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </button>
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="fixed top-20 left-4 z-50 p-2 rounded-md bg-white shadow-lg md:hidden"
+        >
+          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
 
       {/* Sidebar */}
       <div className={`
-        bg-secondary-background text-primary fixed md:sticky md:top-0 h-screen w-64 p-4 z-50
+        bg-secondary-background text-primary fixed md:sticky md:top-16 h-[calc(100vh-4rem)] w-64 p-4 z-50
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
@@ -212,9 +215,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main content */}
       <div className="bg-background flex-1 w-full md:ml-0">
-        <div className="md:hidden pt-16">{/* Spacer for mobile menu button */}</div>
+        <div className="md:hidden pt-4">{/* Spacer for mobile menu button */}</div>
         {children}
       </div>
     </div>
+    </>
   );
 }

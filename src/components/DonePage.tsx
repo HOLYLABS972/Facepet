@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/routing';
@@ -29,50 +30,192 @@ const petCharacters = [
     src: petImages.bear,
     alt: 'bear',
     size: 143,
-    top: 100,
-    right: 0
+    top: 50,
+    right: 0,
+    isRight: false
   },
   {
     id: 2,
     src: petImages.bunny,
     alt: 'bunny',
-    size: 163,
-    top: 1,
-    right: -61
+    size: 133,
+    top: 50,
+    right: -61,
+    isRight: false
   },
-  {
-    id: 3,
-    src: petImages.dino,
-    alt: 'dino',
-    size: 198,
-    top: 10,
-    right: 250
-  },
-  {
-    id: 4,
-    src: petImages.duck,
-    alt: 'duck',
-    size: 185,
-    top: 150,
-    right: -60
-  },
+
+
   {
     id: 5,
     src: petImages.penguin,
     alt: 'penguin',
     size: 152,
-    top: 180,
-    right: 234
+    top: 10,
+    right: 234,
+    isRight: true
   },
   {
     id: 6,
     src: petImages.pig,
     alt: 'pig',
     size: 167,
-    top: 120,
-    right: 140
+    top: 10,
+    right: 140,
+    isRight: true
   }
 ];
+
+// Animated pet component with flying and tap-to-fall
+const AnimatedPet = ({ pet }: { pet: typeof petCharacters[0] }) => {
+  const [isFalling, setIsFalling] = useState(false);
+  const [hasFallen, setHasFallen] = useState(false);
+  
+  const isLeftSide = !pet.isRight;
+  
+  // Position pets at 45-degree corners around text/logo
+  // Safe distance from center to avoid touching text
+  const cornerDistance = 250; // Distance from center for 45-degree positioning
+  const bottomDistance = 250; // Distance for bottom pets (closer together)
+  
+  // Calculate positions for corners (45-degree angles)
+  // Top corners and bottom pets close together
+  let verticalPosition = 50;
+  let horizontalDistance = 0;
+  
+  // Position pets at corners with 45-degree angles
+  if (pet.id === 2) {
+    // Top-left corner (45 degrees)
+    verticalPosition = -cornerDistance;
+    horizontalDistance = -cornerDistance;
+  } else if (pet.id === 3) {
+    // Top-right corner (45 degrees)
+    verticalPosition = -cornerDistance;
+    horizontalDistance = cornerDistance;
+  } else if (pet.id === 4) {
+    // Additional pet - top-left extended
+    verticalPosition = -cornerDistance * 0.7;
+    horizontalDistance = -cornerDistance * 1.2;
+  } else if (pet.id === 5) {
+    // Additional pet - top-right extended
+    verticalPosition = -cornerDistance * 0.7;
+    horizontalDistance = cornerDistance * 1.2;
+  } else if (pet.id === 1) {
+    // Bottom-left - 50px from top, close to center
+    verticalPosition = -100; // Position at 50px from top (relative to center)
+    horizontalDistance = -bottomDistance * 0.6; // Closer together
+  } else if (pet.id === 6) {
+    // Bottom-right - 50px from top, close to center (close to bear)
+    verticalPosition = -100; // Position at 50px from top (relative to center)
+    horizontalDistance = bottomDistance * 0.6; // Closer together
+  }
+  
+  const floorPosition = 600;
+  const baseMovement = 12;
+  const repulsionDistance = 25;
+  
+  // Calculate horizontal position based on corner distance
+  // For left side (negative horizontalDistance), use left positioning
+  // For right side (positive horizontalDistance), use right positioning
+  const isLeftCorner = horizontalDistance < 0;
+  
+  const flyingPath = {
+    y: [
+      0, 
+      -baseMovement - (pet.id % 3) * 3, 
+      baseMovement + (pet.id % 2) * 4, 
+      -baseMovement * 0.6 + (pet.id % 4) * 2, 
+      baseMovement * 0.4 - (pet.id % 3) * 1.5,
+      0
+    ],
+    x: [
+      0, 
+      (isLeftCorner ? repulsionDistance : -repulsionDistance) + (pet.id % 2) * 4,
+      (isLeftCorner ? -repulsionDistance : repulsionDistance) * 0.6 - (pet.id % 3) * 2, 
+      (isLeftCorner ? repulsionDistance : -repulsionDistance) * 0.8 + (pet.id % 2) * 3, 
+      (isLeftCorner ? -repulsionDistance : repulsionDistance) * 0.4 - (pet.id % 2) * 1.5,
+      0
+    ],
+    rotate: [
+      0, 
+      -15 + (pet.id % 3) * 5, 
+      12 - (pet.id % 2) * 7, 
+      -10 + (pet.id % 4) * 4, 
+      8 - (pet.id % 3) * 3,
+      0
+    ],
+    scale: [
+      1, 
+      1.08 + (pet.id % 3) * 0.03,
+      0.92 - (pet.id % 2) * 0.03,
+      1.05 + (pet.id % 2) * 0.02, 
+      0.95 - (pet.id % 3) * 0.02,
+      1
+    ]
+  };
+  
+  const fallingPath = {
+    y: floorPosition - (verticalPosition + 200), // Adjust for center-based positioning
+    x: 0,
+    rotate: 360 + (pet.id % 2 === 0 ? 180 : 0),
+    scale: [1, 0.9, 1]
+  };
+  
+  const handleTap = () => {
+    if (!isFalling && !hasFallen) {
+      setIsFalling(true);
+      setTimeout(() => {
+        setIsFalling(false);
+        setHasFallen(true);
+      }, 2000);
+    }
+  };
+  
+  // For bottom pets (1 and 6), position right after the button
+  const isBottomPet = pet.id === 1 || pet.id === 6;
+  // Button is approximately 350px from top (NFC + name + title + subtitle + button + margins)
+  const buttonBottomPosition = 370; // 20px down from button
+  
+  return (
+    <motion.img
+      src={pet.src}
+      alt={pet.alt}
+      width={pet.size}
+      height={pet.size}
+      className="absolute z-10 object-cover cursor-pointer pointer-events-auto"
+      style={{
+        top: hasFallen 
+          ? `${floorPosition}px` 
+          : (isBottomPet ? `${buttonBottomPosition}px` : `calc(50% + ${verticalPosition}px)`),
+        ...(isLeftCorner
+          ? { left: `calc(50% + ${horizontalDistance}px)` }
+          : { right: `calc(50% - ${horizontalDistance}px)` }),
+        willChange: 'transform'
+      }}
+      animate={hasFallen ? { y: 0, x: 0, rotate: 0, scale: 1 } : (isFalling ? fallingPath : flyingPath)}
+      transition={
+        isFalling
+          ? {
+              duration: 1.5,
+              ease: [0.55, 0.085, 0.68, 0.53],
+              scale: {
+                duration: 0.3,
+                delay: 1.2,
+                ease: 'easeOut'
+              }
+            }
+          : {
+              duration: 10 + (pet.id % 4) * 2,
+              ease: [0.4, 0, 0.2, 1],
+              repeat: Infinity,
+              delay: 0.3 * pet.id,
+              repeatType: 'reverse'
+            }
+      }
+      onTap={handleTap}
+      onClick={handleTap}
+    />
+  );
+};
 
 interface DonePageProps {
   name: string;
@@ -94,107 +237,83 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
     <>
       <Navbar />
       {/* Main Pet Card */}
-      <div className="flex flex-col items-center justify-center overflow-hidden">
-        {/* NFC Image */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="mb-4"
-        >
-          <Image
-            alt="nfc"
-            src={assets.nfc}
-            width={150}
-            height={100}
-            className="mx-auto block"
-            priority
-          />
-        </motion.div>
-        {/* Pet Name */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="mb-6"
-        >
-          <h2 className="text-2xl font-bold text-primary">{name}</h2>
-        </motion.div>
+      <div className="relative mt-16 px-4 sm:px-7 py-8 min-h-[600px] overflow-visible max-w-7xl mx-auto">
+        {/* Pet Characters - positioned around text */}
+        {petCharacters.map((pet) => (
+          <AnimatedPet key={pet.id} pet={pet} />
+        ))}
 
-        {/* Content */}
-        <div className="mb-8">
-          <motion.h1
-            className="mt-4 h-10 text-center text-3xl font-semibold text-black"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: 0.7,
-              scale: { type: 'spring', visualDuration: 0.4, bounce: 0.5 }
-            }}
+        {/* Content Section - centered with pets around it */}
+        <div className="relative z-10 flex flex-col items-center justify-center">
+          {/* NFC Image */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="mb-4"
           >
-            {t('title')}
-          </motion.h1>
-          <motion.p
-            className="text-grey-600 h-9 max-w-56 text-center text-base"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: 0.7,
-              scale: { type: 'spring', visualDuration: 0.4, bounce: 0.5 }
-            }}
-          >
-            {t('subtitle')}
-          </motion.p>
-        </div>
-
-        {/* Back to My Pets Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="mb-8"
-        >
-          <Button
-            onClick={handleBackToMyPets}
-            variant="outline"
-            className="flex items-center gap-2 px-6 py-3 text-primary border-primary hover:bg-primary hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t('backToMyPets')}
-          </Button>
-        </motion.div>
-
-        {/* Pet Characters */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { duration: 0.7 } }}
-          className="relative min-h-[350px] w-full"
-        >
-          {petCharacters.map((pet) => (
-            <motion.img
-              key={pet.id}
-              src={pet.src} // Fixed: removed extra .src
-              alt={pet.alt}
-              width={pet.size}
-              height={pet.size}
-              className="absolute z-50 object-cover"
-              style={{
-                top: `${pet.top}px`,
-                left: `calc(50% - ${pet.right}px)`
-              }}
-              animate={{
-                y: [0, 2, 0, 2, 0],
-                rotate: [0, -5, 5, -5, 0],
-                transition: {
-                  duration: 6,
-                  ease: 'easeInOut',
-                  repeat: Infinity,
-                  delay: 0.1 * pet.id
-                }
-              }}
+            <Image
+              alt="nfc"
+              src={assets.nfc}
+              width={150}
+              height={100}
+              className="mx-auto block"
+              priority
             />
-          ))}
-        </motion.div>
+          </motion.div>
+          {/* Pet Name */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7 }}
+            className="mb-6"
+          >
+            <h2 className="text-2xl font-bold text-primary">{name}</h2>
+          </motion.div>
+
+          {/* Content */}
+          <div className="mb-8">
+            <motion.h1
+              className="mt-4 h-10 text-center text-3xl font-semibold text-black"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.7,
+                scale: { type: 'spring', visualDuration: 0.4, bounce: 0.5 }
+              }}
+            >
+              {t('title')}
+            </motion.h1>
+            <motion.p
+              className="text-grey-600 h-9 max-w-56 text-center text-base"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.7,
+                scale: { type: 'spring', visualDuration: 0.4, bounce: 0.5 }
+              }}
+            >
+              {t('subtitle')}
+            </motion.p>
+          </div>
+
+          {/* Back to My Pets Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="mb-8"
+          >
+            <Button
+              onClick={handleBackToMyPets}
+              variant="outline"
+              className="flex items-center gap-2 px-6 py-3 text-primary border-primary hover:bg-primary hover:text-white transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t('backToMyPets')}
+            </Button>
+          </motion.div>
+        </div>
       </div>
     </>
   );

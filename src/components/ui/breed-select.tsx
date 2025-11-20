@@ -111,8 +111,9 @@ export function BreedSelect({
       
       console.log(`Searching for: "${query}" in ${autocompleteItems.length} items`);
       
+      // Show all breeds when search is empty, limit when searching
       const matches = getSuggestions(query, autocompleteItems, recentSelections, {
-        limit: 15,
+        limit: query.trim() ? 15 : autocompleteItems.length, // Show all when empty
         includeRecent: true,
         minScore: query.trim() ? 0 : 0  // Allow all matches, let scoring handle relevance
       });
@@ -143,8 +144,9 @@ export function BreedSelect({
   useEffect(() => {
     if (autocompleteItems.length > 0) {
       try {
+        // Show all breeds on initialization
         const initialMatches = getSuggestions('', autocompleteItems, recentSelections, {
-          limit: 15,
+          limit: autocompleteItems.length, // Show all breeds
           includeRecent: true,
           minScore: 0
         });
@@ -152,7 +154,7 @@ export function BreedSelect({
       } catch (error) {
         console.error('Error initializing breed matches:', error);
         // Fallback to showing all breeds
-        setAutocompleteMatches(autocompleteItems.slice(0, 15).map(item => ({
+        setAutocompleteMatches(autocompleteItems.map(item => ({
           item,
           score: 0,
           matchedIndices: [],
