@@ -18,7 +18,7 @@ import { db } from '@/src/lib/firebase/config';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Pet {
   id: string;
@@ -44,6 +44,7 @@ export default function PetDetailsBottomSheet({
   onDeletePet
 }: PetDetailsBottomSheetProps) {
   const locale = useLocale() as 'en' | 'he';
+  const t = useTranslations('Pet');
   const router = useRouter();
 
   if (!pet) return null;
@@ -51,14 +52,14 @@ export default function PetDetailsBottomSheet({
   const handleDeletePet = async () => {
     try {
       await deleteDoc(doc(db, 'pets', pet.id));
-      toast.success('Pet deleted successfully');
+      toast.success(t('messages.petDeleted'));
       if (onDeletePet) {
         onDeletePet(pet.id);
       }
       onClose();
     } catch (error) {
       console.error('Error deleting pet:', error);
-      toast.error('Failed to delete pet');
+      toast.error(t('messages.deleteFailed'));
     }
   };
 
@@ -78,9 +79,9 @@ export default function PetDetailsBottomSheet({
     } else {
       try {
         await navigator.clipboard.writeText(petShareUrl);
-        toast.success('Link copied to clipboard!');
+        toast.success(t('messages.linkCopied'));
       } catch (error) {
-        toast.error('Failed to copy link');
+        toast.error(t('messages.copyFailed'));
       }
     }
   };
@@ -109,7 +110,7 @@ export default function PetDetailsBottomSheet({
                 className="flex items-center space-x-1"
               >
                 <Wifi className="h-4 w-4" />
-                <span>Attach Tag</span>
+                <span>{t('actions.attachTag')}</span>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -124,15 +125,15 @@ export default function PetDetailsBottomSheet({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => router.push(`/pet/${pet.id}/edit`)}>
                     <Edit className="mr-2 h-4 w-4" />
-                    Edit Pet
+                    {t('actions.editPet')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSharePet}>
                     <Share2 className="mr-2 h-4 w-4" />
-                    Share Pet
+                    {t('actions.share')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleDeletePet} className="text-red-600">
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Pet
+                    {t('actions.deletePet')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

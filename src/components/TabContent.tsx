@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { TabName } from './AnimatedTabs';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 const variants = {
   initial: (direction: number) => ({
@@ -85,16 +86,17 @@ const renderDetails = (
 
 // Delete Pet Button Component
 const DeletePetButton = ({ petId, onDelete }: { petId: string; onDelete: (petId: string) => void }) => {
+  const t = useTranslations('Pet');
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
     setDeleting(true);
     try {
       await onDelete(petId);
-      toast.success('Pet deleted successfully');
+      toast.success(t('messages.petDeleted'));
     } catch (error) {
       console.error('Error deleting pet:', error);
-      toast.error('Failed to delete pet');
+      toast.error(t('messages.deleteFailed'));
     } finally {
       setDeleting(false);
     }
@@ -108,7 +110,7 @@ const DeletePetButton = ({ petId, onDelete }: { petId: string; onDelete: (petId:
       className="w-full"
     >
       <Trash2 className="h-4 w-4 mr-2" />
-      {deleting ? 'Deleting...' : 'Delete Pet'}
+      {deleting ? t('actions.deleting') : t('actions.deletePet')}
     </Button>
   );
 };
