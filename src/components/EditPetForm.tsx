@@ -16,6 +16,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import GetStartedDatePicker from './get-started/ui/GetStartedDatePicker';
+import { AutocompleteBreedInput } from './ui/autocomplete-breed-input';
+import { getLocalizedBreedsForType } from '@/src/lib/data/breeds';
 
 interface Pet {
   id: string;
@@ -81,6 +83,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
   const [genders, setGenders] = useState<{ value: string; label: string }[]>([]);
   const [petTypes, setPetTypes] = useState<{ value: string; label: string }[]>([]);
   const [isLoadingDropdowns, setIsLoadingDropdowns] = useState(true);
+  const [breedId, setBreedId] = useState<string>('');
 
   // Fetch dropdown data from database
   useEffect(() => {
@@ -107,6 +110,29 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
     fetchDropdownData();
   }, [locale]);
 
+  // Update breed ID when type or breed name changes
+  useEffect(() => {
+    if (formData.type && formData.breed) {
+      try {
+        const localizedBreeds = getLocalizedBreedsForType(formData.type as 'dog' | 'cat' | 'other', locale);
+        const matchingBreed = localizedBreeds.find(
+          breed => breed.name.toLowerCase() === formData.breed.toLowerCase() ||
+                   breed.name === formData.breed
+        );
+        if (matchingBreed) {
+          setBreedId(matchingBreed.id);
+        } else {
+          setBreedId('');
+        }
+      } catch (error) {
+        console.error('Error finding breed ID:', error);
+        setBreedId('');
+      }
+    } else {
+      setBreedId('');
+    }
+  }, [formData.type, formData.breed, locale]);
+
   const handleInputChange = (field: keyof PetFormData, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -119,6 +145,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
         ...prev,
         breed: '',
       }));
+      setBreedId('');
     }
   };
 
@@ -308,25 +335,49 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 </div>
 
                 {/* Breed Selection */}
-                {formData.type && (
+                {formData.type && formData.type !== 'other' && (
+                  <div className="space-y-2">
+                    <AutocompleteBreedInput
+                      petType={formData.type as 'dog' | 'cat'}
+                      value={breedId}
+                      onValueChange={(id) => {
+                        setBreedId(id);
+                        // Find breed name from ID
+                        try {
+                          const localizedBreeds = getLocalizedBreedsForType(formData.type as 'dog' | 'cat', locale);
+                          const selectedBreed = localizedBreeds.find(breed => breed.id === id);
+                          if (selectedBreed) {
+                            handleInputChange('breed', selectedBreed.name);
+                          } else {
+                            handleInputChange('breed', '');
+                          }
+                        } catch (error) {
+                          console.error('Error finding breed name:', error);
+                          handleInputChange('breed', '');
+                        }
+                      }}
+                      placeholder={t('form.selectBreed')}
+                      label={t('form.breed')}
+                      disabled={isLoadingDropdowns}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+                {/* Custom breed input for "other" type */}
+                {formData.type === 'other' && (
                   <div className="space-y-2">
                     <Label htmlFor="breed" className="text-sm font-medium text-gray-700">
                       {t('form.breed')}
                     </Label>
-                    <select
+                    <Input
                       id="breed"
+                      type="text"
                       value={formData.breed}
                       onChange={(e) => handleInputChange('breed', e.target.value)}
+                      placeholder={t('form.breed')}
                       disabled={isLoadingDropdowns}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                    >
-                      <option value="">{isLoadingDropdowns ? 'Loading...' : t('form.selectBreed')}</option>
-                      {breeds.map((breed) => (
-                        <option key={breed.value} value={breed.value}>
-                          {breed.label}
-                        </option>
-                      ))}
-                    </select>
+                      className="w-full"
+                    />
                   </div>
                 )}
 

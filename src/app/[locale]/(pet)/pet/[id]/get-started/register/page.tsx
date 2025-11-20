@@ -1,26 +1,29 @@
 import ClientRegisterPetPage from '@/components/get-started/ClientRegisterPetPage';
-import { getBreedsFromFirestore, getGendersFromFirestore, initializeBreedsCollection, initializeGendersCollection } from '@/src/lib/firebase/collections/breeds';
+import { GENDERS, GENDERS_HEBREW } from '@/src/lib/hardcoded-data';
+import { getBreedsForType } from '@/src/lib/data/comprehensive-breeds';
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const petId = (await params).id;
 
-  // Initialize collections if they don't exist
-  await initializeBreedsCollection();
-  await initializeGendersCollection();
+  // Get data from local comprehensive breeds data (not Firebase)
+  const allDogBreeds = getBreedsForType('dog');
+  const allCatBreeds = getBreedsForType('cat');
+  const allOtherBreeds = getBreedsForType('other');
+  const allBreeds = [...allDogBreeds, ...allCatBreeds, ...allOtherBreeds];
 
-  // Get data from Firebase
-  const gendersData = await getGendersFromFirestore();
-  const breedsData = await getBreedsFromFirestore();
+  // Transform genders to match expected format with both English and Hebrew labels
+  const genders = GENDERS.map((gender, index) => {
+    const hebrewGender = GENDERS_HEBREW.find(g => g.value === gender.value);
+    return {
+      id: index + 1,
+      labels: { en: gender.label, he: hebrewGender?.label || gender.label }
+    };
+  });
 
-  // Transform data to match expected format (convert string IDs to numbers)
-  const genders = gendersData.map((gender, index) => ({
-    id: index + 1, // Convert to sequential number
-    labels: gender.labels
-  }));
-
-  const breeds = breedsData.map((breed, index) => ({
-    id: index + 1, // Convert to sequential number
-    labels: breed.labels
+  // Transform breeds to match expected format with both English and Hebrew labels
+  const breeds = allBreeds.map((breed, index) => ({
+    id: index + 1,
+    labels: { en: breed.en, he: breed.he }
   }));
 
   return (

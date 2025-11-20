@@ -129,16 +129,28 @@ const PetDetailsPage: React.FC<PetDetailsPageProps> = () => {
           name="breed"
           control={control}
           render={({ field }) => (
-            <BreedSelect
-              petType={selectedPetType as any}
-              value={field.value || ''}
-              onValueChange={field.onChange}
-              className="h-10 border-gray-300 bg-white text-base"
-              label={t('form.Breed')}
-              required={true}
-              hasError={!!errors.breed}
-              disabled={!selectedPetType || (selectedPetType !== 'dog' && selectedPetType !== 'cat')}
-            />
+            selectedPetType === 'other' ? (
+              <GetStartedInput
+                label={t('form.Breed')}
+                id="breed"
+                hasError={!!errors.breed}
+                value={field.value || ''}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                required={true}
+              />
+            ) : (
+              <BreedSelect
+                petType={selectedPetType as 'dog' | 'cat'}
+                value={field.value || ''}
+                onValueChange={field.onChange}
+                className="h-10 border-gray-300 bg-white text-base"
+                label={t('form.Breed')}
+                required={true}
+                hasError={!!errors.breed}
+                disabled={!selectedPetType}
+              />
+            )
           )}
         />
 

@@ -153,7 +153,8 @@ export { getBreedName, getGenderName };
 
 export async function createPetInFirestore(
   petData: PetData, 
-  user: User
+  user: User,
+  petId?: string
 ): Promise<{ success: boolean; petId?: string; error?: string }> {
   try {
     if (!user?.email) {
@@ -225,9 +226,19 @@ export async function createPetInFirestore(
       updatedAt: new Date()
     };
 
-    const petRef = await addDoc(collection(db, 'pets'), petDocData);
+    // If petId is provided, use setDoc to create with that specific ID
+    // Otherwise, use addDoc to generate a new ID
+    let finalPetId: string;
+    if (petId) {
+      const petDocRef = doc(db, 'pets', petId);
+      await setDoc(petDocRef, petDocData);
+      finalPetId = petId;
+    } else {
+      const petRef = await addDoc(collection(db, 'pets'), petDocData);
+      finalPetId = petRef.id;
+    }
 
-    return { success: true, petId: petRef.id };
+    return { success: true, petId: finalPetId };
   } catch (error: any) {
     console.error('Create pet error:', error);
     return { success: false, error: 'Failed to create pet' };

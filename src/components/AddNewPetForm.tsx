@@ -234,12 +234,27 @@ export default function AddNewPetForm() {
                 {t('breed.title', { pet: PET_TYPES.find(t => t.id === formData.type)?.name })}
               </h3>
             </div>
-            <BreedSelect
-              petType={formData.type as PetType}
-              value={formData.breed}
-              onValueChange={(value) => handleInputChange('breed', value)}
-              placeholder={t('breed.placeholder')}
-            />
+            {formData.type === 'other' ? (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  {t('breed.title', { pet: PET_TYPES.find(t => t.id === formData.type)?.name })}
+                </label>
+                <input
+                  type="text"
+                  value={formData.breed}
+                  onChange={(e) => handleInputChange('breed', e.target.value)}
+                  placeholder={t('breed.placeholder')}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            ) : (
+              <BreedSelect
+                petType={formData.type as 'dog' | 'cat'}
+                value={formData.breed}
+                onValueChange={(value) => handleInputChange('breed', value)}
+                placeholder={t('breed.placeholder')}
+              />
+            )}
           </motion.div>
         );
 

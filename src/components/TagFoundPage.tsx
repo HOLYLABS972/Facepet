@@ -7,7 +7,6 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { usePetId } from '@/src/hooks/use-pet-id';
 import Image from 'next/image';
-import traffic_light from '@/public/assets/traffic_light.png';
 
 interface TagFoundPageProps {
   petId: string;
@@ -42,7 +41,7 @@ export default function TagFoundPage({ petId }: TagFoundPageProps) {
   if (authLoading) {
     return (
       <div className="flex grow flex-col items-center">
-        <Image src={traffic_light} alt="traffic-light" width={100} height={100} />
+        <Image src="/assets/Facepet-logo.png" alt="FacePet Logo" width={150} height={150} className="mb-4" />
         <div className="justify-center p-10 text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
@@ -53,7 +52,7 @@ export default function TagFoundPage({ petId }: TagFoundPageProps) {
 
   return (
     <div className="flex grow flex-col items-center">
-      <Image src={traffic_light} alt="traffic-light" width={100} height={100} />
+      <Image src="/assets/Facepet-logo.png" alt="FacePet Logo" width={150} height={150} className="mb-4" />
       <div className="justify-center p-10 text-center">
         <h1 className="text-primary text-3xl font-bold">{t('title')}</h1>
         <p className="text-base text-gray-500">{t('subtitle')}</p>

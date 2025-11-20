@@ -73,8 +73,8 @@ export async function createNewPet(
       vetAddress: petData.vetAddress || ''
     };
 
-    // Use Firebase to create the pet
-    const result = await createPetInFirestore(transformedPetData, user);
+    // Use Firebase to create the pet with the provided petId
+    const result = await createPetInFirestore(transformedPetData, user, petId);
 
     if (result.success) {
       // Update user profile with owner information
