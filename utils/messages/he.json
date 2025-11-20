@@ -725,7 +725,9 @@
         "locationDenied": "גישה למיקום נדחתה. מציג את כל השירותים.",
         "closestServices": "השירותים הקרובים ביותר:",
         "loading": "טוען מפה..."
-      }
+      },
+      "addToFavorites": "הוסף למועדפים",
+      "removeFromFavorites": "הסר ממועדפים"
     },
 
     "ConfirmationPage": {
@@ -1096,7 +1098,8 @@
         "emailResponse": "נחזור תוך 24 שעות",
         "phone": "טלפון",
         "phoneHours": "ב'-ו' 9:00-18:00 שעון ישראל",
-        "address": "כתובת"
+        "address": "כתובת",
+        "followUs": "עקבו אחרינו"
       },
       "faq": {
         "title": "שאלות נפוצות",
@@ -1165,21 +1168,45 @@
       "coupons": "קופונים"
     },
     "UserCoupons": {
-      "title": "חנות קופונים",
-      "description": "קנו קופונים באמצעות הנקודות שלכם ושתפו את קישור ההפניה שלכם כדי להרוויח עוד נקודות!",
+      "title": "קופונים",
+      "description": "עיינו וקנו קופונים באמצעות הנקודות שלכם!",
       "myPoints": "הנקודות שלי",
-      "pointsDescription": "הרוויחו נקודות על ידי הרשמה ושיתוף קישור ההפניה שלכם",
-      "referralProgram": "תוכנית הפניה",
-      "referralDescription": "שתפו את הקישור הייחודי שלכם כדי להרוויח נקודות כשאחרים נרשמים",
-      "copyLink": "העתק קישור",
-      "copied": "הועתק!",
+      "pointsDescription": "השתמשו בנקודות שלכם כדי לקנות קופונים!",
+      "shareAndEarn": "שתפו והרוויחו נקודות",
+      "shareDescription": "שתפו את האפליקציה וקבלו 20 נקודות!",
+      "shareButton": "שתפו את האפליקציה",
+      "shop": "חנות",
+      "myCoupons": "הקופונים שלי",
+      "history": "היסטוריה",
       "availableCoupons": "קופונים זמינים",
       "noCoupons": "אין קופונים זמינים כרגע",
+      "myPurchasedCoupons": "הקופונים שקניתי",
+      "noPurchasedCoupons": "עדיין לא קניתם קופונים",
+      "visitShop": "בקרו בלשונית החנות כדי לעיין בקופונים הזמינים!",
+      "couponHistory": "היסטוריית קופונים",
+      "noHistory": "אין עדיין היסטוריית קופונים",
+      "historyDescription": "קופונים משומשים ופגי תוקף יופיעו כאן",
       "price": "מחיר",
       "pointsRequired": "נקודות נדרשות",
+      "pointsUsed": "נקודות שהושתמשו",
       "validUntil": "תקף עד",
       "purchase": "קנה",
-      "insufficientPoints": "נקודות לא מספיקות"
+      "purchased": "נרכש",
+      "insufficientPoints": "נקודות לא מספיקות",
+      "expired": "פג תוקף",
+      "used": "שומש",
+      "status": "סטטוס",
+      "loading": "טוען קופונים...",
+      "failedToLoad": "נכשל בטעינת קופונים",
+      "pleaseSignIn": "אנא התחברו כדי לקנות קופונים",
+      "pleaseSignInShare": "אנא התחברו כדי לשתף",
+      "sharedSuccessfully": "שותף בהצלחה! הרווחתם 20 נקודות!",
+      "linkCopied": "הקישור הועתק ללוח! הרווחתם 20 נקודות!",
+      "failedToShare": "נכשל בשיתוף",
+      "purchaseSuccess": "נרכש בהצלחה {name}!",
+      "failedToPurchase": "נכשל ברכישת קופון",
+      "points": "נקודות",
+      "shareText": "בדקו את FacePet! הצטרפו אליי וקבלו עסקאות מדהימות על שירותי חיות מחמד: {url}"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",

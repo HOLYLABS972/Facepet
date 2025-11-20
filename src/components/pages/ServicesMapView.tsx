@@ -844,7 +844,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                     ) : (
                       <HeartOff size={16} />
                     )}
-                    {isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
+                    {isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
                   </Button>
                 </div>
               </DrawerFooter>

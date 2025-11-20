@@ -329,7 +329,7 @@ export default function ContactPage() {
                   {/* Social Media Links */}
                   {(contactInfo.facebook || contactInfo.instagram || contactInfo.whatsapp) && (
                     <div className="space-y-4">
-                      <h4 className="font-semibold text-gray-900">Follow Us</h4>
+                      <h4 className="font-semibold text-gray-900">{t('contactInfo.followUs')}</h4>
                       <div className="flex flex-wrap gap-4">
                         {contactInfo.facebook && (
                           <a 

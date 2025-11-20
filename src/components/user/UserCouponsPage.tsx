@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,8 +17,8 @@ import { User } from 'firebase/auth';
 import toast from 'react-hot-toast';
 
 export default function UserCouponsPage() {
-  // const t = useTranslations('UserCoupons');
-  console.log('UserCouponsPage loaded - translations disabled');
+  const t = useTranslations('components.UserCoupons');
+  const locale = useLocale();
   const { user } = useAuth();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [userCoupons, setUserCoupons] = useState<Coupon[]>([]); // Active purchased coupons
@@ -97,7 +97,7 @@ export default function UserCouponsPage() {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to load coupons');
+      toast.error(t('failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -105,12 +105,12 @@ export default function UserCouponsPage() {
 
   const handleShare = async () => {
     if (!user) {
-      toast.error('Please sign in to share');
+      toast.error(t('pleaseSignInShare'));
       return;
     }
 
     const shareUrl = window.location.origin;
-    const shareText = `Check out FacePet! Join me and get amazing deals on pet services: ${shareUrl}`;
+    const shareText = t('shareText', { url: shareUrl });
     const shareData = {
       title: 'FacePet',
       text: shareText,
@@ -123,12 +123,12 @@ export default function UserCouponsPage() {
       if (navigator.canShare && navigator.canShare(shareData)) {
         await navigator.share(shareData);
         shared = true;
-        toast.success('Shared successfully! You earned 20 points!');
+        toast.success(t('sharedSuccessfully'));
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
         shared = true;
-        toast.success('Link copied to clipboard! You earned 20 points!');
+        toast.success(t('linkCopied'));
       }
 
       // Award 20 points for sharing
@@ -156,19 +156,19 @@ export default function UserCouponsPage() {
       console.error('Failed to share:', err);
       // Only show error if it's not a user cancellation
       if ((err as any).name !== 'AbortError') {
-        toast.error('Failed to share');
+        toast.error(t('failedToShare'));
       }
     }
   };
 
   const handlePurchaseCoupon = async (coupon: Coupon) => {
     if (!user) {
-      toast.error('Please sign in to purchase coupons');
+      toast.error(t('pleaseSignIn'));
       return;
     }
 
     if (userPoints < coupon.points) {
-      toast.error('Insufficient points to purchase this coupon');
+      toast.error(t('insufficientPoints'));
       return;
     }
 
@@ -179,7 +179,7 @@ export default function UserCouponsPage() {
       // 2. Adding coupon to user's purchased coupons
       // 3. Updating user's points in database
       
-      toast.success(`Successfully purchased ${coupon.name}!`);
+      toast.success(t('purchaseSuccess', { name: coupon.name }));
       // Refresh user points
       if (user?.uid) {
         const userData = await getUserFromFirestore(user.uid);
@@ -189,13 +189,13 @@ export default function UserCouponsPage() {
       }
     } catch (error) {
       console.error('Error purchasing coupon:', error);
-      toast.error('Failed to purchase coupon');
+      toast.error(t('failedToPurchase'));
     }
   };
 
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat(locale === 'he' ? 'he-IL' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -215,7 +215,7 @@ export default function UserCouponsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading coupons...</p>
+            <p className="text-gray-500">{t('loading')}</p>
           </div>
         </div>
       </div>
@@ -226,8 +226,8 @@ export default function UserCouponsPage() {
     <div className="container mx-auto p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Coupons</h1>
-        <p className="text-gray-600">Browse and purchase coupons using your points!</p>
+        <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
+        <p className="text-gray-600">{t('description')}</p>
       </div>
 
       {/* User Points Section */}
@@ -236,7 +236,7 @@ export default function UserCouponsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Coins className="h-5 w-5 text-yellow-500" />
-              My Points
+              {t('myPoints')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -246,7 +246,7 @@ export default function UserCouponsPage() {
                   <div className="text-3xl font-bold text-yellow-600 mb-2">
                     {userPoints.toLocaleString()}
                   </div>
-                  <p className="text-sm text-gray-600">Use your points to purchase coupons!</p>
+                  <p className="text-sm text-gray-600">{t('pointsDescription')}</p>
                 </div>
               </div>
               
@@ -254,11 +254,11 @@ export default function UserCouponsPage() {
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">Share & Earn Points</p>
-                    <p className="text-xs text-gray-500">Share the app and get 20 points!</p>
+                    <p className="text-sm font-semibold text-gray-900">{t('shareAndEarn')}</p>
+                    <p className="text-xs text-gray-500">{t('shareDescription')}</p>
                   </div>
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    +20 points
+                    +20 {t('points')}
                   </Badge>
                 </div>
                 <Button
@@ -268,7 +268,7 @@ export default function UserCouponsPage() {
                   className="w-full flex items-center justify-center gap-2 bg-primary"
                 >
                   <Share2 className="h-4 w-4" />
-                  Share the App
+                  {t('shareButton')}
                 </Button>
               </div>
             </div>
@@ -281,25 +281,25 @@ export default function UserCouponsPage() {
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="shop" className="flex items-center gap-2">
             <Store className="h-4 w-4" />
-            Shop
+            {t('shop')}
           </TabsTrigger>
           <TabsTrigger value="my-coupons" className="flex items-center gap-2">
             <Ticket className="h-4 w-4" />
-            My Coupons
+            {t('myCoupons')}
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <History className="h-4 w-4" />
-            History
+            {t('history')}
           </TabsTrigger>
         </TabsList>
 
         {/* Shop Tab */}
         <TabsContent value="shop" className="space-y-6">
-          <h2 className="text-2xl font-bold mb-4">Available Coupons</h2>
+          <h2 className="text-2xl font-bold mb-4">{t('availableCoupons')}</h2>
         {coupons.length === 0 ? (
           <div className="text-center py-12">
             <Ticket className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No coupons available at the moment</p>
+            <p className="text-gray-500">{t('noCoupons')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -327,18 +327,18 @@ export default function UserCouponsPage() {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Price</span>
+                      <span className="text-sm text-gray-600">{t('price')}</span>
                       <span className="font-semibold">{formatPrice(coupon.price)}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Points Required</span>
+                      <span className="text-sm text-gray-600">{t('pointsRequired')}</span>
                       <Badge variant="outline" className="flex items-center gap-1">
                         <Coins className="h-3 w-3" />
                         {coupon.points}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Valid Until</span>
+                      <span className="text-sm text-gray-600">{t('validUntil')}</span>
                       <div className="flex items-center gap-1 text-sm">
                         <Calendar className="h-3 w-3" />
                         {formatDate(coupon.validTo)}
@@ -353,7 +353,7 @@ export default function UserCouponsPage() {
                     className="w-full flex items-center gap-2"
                   >
                     <ShoppingCart className="h-4 w-4" />
-                    {userPoints < coupon.points ? 'Insufficient Points' : 'Purchase'}
+                    {userPoints < coupon.points ? t('insufficientPoints') : t('purchase')}
                   </Button>
                 </CardFooter>
               </Card>
@@ -364,12 +364,12 @@ export default function UserCouponsPage() {
 
         {/* My Coupons Tab */}
         <TabsContent value="my-coupons" className="space-y-6">
-          <h2 className="text-2xl font-bold mb-4">My Purchased Coupons</h2>
+          <h2 className="text-2xl font-bold mb-4">{t('myPurchasedCoupons')}</h2>
           {userCoupons.length === 0 ? (
             <div className="text-center py-12">
               <Ticket className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">You haven't purchased any coupons yet</p>
-              <p className="text-sm text-gray-400 mt-2">Visit the Shop tab to browse available coupons!</p>
+              <p className="text-gray-500">{t('noPurchasedCoupons')}</p>
+              <p className="text-sm text-gray-400 mt-2">{t('visitShop')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -397,18 +397,18 @@ export default function UserCouponsPage() {
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Price</span>
+                        <span className="text-sm text-gray-600">{t('price')}</span>
                         <span className="font-semibold">{formatPrice(coupon.price)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Points Used</span>
+                        <span className="text-sm text-gray-600">{t('pointsUsed')}</span>
                         <Badge variant="outline" className="flex items-center gap-1">
                           <Coins className="h-3 w-3" />
                           {coupon.points}
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Valid Until</span>
+                        <span className="text-sm text-gray-600">{t('validUntil')}</span>
                         <div className="flex items-center gap-1 text-sm">
                           <Calendar className="h-3 w-3" />
                           {formatDate(coupon.validTo)}
@@ -423,7 +423,7 @@ export default function UserCouponsPage() {
                       disabled
                     >
                       <Ticket className="h-4 w-4" />
-                      Purchased
+                      {t('purchased')}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -434,12 +434,12 @@ export default function UserCouponsPage() {
 
         {/* History Tab */}
         <TabsContent value="history" className="space-y-6">
-          <h2 className="text-2xl font-bold mb-4">Coupon History</h2>
+          <h2 className="text-2xl font-bold mb-4">{t('couponHistory')}</h2>
           {couponHistory.length === 0 ? (
             <div className="text-center py-12">
               <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No coupon history yet</p>
-              <p className="text-sm text-gray-400 mt-2">Used and expired coupons will appear here</p>
+              <p className="text-gray-500">{t('noHistory')}</p>
+              <p className="text-sm text-gray-400 mt-2">{t('historyDescription')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -469,20 +469,20 @@ export default function UserCouponsPage() {
                     <CardContent>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Price</span>
+                          <span className="text-sm text-gray-600">{t('price')}</span>
                           <span className="font-semibold">{formatPrice(coupon.price)}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Points Used</span>
+                          <span className="text-sm text-gray-600">{t('pointsUsed')}</span>
                           <Badge variant="outline" className="flex items-center gap-1">
                             <Coins className="h-3 w-3" />
                             {coupon.points}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Status</span>
+                          <span className="text-sm text-gray-600">{t('status')}</span>
                           <Badge variant={isExpired ? 'destructive' : 'secondary'}>
-                            {isExpired ? 'Expired' : 'Used'}
+                            {isExpired ? t('expired') : t('used')}
                           </Badge>
                         </div>
                       </div>
@@ -494,7 +494,7 @@ export default function UserCouponsPage() {
                         disabled
                       >
                         <History className="h-4 w-4" />
-                        {isExpired ? 'Expired' : 'Used'}
+                        {isExpired ? t('expired') : t('used')}
                       </Button>
                     </CardFooter>
                   </Card>

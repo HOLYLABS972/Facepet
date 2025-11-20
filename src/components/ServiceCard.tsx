@@ -20,6 +20,7 @@ import { cn } from '../lib/utils';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
 import { useAuth } from '@/contexts/AuthContext';
 import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/lib/firebase/favorites';
+import { useTranslations } from 'next-intl';
 
 // Real comments will be loaded from the database
 const realComments: Array<{
@@ -45,6 +46,7 @@ interface ServiceCardProps {
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
+  const t = useTranslations('pages.ServicesPage');
   const [open, setOpen] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -479,7 +481,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                   ) : (
                     <HeartOff size={16} />
                   )}
-                  {isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
+                  {isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
                 </Button>
               </div>
             </DrawerFooter>

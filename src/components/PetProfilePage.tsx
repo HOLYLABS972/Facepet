@@ -15,6 +15,7 @@ import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
 import ShareButton from './ShareButton';
 import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
+import { getGenders } from '@/src/lib/hardcoded-data';
 
 const computeAge = (birthDate: string) => {
   const birth = new Date(birthDate);
@@ -71,6 +72,32 @@ export default function PetProfilePage({
     return newIndex > prevIndex ? 1 : -1;
   }, [activeTab, availableTabs]);
 
+  // Helper function to translate gender
+  const getGenderLabel = (genderValue: string | undefined): string => {
+    if (!genderValue) return t('labels.notSpecified');
+    const genders = getGenders(locale as 'en' | 'he');
+    const normalizedValue = genderValue.toLowerCase().trim();
+    // Try to find by value first (male/female)
+    let gender = genders.find(g => g.value.toLowerCase() === normalizedValue);
+    // If not found, try to find by label (Male/Female)
+    if (!gender) {
+      gender = genders.find(g => g.label.toLowerCase() === normalizedValue);
+    }
+    // If still not found, check English labels for Hebrew locale
+    if (!gender && locale === 'he') {
+      const englishGenders = getGenders('en');
+      const englishGender = englishGenders.find(g => 
+        g.value.toLowerCase() === normalizedValue || 
+        g.label.toLowerCase() === normalizedValue
+      );
+      if (englishGender) {
+        const hebrewGenders = getGenders('he');
+        gender = hebrewGenders.find(g => g.value === englishGender.value);
+      }
+    }
+    return gender ? gender.label : genderValue;
+  };
+
   // Build data arrays with privacy checks
   // Pet name, breed, gender, and age are always public
   const petInfo = [
@@ -84,7 +111,7 @@ export default function PetProfilePage({
     },
     {
       label: t('labels.gender'),
-      value: pet.gender || t('labels.notSpecified')
+      value: getGenderLabel(pet.gender)
     },
     {
       label: t('labels.age'),

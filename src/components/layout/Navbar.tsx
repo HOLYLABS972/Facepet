@@ -133,6 +133,12 @@ const Navbar = () => {
       icon: <Stethoscope className="h-5 w-5" />
     },
     {
+      label: t('coupons'),
+      key: 'coupons',
+      path: '/coupons',
+      icon: <Ticket className="h-5 w-5" />
+    },
+    {
       label: t('contact'),
       key: 'contact',
       path: '/contact',
