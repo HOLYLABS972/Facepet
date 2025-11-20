@@ -118,8 +118,22 @@ export default function MediaUpload({
     fileInputRef.current?.click();
   };
 
+  const isValidUrl = (urlString: string): boolean => {
+    if (!urlString || urlString.trim() === '') return false;
+    try {
+      const url = new URL(urlString);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
   const handleRemoveFile = async () => {
-    if (!value) return;
+    if (!value || !isValidUrl(value)) {
+      // If no valid URL, just clear the value
+      onChange('');
+      return;
+    }
 
     try {
       // Extract the file path from the download URL
@@ -132,11 +146,20 @@ export default function MediaUpload({
         await deleteObject(fileRef);
         onChange('');
         toast.success('File removed successfully');
+      } else {
+        // If URL doesn't match expected pattern, just clear it
+        onChange('');
       }
     } catch (error: any) {
       console.error('Error removing file:', error);
-      toast.error('Failed to remove file');
+      // Silently clear the value if there's an error
+      onChange('');
     }
+  };
+
+  const handleImageError = () => {
+    // If image fails to load, clear the value
+    onChange('');
   };
 
   return (
@@ -149,7 +172,7 @@ export default function MediaUpload({
         className="hidden"
       />
 
-      {value ? (
+      {value && isValidUrl(value) ? (
         <Card className="relative overflow-hidden">
           <CardContent className="p-2">
             <div className="relative aspect-video w-full overflow-hidden rounded-md">
@@ -159,12 +182,14 @@ export default function MediaUpload({
                   alt="Advertisement image"
                   className="h-full w-full object-cover"
                   loading="lazy"
+                  onError={handleImageError}
                 />
               ) : (
                 <video
                   src={value}
                   controls
                   className="h-full w-full"
+                  onError={handleImageError}
                 />
               )}
               <Button

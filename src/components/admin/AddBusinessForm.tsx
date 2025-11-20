@@ -128,7 +128,7 @@ export default function AddBusinessForm() {
       const result = await createBusiness({
         name: formData.name,
         description: formData.description,
-        imageUrl: formData.imageUrl,
+        imageUrl: formData.imageUrl && formData.imageUrl.trim() !== '' ? formData.imageUrl : '',
         contactInfo: formData.contactInfo,
         tags: formData.tags,
         audienceId: formData.audienceId || undefined,
