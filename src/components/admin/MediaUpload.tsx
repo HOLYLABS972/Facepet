@@ -23,7 +23,7 @@ export default function MediaUpload({
   onChange,
   className = ''
 }: MediaUploadProps) {
-  const t = useTranslations('pages.Admin');
+  const t = useTranslations('Admin.mediaUpload');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -175,7 +175,7 @@ export default function MediaUpload({
       {value && isValidUrl(value) ? (
         <Card className="relative overflow-hidden">
           <CardContent className="p-2">
-            <div className="relative aspect-video w-full overflow-hidden rounded-md">
+            <div className="relative w-full max-h-48 overflow-hidden rounded-md">
               {type === 'image' ? (
                 <img
                   src={value}
@@ -211,7 +211,7 @@ export default function MediaUpload({
                 onClick={handleUploadClick}
                 disabled={isUploading}
               >
-                Replace {type === 'image' ? 'Image' : 'Video'}
+                {type === 'image' ? t('replaceImage') : t('replaceVideo')}
               </Button>
             </div>
           </CardContent>
@@ -233,12 +233,10 @@ export default function MediaUpload({
             <span className="text-sm font-medium">
               {isUploading
                 ? t('uploading')
-                : `Click to upload ${type === 'image' ? 'an image' : 'a video'}`}
+                : (type === 'image' ? t('clickToUploadImage') : t('clickToUploadVideo'))}
             </span>
             <span className="text-muted-foreground mt-1 text-xs">
-              {type === 'image'
-                ? 'JPG, PNG or GIF up to 20MB'
-                : 'MP4, WebM or MOV up to 100MB'}
+              {type === 'image' ? t('fileFormats.image') : t('fileFormats.video')}
             </span>
           </div>
         </Button>

@@ -263,7 +263,7 @@ export default function AdminDashboard() {
 
       {/* Bottom Section - Management Tables */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="rounded-lg bg-white p-6 shadow-md">
+        <div className="rounded-lg bg-white p-4 shadow-md">
           <div className="mb-4 flex items-center justify-between">
             <Link
               href={`/${locale}/admin/users`}
@@ -274,20 +274,20 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-semibold text-right rtl:text-right rtl:order-1">{t('userActivity')}</h3>
           </div>
           <div className="overflow-hidden">
-            <Table>
+            <Table className="min-w-0">
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('usersManagement.table.name')}</TableHead>
-                  <TableHead>{t('usersManagement.table.email')}</TableHead>
-                  <TableHead>{t('usersManagement.table.joined')}</TableHead>
+                  <TableHead className="px-0.5">{t('usersManagement.table.name')}</TableHead>
+                  <TableHead className="px-0.5">{t('usersManagement.table.email')}</TableHead>
+                  <TableHead className="px-0.5">{t('usersManagement.table.joined')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {activity.users.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell>{user.fullName}</TableCell>
-                    <TableCell className="text-sm text-gray-600">{user.email}</TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="px-0.5">{user.fullName}</TableCell>
+                    <TableCell className="px-0.5 text-sm text-gray-600">{user.email}</TableCell>
+                    <TableCell className="px-0.5 text-sm">
                       {formatDate(user.createdAt)}
                     </TableCell>
                   </TableRow>
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-6 shadow-md">
+        <div className="rounded-lg bg-white p-4 shadow-md">
           <div className="mb-4 flex items-center justify-between">
             <Link
               href={`/${locale}/admin/ads`}
@@ -315,18 +315,18 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-semibold text-right rtl:text-right rtl:order-1">{t('adActivity')}</h3>
           </div>
           <div className="overflow-hidden">
-            <Table>
+            <Table className="min-w-0 w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('adsManagement.table.title')}</TableHead>
-                  <TableHead>{t('adsManagement.table.status')}</TableHead>
+                  <TableHead className="px-0 pr-1 text-left rtl:text-right">{t('adsManagement.table.title')}</TableHead>
+                  <TableHead className="px-0 pl-1 text-left rtl:text-right">{t('adsManagement.table.status')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {activity.ads.map((ad) => (
                   <TableRow key={ad.id}>
-                    <TableCell>{ad.title}</TableCell>
-                    <TableCell>
+                    <TableCell className="px-0 pr-1">{ad.title}</TableCell>
+                    <TableCell className="px-0 pl-1">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${
                           ad.status === 'active'

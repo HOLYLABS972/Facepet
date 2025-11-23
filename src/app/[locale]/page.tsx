@@ -148,7 +148,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
   return (
     <>
       {/* Main Welcome Content */}
-      <section className="relative mt-16 px-4 sm:px-7 py-8 min-h-[600px] overflow-visible max-w-7xl mx-auto">
+      <section className="relative mt-16 px-4 sm:px-7 pt-8 pb-0 min-h-[600px] overflow-visible max-w-7xl mx-auto">
         {/* Pet Icons Around Text - using existing petCharacters */}
         {petCharacters
           .filter(pet => pet.id !== 4 && pet.id !== 5) // Remove duck (4) and penguin (5)
@@ -189,11 +189,9 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
       </section>
 
       {/* Product Highlights Section */}
-      <div className="relative min-h-[350px] w-full">
-        <div className="mt-20 lg:mt-32">
-          <div className="sm:hidden">
-            <ProductHighlights />
-          </div>
+      <div className="relative w-full">
+        <div className="sm:hidden">
+          <ProductHighlights />
         </div>
       </div>
       <div className="hidden sm:block">
@@ -479,13 +477,13 @@ const ProductHighlights = () => {
   const t = useTranslations('components.ProductHighlights');
 
   return (
-    <section className="my-16">
+    <section className="mt-0 mb-0">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ amount: 0.8 }}
-        className="mx-auto max-w-4xl px-4 text-center"
+        className="mx-auto max-w-4xl px-4 text-center pt-0"
       >
         {/* Headline */}
         <motion.h2
@@ -504,7 +502,7 @@ const ProductHighlights = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           viewport={{ once: true }}
-          className="mb-12 text-lg text-gray-700"
+          className="mb-4 text-lg text-gray-700"
         >
           {t('subheading')}
         </motion.p>

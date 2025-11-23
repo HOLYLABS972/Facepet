@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { createAudience } from '@/lib/actions/admin';
-import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -102,8 +101,7 @@ export default function AddAudienceForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 rtl:flex-row-reverse">
-          <PlusCircle className="h-4 w-4" />
+        <Button>
           {t('audienceManagement.addNewAudience')}
         </Button>
       </DialogTrigger>
@@ -126,7 +124,7 @@ export default function AddAudienceForm() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Enter audience name"
+              placeholder={t('audienceManagement.namePlaceholder')}
               required
             />
           </div>
@@ -138,20 +136,20 @@ export default function AddAudienceForm() {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Enter audience description"
+              placeholder={t('audienceManagement.descriptionPlaceholder')}
               rows={3}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="targetCriteria">Target Criteria</Label>
+            <Label htmlFor="targetCriteria">{t('audienceManagement.targetCriteria')}</Label>
             <div className="flex gap-2">
               <Input
                 id="targetCriteria"
                 value={newCriteria}
                 onChange={(e) => setNewCriteria(e.target.value)}
-                placeholder="Add target criteria"
+                placeholder={t('audienceManagement.targetCriteriaPlaceholder')}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -160,7 +158,7 @@ export default function AddAudienceForm() {
                 }}
               />
               <Button type="button" onClick={addCriteria} variant="outline">
-                Add
+                {t('audienceManagement.add')}
               </Button>
             </div>
             
@@ -191,10 +189,10 @@ export default function AddAudienceForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Audience'}
+              {isSubmitting ? t('audienceManagement.creating') : t('audienceManagement.createAudience')}
             </Button>
           </DialogFooter>
         </form>

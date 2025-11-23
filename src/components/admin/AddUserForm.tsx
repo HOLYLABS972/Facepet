@@ -19,11 +19,12 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { createUserByAdmin } from '@/lib/actions/admin';
-import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function AddUserForm() {
+  const t = useTranslations('Admin');
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -84,8 +85,7 @@ export default function AddUserForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <PlusCircle className="h-4 w-4" />
+        <Button>
           Add New User
         </Button>
       </DialogTrigger>
@@ -161,7 +161,7 @@ export default function AddUserForm() {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select role" />
+                <SelectValue placeholder={t('forms.addUser.selectRole')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="user">User</SelectItem>
@@ -177,10 +177,10 @@ export default function AddUserForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create User'}
+              {isSubmitting ? t('forms.addUser.creating') : t('forms.addUser.createUser')}
             </Button>
           </DialogFooter>
         </form>

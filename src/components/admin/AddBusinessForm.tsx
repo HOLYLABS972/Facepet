@@ -15,7 +15,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { createBusiness, getAudiences } from '@/lib/actions/admin';
-import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
@@ -170,8 +169,7 @@ export default function AddBusinessForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 rtl:flex-row-reverse">
-          <PlusCircle className="h-4 w-4" />
+        <Button>
           {t('businessManagement.addNewBusiness')}
         </Button>
       </DialogTrigger>
@@ -194,7 +192,7 @@ export default function AddBusinessForm() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Enter business name"
+              placeholder={t('businessManagement.namePlaceholder')}
               required
             />
           </div>
@@ -206,7 +204,7 @@ export default function AddBusinessForm() {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Enter business description"
+              placeholder={t('businessManagement.descriptionPlaceholder')}
               rows={3}
               required
             />
@@ -224,7 +222,7 @@ export default function AddBusinessForm() {
           </div>
 
           <div className="space-y-2">
-            <Label>Tags</Label>
+            <Label>{t('businessManagement.tags')}</Label>
             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-2">
               {HEBREW_SERVICE_TAGS.map((tag) => (
                 <button
@@ -271,7 +269,7 @@ export default function AddBusinessForm() {
               step="0.1"
               value={formData.rating}
               onChange={handleChange}
-              placeholder="Enter rating (1-5)"
+              placeholder={t('businessManagement.ratingPlaceholder')}
             />
           </div>
 
@@ -286,7 +284,7 @@ export default function AddBusinessForm() {
                 type="email"
                 value={formData.contactInfo.email}
                 onChange={handleChange}
-                placeholder="business@example.com"
+                placeholder={t('businessManagement.emailPlaceholder')}
                 required
               />
             </div>
@@ -298,7 +296,7 @@ export default function AddBusinessForm() {
                 name="contactInfo.phone"
                 value={formData.contactInfo.phone}
                 onChange={handleChange}
-                placeholder="+1-XXX-XXX-XXXX"
+                placeholder={t('businessManagement.phonePlaceholder')}
                 required
               />
             </div>
@@ -310,7 +308,7 @@ export default function AddBusinessForm() {
                 name="contactInfo.address"
                 value={formData.contactInfo.address}
                 onChange={handleChange}
-                placeholder="Enter business address"
+                placeholder={t('businessManagement.addressPlaceholder')}
                 rows={2}
                 required
               />
@@ -346,10 +344,10 @@ export default function AddBusinessForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Business'}
+              {isSubmitting ? t('businessManagement.creating') : t('businessManagement.createBusiness')}
             </Button>
           </DialogFooter>
         </form>

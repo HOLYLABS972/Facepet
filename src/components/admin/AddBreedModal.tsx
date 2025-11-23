@@ -22,6 +22,7 @@ import {
 import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 interface AddBreedModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ interface PetType {
 }
 
 export default function AddBreedModal({ isOpen, onClose }: AddBreedModalProps) {
+  const t = useTranslations('Admin.dialogs.addBreed');
   const [breedName, setBreedName] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [petTypes, setPetTypes] = useState<PetType[]>([]);
@@ -109,20 +111,20 @@ export default function AddBreedModal({ isOpen, onClose }: AddBreedModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Breed</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Add a new breed for a specific pet type. This will be available for pet registration.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="petType" className="text-right">
-                Pet Type
+                {t('petType')}
               </Label>
               <Select value={selectedType} onValueChange={setSelectedType} required>
                 <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select pet type" />
+                  <SelectValue placeholder={t('petTypePlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {petTypes.map((type) => (
@@ -135,24 +137,24 @@ export default function AddBreedModal({ isOpen, onClose }: AddBreedModalProps) {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="breedName" className="text-right">
-                Breed Name
+                {t('breedName')}
               </Label>
               <Input
                 id="breedName"
                 value={breedName}
                 onChange={(e) => setBreedName(e.target.value)}
                 className="col-span-3"
-                placeholder="e.g., Labrador Retriever"
+                placeholder={t('breedNamePlaceholder')}
                 required
               />
             </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Adding...' : 'Add Breed'}
+              {isLoading ? t('adding') : t('add')}
             </Button>
           </DialogFooter>
         </form>

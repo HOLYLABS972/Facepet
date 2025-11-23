@@ -142,7 +142,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Promo</DialogTitle>
+          <DialogTitle>{t('dialogs.editPromo.title')}</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -200,7 +200,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
                 </SelectTrigger>
                 <SelectContent>
                   {loading ? (
-                    <SelectItem value="loading" disabled>Loading...</SelectItem>
+                    <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading')}</SelectItem>
                   ) : (
                     businesses.map((business) => (
                       <SelectItem key={business.id} value={business.id}>
@@ -223,7 +223,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
                 </SelectTrigger>
                 <SelectContent>
                   {loading ? (
-                    <SelectItem value="loading" disabled>Loading...</SelectItem>
+                    <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading')}</SelectItem>
                   ) : (
                     audiences.map((audience) => (
                       <SelectItem key={audience.id} value={audience.id}>
@@ -262,10 +262,10 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('dialogs.editPromo.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Updating...' : 'Update Promo'}
+              {isSubmitting ? t('dialogs.editPromo.updating') : t('dialogs.editPromo.update')}
             </Button>
           </DialogFooter>
         </form>

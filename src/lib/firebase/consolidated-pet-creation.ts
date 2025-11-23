@@ -54,6 +54,14 @@ export async function createPetWithConsolidatedUser(
 
     const petRef = await addDoc(collection(db, 'pets'), petDocData);
 
+    // Update user audiences based on new pet
+    try {
+      const { updateUserAudiencesOnPetChange } = await import('./audience-assignment');
+      await updateUserAudiencesOnPetChange(user.email);
+    } catch (audienceError) {
+      console.warn('Failed to update audiences on pet creation:', audienceError);
+    }
+
     // Optionally update user document to track pet count
     try {
       const userQuery = await import('firebase/firestore').then(firestore => 
@@ -275,6 +283,7 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       language: ownerData.language,
       acceptCookies: ownerData.acceptCookies,
       role: ownerData.role,
+      audienceIds: ownerData.audienceIds || [], // Include audience IDs
       // Convert Firebase Timestamps to Date objects
       createdAt: ownerData.createdAt?.toDate ? ownerData.createdAt.toDate() : ownerData.createdAt,
       updatedAt: ownerData.updatedAt?.toDate ? ownerData.updatedAt.toDate() : ownerData.updatedAt

@@ -105,7 +105,7 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Audience</DialogTitle>
+          <DialogTitle>{t('dialogs.editAudience.title')}</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -122,7 +122,7 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Enter audience name"
+              placeholder={t('dialogs.editAudience.enterAudienceName')}
               required
             />
           </div>
@@ -134,20 +134,20 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Enter audience description"
+              placeholder={t('dialogs.editAudience.enterAudienceDescription')}
               rows={3}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="targetCriteria">Target Criteria</Label>
+            <Label htmlFor="targetCriteria">{t('dialogs.editAudience.targetCriteria')}</Label>
             <div className="flex gap-2">
               <Input
                 id="targetCriteria"
                 value={newCriteria}
                 onChange={(e) => setNewCriteria(e.target.value)}
-                placeholder="Add target criteria"
+                placeholder={t('dialogs.editAudience.addCriteriaPlaceholder')}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -156,7 +156,7 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
                 }}
               />
               <Button type="button" onClick={addCriteria} variant="outline">
-                Add
+                {t('dialogs.editAudience.addCriteria')}
               </Button>
             </div>
             
@@ -183,10 +183,10 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('dialogs.editAudience.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Updating...' : 'Update Audience'}
+              {isSubmitting ? t('dialogs.editAudience.updating') : t('dialogs.editAudience.update')}
             </Button>
           </DialogFooter>
         </form>

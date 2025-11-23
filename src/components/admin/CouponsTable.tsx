@@ -178,7 +178,7 @@ export default function CouponsTable() {
                   </TableCell>
                   <TableCell>
                     {coupon.imageUrl ? (
-                      <div className="w-12 h-12 rounded-md overflow-hidden">
+                      <div className="w-10 h-10 rounded-md overflow-hidden">
                         <img 
                           src={coupon.imageUrl} 
                           alt={coupon.name}
@@ -186,8 +186,8 @@ export default function CouponsTable() {
                         />
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-md bg-gray-100 flex items-center justify-center">
-                        <Image className="h-6 w-6 text-gray-400" />
+                      <div className="w-10 h-10 rounded-md bg-gray-100 flex items-center justify-center">
+                        <Image className="h-5 w-5 text-gray-400" />
                       </div>
                     )}
                   </TableCell>

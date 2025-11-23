@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 interface AddTypeModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ interface AddTypeModalProps {
 }
 
 export default function AddTypeModal({ isOpen, onClose }: AddTypeModalProps) {
+  const t = useTranslations('Admin.dialogs.addType');
   const [typeName, setTypeName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +31,7 @@ export default function AddTypeModal({ isOpen, onClose }: AddTypeModalProps) {
     e.preventDefault();
     
     if (!typeName.trim()) {
-      toast.error('Type name is required');
+      toast.error(t('typeName') + ' is required');
       return;
     }
 
@@ -60,33 +62,33 @@ export default function AddTypeModal({ isOpen, onClose }: AddTypeModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Pet Type</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Add a new pet type to the system. This will be available for pet registration.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="typeName" className="text-right">
-                Type Name
+                {t('typeName')}
               </Label>
               <Input
                 id="typeName"
                 value={typeName}
                 onChange={(e) => setTypeName(e.target.value)}
                 className="col-span-3"
-                placeholder="e.g., Dog, Cat, Bird"
+                placeholder={t('typeNamePlaceholder')}
                 required
               />
             </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Adding...' : 'Add Type'}
+              {isLoading ? t('adding') : t('add')}
             </Button>
           </DialogFooter>
         </form>

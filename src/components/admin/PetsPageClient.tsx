@@ -339,11 +339,11 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
                       <img 
                         src={pet.imageUrl} 
                         alt={pet.name}
-                        className="h-12 w-12 rounded object-cover"
+                        className="h-10 w-10 rounded object-cover"
                       />
                     ) : (
-                      <div className="h-12 w-12 rounded bg-gray-200 flex items-center justify-center">
-                        <PawPrint className="h-6 w-6 text-gray-400" />
+                      <div className="h-10 w-10 rounded bg-gray-200 flex items-center justify-center">
+                        <PawPrint className="h-5 w-5 text-gray-400" />
                       </div>
                     )}
                   </TableCell>

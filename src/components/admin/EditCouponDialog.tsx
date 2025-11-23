@@ -107,7 +107,7 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit Coupon</DialogTitle>
+          <DialogTitle>{t('dialogs.editCoupon.title')}</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -210,10 +210,10 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('dialogs.editCoupon.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Updating...' : 'Update Coupon'}
+              {isSubmitting ? t('dialogs.editCoupon.updating') : t('dialogs.editCoupon.update')}
             </Button>
           </DialogFooter>
         </form>

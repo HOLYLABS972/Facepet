@@ -22,7 +22,6 @@ import {
 } from '@/components/ui/select';
 
 import { createPromo, getBusinesses, getAudiences } from '@/lib/actions/admin';
-import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
@@ -141,8 +140,7 @@ export default function AddPromoForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 rtl:flex-row-reverse">
-          <PlusCircle className="h-4 w-4" />
+        <Button>
           {t('promoManagement.addNewPromo')}
         </Button>
       </DialogTrigger>
@@ -272,7 +270,7 @@ export default function AddPromoForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : t('promoManagement.createPromo')}

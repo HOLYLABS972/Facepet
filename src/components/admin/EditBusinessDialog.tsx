@@ -167,7 +167,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="text-center pr-8">
-          <DialogTitle className="text-center">Edit Business</DialogTitle>
+          <DialogTitle className="text-center">{t('dialogs.editBusiness.title')}</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -184,7 +184,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Enter business name"
+              placeholder={t('dialogs.editBusiness.enterBusinessName')}
               required
             />
           </div>
@@ -196,7 +196,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Enter business description"
+              placeholder={t('dialogs.editBusiness.enterBusinessDescription')}
               rows={3}
               required
             />
@@ -214,7 +214,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
           </div>
 
           <div className="space-y-2">
-            <Label>Tags</Label>
+            <Label>{t('dialogs.editBusiness.tags')}</Label>
             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-2">
               {HEBREW_SERVICE_TAGS.map((tag) => (
                 <button
@@ -235,7 +235,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
             </div>
             {formData.tags.length > 0 && (
               <div className="mt-2">
-                <p className="text-xs text-gray-600 mb-1">Selected tags ({formData.tags.length}):</p>
+                <p className="text-xs text-gray-600 mb-1">{t('dialogs.editBusiness.selectedTags', { count: formData.tags.length })}</p>
                 <div className="flex flex-wrap gap-2">
                   {formData.tags.map((tag) => (
                     <span
@@ -261,46 +261,46 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
               step="0.1"
               value={formData.rating}
               onChange={handleChange}
-              placeholder="Enter rating (1-5)"
+              placeholder={t('dialogs.editBusiness.enterRating')}
             />
           </div>
 
           <div className="space-y-4">
-            <Label>Contact Information</Label>
+            <Label>{t('dialogs.editBusiness.contactInformation')}</Label>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('dialogs.editBusiness.email')}</Label>
               <Input
                 id="email"
                 name="contactInfo.email"
                 type="email"
                 value={formData.contactInfo.email}
                 onChange={handleChange}
-                placeholder="business@example.com"
+                placeholder={t('dialogs.editBusiness.emailPlaceholder')}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t('dialogs.editBusiness.phone')}</Label>
               <Input
                 id="phone"
                 name="contactInfo.phone"
                 value={formData.contactInfo.phone}
                 onChange={handleChange}
-                placeholder="+1-XXX-XXX-XXXX"
+                placeholder={t('dialogs.editBusiness.phonePlaceholder')}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">{t('dialogs.editBusiness.address')}</Label>
               <Textarea
                 id="address"
                 name="contactInfo.address"
                 value={formData.contactInfo.address}
                 onChange={handleChange}
-                placeholder="Enter business address"
+                placeholder={t('dialogs.editBusiness.addressPlaceholder')}
                 rows={2}
                 required
               />
@@ -332,10 +332,10 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('dialogs.editBusiness.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Updating...' : 'Update Business'}
+              {isSubmitting ? t('dialogs.editBusiness.updating') : t('dialogs.editBusiness.update')}
             </Button>
           </DialogFooter>
         </form>

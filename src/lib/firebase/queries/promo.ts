@@ -219,12 +219,11 @@ export async function getPromosByBusiness(businessId: string): Promise<Promo[]> 
   try {
     const q = query(
       collection(db, PROMOS_COLLECTION), 
-      where('businessId', '==', businessId),
-      orderBy('createdAt', 'desc')
+      where('businessId', '==', businessId)
     );
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => ({
+    const promos = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
@@ -232,6 +231,11 @@ export async function getPromosByBusiness(businessId: string): Promise<Promo[]> 
       startDate: doc.data().startDate?.toDate() || undefined,
       endDate: doc.data().endDate?.toDate() || undefined
     })) as Promo[];
+    
+    // Sort by createdAt in descending order (newest first)
+    promos.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    return promos;
   } catch (error) {
     console.error('Error fetching promos by business:', error);
     throw new Error('Failed to fetch promos by business');
@@ -242,12 +246,11 @@ export async function getPromosByAudience(audienceId: string): Promise<Promo[]> 
   try {
     const q = query(
       collection(db, PROMOS_COLLECTION), 
-      where('audienceId', '==', audienceId),
-      orderBy('createdAt', 'desc')
+      where('audienceId', '==', audienceId)
     );
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => ({
+    const promos = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
@@ -255,6 +258,11 @@ export async function getPromosByAudience(audienceId: string): Promise<Promo[]> 
       startDate: doc.data().startDate?.toDate() || undefined,
       endDate: doc.data().endDate?.toDate() || undefined
     })) as Promo[];
+    
+    // Sort by createdAt in descending order (newest first)
+    promos.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    return promos;
   } catch (error) {
     console.error('Error fetching promos by audience:', error);
     throw new Error('Failed to fetch promos by audience');

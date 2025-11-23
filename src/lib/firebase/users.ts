@@ -12,6 +12,7 @@ interface UserData {
   acceptCookies?: boolean;
   language?: string;
   role?: 'user' | 'admin' | 'super_admin';
+  audienceIds?: string[]; // Array of audience IDs the user belongs to
   createdAt: Date;
   updatedAt: Date;
 }
@@ -87,6 +88,15 @@ export async function createUserInFirestore(
 
       await setDoc(userDocRef, userData);
       console.log('New user created in Firestore:', user.uid);
+      
+      // Automatically assign audiences based on location and pet types
+      try {
+        const { assignAudiencesToUser } = await import('./audience-assignment');
+        await assignAudiencesToUser(user.email, additionalData?.address);
+      } catch (audienceError) {
+        // Don't fail user creation if audience assignment fails
+        console.warn('Failed to assign audiences to new user:', audienceError);
+      }
     }
 
     return { success: true };
@@ -132,6 +142,16 @@ export async function updateUserInFirestore(
     console.log('Final data being saved to Firestore:', finalData);
     
     await setDoc(userDocRef, finalData, { merge: true });
+
+    // If address was updated, re-assign audiences
+    if (updateData.address !== undefined) {
+      try {
+        const { updateUserAudiencesOnAddressChange } = await import('./audience-assignment');
+        await updateUserAudiencesOnAddressChange(uid, updateData.address);
+      } catch (audienceError) {
+        console.warn('Failed to update audiences on address change:', audienceError);
+      }
+    }
 
     console.log('User updated in Firestore successfully:', uid);
     return { success: true };

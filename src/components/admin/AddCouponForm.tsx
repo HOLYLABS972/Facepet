@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { createCoupon } from '@/lib/actions/admin';
-import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -108,8 +107,7 @@ export default function AddCouponForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <PlusCircle className="h-4 w-4" />
+        <Button>
           {t('couponsManagement.addNewCoupon')}
         </Button>
       </DialogTrigger>
@@ -221,7 +219,7 @@ export default function AddCouponForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : t('couponsManagement.createCoupon')}

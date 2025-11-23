@@ -16,7 +16,7 @@ export default function AdImageThumbnail({ src, alt, title }: AdImageThumbnailPr
 
   if (!src || src === 'image' || src === 'text') {
     return (
-      <div className="w-16 h-12 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
+      <div className="w-12 h-10 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
         {src === 'image' ? 'Image' : 'No Image'}
       </div>
     );
@@ -24,14 +24,14 @@ export default function AdImageThumbnail({ src, alt, title }: AdImageThumbnailPr
 
   if (imageError) {
     return (
-      <div className="w-16 h-12 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
+      <div className="w-12 h-10 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
         Error
       </div>
     );
   }
 
   return (
-    <div className="w-16 h-12 relative">
+    <div className="w-12 h-10 relative">
       <img
         src={src}
         alt={alt}

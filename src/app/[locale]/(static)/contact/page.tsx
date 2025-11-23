@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Send, CheckCircle, Facebook, Instagram, MessageCircle } from 'lucide-react';
+import Navbar from '@/src/components/layout/Navbar';
 import Footer from '@/src/components/layout/Footer';
 import { useTranslations } from 'next-intl';
 import { createContactSubmission } from '@/src/lib/firebase/contact';
@@ -140,14 +141,7 @@ export default function ContactPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-center">
-            <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-          </div>
-        </div>
-      </div>
+      <Navbar />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white py-16">

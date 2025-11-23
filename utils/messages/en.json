@@ -205,6 +205,26 @@
       "averageRating": "Average Rating",
       "rating": "Rating"
     },
+    "forms": {
+      "addUser": {
+        "title": "Add New User",
+        "selectRole": "Select role",
+        "createUser": "Create User",
+        "creating": "Creating..."
+      },
+      "addAd": {
+        "title": "Title",
+        "content": "Content",
+        "description": "Description",
+        "descriptionPlaceholder": "Enter service description...",
+        "phoneNumber": "Phone Number",
+        "phonePlaceholder": "+972-XX-XXX-XXXX",
+        "location": "Location",
+        "locationPlaceholder": "City, Country",
+        "createAd": "Create Ad",
+        "creating": "Creating..."
+      }
+    },
     "adsManagement": {
       "title": "Advertisements Management",
       "description": "Create, edit, and manage advertisements displayed on the platform.",
@@ -433,7 +453,14 @@
       "description": "Create and manage target audiences for your campaigns.",
       "addNewAudience": "Add New Audience",
       "name": "Audience Name",
+      "namePlaceholder": "Enter audience name",
       "description": "Description",
+      "descriptionPlaceholder": "Enter audience description",
+      "targetCriteria": "Target Criteria",
+      "targetCriteriaPlaceholder": "Add target criteria",
+      "add": "Add",
+      "createAudience": "Create Audience",
+      "creating": "Creating...",
       "status": "Status",
       "createdAt": "Created At",
       "noAudiences": "No audiences found.",
@@ -447,10 +474,13 @@
       "description": "Manage business partners and their information.",
       "addNewBusiness": "Add New Business",
       "name": "Business Name",
+      "namePlaceholder": "Enter business name",
       "description": "Description",
+      "descriptionPlaceholder": "Enter business description",
       "image": "Image",
       "category": "Category",
       "rating": "Rating",
+      "ratingPlaceholder": "Enter rating (1-5)",
       "audience": "Audience",
       "audiencePlaceholder": "Select audience (optional)",
       "status": "Status",
@@ -460,7 +490,13 @@
       "delete": "Delete",
       "activate": "Activate",
       "deactivate": "Deactivate",
-      "contactInfo": "Contact Info"
+      "contactInfo": "Contact Info",
+      "emailPlaceholder": "business@example.com",
+      "phonePlaceholder": "+1-XXX-XXX-XXXX",
+      "addressPlaceholder": "Enter business address",
+      "createBusiness": "Create Business",
+      "creating": "Creating...",
+      "tags": "Tags"
     },
     "userPetsPage": {
       "backToUsers": "Back to Users",
@@ -625,6 +661,84 @@
         "admin": "Admin",
         "user": "User"
       }
+    },
+    "dialogs": {
+      "addType": {
+        "title": "Add New Pet Type",
+        "description": "Add a new pet type to the system. This will be available for pet registration.",
+        "typeName": "Type Name",
+        "typeNamePlaceholder": "e.g., Dog, Cat, Bird",
+        "cancel": "Cancel",
+        "add": "Add Type",
+        "adding": "Adding..."
+      },
+      "addBreed": {
+        "title": "Add New Breed",
+        "description": "Add a new breed for a specific pet type. This will be available for pet registration.",
+        "petType": "Pet Type",
+        "petTypePlaceholder": "Select pet type",
+        "breedName": "Breed Name",
+        "breedNamePlaceholder": "e.g., Labrador Retriever",
+        "cancel": "Cancel",
+        "add": "Add Breed",
+        "adding": "Adding..."
+      },
+      "editBusiness": {
+        "title": "Edit Business",
+        "cancel": "Cancel",
+        "update": "Update Business",
+        "updating": "Updating...",
+        "tags": "Tags",
+        "selectedTags": "Selected tags ({count}):",
+        "contactInformation": "Contact Information",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "emailPlaceholder": "business@example.com",
+        "phonePlaceholder": "+1-XXX-XXX-XXXX",
+        "addressPlaceholder": "Enter business address",
+        "enterBusinessName": "Enter business name",
+        "enterBusinessDescription": "Enter business description",
+        "enterRating": "Enter rating (1-5)"
+      },
+      "editCoupon": {
+        "title": "Edit Coupon",
+        "cancel": "Cancel",
+        "update": "Update Coupon",
+        "updating": "Updating..."
+      },
+      "editPromo": {
+        "title": "Edit Promo",
+        "cancel": "Cancel",
+        "update": "Update Promo",
+        "updating": "Updating...",
+        "loading": "Loading..."
+      },
+      "editAudience": {
+        "title": "Edit Audience",
+        "cancel": "Cancel",
+        "update": "Update Audience",
+        "updating": "Updating...",
+        "targetCriteria": "Target Criteria",
+        "addCriteria": "Add",
+        "addCriteriaPlaceholder": "Add target criteria",
+        "enterAudienceName": "Enter audience name",
+        "enterAudienceDescription": "Enter audience description"
+      }
+    },
+    "mediaUpload": {
+      "clickToUploadImage": "Click to upload an image",
+      "clickToUploadVideo": "Click to upload a video",
+      "replaceImage": "Replace Image",
+      "replaceVideo": "Replace Video",
+      "uploading": "Uploading",
+      "fileFormats": {
+        "image": "JPG, PNG or GIF up to 20MB",
+        "video": "MP4, WebM or MOV up to 100MB"
+      }
+    },
+    "common": {
+      "cancel": "Cancel"
     }
   },
   "pages": {
@@ -729,7 +843,18 @@
         "loading": "Loading map..."
       },
       "addToFavorites": "Add to Favorites",
-      "removeFromFavorites": "Remove from Favorites"
+      "removeFromFavorites": "Remove from Favorites",
+      "coupons": "Coupons",
+      "navigation": "Navigation",
+      "call": "Call"
+    },
+    "PromosPage": {
+      "title": "Promos & Coupons",
+      "back": "Back",
+      "noPromos": "No Promos Available",
+      "noPromosDescription": "This business doesn't have any active promos at the moment.",
+      "startDate": "Start Date",
+      "endDate": "End Date"
     },
 
     "SignUpPage": {

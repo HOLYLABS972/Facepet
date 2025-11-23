@@ -196,8 +196,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <p className="text-xs text-gray-500 capitalize">{userRole ? t(`roles.${userRole}`) : 'Loading...'}</p>
         </div>
 
-        {/* Positioned at the bottom of the sidebar */}
-        <div className="absolute bottom-8 left-0 w-full p-2">
+        {/* Back button - right after email */}
+        <div className="mt-4 p-2">
           <Link href={`/${locale}`} onClick={() => setSidebarOpen(false)}>
             <Button
               variant="ghost"

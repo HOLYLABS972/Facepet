@@ -41,7 +41,7 @@ export default function PetProfilePage({
   const locale = useLocale();
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
-  const [showPromo, setShowPromo] = useState(!!initialPromo);
+  const [showPromo, setShowPromo] = useState(!!initialPromo && !!initialPromo?.imageUrl);
   const [activeTab, setActiveTab] = useState<TabName>('pet');
   const prevTabRef = useRef<TabName>('pet');
   

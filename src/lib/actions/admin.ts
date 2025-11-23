@@ -1895,46 +1895,121 @@ export async function getPromos() {
 }
 
 /**
- * Get a random active promo
+ * Get a random active promo filtered by user audiences
+ * Always shows promos if any exist - prioritizes audience matching but falls back to all
  */
-export async function getRandomActivePromo() {
+export async function getRandomActivePromo(
+  userAudienceIds?: string[]
+) {
   try {
     const now = new Date();
     
-    // Get all promos and filter for active ones
+    // Get all promos
     const promosSnapshot = await getDocs(collection(db, 'promos'));
-    const allPromos = promosSnapshot.docs.map(doc => ({
-      id: doc.id,
-      name: doc.data().name || '',
-      description: doc.data().description || '',
-      imageUrl: doc.data().imageUrl || '',
-      businessId: doc.data().businessId || '',
-      audienceId: doc.data().audienceId || '',
-      isActive: doc.data().isActive || false,
-      startDate: doc.data().startDate?.toDate(),
-      endDate: doc.data().endDate?.toDate(),
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-      createdBy: doc.data().createdBy || ''
-    }));
-
-    const activePromos = allPromos.filter(promo => {
-      // Status is 'active'
-      if (promo.isActive) {
-        return true;
-      }
-      
-      return false;
+    console.log('Total promos in database:', promosSnapshot.size);
+    
+    if (promosSnapshot.size === 0) {
+      console.log('No promos in database');
+      return null;
+    }
+    
+    const allPromos = promosSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name || '',
+        description: data.description || '',
+        imageUrl: data.imageUrl || '',
+        businessId: data.businessId || '',
+        audienceId: data.audienceId || '',
+        isActive: data.isActive !== undefined ? data.isActive : true, // Default to true if not set
+        startDate: data.startDate?.toDate(),
+        endDate: data.endDate?.toDate(),
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+        createdBy: data.createdBy || ''
+      };
     });
-
-    // If no promos available, return null
-    if (activePromos.length === 0) {
+    
+    // Filter for promos with images (required for display)
+    let promosWithImages = allPromos.filter(promo => !!promo.imageUrl);
+    
+    if (promosWithImages.length === 0) {
+      console.log('No promos with images found');
       return null;
     }
 
+    // Filter for active promos (be lenient - only exclude if explicitly false)
+    let activePromos = promosWithImages.filter(promo => {
+      // Only exclude if explicitly set to false
+      if (promo.isActive === false) {
+        return false;
+      }
+      
+      // Check date range if both dates are provided
+      if (promo.startDate && promo.endDate) {
+        if (now < promo.startDate || now > promo.endDate) {
+          return false;
+        }
+      } else if (promo.startDate && !promo.endDate) {
+        // If only start date, check if it has started
+        if (now < promo.startDate) {
+          return false;
+        }
+      } else if (!promo.startDate && promo.endDate) {
+        // If only end date, check if it hasn't ended
+        if (now > promo.endDate) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+
+    // If no date-valid promos, use all promos with images (ignore dates)
+    if (activePromos.length === 0) {
+      console.log('No date-valid promos, using all promos with images');
+      activePromos = promosWithImages.filter(p => p.isActive !== false);
+    }
+
+    // Filter by user audiences if provided
+    let finalPromos = activePromos;
+    if (userAudienceIds && userAudienceIds.length > 0) {
+      const audienceFilteredPromos = activePromos.filter(promo => {
+        // Promo must have an audienceId that matches one of the user's audiences
+        return promo.audienceId && userAudienceIds.includes(promo.audienceId);
+      });
+      
+      // If we found matching promos, use them; otherwise show all promos
+      if (audienceFilteredPromos.length > 0) {
+        finalPromos = audienceFilteredPromos;
+        console.log(`Found ${finalPromos.length} promos matching user audiences`);
+      } else {
+        console.log('No matching audience promos, showing all active promos');
+      }
+    } else {
+      console.log('No user audiences, showing all active promos');
+    }
+
+    // If still no promos, use any promo with an image (last resort)
+    if (finalPromos.length === 0) {
+      console.log('No filtered promos, using any promo with image');
+      finalPromos = promosWithImages;
+    }
+
+    // If no promos available at all, return null
+    if (finalPromos.length === 0) {
+      console.log('No promos available to display');
+      return null;
+    }
+
+    console.log(`Displaying promo from ${finalPromos.length} available promos`);
+
     // Pick a random promo from the available ones
-    const randomIndex = Math.floor(Math.random() * activePromos.length);
-    return activePromos[randomIndex];
+    const randomIndex = Math.floor(Math.random() * finalPromos.length);
+    const selectedPromo = finalPromos[randomIndex];
+    console.log('Selected promo:', selectedPromo.id, selectedPromo.name);
+    return selectedPromo;
   } catch (error) {
     console.error('Error getting random active promo:', error);
     return null;

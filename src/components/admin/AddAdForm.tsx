@@ -15,7 +15,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { createAd } from '@/lib/actions/admin';
-import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -116,8 +115,7 @@ export default function AddAdForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <PlusCircle className="h-4 w-4" />
+        <Button>
           {t('adsManagement.addNewAd')}
         </Button>
       </DialogTrigger>
@@ -134,7 +132,7 @@ export default function AddAdForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{t('forms.addAd.title')}</Label>
             <Input
               id="title"
               name="title"
@@ -147,7 +145,7 @@ export default function AddAdForm() {
 
 
           <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
+            <Label htmlFor="content">{t('forms.addAd.content')}</Label>
             <MediaUpload
               type="image"
               value={formData.content}
@@ -158,43 +156,43 @@ export default function AddAdForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('forms.addAd.description')}</Label>
             <Textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Enter service description..."
+              placeholder={t('forms.addAd.descriptionPlaceholder')}
               rows={3}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">{t('forms.addAd.phoneNumber')}</Label>
               <Input
                 id="phone"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+972-XX-XXX-XXXX"
+                placeholder={t('forms.addAd.phonePlaceholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{t('forms.addAd.location')}</Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="City, Country"
+                placeholder={t('forms.addAd.locationPlaceholder')}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tags">Tags</Label>
+            <Label htmlFor="tags">{t('adActions.tags')}</Label>
             
             {/* Predefined Hebrew Service Tags */}
             <div className="space-y-2">
@@ -252,10 +250,10 @@ export default function AddAdForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Ad'}
+              {isSubmitting ? t('forms.addAd.creating') : t('forms.addAd.createAd')}
             </Button>
           </DialogFooter>
         </form>

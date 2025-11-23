@@ -14,13 +14,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Star, Send, Heart, HeartOff } from 'lucide-react';
+import { MapPin, Phone, Star, Send, Heart, HeartOff, Ticket } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
 import { useAuth } from '@/contexts/AuthContext';
 import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/lib/firebase/favorites';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 // Real comments will be loaded from the database
 const realComments: Array<{
@@ -47,6 +49,8 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const t = useTranslations('pages.ServicesPage');
+  const router = useRouter();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -427,7 +431,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
               <div className="flex justify-around">
                 <Button
                   variant="ghost"
-                  className="focus:bg-primary flex items-center gap-2 transition-colors focus:text-white focus:outline-none"
+                  size="icon"
+                  className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                   onClick={() => {
                     if (service.address) {
                       const encodedAddress = encodeURIComponent(service.address);
@@ -436,9 +441,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                       alert('כתובת לא זמינה');
                     }
                   }}
+                  title={t('navigation') || 'Navigation'}
                 >
-                  <MapPin size={16} />
-                  ניווט
+                  <MapPin size={20} />
                 </Button>
                 <Separator
                   orientation="vertical"
@@ -447,7 +452,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
                 <Button
                   variant="ghost"
-                  className="focus:bg-primary flex items-center gap-2 transition-colors focus:text-white focus:outline-none"
+                  size="icon"
+                  className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                   onClick={() => {
                     if (service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null') {
                       window.open(`tel:${service.phone}`, '_self');
@@ -455,9 +461,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                       alert('מספר טלפון לא זמין');
                     }
                   }}
+                  title={t('call') || 'Call'}
                 >
-                  <Phone size={16} />
-                  התקשר
+                  <Phone size={20} />
                 </Button>
                 <Separator
                   orientation="vertical"
@@ -466,22 +472,43 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
                 <Button
                   variant="ghost"
-                  className={`flex items-center gap-2 transition-colors focus:outline-none ${
+                  size="icon"
+                  className={`transition-colors focus:outline-none ${
                     isFavorited 
                       ? 'text-red-500 hover:text-red-600 focus:text-red-600' 
                       : 'hover:text-red-500 focus:text-red-500'
                   }`}
                   onClick={handleToggleFavorite}
                   disabled={isTogglingFavorite}
+                  title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
                 >
                   {isTogglingFavorite ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   ) : isFavorited ? (
-                    <Heart size={16} className="fill-current" />
+                    <Heart size={20} className="fill-current" />
                   ) : (
-                    <HeartOff size={16} />
+                    <HeartOff size={20} />
                   )}
-                  {isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                </Button>
+                <Separator
+                  orientation="vertical"
+                  className="w-[1px] bg-gray-300"
+                />
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                  onClick={() => {
+                    if (service.id) {
+                      router.push(`/${locale}/promos?businessId=${service.id}`);
+                    } else {
+                      toast.error('Business ID not available');
+                    }
+                  }}
+                  title={t('coupons') || 'Coupons'}
+                >
+                  <Ticket size={20} />
                 </Button>
               </div>
             </DrawerFooter>

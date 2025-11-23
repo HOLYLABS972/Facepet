@@ -20,8 +20,11 @@ export default async function PublicPetPage({ params }: PetPageProps) {
     redirect(`/${locale}/pet/${id}/tag-found`);
   }
 
-  // Fetch random promo instead of ad
-  const promo = await getRandomActivePromo();
+  // Get user's audience IDs for filtering
+  const userAudienceIds = result.owner?.audienceIds || [];
+
+  // Fetch random promo filtered by user audiences
+  const promo = await getRandomActivePromo(userAudienceIds);
 
   return <PetProfilePage pet={result.pet} owner={result.owner} vet={result.vet} initialPromo={promo} />;
 }

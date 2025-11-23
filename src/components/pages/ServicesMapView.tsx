@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Navigation, AlertCircle, Phone, Star, Send, Heart, HeartOff } from 'lucide-react';
+import { MapPin, Navigation, AlertCircle, Phone, Star, Send, Heart, HeartOff, Ticket } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   Drawer,
@@ -21,6 +21,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
 import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/lib/firebase/favorites';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 
 interface Service {
   id?: string;
@@ -51,6 +53,8 @@ interface ServiceWithCoordinates extends Service {
 
 const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   const t = useTranslations('pages.ServicesPage');
+  const router = useRouter();
+  const locale = useLocale();
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -788,7 +792,8 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                 <div className="flex justify-around">
                   <Button
                     variant="ghost"
-                    className="focus:bg-primary flex items-center gap-2 transition-colors focus:text-white focus:outline-none"
+                    size="icon"
+                    className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                     onClick={() => {
                       if (selectedService.address || selectedService.location) {
                         const address = selectedService.address || selectedService.location;
@@ -798,9 +803,9 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                         toast.error('כתובת לא זמינה');
                       }
                     }}
+                    title={t('navigation') || 'Navigation'}
                   >
-                    <MapPin size={16} />
-                    ניווט
+                    <MapPin size={20} />
                   </Button>
                   <Separator
                     orientation="vertical"
@@ -809,7 +814,8 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
 
                   <Button
                     variant="ghost"
-                    className="focus:bg-primary flex items-center gap-2 transition-colors focus:text-white focus:outline-none"
+                    size="icon"
+                    className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                     onClick={() => {
                       if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
                         window.open(`tel:${selectedService.phone}`, '_self');
@@ -817,9 +823,9 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                         toast.error('מספר טלפון לא זמין');
                       }
                     }}
+                    title={t('call') || 'Call'}
                   >
-                    <Phone size={16} />
-                    התקשר
+                    <Phone size={20} />
                   </Button>
                   <Separator
                     orientation="vertical"
@@ -828,23 +834,44 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
 
                   <Button
                     variant="ghost"
+                    size="icon"
                     className={cn(
-                      'flex items-center gap-2 transition-colors focus:outline-none',
+                      'transition-colors focus:outline-none',
                       isFavorited 
                         ? 'text-red-500 hover:text-red-600 focus:text-red-600' 
                         : 'hover:text-red-500 focus:text-red-500'
                     )}
                     onClick={handleToggleFavorite}
                     disabled={isTogglingFavorite}
+                    title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
                   >
                     {isTogglingFavorite ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     ) : isFavorited ? (
-                      <Heart size={16} className="fill-current" />
+                      <Heart size={20} className="fill-current" />
                     ) : (
-                      <HeartOff size={16} />
+                      <HeartOff size={20} />
                     )}
-                    {isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                  </Button>
+                  <Separator
+                    orientation="vertical"
+                    className="w-[1px] bg-gray-300"
+                  />
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                    onClick={() => {
+                      if (selectedService.id) {
+                        router.push(`/${locale}/promos?businessId=${selectedService.id}`);
+                      } else {
+                        toast.error('Business ID not available');
+                      }
+                    }}
+                    title={t('coupons') || 'Coupons'}
+                  >
+                    <Ticket size={20} />
                   </Button>
                 </div>
               </DrawerFooter>

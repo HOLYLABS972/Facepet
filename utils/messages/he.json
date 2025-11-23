@@ -520,7 +520,14 @@
       "description": "צור ונהל קהלי יעד לקמפיינים שלך.",
       "addNewAudience": "הוסף קהל יעד חדש",
       "name": "שם קהל היעד",
+      "namePlaceholder": "הזן שם קהל יעד",
       "description": "תיאור",
+      "descriptionPlaceholder": "הזן תיאור קהל יעד",
+      "targetCriteria": "קריטריוני יעד",
+      "targetCriteriaPlaceholder": "הוסף קריטריון יעד",
+      "add": "הוסף",
+      "createAudience": "צור קהל יעד",
+      "creating": "יוצר...",
       "status": "סטטוס",
       "createdAt": "נוצר ב",
       "noAudiences": "לא נמצאו קהלי יעד.",
@@ -534,10 +541,13 @@
       "description": "נהל שותפים עסקיים ואת המידע שלהם.",
       "addNewBusiness": "הוסף עסק חדש",
       "name": "שם העסק",
+      "namePlaceholder": "הזן שם עסק",
       "description": "תיאור",
+      "descriptionPlaceholder": "הזן תיאור עסק",
       "image": "תמונה",
       "category": "קטגוריה",
       "rating": "דירוג",
+      "ratingPlaceholder": "הזן דירוג (1-5)",
       "audience": "קהל יעד",
       "audiencePlaceholder": "בחר קהל יעד (אופציונלי)",
       "status": "סטטוס",
@@ -547,7 +557,13 @@
       "delete": "מחק",
       "activate": "הפעל",
       "deactivate": "השבת",
-      "contactInfo": "פרטי קשר"
+      "contactInfo": "פרטי קשר",
+      "emailPlaceholder": "business@example.com",
+      "phonePlaceholder": "+972-XXX-XXX-XXXX",
+      "addressPlaceholder": "הזן כתובת עסק",
+      "createBusiness": "צור עסק",
+      "creating": "יוצר...",
+      "tags": "תגיות"
     },
     "userPetsPage": {
       "backToUsers": "חזור למשתמשים",
@@ -615,10 +631,24 @@
         "passwordPlaceholder": "הכנס סיסמה",
         "role": "תפקיד",
         "rolePlaceholder": "בחר תפקיד",
+        "selectRole": "בחר תפקיד",
         "submit": "הוסף משתמש",
+        "createUser": "צור משתמש",
         "creating": "יוצר...",
         "success": "המשתמש נוצר בהצלחה",
         "error": "נכשל ביצירת המשתמש"
+      },
+      "addAd": {
+        "title": "כותרת",
+        "content": "תוכן",
+        "description": "תיאור",
+        "descriptionPlaceholder": "הזן תיאור שירות...",
+        "phoneNumber": "מספר טלפון",
+        "phonePlaceholder": "+972-XX-XXX-XXXX",
+        "location": "מיקום",
+        "locationPlaceholder": "עיר, מדינה",
+        "createAd": "צור פרסומת",
+        "creating": "יוצר..."
       }
     },
     "roles": {
@@ -632,6 +662,84 @@
       "pending": "ממתין",
       "approved": "אושר",
       "rejected": "נדחה"
+    },
+    "dialogs": {
+      "addType": {
+        "title": "הוסף סוג חיית מחמד חדש",
+        "description": "הוסף סוג חיית מחמד חדש למערכת. זה יהיה זמין לרישום חיות מחמד.",
+        "typeName": "שם הסוג",
+        "typeNamePlaceholder": "לדוגמה: כלב, חתול, ציפור",
+        "cancel": "ביטול",
+        "add": "הוסף סוג",
+        "adding": "מוסיף..."
+      },
+      "addBreed": {
+        "title": "הוסף גזע חדש",
+        "description": "הוסף גזע חדש לסוג חיית מחמד ספציפי. זה יהיה זמין לרישום חיות מחמד.",
+        "petType": "סוג חיית מחמד",
+        "petTypePlaceholder": "בחר סוג חיית מחמד",
+        "breedName": "שם הגזע",
+        "breedNamePlaceholder": "לדוגמה: לברדור רטריבר",
+        "cancel": "ביטול",
+        "add": "הוסף גזע",
+        "adding": "מוסיף..."
+      },
+      "editBusiness": {
+        "title": "ערוך עסק",
+        "cancel": "ביטול",
+        "update": "עדכן עסק",
+        "updating": "מעדכן...",
+        "tags": "תגיות",
+        "selectedTags": "תגיות נבחרות ({count}):",
+        "contactInformation": "פרטי קשר",
+        "email": "אימייל",
+        "phone": "טלפון",
+        "address": "כתובת",
+        "emailPlaceholder": "business@example.com",
+        "phonePlaceholder": "+972-XXX-XXX-XXXX",
+        "addressPlaceholder": "הזן כתובת עסק",
+        "enterBusinessName": "הזן שם עסק",
+        "enterBusinessDescription": "הזן תיאור עסק",
+        "enterRating": "הזן דירוג (1-5)"
+      },
+      "editCoupon": {
+        "title": "ערוך קופון",
+        "cancel": "ביטול",
+        "update": "עדכן קופון",
+        "updating": "מעדכן..."
+      },
+      "editPromo": {
+        "title": "ערוך קידום",
+        "cancel": "ביטול",
+        "update": "עדכן קידום",
+        "updating": "מעדכן...",
+        "loading": "טוען..."
+      },
+      "editAudience": {
+        "title": "ערוך קהל יעד",
+        "cancel": "ביטול",
+        "update": "עדכן קהל יעד",
+        "updating": "מעדכן...",
+        "targetCriteria": "קריטריוני יעד",
+        "addCriteria": "הוסף",
+        "addCriteriaPlaceholder": "הוסף קריטריון יעד",
+        "enterAudienceName": "הזן שם קהל יעד",
+        "enterAudienceDescription": "הזן תיאור קהל יעד"
+      }
+    },
+    "mediaUpload": {
+      "clickToUploadImage": "לחץ להעלאת תמונה",
+      "clickToUploadVideo": "לחץ להעלאת וידאו",
+      "replaceImage": "החלף תמונה",
+      "replaceVideo": "החלף וידאו",
+      "uploading": "מעלה",
+      "fileFormats": {
+        "image": "JPG, PNG או GIF עד 20MB",
+        "video": "MP4, WebM או MOV עד 100MB"
+      }
+    },
+    "common": {
+      "cancel": "ביטול"
     }
   },
   "pages": {
@@ -727,7 +835,18 @@
         "loading": "טוען מפה..."
       },
       "addToFavorites": "הוסף למועדפים",
-      "removeFromFavorites": "הסר ממועדפים"
+      "removeFromFavorites": "הסר ממועדפים",
+      "coupons": "קופונים",
+      "navigation": "ניווט",
+      "call": "התקשר"
+    },
+    "PromosPage": {
+      "title": "קידומים וקופונים",
+      "back": "חזור",
+      "noPromos": "אין קידומים זמינים",
+      "noPromosDescription": "לעסק זה אין קידומים פעילים כרגע.",
+      "startDate": "תאריך התחלה",
+      "endDate": "תאריך סיום"
     },
 
     "ConfirmationPage": {

@@ -238,6 +238,14 @@ export async function createPetInFirestore(
       finalPetId = petRef.id;
     }
 
+    // Update user audiences based on new pet
+    try {
+      const { updateUserAudiencesOnPetChange } = await import('./audience-assignment');
+      await updateUserAudiencesOnPetChange(user.email);
+    } catch (audienceError) {
+      console.warn('Failed to update audiences on pet creation:', audienceError);
+    }
+
     return { success: true, petId: finalPetId };
   } catch (error: any) {
     console.error('Create pet error:', error);
