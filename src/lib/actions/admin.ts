@@ -5,6 +5,7 @@ import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, 
 import { hash } from 'bcryptjs';
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
 import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData } from '@/types/promo';
+import { addPointsToUserByUid, getUserPointsByUid } from '@/lib/firebase/points-server';
 
 // DASHBOARD STATISTICS FUNCTIONS
 
@@ -213,17 +214,27 @@ export async function getAllUsers(
     // For Firebase, we'll need to get all users and then filter/sort in memory
     // This is not ideal for large datasets, but works for admin panels
     const usersSnapshot = await getDocs(collection(db, 'users'));
-    let allUsers = usersSnapshot.docs.map(doc => ({
-      id: doc.id,
-      fullName: doc.data().displayName || doc.data().fullName || '',
-      email: doc.data().email || '',
-      phone: doc.data().phone || '',
-      role: doc.data().role || 'user',
-      isRestricted: doc.data().isRestricted || false,
-      restrictionReason: doc.data().restrictionReason || '',
-      restrictedAt: doc.data().restrictedAt?.toDate() || null,
-      createdAt: doc.data().createdAt?.toDate() || new Date()
-    }));
+    let allUsers = await Promise.all(
+      usersSnapshot.docs.map(async (doc) => {
+        const userData = doc.data();
+        // Get user points
+        const pointsResult = await getUserPointsByUid(doc.id);
+        const points = pointsResult.success ? (pointsResult.points || 0) : 0;
+        
+        return {
+          id: doc.id,
+          fullName: userData.displayName || userData.fullName || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          role: userData.role || 'user',
+          isRestricted: userData.isRestricted || false,
+          restrictionReason: userData.restrictionReason || '',
+          restrictedAt: userData.restrictedAt?.toDate() || null,
+          createdAt: userData.createdAt?.toDate() || new Date(),
+          points: points
+        };
+      })
+    );
 
     // Apply search filter
     if (searchQuery) {
@@ -254,6 +265,10 @@ export async function getAllUsers(
         case 'createdAt':
           aValue = a.createdAt;
           bValue = b.createdAt;
+          break;
+        case 'points':
+          aValue = a.points || 0;
+          bValue = b.points || 0;
           break;
         default:
           aValue = a.createdAt;
@@ -400,6 +415,43 @@ export async function createUserByAdmin(
   } catch (error) {
     console.error('Error creating user:', error);
     return { success: false, error: 'Failed to create user' };
+  }
+}
+
+/**
+ * Add points to a user (admin action)
+ */
+export async function addPointsToUser(userId: string, points: number, description?: string) {
+  try {
+    if (!userId) {
+      return { success: false, error: 'User ID is required' };
+    }
+
+    if (points <= 0) {
+      return { success: false, error: 'Points must be greater than 0' };
+    }
+
+    // Add points to the 'share' category (you can change this if needed)
+    const result = await addPointsToUserByUid(
+      userId,
+      'share',
+      points,
+      description || `Admin adjustment: ${points} points`,
+      {
+        source: 'admin_manual',
+        addedBy: 'admin', // You can pass the admin user ID here if needed
+        timestamp: new Date().toISOString()
+      }
+    );
+
+    if (!result.success) {
+      return { success: false, error: result.error || 'Failed to add points' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error adding points to user:', error);
+    return { success: false, error: 'Failed to add points to user' };
   }
 }
 
@@ -1628,14 +1680,23 @@ export async function getCoupons() {
     const q = query(collection(db, 'coupons'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     
-    const coupons = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-      validFrom: doc.data().validFrom?.toDate() || new Date(),
-      validTo: doc.data().validTo?.toDate() || new Date()
-    }));
+    const coupons = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate() || new Date();
+      const updatedAt = data.updatedAt?.toDate() || new Date();
+      const validFrom = data.validFrom?.toDate() || new Date();
+      const validTo = data.validTo?.toDate() || new Date();
+      
+      return {
+        id: doc.id,
+        ...data,
+        // Convert Date objects to ISO strings for serialization
+        createdAt: createdAt.toISOString(),
+        updatedAt: updatedAt.toISOString(),
+        validFrom: validFrom.toISOString(),
+        validTo: validTo.toISOString()
+      };
+    });
     
     return { success: true, coupons };
   } catch (error) {

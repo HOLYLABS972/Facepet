@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, Ticket, Calendar, ShoppingCart, Store, History, Share2 } from 'lucide-react';
+import { Coins, Ticket, Calendar, ShoppingCart, Store, History, Share2, Copy, Check } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Coupon } from '@/types/coupon';
-import { getCoupons } from '@/lib/actions/admin';
+import { getCoupons, getContactInfo } from '@/lib/actions/admin';
 import { getUserFromFirestore } from '@/src/lib/firebase/users';
-import { addPointsToCategory } from '@/src/lib/firebase/points';
+import { addPointsToCategory, getUserPoints, deductPointsFromCategory } from '@/src/lib/firebase/points';
+import { purchaseCoupon, getActiveUserCoupons, getCouponHistory, markCouponAsUsed, UserCoupon } from '@/src/lib/firebase/user-coupons';
+import { useShopRedirect } from '@/hooks/use-shop-redirect';
 import { User } from 'firebase/auth';
 import toast from 'react-hot-toast';
 
@@ -21,11 +23,14 @@ export default function UserCouponsPage() {
   const locale = useLocale();
   const { user } = useAuth();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [userCoupons, setUserCoupons] = useState<Coupon[]>([]); // Active purchased coupons
-  const [couponHistory, setCouponHistory] = useState<Coupon[]>([]); // Used/Expired coupons
+  const [userCoupons, setUserCoupons] = useState<UserCoupon[]>([]); // Active purchased coupons
+  const [couponHistory, setCouponHistory] = useState<UserCoupon[]>([]); // Used/Expired coupons
   const [userPoints, setUserPoints] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('shop');
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [shopUrl, setShopUrl] = useState<string>('');
+  const { redirectToShop } = useShopRedirect();
 
   useEffect(() => {
     if (user) {
@@ -45,8 +50,17 @@ export default function UserCouponsPage() {
       if (couponsResult.success && couponsResult.coupons) {
         console.log(`✅ Found ${couponsResult.coupons.length} total coupons`);
         
+        // Convert ISO strings back to Date objects
+        const couponsWithDates = couponsResult.coupons.map(coupon => ({
+          ...coupon,
+          createdAt: new Date(coupon.createdAt as any),
+          updatedAt: new Date(coupon.updatedAt as any),
+          validFrom: new Date(coupon.validFrom as any),
+          validTo: new Date(coupon.validTo as any),
+        }));
+        
         // Log all coupons for debugging
-        couponsResult.coupons.forEach(coupon => {
+        couponsWithDates.forEach(coupon => {
           console.log(`Coupon: ${coupon.name}`, {
             isActive: coupon.isActive,
             validFrom: coupon.validFrom,
@@ -60,9 +74,9 @@ export default function UserCouponsPage() {
         const now = new Date();
         console.log(`Current date: ${now.toISOString()}`);
         
-        const validCoupons = couponsResult.coupons.filter(coupon => {
-          const validFrom = new Date(coupon.validFrom);
-          const validTo = new Date(coupon.validTo);
+        const validCoupons = couponsWithDates.filter(coupon => {
+          const validFrom = coupon.validFrom;
+          const validTo = coupon.validTo;
           const isValid = coupon.isActive && validFrom <= now && validTo >= now;
           
           console.log(`Checking coupon "${coupon.name}":`, {
@@ -80,19 +94,62 @@ export default function UserCouponsPage() {
         
         // TEMPORARY: Show ALL coupons for debugging, not just valid ones
         console.log('🔍 TEMPORARY DEBUG MODE: Showing all coupons regardless of validity');
-        setCoupons(couponsResult.coupons);
+        setCoupons(couponsWithDates);
       } else {
         console.error('❌ No coupons or failed to fetch:', couponsResult.error);
         setCoupons([]);
       }
 
-      // Fetch user data to get points
-      if (user?.uid) {
-        console.log('Fetching user data for UID:', user.uid);
-        const userData = await getUserFromFirestore(user.uid);
-        console.log('User data:', userData);
-        if (userData) {
-          setUserPoints(userData.points || 0);
+      // Fetch shop URL from contact info
+      const contactInfo = await getContactInfo();
+      if (contactInfo?.storeUrl) {
+        setShopUrl(contactInfo.storeUrl);
+      }
+
+      // Fetch user points from userPoints collection
+      if (user) {
+        console.log('Fetching user points for UID:', user.uid);
+        const pointsResult = await getUserPoints(user);
+        console.log('Points result:', pointsResult);
+        if (pointsResult.success && pointsResult.points) {
+          setUserPoints(pointsResult.points.totalPoints || 0);
+        } else {
+          // Default to 0 if points not found
+          setUserPoints(0);
+        }
+
+        // Fetch user's purchased coupons
+        const activeCouponsResult = await getActiveUserCoupons(user.uid);
+        if (activeCouponsResult.success && activeCouponsResult.coupons) {
+          // Convert ISO strings back to Date objects
+          const activeCoupons = activeCouponsResult.coupons.map(uc => ({
+            ...uc,
+            coupon: {
+              ...uc.coupon,
+              validFrom: new Date(uc.coupon.validFrom as any),
+              validTo: new Date(uc.coupon.validTo as any),
+            },
+            purchasedAt: new Date(uc.purchasedAt as any),
+            usedAt: uc.usedAt ? new Date(uc.usedAt as any) : undefined
+          }));
+          setUserCoupons(activeCoupons);
+        }
+
+        // Fetch coupon history
+        const historyResult = await getCouponHistory(user.uid);
+        if (historyResult.success && historyResult.coupons) {
+          // Convert ISO strings back to Date objects
+          const historyCoupons = historyResult.coupons.map(uc => ({
+            ...uc,
+            coupon: {
+              ...uc.coupon,
+              validFrom: new Date(uc.coupon.validFrom as any),
+              validTo: new Date(uc.coupon.validTo as any),
+            },
+            purchasedAt: new Date(uc.purchasedAt as any),
+            usedAt: uc.usedAt ? new Date(uc.usedAt as any) : undefined
+          }));
+          setCouponHistory(historyCoupons);
         }
       }
     } catch (error) {
@@ -173,24 +230,105 @@ export default function UserCouponsPage() {
     }
 
     try {
-      // TODO: Implement coupon purchase logic
-      // This would involve:
-      // 1. Deducting points from user
-      // 2. Adding coupon to user's purchased coupons
-      // 3. Updating user's points in database
-      
-      toast.success(t('purchaseSuccess', { name: coupon.name }));
-      // Refresh user points
-      if (user?.uid) {
-        const userData = await getUserFromFirestore(user.uid);
-        if (userData) {
-          setUserPoints(userData.points || 0);
-        }
+      // Deduct points (deduct from 'share' category, or you can change this)
+      const deductResult = await deductPointsFromCategory(
+        user as User,
+        'share',
+        coupon.points,
+        `Purchased coupon: ${coupon.name}`
+      );
+
+      if (!deductResult.success) {
+        toast.error(deductResult.error || t('failedToPurchase'));
+        return;
       }
+
+      // Purchase the coupon
+      const purchaseResult = await purchaseCoupon(user.uid, coupon, coupon.points);
+      
+      if (!purchaseResult.success) {
+        // Refund points if purchase failed
+        await addPointsToCategory(user as User, 'share', coupon.points, 'Refund for failed purchase');
+        toast.error(purchaseResult.error || t('failedToPurchase'));
+        return;
+      }
+
+      toast.success(t('purchaseSuccess', { name: coupon.name }));
+      
+      // Refresh data
+      const pointsResult = await getUserPoints(user as User);
+      if (pointsResult.success && pointsResult.points) {
+        setUserPoints(pointsResult.points.totalPoints || 0);
+      }
+
+      const activeCouponsResult = await getActiveUserCoupons(user.uid);
+      if (activeCouponsResult.success && activeCouponsResult.coupons) {
+        // Convert ISO strings back to Date objects
+        const activeCoupons = activeCouponsResult.coupons.map(uc => ({
+          ...uc,
+          coupon: {
+            ...uc.coupon,
+            validFrom: new Date(uc.coupon.validFrom as any),
+            validTo: new Date(uc.coupon.validTo as any),
+          },
+          purchasedAt: new Date(uc.purchasedAt as any),
+          usedAt: uc.usedAt ? new Date(uc.usedAt as any) : undefined
+        }));
+        setUserCoupons(activeCoupons);
+      }
+
+      // Switch to "My Coupons" tab
+      setActiveTab('my-coupons');
     } catch (error) {
       console.error('Error purchasing coupon:', error);
       toast.error(t('failedToPurchase'));
     }
+  };
+
+  const handleCopyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      toast.success(t('codeCopied'));
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy code:', error);
+      toast.error(t('failedToCopy'));
+    }
+  };
+
+  const handleUseCoupon = async (userCoupon: UserCoupon) => {
+    // Mark as used and move to history
+    const result = await markCouponAsUsed(userCoupon.id);
+    if (result.success) {
+      toast.success(t('couponMarkedAsUsed'));
+      // Refresh coupons
+      if (user) {
+        const activeCouponsResult = await getActiveUserCoupons(user.uid);
+        if (activeCouponsResult.success && activeCouponsResult.coupons) {
+          setUserCoupons(activeCouponsResult.coupons);
+        }
+        const historyResult = await getCouponHistory(user.uid);
+        if (historyResult.success && historyResult.coupons) {
+          setCouponHistory(historyResult.coupons);
+        }
+      }
+      // Switch to history tab
+      setActiveTab('history');
+    } else {
+      toast.error(t('failedToMarkAsUsed'));
+    }
+  };
+
+  const handleGoToStore = (couponCode: string) => {
+    // Copy the code first
+    handleCopyCode(couponCode);
+    // Then redirect to shop with the coupon code
+    if (!shopUrl) {
+      toast.error('Shop URL is not configured. Please contact support.');
+      return;
+    }
+    redirectToShop(shopUrl, couponCode, undefined, true);
   };
 
 
@@ -203,9 +341,9 @@ export default function UserCouponsPage() {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('he-IL', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'ILS'
     }).format(price);
   };
 
@@ -223,136 +361,159 @@ export default function UserCouponsPage() {
   }
 
   return (
-    <div className="container mx-auto p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
-        <p className="text-gray-600">{t('description')}</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 max-w-7xl">
+        {/* Header */}
+        <div className="mb-8 lg:mb-12 text-center lg:text-left">
+          <h1 className="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            {t('title')}
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl">{t('description')}</p>
+        </div>
 
-      {/* User Points Section */}
-      <div className="mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Coins className="h-5 w-5 text-yellow-500" />
-              {t('myPoints')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="text-3xl font-bold text-yellow-600 mb-2">
-                    {userPoints.toLocaleString()}
+        {/* User Points Section */}
+        <div className="mb-8 lg:mb-10">
+          <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-white to-gray-50/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl lg:text-2xl">
+                <div className="p-2 rounded-full bg-yellow-100">
+                  <Coins className="h-6 w-6 text-yellow-600" />
+                </div>
+                {t('myPoints')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 bg-clip-text text-transparent mb-3">
+                      {userPoints.toLocaleString()}
+                    </div>
+                    <p className="text-base text-gray-600">{t('pointsDescription')}</p>
                   </div>
-                  <p className="text-sm text-gray-600">{t('pointsDescription')}</p>
+                </div>
+                
+                {/* Call to Action */}
+                <div className="border-t pt-6 bg-gradient-to-r from-green-50/50 to-transparent rounded-lg p-4 -mx-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+                    <div>
+                      <p className="text-base font-semibold text-gray-900 mb-1">{t('shareAndEarn')}</p>
+                      <p className="text-sm text-gray-600">{t('shareDescription')}</p>
+                    </div>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800 text-sm px-3 py-1.5">
+                      +20 {t('points')}
+                    </Badge>
+                  </div>
+                  <Button
+                    onClick={handleShare}
+                    variant="default"
+                    size="lg"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
+                  >
+                    <Share2 className="h-5 w-5" />
+                    {t('shareButton')}
+                  </Button>
                 </div>
               </div>
-              
-              {/* Call to Action */}
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{t('shareAndEarn')}</p>
-                    <p className="text-xs text-gray-500">{t('shareDescription')}</p>
-                  </div>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    +20 {t('points')}
-                  </Badge>
-                </div>
-                <Button
-                  onClick={handleShare}
-                  variant="default"
-                  size="sm"
-                  className="w-full flex items-center justify-center gap-2 bg-primary"
-                >
-                  <Share2 className="h-4 w-4" />
-                  {t('shareButton')}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="shop" className="flex items-center gap-2">
-            <Store className="h-4 w-4" />
+        <TabsList className="grid w-full grid-cols-3 mb-8 lg:mb-10 h-12 lg:h-14 bg-gray-100/50 p-1 rounded-xl">
+          <TabsTrigger 
+            value="shop" 
+            className="flex items-center gap-2 text-sm lg:text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md transition-all rounded-lg"
+          >
+            <Store className="h-4 w-4 lg:h-5 lg:w-5" />
             {t('shop')}
           </TabsTrigger>
-          <TabsTrigger value="my-coupons" className="flex items-center gap-2">
-            <Ticket className="h-4 w-4" />
+          <TabsTrigger 
+            value="my-coupons" 
+            className="flex items-center gap-2 text-sm lg:text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md transition-all rounded-lg"
+          >
+            <Ticket className="h-4 w-4 lg:h-5 lg:w-5" />
             {t('myCoupons')}
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
+          <TabsTrigger 
+            value="history" 
+            className="flex items-center gap-2 text-sm lg:text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md transition-all rounded-lg"
+          >
+            <History className="h-4 w-4 lg:h-5 lg:w-5" />
             {t('history')}
           </TabsTrigger>
         </TabsList>
 
         {/* Shop Tab */}
         <TabsContent value="shop" className="space-y-6">
-          <h2 className="text-2xl font-bold mb-4">{t('availableCoupons')}</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 lg:mb-8 text-gray-900">{t('availableCoupons')}</h2>
         {coupons.length === 0 ? (
-          <div className="text-center py-12">
-            <Ticket className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">{t('noCoupons')}</p>
+          <div className="text-center py-16 lg:py-24 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+            <div className="inline-flex p-4 rounded-full bg-gray-100 mb-4">
+              <Ticket className="h-12 w-12 lg:h-16 lg:w-16 text-gray-400" />
+            </div>
+            <p className="text-lg lg:text-xl text-gray-500 font-medium">{t('noCoupons')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
             {coupons.map((coupon) => (
-              <Card key={coupon.id} className="relative">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{coupon.name}</CardTitle>
-                      <CardDescription className="mt-1">
-                        {coupon.description}
-                      </CardDescription>
-                    </div>
-                    {coupon.imageUrl && (
-                      <div className="w-16 h-16 rounded-lg overflow-hidden">
-                        <img 
-                          src={coupon.imageUrl} 
-                          alt={coupon.name}
-                          className="w-full h-full object-cover"
-                        />
+              <Card 
+                key={coupon.id} 
+                className="relative group hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/20 overflow-hidden bg-white"
+              >
+                {coupon.imageUrl && (
+                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                    <img 
+                      src={coupon.imageUrl} 
+                      alt={coupon.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  </div>
+                )}
+                <CardHeader className={coupon.imageUrl ? "pb-3" : ""}>
+                  <div className="flex items-start justify-between gap-3">
+                    <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight flex-1">
+                      {coupon.name}
+                    </CardTitle>
+                    {!coupon.imageUrl && (
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex-shrink-0">
+                        <Ticket className="w-full h-full p-3 text-primary/40" />
                       </div>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">{t('price')}</span>
-                      <span className="font-semibold">{formatPrice(coupon.price)}</span>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600">{t('price')}</span>
+                      <span className="text-xl font-bold text-primary">{formatPrice(coupon.price)}</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">{t('pointsRequired')}</span>
-                      <Badge variant="outline" className="flex items-center gap-1">
-                        <Coins className="h-3 w-3" />
-                        {coupon.points}
+                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600">{t('pointsRequired')}</span>
+                      <Badge variant="outline" className="flex items-center gap-1.5 bg-white border-amber-200 text-amber-700 px-3 py-1">
+                        <Coins className="h-4 w-4" />
+                        <span className="font-semibold">{coupon.points}</span>
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">{t('validUntil')}</span>
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="h-3 w-3" />
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600">{t('validUntil')}</span>
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-blue-700">
+                        <Calendar className="h-4 w-4" />
                         {formatDate(coupon.validTo)}
                       </div>
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="pt-4">
                   <Button 
                     onClick={() => handlePurchaseCoupon(coupon)}
                     disabled={userPoints < coupon.points}
-                    className="w-full flex items-center gap-2"
+                    className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    size="lg"
                   >
-                    <ShoppingCart className="h-4 w-4" />
+                    <ShoppingCart className="h-5 w-5" />
                     {userPoints < coupon.points ? t('insufficientPoints') : t('purchase')}
                   </Button>
                 </CardFooter>
@@ -364,137 +525,99 @@ export default function UserCouponsPage() {
 
         {/* My Coupons Tab */}
         <TabsContent value="my-coupons" className="space-y-6">
-          <h2 className="text-2xl font-bold mb-4">{t('myPurchasedCoupons')}</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 lg:mb-8 text-gray-900">{t('myPurchasedCoupons')}</h2>
           {userCoupons.length === 0 ? (
-            <div className="text-center py-12">
-              <Ticket className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">{t('noPurchasedCoupons')}</p>
-              <p className="text-sm text-gray-400 mt-2">{t('visitShop')}</p>
+            <div className="text-center py-16 lg:py-24 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+              <div className="inline-flex p-4 rounded-full bg-gray-100 mb-4">
+                <Ticket className="h-12 w-12 lg:h-16 lg:w-16 text-gray-400" />
+              </div>
+              <p className="text-lg lg:text-xl text-gray-500 font-medium mb-2">{t('noPurchasedCoupons')}</p>
+              <p className="text-sm lg:text-base text-gray-400">{t('visitShop')}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {userCoupons.map((coupon) => (
-                <Card key={coupon.id} className="relative">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{coupon.name}</CardTitle>
-                        <CardDescription className="mt-1">
-                          {coupon.description}
-                        </CardDescription>
-                      </div>
-                      {coupon.imageUrl && (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden">
-                          <img 
-                            src={coupon.imageUrl} 
-                            alt={coupon.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">{t('price')}</span>
-                        <span className="font-semibold">{formatPrice(coupon.price)}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">{t('pointsUsed')}</span>
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <Coins className="h-3 w-3" />
-                          {coupon.points}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">{t('validUntil')}</span>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(coupon.validTo)}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      variant="outline"
-                      className="w-full flex items-center gap-2"
-                      disabled
-                    >
-                      <Ticket className="h-4 w-4" />
-                      {t('purchased')}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* History Tab */}
-        <TabsContent value="history" className="space-y-6">
-          <h2 className="text-2xl font-bold mb-4">{t('couponHistory')}</h2>
-          {couponHistory.length === 0 ? (
-            <div className="text-center py-12">
-              <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">{t('noHistory')}</p>
-              <p className="text-sm text-gray-400 mt-2">{t('historyDescription')}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {couponHistory.map((coupon) => {
-                const isExpired = new Date(coupon.validTo) < new Date();
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
+              {userCoupons.map((userCoupon) => {
+                const coupon = userCoupon.coupon;
+                const couponCode = coupon.description; // Description contains the coupon code
+                const isCodeCopied = copiedCode === couponCode;
+                
                 return (
-                  <Card key={coupon.id} className="relative opacity-75">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-lg">{coupon.name}</CardTitle>
-                          <CardDescription className="mt-1">
-                            {coupon.description}
-                          </CardDescription>
-                        </div>
-                        {coupon.imageUrl && (
-                          <div className="w-16 h-16 rounded-lg overflow-hidden">
-                            <img 
-                              src={coupon.imageUrl} 
-                              alt={coupon.name}
-                              className="w-full h-full object-cover grayscale"
-                            />
+                  <Card 
+                    key={userCoupon.id} 
+                    className="relative group hover:shadow-2xl transition-all duration-300 border-2 border-green-200 hover:border-green-300 overflow-hidden bg-gradient-to-br from-white to-green-50/30"
+                  >
+                    <div className="absolute top-4 right-4 z-10">
+                      <Badge className="bg-green-500 text-white shadow-md">
+                        {t('active')}
+                      </Badge>
+                    </div>
+                    {coupon.imageUrl && (
+                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
+                        <img 
+                          src={coupon.imageUrl} 
+                          alt={coupon.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                      </div>
+                    )}
+                    <CardHeader className={coupon.imageUrl ? "pb-3" : "pt-6"}>
+                      <div className="flex items-start justify-between gap-3">
+                        <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight flex-1">
+                          {coupon.name}
+                        </CardTitle>
+                        {!coupon.imageUrl && (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-green-100 to-green-200 flex-shrink-0">
+                            <Ticket className="w-full h-full p-3 text-green-600" />
                           </div>
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">{t('price')}</span>
-                          <span className="font-semibold">{formatPrice(coupon.price)}</span>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-4">
+                        {/* Coupon Code Section */}
+                        <div className="space-y-2">
+                          <span className="text-sm font-semibold text-gray-700">{t('couponCode')}</span>
+                          <div className="flex items-center gap-2 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border-2 border-dashed border-primary/30 group/code hover:border-primary/50 transition-colors">
+                            <code className="flex-1 font-mono text-sm lg:text-base font-bold text-primary break-all select-all">
+                              {couponCode}
+                            </code>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopyCode(couponCode)}
+                              className="shrink-0 h-8 w-8 p-0 hover:bg-primary/10"
+                            >
+                              {isCodeCopied ? (
+                                <Check className="h-5 w-5 text-green-600" />
+                              ) : (
+                                <Copy className="h-5 w-5 text-primary" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">{t('pointsUsed')}</span>
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            <Coins className="h-3 w-3" />
-                            {coupon.points}
-                          </Badge>
+
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm font-medium text-gray-600">{t('price')}</span>
+                          <span className="text-lg font-bold text-primary">{formatPrice(coupon.price)}</span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">{t('status')}</span>
-                          <Badge variant={isExpired ? 'destructive' : 'secondary'}>
-                            {isExpired ? t('expired') : t('used')}
-                          </Badge>
+                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                          <span className="text-sm font-medium text-gray-600">{t('validUntil')}</span>
+                          <div className="flex items-center gap-1.5 text-sm font-medium text-blue-700">
+                            <Calendar className="h-4 w-4" />
+                            {formatDate(coupon.validTo)}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="pt-4">
                       <Button 
-                        variant="outline"
-                        className="w-full flex items-center gap-2"
-                        disabled
+                        onClick={() => handleGoToStore(couponCode)}
+                        className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
+                        size="lg"
                       >
-                        <History className="h-4 w-4" />
-                        {isExpired ? t('expired') : t('used')}
+                        <Store className="h-5 w-5" />
+                        {t('goToStore')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -503,7 +626,96 @@ export default function UserCouponsPage() {
             </div>
           )}
         </TabsContent>
+
+        {/* History Tab */}
+        <TabsContent value="history" className="space-y-6">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 lg:mb-8 text-gray-900">{t('couponHistory')}</h2>
+          {couponHistory.length === 0 ? (
+            <div className="text-center py-16 lg:py-24 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+              <div className="inline-flex p-4 rounded-full bg-gray-100 mb-4">
+                <History className="h-12 w-12 lg:h-16 lg:w-16 text-gray-400" />
+              </div>
+              <p className="text-lg lg:text-xl text-gray-500 font-medium mb-2">{t('noHistory')}</p>
+              <p className="text-sm lg:text-base text-gray-400">{t('historyDescription')}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
+              {couponHistory.map((userCoupon) => {
+                const coupon = userCoupon.coupon;
+                const isExpired = userCoupon.status === 'expired' || new Date(coupon.validTo) < new Date();
+                const couponCode = coupon.description;
+                const isCodeCopied = copiedCode === couponCode;
+                
+                return (
+                  <Card 
+                    key={userCoupon.id} 
+                    className="relative opacity-75 hover:opacity-90 transition-opacity border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white"
+                  >
+                    <div className="absolute top-4 right-4 z-10">
+                      <Badge variant={isExpired ? 'destructive' : 'secondary'} className="shadow-md">
+                        {isExpired ? t('expired') : t('used')}
+                      </Badge>
+                    </div>
+                    {coupon.imageUrl && (
+                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                        <img 
+                          src={coupon.imageUrl} 
+                          alt={coupon.name}
+                          className="w-full h-full object-cover grayscale"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      </div>
+                    )}
+                    <CardHeader className={coupon.imageUrl ? "pb-3" : "pt-6"}>
+                      <div className="flex items-start justify-between gap-3">
+                        <CardTitle className="text-xl lg:text-2xl font-bold text-gray-600 leading-tight flex-1">
+                          {coupon.name}
+                        </CardTitle>
+                        {!coupon.imageUrl && (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 grayscale">
+                            <Ticket className="w-full h-full p-3 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-4">
+                        {/* Coupon Code Section */}
+                        <div className="space-y-2">
+                          <span className="text-sm font-semibold text-gray-500">{t('couponCode')}</span>
+                          <div className="flex items-center gap-2 p-4 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+                            <code className="flex-1 font-mono text-sm lg:text-base font-semibold text-gray-500 break-all line-through select-all">
+                              {couponCode}
+                            </code>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopyCode(couponCode)}
+                              className="shrink-0 h-8 w-8 p-0 hover:bg-gray-200"
+                            >
+                              {isCodeCopied ? (
+                                <Check className="h-5 w-5 text-green-600" />
+                              ) : (
+                                <Copy className="h-5 w-5 text-gray-400" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm font-medium text-gray-500">{t('price')}</span>
+                          <span className="text-lg font-bold text-gray-600 line-through">{formatPrice(coupon.price)}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

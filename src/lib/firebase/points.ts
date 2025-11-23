@@ -268,6 +268,82 @@ export async function addPointsToCategory(
 }
 
 /**
+ * Deduct points from a specific category with transaction logging
+ */
+export async function deductPointsFromCategory(
+  user: User,
+  category: 'registration' | 'phone' | 'pet' | 'share',
+  points: number,
+  description?: string,
+  metadata?: any
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!user?.email) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    // Use batch write for atomicity
+    const batch = writeBatch(db);
+
+    // First get current points
+    const currentPointsResult = await getUserPoints(user);
+    if (!currentPointsResult.success || !currentPointsResult.points) {
+      return { success: false, error: 'Failed to get current points' };
+    }
+
+    const currentBreakdown = currentPointsResult.points.pointsBreakdown;
+    
+    // Check if user has enough points in the category
+    if (currentBreakdown[category] < points) {
+      return { success: false, error: 'Insufficient points in this category' };
+    }
+
+    const newBreakdown = {
+      ...currentBreakdown,
+      [category]: Math.max(0, currentBreakdown[category] - points)
+    };
+
+    const totalPoints = newBreakdown.registration + newBreakdown.phone + newBreakdown.pet + newBreakdown.share;
+
+    // Update user points
+    const pointsDocRef = doc(db, 'userPoints', user.uid);
+    const pointsData = {
+      uid: user.uid,
+      email: user.email,
+      pointsBreakdown: newBreakdown,
+      totalPoints,
+      lastUpdated: new Date()
+    };
+
+    batch.set(pointsDocRef, pointsData, { merge: true });
+
+    // Add transaction record (negative points)
+    const transactionRef = doc(collection(db, 'pointsTransactions'));
+    const transactionData = {
+      userId: user.uid,
+      type: category === 'phone' ? 'phone_verification' : 
+            category === 'pet' ? 'pet_creation' : 
+            category === 'share' ? 'app_share' : 'registration',
+      points: -points, // Negative for deduction
+      description: description || `${category} points deducted`,
+      metadata: metadata || {},
+      createdAt: new Date()
+    };
+
+    batch.set(transactionRef, transactionData);
+
+    // Commit the batch
+    await batch.commit();
+
+    console.log(`Successfully deducted ${points} points from ${category} for user ${user.uid}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deducting points:', error);
+    return { success: false, error: 'Failed to deduct points' };
+  }
+}
+
+/**
  * Recalculate user points from transaction history (for data integrity)
  */
 export async function recalculateUserPoints(

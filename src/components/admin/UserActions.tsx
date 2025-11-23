@@ -29,9 +29,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { deleteUser, updateUserRole, restrictUser, unrestrictUser } from '@/lib/actions/admin';
+import { deleteUser, updateUserRole, restrictUser, unrestrictUser, addPointsToUser } from '@/lib/actions/admin';
 import { updateUserInFirestore } from '@/lib/firebase/users';
-import { MoreHorizontal, Phone, PawPrint } from 'lucide-react';
+import { MoreHorizontal, Phone, PawPrint, Coins } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -63,6 +63,10 @@ export default function UserActions({
   const [phone, setPhone] = useState(phoneNumber || '');
   const [currentAddress, setCurrentAddress] = useState(userAddress || '');
   const [isLoading, setIsLoading] = useState(false);
+  const [isAddPointsOpen, setIsAddPointsOpen] = useState(false);
+  const [pointsAmount, setPointsAmount] = useState('100');
+  const [pointsDescription, setPointsDescription] = useState('');
+  const [isAddingPoints, setIsAddingPoints] = useState(false);
 
   const router = useRouter();
 
@@ -200,6 +204,40 @@ export default function UserActions({
     }
   };
 
+  const handleAddPoints = async () => {
+    const points = parseInt(pointsAmount);
+    
+    if (isNaN(points) || points <= 0) {
+      setError(t('userActions.invalidPointsAmount'));
+      return;
+    }
+
+    setIsAddingPoints(true);
+    setError(null);
+
+    try {
+      const result = await addPointsToUser(
+        userId,
+        points,
+        pointsDescription || undefined
+      );
+
+      if (result.success) {
+        setIsAddPointsOpen(false);
+        setPointsAmount('100');
+        setPointsDescription('');
+        router.refresh();
+      } else {
+        setError(result.error || t('userActions.addPointsError'));
+      }
+    } catch (err) {
+      setError(t('userActions.addPointsError'));
+      console.error(err);
+    } finally {
+      setIsAddingPoints(false);
+    }
+  };
+
   // Handle opening the edit dialog and closing the dropdown
   const handleOpenEditDialog = async () => {
     setIsDropdownOpen(false);
@@ -240,6 +278,13 @@ export default function UserActions({
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleOpenEditDialog}>
             {t('userActions.editUser')}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => {
+            setIsDropdownOpen(false);
+            setIsAddPointsOpen(true);
+          }}>
+            <Coins className="h-4 w-4 mr-2" />
+            {t('userActions.addPoints')}
           </DropdownMenuItem>
           {!isSuperAdmin && (
             <DropdownMenuItem
@@ -391,6 +436,66 @@ export default function UserActions({
               }}
             >
               {t('userActions.deleteUser')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Points Dialog */}
+      <Dialog
+        open={isAddPointsOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPointsAmount('100');
+            setPointsDescription('');
+            setError(null);
+          }
+          setIsAddPointsOpen(open);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('userActions.addPoints')}</DialogTitle>
+            <DialogDescription>
+              {t('userActions.addPointsDescription')}
+            </DialogDescription>
+          </DialogHeader>
+
+          {error && (
+            <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+              {error}
+            </div>
+          )}
+
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label>{t('userActions.pointsAmount')}</Label>
+              <Input
+                type="number"
+                min="1"
+                value={pointsAmount}
+                onChange={(e) => setPointsAmount(e.target.value)}
+                placeholder="100"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t('userActions.description')} ({t('userActions.optional')})</Label>
+              <Textarea
+                value={pointsDescription}
+                onChange={(e) => setPointsDescription(e.target.value)}
+                placeholder={t('userActions.pointsDescriptionPlaceholder')}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddPointsOpen(false)}>
+              {t('userActions.cancel')}
+            </Button>
+            <Button onClick={handleAddPoints} disabled={isAddingPoints}>
+              {isAddingPoints ? t('userActions.addingPoints') : t('userActions.addPoints')}
             </Button>
           </DialogFooter>
         </DialogContent>

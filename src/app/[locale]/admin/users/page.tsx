@@ -15,7 +15,7 @@ import {
 import { redirect } from '@/i18n/routing';
 import { getAllUsers } from '@/lib/actions/admin';
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, Search } from 'lucide-react';
+import { ArrowDown, ArrowUp, Search, Coins } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 
 export default async function UsersPage({
@@ -206,7 +206,20 @@ export default async function UsersPage({
                   )}
                 </a>
               </TableHead>
-              <TableHead>{t('usersManagement.table.status')}</TableHead>
+              <TableHead>
+                <a href={getSortUrl('points')} className="flex items-center">
+                  {t('usersManagement.table.points')}
+                  {sort === 'points' && (
+                    <span className="ml-1">
+                      {order === 'asc' ? (
+                        <ArrowUp className="h-4 w-4" />
+                      ) : (
+                        <ArrowDown className="h-4 w-4" />
+                      )}
+                    </span>
+                  )}
+                </a>
+              </TableHead>
               <TableHead className="text-right">{t('usersManagement.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
@@ -238,14 +251,9 @@ export default async function UsersPage({
                   </TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
                   <TableCell>
-                    <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                        user.isRestricted
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}
-                    >
-                      {user.isRestricted ? t('usersManagement.table.restricted') : t('usersManagement.table.active')}
+                    <span className="inline-flex items-center gap-1 font-semibold">
+                      <Coins className="h-4 w-4 text-yellow-600" />
+                      {user.points || 0}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
