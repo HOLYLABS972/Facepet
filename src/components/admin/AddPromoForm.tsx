@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { Business, Audience } from '@/types/promo';
+import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 export default function AddPromoForm() {
   const t = useTranslations('Admin');
@@ -238,6 +239,19 @@ export default function AddPromoForm() {
               <p className="text-sm text-gray-500">
                 Enter a YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)
               </p>
+              {formData.youtubeUrl && getYouTubeEmbedUrl(formData.youtubeUrl) && (
+                <div className="mt-4 rounded-md overflow-hidden border">
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      className="absolute top-0 left-0 w-full h-full"
+                      src={getYouTubeEmbedUrl(formData.youtubeUrl) || ''}
+                      title="YouTube video preview"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

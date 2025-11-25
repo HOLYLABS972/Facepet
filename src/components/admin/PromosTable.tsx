@@ -17,12 +17,13 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Edit, Trash2, Eye, Image } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Eye, Image, Youtube } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Promo, Business, Audience } from '@/types/promo';
 import { getPromos, getBusinesses, getAudiences, updatePromo, deletePromo } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import EditPromoDialog from './EditPromoDialog';
+import { getYouTubeThumbnailUrl } from '@/lib/utils/youtube';
 
 export default function PromosTable() {
   const t = useTranslations('Admin');
@@ -184,8 +185,19 @@ export default function PromosTable() {
                 <TableRow key={promo.id}>
                   <TableCell className="font-medium">{promo.name}</TableCell>
                   <TableCell>
-                    {promo.imageUrl ? (
-                      <div className="w-10 h-10 rounded-md overflow-hidden">
+                    {promo.youtubeUrl ? (
+                      <div className="relative w-16 h-10 rounded-md overflow-hidden">
+                        <img 
+                          src={getYouTubeThumbnailUrl(promo.youtubeUrl) || ''} 
+                          alt={promo.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <Youtube className="h-5 w-5 text-white" />
+                        </div>
+                      </div>
+                    ) : promo.imageUrl ? (
+                      <div className="w-16 h-10 rounded-md overflow-hidden">
                         <img 
                           src={promo.imageUrl} 
                           alt={promo.name}
@@ -193,7 +205,7 @@ export default function PromosTable() {
                         />
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-md bg-gray-100 flex items-center justify-center">
+                      <div className="w-16 h-10 rounded-md bg-gray-100 flex items-center justify-center">
                         <Image className="h-5 w-5 text-gray-400" />
                       </div>
                     )}

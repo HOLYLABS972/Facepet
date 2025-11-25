@@ -7,27 +7,7 @@ import Image from 'next/image';
 import process from 'process';
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
-
-// Helper function to extract YouTube video ID from URL
-const getYouTubeVideoId = (url: string): string | null => {
-  if (!url) return null;
-  
-  // Handle different YouTube URL formats
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
-    /youtube\.com\/embed\/([^&\n?#]+)/,
-    /youtube\.com\/v\/([^&\n?#]+)/
-  ];
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match && match[1]) {
-      return match[1];
-    }
-  }
-  
-  return null;
-};
+import { getYouTubeVideoId } from '@/lib/utils/youtube';
 
 const AdFullPage = ({
   type,
