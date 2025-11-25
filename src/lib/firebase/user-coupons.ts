@@ -74,6 +74,9 @@ export async function getUserCoupons(userId: string): Promise<{ success: boolean
       const purchasedAt = data.purchasedAt?.toDate() || new Date();
       const usedAt = data.usedAt?.toDate();
       
+      // Ensure status is properly set (default to 'active' if missing)
+      const status = data.status || 'active';
+      
       coupons.push({
         id: doc.id,
         userId: data.userId,
@@ -85,7 +88,7 @@ export async function getUserCoupons(userId: string): Promise<{ success: boolean
           validTo: validTo.toISOString(),
         } as any, // Type assertion needed since we're using ISO strings
         purchasedAt: purchasedAt.toISOString(),
-        status: data.status,
+        status: status,
         usedAt: usedAt ? usedAt.toISOString() : undefined
       } as any); // Type assertion needed since we're using ISO strings
     });
@@ -160,6 +163,46 @@ export async function getCouponHistory(userId: string): Promise<{ success: boole
   } catch (error: any) {
     console.error('Error getting coupon history:', error);
     return { success: false, error: 'Failed to get coupon history' };
+  }
+}
+
+/**
+ * Get a user coupon by ID
+ */
+export async function getUserCouponById(userCouponId: string): Promise<{ success: boolean; userCoupon?: UserCoupon; error?: string }> {
+  try {
+    const docRef = doc(db, USER_COUPONS_COLLECTION, userCouponId);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      return { success: false, error: 'Voucher not found' };
+    }
+
+    const data = docSnap.data();
+    const validFrom = data.coupon.validFrom?.toDate() || new Date();
+    const validTo = data.coupon.validTo?.toDate() || new Date();
+    const purchasedAt = data.purchasedAt?.toDate() || new Date();
+    const usedAt = data.usedAt?.toDate();
+    const status = data.status || 'active';
+
+    const userCoupon: UserCoupon = {
+      id: docSnap.id,
+      userId: data.userId,
+      couponId: data.couponId,
+      coupon: {
+        ...data.coupon,
+        validFrom: validFrom.toISOString(),
+        validTo: validTo.toISOString(),
+      } as any,
+      purchasedAt: purchasedAt.toISOString(),
+      status: status,
+      usedAt: usedAt ? usedAt.toISOString() : undefined
+    } as any;
+
+    return { success: true, userCoupon };
+  } catch (error: any) {
+    console.error('Error getting user coupon by ID:', error);
+    return { success: false, error: 'Failed to get voucher' };
   }
 }
 

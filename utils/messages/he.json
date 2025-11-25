@@ -1367,6 +1367,7 @@
       "failedToPurchase": "נכשל ברכישת שובר",
       "couponCode": "קוד שובר",
       "goToStore": "עבור לחנות",
+      "view": "צפה",
       "useCoupon": "השתמש בשובר",
       "codeCopied": "קוד השובר הועתק ללוח!",
       "failedToCopy": "נכשל בהעתקת הקוד",
@@ -1374,7 +1375,12 @@
       "couponMarkedAsUsed": "השובר סומן כמשומש והועבר להיסטוריה",
       "failedToMarkAsUsed": "נכשל בסימון השובר כמשומש",
       "points": "נקודות",
-      "shareText": "בדקו את FacePet! הצטרפו אליי וקבלו עסקאות מדהימות על שירותי חיות מחמד: {url}"
+      "shareText": "בדקו את FacePet! הצטרפו אליי וקבלו עסקאות מדהימות על שירותי חיות מחמד: {url}",
+      "back": "חזור",
+      "validFrom": "תקף מ",
+      "qrCodeDescription": "סרקו את קוד ה-QR הזה כדי לצפות בשובר",
+      "share": "שתף",
+      "use": "השתמש"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",

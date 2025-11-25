@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, Ticket, Calendar, ShoppingCart, Store, History, Share2, Copy, Check, Tag } from 'lucide-react';
+import { Coins, Ticket, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Coupon } from '@/types/coupon';
 import { getCoupons, getContactInfo } from '@/lib/actions/admin';
@@ -21,6 +22,7 @@ import toast from 'react-hot-toast';
 export default function UserCouponsPage() {
   const t = useTranslations('components.UserCoupons');
   const locale = useLocale();
+  const router = useRouter();
   const { user } = useAuth();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [couponHistory, setCouponHistory] = useState<UserCoupon[]>([]); // All purchased coupons (active + inactive)
@@ -292,16 +294,6 @@ export default function UserCouponsPage() {
     }
   };
 
-  const handleGoToStore = (couponCode: string) => {
-    // Copy the code first
-    handleCopyCode(couponCode);
-    // Then redirect to shop with the coupon code
-    if (!shopUrl) {
-      toast.error('Shop URL is not configured. Please contact support.');
-      return;
-    }
-    redirectToShop(shopUrl, couponCode, undefined, true);
-  };
 
 
   const formatDate = (date: Date) => {
@@ -499,9 +491,13 @@ export default function UserCouponsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
               {couponHistory.map((userCoupon) => {
                 const coupon = userCoupon.coupon;
-                const isActive = userCoupon.status === 'active';
-                const isExpired = userCoupon.status === 'expired' || (userCoupon.status === 'active' && new Date(coupon.validTo) < new Date());
-                const isUsed = userCoupon.status === 'used';
+                // Ensure status is properly set (default to 'active' if missing or invalid)
+                const status = userCoupon.status || 'active';
+                // Only mark as expired if status is explicitly 'expired', not based on date
+                // Vouchers stay active until explicitly used or expired
+                const isActive = status === 'active';
+                const isExpired = status === 'expired';
+                const isUsed = status === 'used';
                 const couponCode = coupon.description;
                 const isCodeCopied = copiedCode === couponCode;
                 
@@ -591,18 +587,17 @@ export default function UserCouponsPage() {
                         )}
                       </div>
                     </CardContent>
-                    {isActive && !isExpired && (
-                      <CardFooter className="pt-4">
-                        <Button 
-                          onClick={() => handleGoToStore(couponCode)}
-                          className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
-                          size="lg"
-                        >
-                          <Store className="h-5 w-5" />
-                          {t('goToStore')}
-                        </Button>
-                      </CardFooter>
-                    )}
+                    <CardFooter className="pt-4">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={() => router.push(`/${locale}/vouchers/${userCoupon.id}`)}
+                        className="w-full flex items-center justify-center gap-2"
+                      >
+                        <Eye className="h-5 w-5" />
+                        {t('view') || 'View'}
+                      </Button>
+                    </CardFooter>
                   </Card>
                 );
               })}
