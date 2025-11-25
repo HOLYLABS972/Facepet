@@ -12,13 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { AudienceMultiselect } from '@/components/ui/audience-multiselect';
 
 import { updateBusiness, getAudiences } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
@@ -45,7 +39,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
       address: ''
     },
     tags: [] as string[],
-    audienceId: '',
+    audienceIds: [] as string[],
     rating: ''
   });
   const [audiences, setAudiences] = useState<Audience[]>([]);
@@ -67,7 +61,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
             address: business.contactInfo?.address || ''
           },
           tags: business.tags || [],
-          audienceId: business.audienceId || '',
+          audienceIds: business.audienceIds || (business.audienceId ? [business.audienceId] : []),
           rating: business.rating?.toString() || ''
         });
       }
@@ -133,6 +127,13 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
     }));
   };
 
+  const handleAudienceChange = (selectedIds: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      audienceIds: selectedIds
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -145,7 +146,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
         imageUrl: formData.imageUrl,
         contactInfo: formData.contactInfo,
         tags: formData.tags,
-        audienceId: formData.audienceId || undefined,
+        audienceIds: formData.audienceIds && formData.audienceIds.length > 0 ? formData.audienceIds : undefined,
         rating: formData.rating ? Number(formData.rating) : undefined
       });
 
@@ -308,26 +309,14 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="audienceId">{t('businessManagement.audience')}</Label>
-            <Select 
-              value={formData.audienceId} 
-              onValueChange={(value) => handleSelectChange('audienceId', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('businessManagement.audiencePlaceholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {loading ? (
-                  <SelectItem value="loading" disabled>Loading...</SelectItem>
-                ) : (
-                  audiences.map((audience) => (
-                    <SelectItem key={audience.id} value={audience.id}>
-                      {audience.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Label>{t('businessManagement.audience')}</Label>
+            <AudienceMultiselect
+              audiences={audiences}
+              selectedIds={formData.audienceIds}
+              onSelectionChange={handleAudienceChange}
+              placeholder={t('businessManagement.audiencePlaceholder')}
+              disabled={loading}
+            />
           </div>
 
           <DialogFooter>

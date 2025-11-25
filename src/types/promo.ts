@@ -20,7 +20,8 @@ export interface Business {
     address: string;
   };
   tags: string[];
-  audienceId?: string;
+  audienceId?: string; // Legacy field for backward compatibility
+  audienceIds?: string[]; // New field for multiple audiences
   rating?: number;
   isActive: boolean;
   createdAt: Date;
@@ -66,7 +67,8 @@ export interface CreateBusinessData {
     address: string;
   };
   tags: string[];
-  audienceId?: string;
+  audienceId?: string; // Legacy field for backward compatibility
+  audienceIds?: string[]; // New field for multiple audiences
   rating?: number;
 }
 

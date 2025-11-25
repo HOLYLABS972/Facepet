@@ -10,9 +10,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
-import { updateAudience } from '@/lib/actions/admin';
+import { updateAudience, deleteAudience } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { Audience } from '@/types/promo';
@@ -27,49 +26,28 @@ interface EditAudienceDialogProps {
 export default function EditAudienceDialog({ audience, isOpen, onClose, onSuccess }: EditAudienceDialogProps) {
   const t = useTranslations('Admin');
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    targetCriteria: [] as string[]
+    name: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [newCriteria, setNewCriteria] = useState('');
 
   useEffect(() => {
     console.log('EditAudienceDialog effect - isOpen:', isOpen, 'audience:', audience);
     if (isOpen && audience) {
       setFormData({
-        name: audience.name,
-        description: audience.description,
-        targetCriteria: audience.targetCriteria || []
+        name: audience.name
       });
     }
   }, [isOpen, audience]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value
-    }));
-  };
-
-  const addCriteria = () => {
-    if (newCriteria.trim() && !formData.targetCriteria.includes(newCriteria.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        targetCriteria: [...prev.targetCriteria, newCriteria.trim()]
-      }));
-      setNewCriteria('');
-    }
-  };
-
-  const removeCriteria = (criteriaToRemove: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      targetCriteria: prev.targetCriteria.filter(criteria => criteria !== criteriaToRemove)
     }));
   };
 
@@ -81,8 +59,8 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
     try {
       const result = await updateAudience(audience.id, {
         name: formData.name,
-        description: formData.description,
-        targetCriteria: formData.targetCriteria
+        description: '',
+        targetCriteria: []
       });
 
       if (!result.success) {
@@ -96,6 +74,31 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
       setError(err.message || 'Failed to update audience. Please try again.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete the audience "${audience.name}"?`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const result = await deleteAudience(audience.id);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete audience');
+      }
+
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      console.error('Error deleting audience:', err);
+      setError(err.message || 'Failed to delete audience. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -127,65 +130,16 @@ export default function EditAudienceDialog({ audience, isOpen, onClose, onSucces
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">{t('audienceManagement.description')}</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder={t('dialogs.editAudience.enterAudienceDescription')}
-              rows={3}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="targetCriteria">{t('dialogs.editAudience.targetCriteria')}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="targetCriteria"
-                value={newCriteria}
-                onChange={(e) => setNewCriteria(e.target.value)}
-                placeholder={t('dialogs.editAudience.addCriteriaPlaceholder')}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addCriteria();
-                  }
-                }}
-              />
-              <Button type="button" onClick={addCriteria} variant="outline">
-                {t('dialogs.editAudience.addCriteria')}
-              </Button>
-            </div>
-            
-            {formData.targetCriteria.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {formData.targetCriteria.map((criteria, index) => (
-                  <span
-                    key={index}
-                    className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1"
-                  >
-                    {criteria}
-                    <button
-                      type="button"
-                      onClick={() => removeCriteria(criteria)}
-                      className="ml-1 hover:text-red-300"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t('dialogs.editAudience.cancel')}
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={handleDelete}
+              disabled={isDeleting || isSubmitting}
+            >
+              {isDeleting ? 'Removing...' : 'Remove'}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || isDeleting}>
               {isSubmitting ? t('dialogs.editAudience.updating') : t('dialogs.editAudience.update')}
             </Button>
           </DialogFooter>

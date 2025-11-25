@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 import { createAudience } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
@@ -22,40 +21,20 @@ export default function AddAudienceForm() {
   const t = useTranslations('Admin');
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    targetCriteria: [] as string[]
+    name: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [newCriteria, setNewCriteria] = useState('');
 
   const router = useRouter();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value
-    }));
-  };
-
-  const addCriteria = () => {
-    if (newCriteria.trim() && !formData.targetCriteria.includes(newCriteria.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        targetCriteria: [...prev.targetCriteria, newCriteria.trim()]
-      }));
-      setNewCriteria('');
-    }
-  };
-
-  const removeCriteria = (criteriaToRemove: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      targetCriteria: prev.targetCriteria.filter(criteria => criteria !== criteriaToRemove)
     }));
   };
 
@@ -69,8 +48,8 @@ export default function AddAudienceForm() {
       
       const result = await createAudience({
         name: formData.name,
-        description: formData.description,
-        targetCriteria: formData.targetCriteria
+        description: '',
+        targetCriteria: []
       }, 'admin'); // TODO: Get actual user ID
 
       console.log('Create audience result:', result);
@@ -81,11 +60,8 @@ export default function AddAudienceForm() {
 
       // Reset form and close
       setFormData({
-        name: '',
-        description: '',
-        targetCriteria: []
+        name: ''
       });
-      setNewCriteria('');
       setIsOpen(false);
 
       // Refresh the page to show the new audience
@@ -127,60 +103,6 @@ export default function AddAudienceForm() {
               placeholder={t('audienceManagement.namePlaceholder')}
               required
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">{t('audienceManagement.description')}</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder={t('audienceManagement.descriptionPlaceholder')}
-              rows={3}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="targetCriteria">{t('audienceManagement.targetCriteria')}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="targetCriteria"
-                value={newCriteria}
-                onChange={(e) => setNewCriteria(e.target.value)}
-                placeholder={t('audienceManagement.targetCriteriaPlaceholder')}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addCriteria();
-                  }
-                }}
-              />
-              <Button type="button" onClick={addCriteria} variant="outline">
-                {t('audienceManagement.add')}
-              </Button>
-            </div>
-            
-            {formData.targetCriteria.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {formData.targetCriteria.map((criteria, index) => (
-                  <span
-                    key={index}
-                    className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1"
-                  >
-                    {criteria}
-                    <button
-                      type="button"
-                      onClick={() => removeCriteria(criteria)}
-                      className="ml-1 hover:text-red-300"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           <DialogFooter>

@@ -13,7 +13,7 @@ import PromosTable from '@/components/admin/PromosTable';
 // Import new audience and business components
 import AddAudienceForm from '@/components/admin/AddAudienceForm';
 import AddBusinessForm from '@/components/admin/AddBusinessForm';
-import AudiencesTable from '@/components/admin/AudiencesTable';
+import AudiencesFloatingChips from '@/components/admin/AudiencesFloatingChips';
 import BusinessesTable from '@/components/admin/BusinessesTable';
 
 // Import table components
@@ -93,7 +93,7 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
             <AddAudienceForm />
           </div>
           
-          <AudiencesTable />
+          <AudiencesFloatingChips />
         </TabsContent>
 
         <TabsContent value="businesses" className="space-y-6">

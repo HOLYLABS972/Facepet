@@ -20,13 +20,7 @@ import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
 import { Audience } from '@/types/promo';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { AudienceMultiselect } from '@/components/ui/audience-multiselect';
 
 export default function AddBusinessForm() {
   const t = useTranslations('Admin');
@@ -41,7 +35,7 @@ export default function AddBusinessForm() {
       address: ''
     },
     tags: [] as string[],
-    audienceId: '',
+    audienceIds: [] as string[],
     rating: ''
   });
   const [audiences, setAudiences] = useState<Audience[]>([]);
@@ -116,6 +110,13 @@ export default function AddBusinessForm() {
     }));
   };
 
+  const handleAudienceChange = (selectedIds: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      audienceIds: selectedIds
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -130,7 +131,7 @@ export default function AddBusinessForm() {
         imageUrl: formData.imageUrl && formData.imageUrl.trim() !== '' ? formData.imageUrl : '',
         contactInfo: formData.contactInfo,
         tags: formData.tags,
-        audienceId: formData.audienceId || undefined,
+        audienceIds: formData.audienceIds && formData.audienceIds.length > 0 ? formData.audienceIds : undefined,
         rating: formData.rating ? Number(formData.rating) : undefined
       }, 'admin'); // TODO: Get actual user ID
 
@@ -316,26 +317,14 @@ export default function AddBusinessForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="audienceId">{t('businessManagement.audience')}</Label>
-            <Select 
-              value={formData.audienceId} 
-              onValueChange={(value) => handleSelectChange('audienceId', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('businessManagement.audiencePlaceholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {loading ? (
-                  <SelectItem value="loading" disabled>Loading...</SelectItem>
-                ) : (
-                  audiences.map((audience) => (
-                    <SelectItem key={audience.id} value={audience.id}>
-                      {audience.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Label>{t('businessManagement.audience')}</Label>
+            <AudienceMultiselect
+              audiences={audiences}
+              selectedIds={formData.audienceIds}
+              onSelectionChange={handleAudienceChange}
+              placeholder={t('businessManagement.audiencePlaceholder')}
+              disabled={loading}
+            />
           </div>
 
           <DialogFooter>

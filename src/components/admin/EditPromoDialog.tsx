@@ -215,16 +215,16 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
           </div>
 
           {mediaType === 'image' ? (
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">{t('promoManagement.image')}</Label>
-              <MediaUpload
-                type="image"
-                value={formData.imageUrl}
-                onChange={(filePath) => {
-                  setFormData((prev) => ({ ...prev, imageUrl: filePath }));
-                }}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl">{t('promoManagement.image')}</Label>
+            <MediaUpload
+              type="image"
+              value={formData.imageUrl}
+              onChange={(filePath) => {
+                setFormData((prev) => ({ ...prev, imageUrl: filePath }));
+              }}
+            />
+          </div>
           ) : (
             <div className="space-y-2">
               <Label htmlFor="youtubeUrl">YouTube URL</Label>
