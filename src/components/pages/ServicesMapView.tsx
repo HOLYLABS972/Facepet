@@ -23,6 +23,7 @@ import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
 import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/lib/firebase/favorites';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { SERVICE_TAGS_TRANSLATIONS } from '@/lib/constants/hebrew-service-tags';
 
 interface Service {
   id?: string;
@@ -56,6 +57,14 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   const router = useRouter();
   const locale = useLocale();
   const mapRef = useRef<HTMLDivElement>(null);
+
+  // Function to translate tags for display
+  const translateTag = (tag: string): string => {
+    if (locale === 'en' && SERVICE_TAGS_TRANSLATIONS[tag as keyof typeof SERVICE_TAGS_TRANSLATIONS]) {
+      return SERVICE_TAGS_TRANSLATIONS[tag as keyof typeof SERVICE_TAGS_TRANSLATIONS];
+    }
+    return tag;
+  };
   const [map, setMap] = useState<any>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [servicesWithCoords, setServicesWithCoords] = useState<ServiceWithCoordinates[]>([]);
@@ -65,6 +74,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   const [markerInfoWindows, setMarkerInfoWindows] = useState<Map<string, any>>(new Map());
   const [currentInfoWindow, setCurrentInfoWindow] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<ServiceWithCoordinates | null>(null);
+  const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -196,6 +206,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
     setDrawerOpen(open);
     if (!open) {
       setSelectedService(null);
+      setHighlightedServiceId(null);
       setShowCommentForm(false);
       setUserRating(0);
       setCommentText('');
@@ -368,8 +379,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         if (currentInfoWindow) {
           currentInfoWindow.close();
         }
-        // Set selected service and open drawer
+        // Set selected service and highlight it
         setSelectedService(service);
+        if (service.id) {
+          setHighlightedServiceId(service.id);
+        }
         setDrawerOpen(true);
         // Load comments when drawer opens
         if (service.id) {
@@ -495,100 +509,27 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
     setIsLoading(false);
   };
 
+  // Handle service click from list
+  const handleServiceClick = (service: ServiceWithCoordinates) => {
+    if (service.coordinates && map) {
+      map.setCenter(service.coordinates);
+      map.setZoom(15);
+      setSelectedService(service);
+      if (service.id) {
+        setHighlightedServiceId(service.id);
+        loadComments(service.id);
+        if (user) {
+          checkIfFavorited(service.id);
+        }
+      }
+      setDrawerOpen(true);
+    }
+  };
+
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Location Permission Button */}
-      {locationPermission === 'prompt' && (
-        <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Navigation className="w-5 h-5 text-blue-600" />
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {t('map.findNearby') || 'Find services near you'}
-                </p>
-                <p className="text-xs text-gray-600">
-                  {t('map.locationPermission') || 'Allow location access to see closest services'}
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={requestUserLocation}
-              disabled={isLoading}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {isLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <MapPin className="w-4 h-4 mr-2" />
-                  {t('map.useMyLocation') || 'Use My Location'}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Location Denied Message */}
-      {locationPermission === 'denied' && (
-        <div className="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-yellow-600" />
-            <p className="text-sm text-gray-700">
-              {t('map.locationDenied') || 'Location access denied. Showing all services.'}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Services List with Distances */}
-      {locationPermission === 'granted' && servicesWithCoords.length > 0 && (
-        <div className="mb-4 max-h-48 overflow-y-auto border rounded-lg p-2 bg-white">
-          <p className="text-sm font-semibold mb-2 px-2">
-            {t('map.closestServices') || 'Closest Services:'}
-          </p>
-          <div className="space-y-1">
-            {servicesWithCoords.slice(0, 10).map((service, index) => {
-              const markerData = service.id ? markerInfoWindows.get(service.id) : null;
-
-              return (
-                <div
-                  key={service.id || index}
-                  className="p-2 hover:bg-gray-50 rounded cursor-pointer text-sm"
-                  onClick={() => {
-                    if (service.coordinates && map) {
-                      map.setCenter(service.coordinates);
-                      map.setZoom(15);
-                      // Open drawer with service details
-                      setSelectedService(service);
-                      setDrawerOpen(true);
-                      if (service.id) {
-                        loadComments(service.id);
-                        if (user) {
-                          checkIfFavorited(service.id);
-                        }
-                      }
-                    }
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium truncate flex-1">{service.name}</span>
-                    {service.distance && (
-                      <span className="text-blue-600 font-semibold ml-2">
-                        {service.distance.toFixed(2)} km
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Map Container */}
-      <div className="flex-1 relative border rounded-lg overflow-hidden">
+    <div className="w-full h-full flex flex-col lg:flex-row gap-4">
+      {/* Map Container - Top on Mobile, Right Side on Desktop */}
+      <div className="w-full lg:w-2/3 flex-1 relative border rounded-lg overflow-hidden bg-gray-100 lg:order-2">
         {isLoading && (
           <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
             <div className="text-center">
@@ -600,6 +541,148 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
           </div>
         )}
         <div ref={mapRef} className="w-full h-full" />
+      </div>
+
+      {/* Services List Panel - Bottom on Mobile, Left Side on Desktop */}
+      <div className="w-full lg:w-1/3 flex flex-col border rounded-lg bg-white overflow-hidden lg:order-1 max-h-[50vh] lg:max-h-none">
+        {/* Location Permission Button */}
+        {locationPermission === 'prompt' && (
+          <div className="p-4 bg-blue-50 border-b border-blue-200">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Navigation className="w-5 h-5 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {t('map.findNearby') || 'Find services near you'}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {t('map.locationPermission') || 'Allow location access to see closest services'}
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={requestUserLocation}
+                disabled={isLoading}
+                className="bg-blue-600 hover:bg-blue-700 w-full"
+                size="sm"
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <MapPin className="w-4 h-4 mr-2" />
+                    {t('map.useMyLocation') || 'Use My Location'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Location Denied Message */}
+        {locationPermission === 'denied' && (
+          <div className="p-4 bg-yellow-50 border-b border-yellow-200">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <p className="text-sm text-gray-700">
+                {t('map.locationDenied') || 'Location access denied. Showing all services.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Services List Header */}
+        <div className="p-4 border-b bg-gray-50">
+          <h3 className="text-lg font-semibold">
+            {locationPermission === 'granted' 
+              ? (t('map.closestServices') || 'Closest Services')
+              : (t('map.allServices') || 'All Services')}
+          </h3>
+          <p className="text-sm text-gray-600 mt-1">
+            {servicesWithCoords.length} {t('map.servicesFound') || 'services found'}
+          </p>
+        </div>
+
+        {/* Scrollable Services List */}
+        <div className="flex-1 overflow-y-auto">
+          {isLoading && servicesWithCoords.length === 0 ? (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-sm text-gray-600">
+                  {t('map.loading') || 'Loading services...'}
+                </p>
+              </div>
+            </div>
+          ) : servicesWithCoords.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <p>{t('map.noServices') || 'No services found'}</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {servicesWithCoords.map((service, index) => (
+                <div
+                  key={service.id || index}
+                  className={cn(
+                    "p-4 cursor-pointer transition-colors hover:bg-gray-50",
+                    highlightedServiceId === service.id && "bg-blue-50 border-l-4 border-l-blue-600"
+                  )}
+                  onClick={() => handleServiceClick(service)}
+                >
+                  <div className="flex gap-3">
+                    {/* Service Image */}
+                    <div className="flex-shrink-0">
+                      <img
+                        src={service.image}
+                        alt={service.name}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                    </div>
+                    
+                    {/* Service Info */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-base truncate">{service.name}</h4>
+                      {service.description && service.description.trim() !== '' && (
+                        <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                          {service.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        {service.distance !== undefined && (
+                          <span className="text-blue-600 font-semibold text-sm">
+                            {service.distance.toFixed(2)} km
+                          </span>
+                        )}
+                        {(service.address || service.location) && (
+                          <span className="text-xs text-gray-500 truncate flex items-center gap-1">
+                            <MapPin size={12} />
+                            {service.address || service.location}
+                          </span>
+                        )}
+                      </div>
+                      {/* Tags */}
+                      {service.tags && service.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {service.tags.slice(0, 2).map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs"
+                            >
+                              {translateTag(tag)}
+                            </span>
+                          ))}
+                          {service.tags.length > 2 && (
+                            <span className="text-xs text-gray-500">+{service.tags.length - 2}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Service Details Drawer */}
@@ -625,7 +708,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                         key={idx}
                         className="bg-primary rounded-full px-2 py-1 text-xs text-white"
                       >
-                        {tag}
+                        {translateTag(tag)}
                       </span>
                     ))}
                   </div>
@@ -869,7 +952,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                         toast.error('Business ID not available');
                       }
                     }}
-                    title={t('coupons') || 'Coupons'}
+                    title={t('coupons') || 'Vouchers'}
                   >
                     <Ticket size={20} />
                   </Button>

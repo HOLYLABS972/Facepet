@@ -12,7 +12,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from '../config';
-import { Audience, Business, Promo, CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData } from '@/types/promo';
+import { Audience, Business, Coupon, Promo, CreateAudienceData, CreateBusinessData, CreateCouponData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdateCouponData, UpdatePromoData } from '@/types/promo';
 
 // AUDIENCE QUERIES
 const AUDIENCES_COLLECTION = 'audiences';
@@ -132,13 +132,13 @@ export async function deleteBusiness(id: string): Promise<void> {
   }
 }
 
-// PROMO QUERIES
-const PROMOS_COLLECTION = 'promos';
+// COUPON QUERIES (formerly PROMO)
+const COUPONS_COLLECTION = 'promos'; // Keep collection name as 'promos' for now to avoid data migration
 
-export async function createPromo(promoData: CreatePromoData, createdBy: string): Promise<string> {
+export async function createCoupon(couponData: CreateCouponData, createdBy: string): Promise<string> {
   try {
-    const docRef = await addDoc(collection(db, PROMOS_COLLECTION), {
-      ...promoData,
+    const docRef = await addDoc(collection(db, COUPONS_COLLECTION), {
+      ...couponData,
       isActive: true,
       createdBy,
       createdAt: serverTimestamp(),
@@ -146,14 +146,17 @@ export async function createPromo(promoData: CreatePromoData, createdBy: string)
     });
     return docRef.id;
   } catch (error) {
-    console.error('Error creating promo:', error);
-    throw new Error('Failed to create promo');
+    console.error('Error creating coupon:', error);
+    throw new Error('Failed to create coupon');
   }
 }
 
-export async function getPromos(): Promise<Promo[]> {
+// Legacy alias
+export const createPromo = createCoupon;
+
+export async function getCoupons(): Promise<Coupon[]> {
   try {
-    const q = query(collection(db, PROMOS_COLLECTION), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, COUPONS_COLLECTION), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     
     return querySnapshot.docs.map(doc => ({
@@ -163,16 +166,19 @@ export async function getPromos(): Promise<Promo[]> {
       updatedAt: doc.data().updatedAt?.toDate() || new Date(),
       startDate: doc.data().startDate?.toDate() || undefined,
       endDate: doc.data().endDate?.toDate() || undefined
-    })) as Promo[];
+    })) as Coupon[];
   } catch (error) {
-    console.error('Error fetching promos:', error);
-    throw new Error('Failed to fetch promos');
+    console.error('Error fetching coupons:', error);
+    throw new Error('Failed to fetch coupons');
   }
 }
 
-export async function getPromoById(id: string): Promise<Promo | null> {
+// Legacy alias
+export const getPromos = getCoupons;
+
+export async function getCouponById(id: string): Promise<Coupon | null> {
   try {
-    const docRef = doc(db, PROMOS_COLLECTION, id);
+    const docRef = doc(db, COUPONS_COLLECTION, id);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
@@ -183,88 +189,103 @@ export async function getPromoById(id: string): Promise<Promo | null> {
         updatedAt: docSnap.data().updatedAt?.toDate() || new Date(),
         startDate: docSnap.data().startDate?.toDate() || undefined,
         endDate: docSnap.data().endDate?.toDate() || undefined
-      } as Promo;
+      } as Coupon;
     }
     return null;
   } catch (error) {
-    console.error('Error fetching promo:', error);
-    throw new Error('Failed to fetch promo');
+    console.error('Error fetching coupon:', error);
+    throw new Error('Failed to fetch coupon');
   }
 }
 
-export async function updatePromo(id: string, updateData: UpdatePromoData): Promise<void> {
+// Legacy alias
+export const getPromoById = getCouponById;
+
+export async function updateCoupon(id: string, updateData: UpdateCouponData): Promise<void> {
   try {
-    const docRef = doc(db, PROMOS_COLLECTION, id);
+    const docRef = doc(db, COUPONS_COLLECTION, id);
     await updateDoc(docRef, {
       ...updateData,
       updatedAt: serverTimestamp()
     });
   } catch (error) {
-    console.error('Error updating promo:', error);
-    throw new Error('Failed to update promo');
+    console.error('Error updating coupon:', error);
+    throw new Error('Failed to update coupon');
   }
 }
 
-export async function deletePromo(id: string): Promise<void> {
+// Legacy alias
+export const updatePromo = updateCoupon;
+
+export async function deleteCoupon(id: string): Promise<void> {
   try {
-    const docRef = doc(db, PROMOS_COLLECTION, id);
+    const docRef = doc(db, COUPONS_COLLECTION, id);
     await deleteDoc(docRef);
   } catch (error) {
-    console.error('Error deleting promo:', error);
-    throw new Error('Failed to delete promo');
+    console.error('Error deleting coupon:', error);
+    throw new Error('Failed to delete coupon');
   }
 }
 
-export async function getPromosByBusiness(businessId: string): Promise<Promo[]> {
+// Legacy alias
+export const deletePromo = deleteCoupon;
+
+export async function getCouponsByBusiness(businessId: string): Promise<Coupon[]> {
   try {
     const q = query(
-      collection(db, PROMOS_COLLECTION), 
+      collection(db, COUPONS_COLLECTION), 
       where('businessId', '==', businessId)
     );
     const querySnapshot = await getDocs(q);
     
-    const promos = querySnapshot.docs.map(doc => ({
+    const coupons = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date(),
       startDate: doc.data().startDate?.toDate() || undefined,
       endDate: doc.data().endDate?.toDate() || undefined
-    })) as Promo[];
+    })) as Coupon[];
     
     // Sort by createdAt in descending order (newest first)
-    promos.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    coupons.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     
-    return promos;
+    return coupons;
   } catch (error) {
-    console.error('Error fetching promos by business:', error);
-    throw new Error('Failed to fetch promos by business');
+    console.error('Error fetching coupons by business:', error);
+    throw new Error('Failed to fetch coupons by business');
   }
 }
 
-export async function getPromosByAudience(audienceId: string): Promise<Promo[]> {
+// Legacy alias
+export const getPromosByBusiness = getCouponsByBusiness;
+
+export async function getCouponsByAudience(audienceId: string): Promise<Coupon[]> {
   try {
     const q = query(
-      collection(db, PROMOS_COLLECTION), 
+      collection(db, COUPONS_COLLECTION), 
       where('audienceId', '==', audienceId)
     );
     const querySnapshot = await getDocs(q);
     
-    const promos = querySnapshot.docs.map(doc => ({
+    const coupons = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date(),
       startDate: doc.data().startDate?.toDate() || undefined,
       endDate: doc.data().endDate?.toDate() || undefined
-    })) as Promo[];
+    })) as Coupon[];
     
     // Sort by createdAt in descending order (newest first)
-    promos.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    coupons.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     
-    return promos;
+    return coupons;
   } catch (error) {
-    console.error('Error fetching promos by audience:', error);
-    throw new Error('Failed to fetch promos by audience');
+    console.error('Error fetching coupons by audience:', error);
+    throw new Error('Failed to fetch coupons by audience');
   }
 }
+
+// Legacy alias
+export const getPromosByAudience = getCouponsByAudience;

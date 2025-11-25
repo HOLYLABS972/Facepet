@@ -23,19 +23,7 @@ export async function purchaseCoupon(
   pointsDeducted: number
 ): Promise<{ success: boolean; error?: string; userCouponId?: string }> {
   try {
-    // Check if user already has this coupon
-    const existingQuery = query(
-      collection(db, USER_COUPONS_COLLECTION),
-      where('userId', '==', userId),
-      where('couponId', '==', coupon.id),
-      where('status', '==', 'active')
-    );
-    const existingDocs = await getDocs(existingQuery);
-    
-    if (!existingDocs.empty) {
-      return { success: false, error: 'You already have this coupon' };
-    }
-
+    // Allow users to purchase the same voucher multiple times
     // Create user coupon document
     const userCouponData = {
       userId,
@@ -158,7 +146,7 @@ export async function getActiveUserCoupons(userId: string): Promise<{ success: b
 }
 
 /**
- * Get coupon history (used and expired)
+ * Get coupon history (all purchased coupons - active, used, and expired)
  */
 export async function getCouponHistory(userId: string): Promise<{ success: boolean; coupons?: UserCoupon[]; error?: string }> {
   try {
@@ -167,11 +155,8 @@ export async function getCouponHistory(userId: string): Promise<{ success: boole
       return result;
     }
 
-    const historyCoupons = result.coupons.filter((userCoupon) => {
-      return userCoupon.status === 'used' || userCoupon.status === 'expired';
-    });
-
-    return { success: true, coupons: historyCoupons };
+    // Return all purchased coupons (active, used, and expired)
+    return { success: true, coupons: result.coupons };
   } catch (error: any) {
     console.error('Error getting coupon history:', error);
     return { success: false, error: 'Failed to get coupon history' };

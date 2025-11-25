@@ -112,3 +112,26 @@ export async function getActiveCoupons(): Promise<Coupon[]> {
     throw new Error('Failed to fetch active coupons');
   }
 }
+
+export async function getCouponsByBusiness(businessId: string): Promise<Coupon[]> {
+  try {
+    const q = query(
+      collection(db, COUPONS_COLLECTION), 
+      where('businessId', '==', businessId),
+      orderBy('createdAt', 'desc')
+    );
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      validFrom: doc.data().validFrom?.toDate() || new Date(),
+      validTo: doc.data().validTo?.toDate() || new Date()
+    })) as Coupon[];
+  } catch (error) {
+    console.error('Error fetching coupons by business:', error);
+    throw new Error('Failed to fetch coupons by business');
+  }
+}

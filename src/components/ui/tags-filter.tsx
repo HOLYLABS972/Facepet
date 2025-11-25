@@ -26,6 +26,7 @@ interface TagsFilterProps {
   placeholder?: string;
   clearAllText?: string;
   className?: string;
+  translateTag?: (tag: string) => string; // Function to translate tags for display
 }
 
 export function TagsFilter({ 
@@ -34,9 +35,15 @@ export function TagsFilter({
   onTagsChange, 
   placeholder = "Filter by tags...",
   clearAllText = "Clear all",
-  className 
+  className,
+  translateTag
 }: TagsFilterProps) {
   const [open, setOpen] = useState(false);
+
+  // Helper function to get display text for a tag
+  const getTagDisplay = (tag: string) => {
+    return translateTag ? translateTag(tag) : tag;
+  };
 
   const handleTagToggle = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -65,7 +72,7 @@ export function TagsFilter({
               variant="secondary"
               className="flex items-center gap-1 pr-1"
             >
-              {tag}
+              {getTagDisplay(tag)}
               <X
                 size={14}
                 className="cursor-pointer hover:text-destructive"
@@ -109,7 +116,7 @@ export function TagsFilter({
                 {tags.map((tag) => (
                   <CommandItem
                     key={tag}
-                    value={tag}
+                    value={translateTag ? getTagDisplay(tag) : tag}
                     onSelect={() => handleTagToggle(tag)}
                     className="flex items-center justify-between"
                   >
@@ -120,7 +127,7 @@ export function TagsFilter({
                           selectedTags.includes(tag) ? "opacity-100" : "opacity-0"
                         )}
                       />
-                      {tag}
+                      {getTagDisplay(tag)}
                     </div>
                     {selectedTags.includes(tag) && (
                       <Badge variant="secondary" className="ml-2">

@@ -15,7 +15,8 @@ import {
   LayoutDashboard,
   Mail,
   ShoppingBag,
-  Ticket
+  Ticket,
+  Tag
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -139,6 +140,12 @@ const Navbar = () => {
       icon: <Ticket className="h-5 w-5" />
     },
     {
+      label: t('allPromos'),
+      key: 'promos',
+      path: '/promos',
+      icon: <Tag className="h-5 w-5" />
+    },
+    {
       label: t('contact'),
       key: 'contact',
       path: '/contact',
@@ -180,7 +187,7 @@ const Navbar = () => {
               {/* Store Button - always visible */}
               {storeUrl && (
                 <Button
-                  onClick={() => window.open(storeUrl, '_blank', 'noopener,noreferrer')}
+                  onClick={() => window.location.href = storeUrl}
                   className="bg-green-600 hover:bg-green-700 text-white font-bold"
                 >
                   <ShoppingBag className="h-4 w-4 mr-2" />
@@ -235,6 +242,12 @@ const Navbar = () => {
                           <span>{t('coupons')}</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/promos" className="flex items-center">
+                          <Tag className="mr-2 h-4 w-4" />
+                          <span>{t('allPromos')}</span>
+                        </Link>
+                      </DropdownMenuItem>
                       {(userRole === 'admin' || userRole === 'super_admin') && (
                         <DropdownMenuItem asChild>
                           <Link href="/admin" className="flex items-center">
@@ -280,7 +293,7 @@ const Navbar = () => {
               {/* Mobile Store Button */}
               {storeUrl && (
                 <Button
-                  onClick={() => window.open(storeUrl, '_blank', 'noopener,noreferrer')}
+                  onClick={() => window.location.href = storeUrl}
                   className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-2 text-sm"
                 >
                   <ShoppingBag className="h-4 w-4 mr-1" />

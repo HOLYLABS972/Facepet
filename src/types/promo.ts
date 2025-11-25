@@ -28,7 +28,10 @@ export interface Business {
   createdBy: string;
 }
 
-export interface Promo {
+// Note: This Coupon type is for business promos/coupons
+// There's also a Coupon type in coupon.ts for vouchers (with price/points)
+// Both are called "Coupons" in the UI but serve different purposes
+export interface Coupon {
   id: string;
   name: string;
   description: string;
@@ -42,6 +45,9 @@ export interface Promo {
   updatedAt: Date;
   createdBy: string;
 }
+
+// Legacy alias for backward compatibility
+export type Promo = Coupon;
 
 export interface CreateAudienceData {
   name: string;
@@ -63,7 +69,7 @@ export interface CreateBusinessData {
   rating?: number;
 }
 
-export interface CreatePromoData {
+export interface CreateCouponData {
   name: string;
   description: string;
   imageUrl: string;
@@ -73,6 +79,9 @@ export interface CreatePromoData {
   endDate?: Date;
 }
 
+// Legacy alias for backward compatibility
+export type CreatePromoData = CreateCouponData;
+
 export interface UpdateAudienceData extends Partial<CreateAudienceData> {
   isActive?: boolean;
 }
@@ -81,6 +90,9 @@ export interface UpdateBusinessData extends Partial<CreateBusinessData> {
   isActive?: boolean;
 }
 
-export interface UpdatePromoData extends Partial<CreatePromoData> {
+export interface UpdateCouponData extends Partial<CreateCouponData> {
   isActive?: boolean;
 }
+
+// Legacy alias for backward compatibility
+export type UpdatePromoData = UpdateCouponData;

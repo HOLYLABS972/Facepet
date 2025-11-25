@@ -13,11 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-import { createCoupon } from '@/lib/actions/admin';
+import { createCoupon, getBusinesses } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MediaUpload from '@/components/admin/MediaUpload';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Business } from '@/types/promo';
 
 export default function AddCouponForm() {
   const t = useTranslations('Admin');
@@ -29,12 +31,35 @@ export default function AddCouponForm() {
     points: '',
     imageUrl: '',
     validFrom: '',
-    validTo: ''
+    validTo: '',
+    businessId: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [loadingBusinesses, setLoadingBusinesses] = useState(false);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchBusinesses();
+    }
+  }, [isOpen]);
+
+  const fetchBusinesses = async () => {
+    try {
+      setLoadingBusinesses(true);
+      const result = await getBusinesses();
+      if (result.success && result.businesses) {
+        setBusinesses(result.businesses);
+      }
+    } catch (err) {
+      console.error('Error fetching businesses:', err);
+    } finally {
+      setLoadingBusinesses(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -43,6 +68,13 @@ export default function AddCouponForm() {
     setFormData((prev) => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value === 'none' ? '' : value
     }));
   };
 
@@ -73,7 +105,8 @@ export default function AddCouponForm() {
         points: points,
         imageUrl: formData.imageUrl,
         validFrom: new Date(formData.validFrom),
-        validTo: new Date(formData.validTo)
+        validTo: new Date(formData.validTo),
+        businessId: formData.businessId || undefined
       }, 'admin'); // TODO: Get actual user ID
 
       console.log('Create coupon result:', result);
@@ -90,7 +123,8 @@ export default function AddCouponForm() {
         points: '',
         imageUrl: '',
         validFrom: '',
-        validTo: ''
+        validTo: '',
+        businessId: ''
       });
       setIsOpen(false);
 
@@ -186,6 +220,27 @@ export default function AddCouponForm() {
                 setFormData((prev) => ({ ...prev, imageUrl: filePath }));
               }}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="businessId">{t('couponsManagement.business') || 'Business (Optional)'}</Label>
+            <Select
+              value={formData.businessId || 'none'}
+              onValueChange={(value) => handleSelectChange('businessId', value)}
+              disabled={loadingBusinesses}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('couponsManagement.businessPlaceholder') || 'Select a business (optional)'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('couponsManagement.noBusiness') || 'No Business (General Voucher)'}</SelectItem>
+                {businesses.map((business) => (
+                  <SelectItem key={business.id} value={business.id}>
+                    {business.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

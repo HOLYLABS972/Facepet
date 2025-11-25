@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/firebase/config';
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp, deleteField } from 'firebase/firestore';
 import { hash } from 'bcryptjs';
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
 import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData } from '@/types/promo';
@@ -1658,13 +1658,18 @@ export async function saveCookieSettings(cookieSettings: Omit<CookieSettings, 'i
  */
 export async function createCoupon(couponData: CreateCouponData, createdBy: string) {
   try {
-    const docRef = await addDoc(collection(db, 'coupons'), {
-      ...couponData,
+    // Remove businessId if it's empty string
+    const { businessId, ...restData } = couponData;
+    const dataToSave = {
+      ...restData,
+      ...(businessId ? { businessId } : {}),
       isActive: true,
       createdBy,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    });
+    };
+    
+    const docRef = await addDoc(collection(db, 'coupons'), dataToSave);
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error creating coupon:', error);
@@ -1737,10 +1742,24 @@ export async function getCouponById(id: string) {
 export async function updateCoupon(id: string, updateData: UpdateCouponData) {
   try {
     const docRef = doc(db, 'coupons', id);
-    await updateDoc(docRef, {
-      ...updateData,
+    // Handle businessId: if empty string, remove it; if undefined, don't include it
+    const { businessId, ...restData } = updateData;
+    const dataToUpdate: any = {
+      ...restData,
       updatedAt: serverTimestamp()
-    });
+    };
+    
+    // Only include businessId if it's a non-empty string
+    if (businessId !== undefined) {
+      if (businessId === '') {
+        // Remove businessId field using deleteField()
+        dataToUpdate.businessId = deleteField();
+      } else {
+        dataToUpdate.businessId = businessId;
+      }
+    }
+    
+    await updateDoc(docRef, dataToUpdate);
     return { success: true };
   } catch (error) {
     console.error('Error updating coupon:', error);

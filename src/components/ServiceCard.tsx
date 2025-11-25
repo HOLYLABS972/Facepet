@@ -23,6 +23,7 @@ import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/lib/fireba
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { SERVICE_TAGS_TRANSLATIONS } from '@/lib/constants/hebrew-service-tags';
 
 // Real comments will be loaded from the database
 const realComments: Array<{
@@ -52,6 +53,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const router = useRouter();
   const locale = useLocale();
   const [open, setOpen] = useState(false);
+
+  // Function to translate tags for display
+  const translateTag = (tag: string): string => {
+    if (locale === 'en' && SERVICE_TAGS_TRANSLATIONS[tag as keyof typeof SERVICE_TAGS_TRANSLATIONS]) {
+      return SERVICE_TAGS_TRANSLATIONS[tag as keyof typeof SERVICE_TAGS_TRANSLATIONS];
+    }
+    return tag;
+  };
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [commentText, setCommentText] = useState('');
@@ -233,7 +242,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                     key={idx}
                     className="bg-primary rounded-full px-2 py-1 text-xs text-white"
                   >
-                    {tag}
+                    {translateTag(tag)}
                   </span>
                 ))}
               </div>
@@ -273,7 +282,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                       key={idx}
                       className="bg-primary rounded-full px-2 py-1 text-xs text-white"
                     >
-                      {tag}
+                      {translateTag(tag)}
                     </span>
                   ))}
                 </div>
@@ -506,7 +515,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                       toast.error('Business ID not available');
                     }
                   }}
-                  title={t('coupons') || 'Coupons'}
+                  title={t('coupons') || 'Vouchers'}
                 >
                   <Ticket size={20} />
                 </Button>

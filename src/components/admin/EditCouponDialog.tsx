@@ -12,10 +12,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { updateCoupon } from '@/lib/actions/admin';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { updateCoupon, getBusinesses } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { Coupon } from '@/types/coupon';
+import { Business } from '@/types/promo';
 
 interface EditCouponDialogProps {
   coupon: Coupon;
@@ -33,24 +35,45 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     points: '',
     imageUrl: '',
     validFrom: '',
-    validTo: ''
+    validTo: '',
+    businessId: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [loadingBusinesses, setLoadingBusinesses] = useState(false);
 
   useEffect(() => {
-    if (isOpen && coupon) {
-      setFormData({
-        name: coupon.name || '',
-        description: coupon.description || '',
-        price: coupon.price?.toString() || '',
-        points: coupon.points?.toString() || '',
-        imageUrl: coupon.imageUrl || '',
-        validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().split('T')[0] : '',
-        validTo: coupon.validTo ? new Date(coupon.validTo).toISOString().split('T')[0] : ''
-      });
+    if (isOpen) {
+      fetchBusinesses();
+      if (coupon) {
+        setFormData({
+          name: coupon.name || '',
+          description: coupon.description || '',
+          price: coupon.price?.toString() || '',
+          points: coupon.points?.toString() || '',
+          imageUrl: coupon.imageUrl || '',
+          validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().slice(0, 16) : '',
+          validTo: coupon.validTo ? new Date(coupon.validTo).toISOString().slice(0, 16) : '',
+          businessId: coupon.businessId || ''
+        });
+      }
     }
   }, [isOpen, coupon]);
+
+  const fetchBusinesses = async () => {
+    try {
+      setLoadingBusinesses(true);
+      const result = await getBusinesses();
+      if (result.success && result.businesses) {
+        setBusinesses(result.businesses);
+      }
+    } catch (err) {
+      console.error('Error fetching businesses:', err);
+    } finally {
+      setLoadingBusinesses(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -59,6 +82,13 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     setFormData((prev) => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value === 'none' ? '' : value
     }));
   };
 
@@ -86,7 +116,8 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
         points: points,
         imageUrl: formData.imageUrl,
         validFrom: new Date(formData.validFrom),
-        validTo: new Date(formData.validTo)
+        validTo: new Date(formData.validTo),
+        businessId: formData.businessId || undefined
       });
 
       if (!result.success) {
@@ -182,13 +213,34 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="businessId">{t('couponsManagement.business') || 'Business (Optional)'}</Label>
+            <Select
+              value={formData.businessId || 'none'}
+              onValueChange={(value) => handleSelectChange('businessId', value)}
+              disabled={loadingBusinesses}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('couponsManagement.businessPlaceholder') || 'Select a business (optional)'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('couponsManagement.noBusiness') || 'No Business (General Voucher)'}</SelectItem>
+                {businesses.map((business) => (
+                  <SelectItem key={business.id} value={business.id}>
+                    {business.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="validFrom">{t('couponsManagement.validFrom')}</Label>
               <Input
                 id="validFrom"
                 name="validFrom"
-                type="date"
+                type="datetime-local"
                 value={formData.validFrom}
                 onChange={handleChange}
                 required
@@ -200,7 +252,7 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
               <Input
                 id="validTo"
                 name="validTo"
-                type="date"
+                type="datetime-local"
                 value={formData.validTo}
                 onChange={handleChange}
                 required

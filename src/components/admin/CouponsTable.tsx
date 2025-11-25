@@ -20,29 +20,54 @@ import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Edit, Trash2, Eye, Image } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Coupon } from '@/types/coupon';
-import { getCoupons, updateCoupon, deleteCoupon } from '@/lib/actions/admin';
+import { getCoupons, updateCoupon, deleteCoupon, getBusinesses } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import EditCouponDialog from './EditCouponDialog';
+import { Business } from '@/types/promo';
 
 export default function CouponsTable() {
   const t = useTranslations('Admin');
   const router = useRouter();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
-    fetchCoupons();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    await Promise.all([fetchCoupons(), fetchBusinesses()]);
+  };
+
+  const fetchBusinesses = async () => {
+    try {
+      const result = await getBusinesses();
+      if (result.success && result.businesses) {
+        setBusinesses(result.businesses);
+      }
+    } catch (err) {
+      console.error('Error fetching businesses:', err);
+    }
+  };
 
   const fetchCoupons = async () => {
     try {
       setLoading(true);
       const result = await getCoupons();
       if (result.success) {
-        setCoupons(result.coupons);
+        // Convert ISO string dates back to Date objects
+        const couponsWithDates = result.coupons.map(coupon => ({
+          ...coupon,
+          createdAt: coupon.createdAt ? new Date(coupon.createdAt as any) : new Date(),
+          updatedAt: coupon.updatedAt ? new Date(coupon.updatedAt as any) : new Date(),
+          validFrom: coupon.validFrom ? new Date(coupon.validFrom as any) : new Date(),
+          validTo: coupon.validTo ? new Date(coupon.validTo as any) : new Date(),
+        }));
+        setCoupons(couponsWithDates);
       } else {
         setError(result.error || 'Failed to fetch coupons');
       }
@@ -109,14 +134,38 @@ export default function CouponsTable() {
     }).format(price);
   };
 
-  const formatDate = (date: Date) => {
+  const getBusinessName = (businessId?: string) => {
+    if (!businessId) return 'General';
+    const business = businesses.find(b => b.id === businessId);
+    return business ? business.name : 'Unknown';
+  };
+
+  const formatDate = (date: Date | string | null | undefined) => {
+    // Handle null, undefined, or invalid dates
+    if (!date) {
+      return 'N/A';
+    }
+
+    // Convert ISO string to Date if needed
+    let dateObj: Date;
+    if (typeof date === 'string') {
+      dateObj = new Date(date);
+    } else {
+      dateObj = date;
+    }
+
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return 'Invalid Date';
+    }
+
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(date);
+    }).format(dateObj);
   };
 
 
@@ -147,6 +196,7 @@ export default function CouponsTable() {
             <TableRow>
               <TableHead>{t('couponsManagement.name')}</TableHead>
               <TableHead>{t('couponsManagement.description')}</TableHead>
+              <TableHead>{t('couponsManagement.business') || 'Business'}</TableHead>
               <TableHead>{t('couponsManagement.price')}</TableHead>
               <TableHead>{t('couponsManagement.points')}</TableHead>
               <TableHead>{t('couponsManagement.image')}</TableHead>
@@ -159,7 +209,7 @@ export default function CouponsTable() {
           <TableBody>
             {coupons.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={10} className="text-center py-8 text-gray-500">
                   {t('couponsManagement.noCoupons')}
                 </TableCell>
               </TableRow>
@@ -169,6 +219,11 @@ export default function CouponsTable() {
                   <TableCell className="font-medium">{coupon.name}</TableCell>
                   <TableCell className="max-w-xs truncate">
                     {coupon.description}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {getBusinessName(coupon.businessId)}
+                    </Badge>
                   </TableCell>
                   <TableCell>{formatPrice(coupon.price)}</TableCell>
                   <TableCell>

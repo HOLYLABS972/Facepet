@@ -1,43 +1,70 @@
-import { getPromosByBusiness } from '@/lib/firebase/queries/promo';
+import { getCouponsByBusiness, getCoupons } from '@/lib/firebase/queries/promo';
 import { getBusinesses } from '@/lib/actions/admin';
-import { redirect } from 'next/navigation';
 import PromosPageClient from '@/components/pages/PromosPageClient';
 import { getTranslations } from 'next-intl/server';
 
-interface PromosPageProps {
+interface CouponsPageProps {
   searchParams: Promise<{
     businessId?: string;
   }>;
 }
 
-export default async function PromosPage({ searchParams }: PromosPageProps) {
+export default async function CouponsPage({ searchParams }: CouponsPageProps) {
   const params = await searchParams;
   const t = await getTranslations('pages.PromosPage');
   
-  if (!params.businessId) {
-    redirect('/services');
-  }
-
-  // Get business info
+  // Fetch businesses once for all cases
   const businessesResult = await getBusinesses();
-  
-  if (!businessesResult.success || !businessesResult.businesses || !Array.isArray(businessesResult.businesses)) {
-    redirect('/services');
-  }
-  
-  const business = businessesResult.businesses.find((b: any) => b.id === params.businessId);
-  
-  if (!business) {
-    redirect('/services');
+  const businesses = businessesResult.success && businessesResult.businesses ? businessesResult.businesses : [];
+
+  // If businessId is provided, show coupons for that business
+  if (params.businessId) {
+    if (!businessesResult.success || !businessesResult.businesses || !Array.isArray(businessesResult.businesses)) {
+      // If businesses can't be fetched, show all coupons instead
+      const allCoupons = await getCoupons();
+      return (
+        <PromosPageClient 
+          promos={allCoupons} 
+          business={null}
+          businesses={businesses}
+        />
+      );
+    }
+    
+    const business = businessesResult.businesses.find((b: any) => b.id === params.businessId);
+    
+    if (!business) {
+      // If business not found, show all coupons instead
+      const allCoupons = await getCoupons();
+      return (
+        <PromosPageClient 
+          promos={allCoupons} 
+          business={null}
+          businesses={businesses}
+        />
+      );
+    }
+
+    // Get coupons for this business
+    const coupons = await getCouponsByBusiness(params.businessId);
+
+    return (
+      <PromosPageClient 
+        promos={coupons} 
+        business={business}
+        businesses={businesses}
+      />
+    );
   }
 
-  // Get promos for this business
-  const promos = await getPromosByBusiness(params.businessId);
+  // No businessId - show all coupons
+  const allCoupons = await getCoupons();
 
   return (
     <PromosPageClient 
-      promos={promos} 
-      business={business}
+      promos={allCoupons} 
+      business={null}
+      businesses={businesses}
     />
   );
 }
