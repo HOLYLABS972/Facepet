@@ -132,29 +132,10 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       allData: petData
     });
     
-    // Resolve breed name from comprehensive breeds data
+    // Don't resolve breed name on server - let client handle localization
+    // Just keep the raw breedId and any existing breedName
     let breedName = petData.breedName || petData.breed;
     console.log('Initial breedName from petData:', breedName);
-    
-    // If we have breedId, use it to get the localized breed name
-    if (petData.breedId) {
-      try {
-        const { getBreedNameFromId } = await import('@/src/lib/firebase/breed-utils');
-        breedName = getBreedNameFromId(String(petData.breedId), 'en'); // Default to English for storage
-        console.log('Found breed from breedId:', breedName);
-      } catch (error) {
-        console.error('Error getting breed name from breedId:', error);
-        breedName = 'Unknown Breed';
-      }
-    } else if (breedName && !breedName.includes('Unknown') && !breedName.includes('Breed')) {
-      try {
-        const { convertBreedSlugToName } = await import('@/src/lib/firebase/breed-utils');
-        breedName = convertBreedSlugToName(breedName, 'en'); // Default to English for storage
-        console.log('Converted breedName:', breedName);
-      } catch (error) {
-        console.error('Error converting breed slug:', error);
-      }
-    }
     
     // Resolve gender name from local data
     let gender = petData.gender;
@@ -245,8 +226,8 @@ export async function getPetWithConsolidatedOwner(petId: string): Promise<{
       notes: petData.notes,
       userEmail: petData.userEmail,
       vetId: petData.vetId,
-      breed: breedName || 'Unknown Breed', // Changed from breedName to breed
-      breedName: breedName || 'Unknown Breed', // Keep both for compatibility
+      breed: breedName, // Pass through the raw breedName, let client handle "Unknown Breed"
+      breedName: breedName, // Keep both for compatibility
       gender: gender || 'Unknown Gender',
       age: age,
       type: petData.type || 'Dog',

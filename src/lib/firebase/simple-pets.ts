@@ -166,13 +166,21 @@ export async function updatePetInFirestore(
     // If breedName is being updated and we have breedId, resolve the breed name
     let updateData = { ...petData };
     
+    // If breedId is provided as a string, convert it to number
+    if (petData.breedId && typeof petData.breedId === 'string') {
+      const breedIdNum = parseInt(petData.breedId, 10);
+      if (!isNaN(breedIdNum)) {
+        updateData.breedId = breedIdNum;
+      }
+    }
+    
     // If breedName is provided as a string, use it directly
     if (petData.breedName && typeof petData.breedName === 'string') {
       updateData.breedName = petData.breedName;
     }
     // If breedId is provided but no breedName, resolve the breed name
-    else if (petData.breedId && !petData.breedName) {
-      updateData.breedName = await getBreedName(petData.breedId);
+    else if (updateData.breedId && !petData.breedName) {
+      updateData.breedName = await getBreedName(updateData.breedId);
     }
     
     updateData.updatedAt = new Date();

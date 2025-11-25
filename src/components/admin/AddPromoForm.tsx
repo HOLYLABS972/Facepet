@@ -30,10 +30,12 @@ import { Business, Audience } from '@/types/promo';
 export default function AddPromoForm() {
   const t = useTranslations('Admin');
   const [isOpen, setIsOpen] = useState(false);
+  const [mediaType, setMediaType] = useState<'image' | 'youtube'>('image');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     imageUrl: '',
+    youtubeUrl: '',
     businessId: '',
     audienceId: '',
     startDate: '',
@@ -104,7 +106,8 @@ export default function AddPromoForm() {
       const result = await createPromo({
         name: formData.name,
         description: formData.description,
-        imageUrl: formData.imageUrl,
+        imageUrl: mediaType === 'image' ? formData.imageUrl : '',
+        youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
         businessId: formData.businessId,
         audienceId: formData.audienceId,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
@@ -120,11 +123,13 @@ export default function AddPromoForm() {
         name: '',
         description: '',
         imageUrl: '',
+        youtubeUrl: '',
         businessId: '',
         audienceId: '',
         startDate: '',
         endDate: ''
       });
+      setMediaType('image');
       setIsOpen(false);
 
       // Refresh the page to show the new promo
@@ -182,15 +187,59 @@ export default function AddPromoForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="imageUrl">{t('promoManagement.image')}</Label>
-            <MediaUpload
-              type="image"
-              value={formData.imageUrl}
-              onChange={(filePath) => {
-                setFormData((prev) => ({ ...prev, imageUrl: filePath }));
-              }}
-            />
+            <Label>Media Type</Label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="image"
+                  checked={mediaType === 'image'}
+                  onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
+                  className="cursor-pointer"
+                />
+                <span>Image</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="youtube"
+                  checked={mediaType === 'youtube'}
+                  onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
+                  className="cursor-pointer"
+                />
+                <span>YouTube Video</span>
+              </label>
+            </div>
           </div>
+
+          {mediaType === 'image' ? (
+            <div className="space-y-2">
+              <Label htmlFor="imageUrl">{t('promoManagement.image')}</Label>
+              <MediaUpload
+                type="image"
+                value={formData.imageUrl}
+                onChange={(filePath) => {
+                  setFormData((prev) => ({ ...prev, imageUrl: filePath }));
+                }}
+              />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="youtubeUrl">YouTube URL</Label>
+              <Input
+                id="youtubeUrl"
+                name="youtubeUrl"
+                value={formData.youtubeUrl}
+                onChange={handleChange}
+                placeholder="https://www.youtube.com/watch?v=..."
+                type="url"
+                required={mediaType === 'youtube'}
+              />
+              <p className="text-sm text-gray-500">
+                Enter a YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

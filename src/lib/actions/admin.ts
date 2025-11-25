@@ -2000,6 +2000,7 @@ export async function getRandomActivePromo(
         name: data.name || '',
         description: data.description || '',
         imageUrl: data.imageUrl || '',
+        youtubeUrl: data.youtubeUrl || '', // Include YouTube URL
         businessId: data.businessId || '',
         audienceId: data.audienceId || '',
         isActive: data.isActive !== undefined ? data.isActive : true, // Default to true if not set
@@ -2011,16 +2012,16 @@ export async function getRandomActivePromo(
       };
     });
     
-    // Filter for promos with images (required for display)
-    let promosWithImages = allPromos.filter(promo => !!promo.imageUrl);
+    // Filter for promos with images OR YouTube URLs (required for display)
+    let promosWithMedia = allPromos.filter(promo => !!promo.imageUrl || !!promo.youtubeUrl);
     
-    if (promosWithImages.length === 0) {
-      console.log('No promos with images found');
+    if (promosWithMedia.length === 0) {
+      console.log('No promos with media (image or YouTube) found');
       return null;
     }
 
     // Filter for active promos (be lenient - only exclude if explicitly false)
-    let activePromos = promosWithImages.filter(promo => {
+    let activePromos = promosWithMedia.filter(promo => {
       // Only exclude if explicitly set to false
       if (promo.isActive === false) {
         return false;
@@ -2046,10 +2047,10 @@ export async function getRandomActivePromo(
       return true;
     });
 
-    // If no date-valid promos, use all promos with images (ignore dates)
+    // If no date-valid promos, use all promos with media (ignore dates)
     if (activePromos.length === 0) {
-      console.log('No date-valid promos, using all promos with images');
-      activePromos = promosWithImages.filter(p => p.isActive !== false);
+      console.log('No date-valid promos, using all promos with media');
+      activePromos = promosWithMedia.filter(p => p.isActive !== false);
     }
 
     // Filter by user audiences if provided

@@ -10,6 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserFavorites, getAllAdTags } from '@/lib/firebase/favorites';
 import { SERVICE_TAGS_TRANSLATIONS } from '@/lib/constants/hebrew-service-tags';
 import ServicesMapView from './ServicesMapView';
+import AdFullPage from '../get-started/AdFullPage';
+import { Promo } from '@/types/promo';
 
 interface Ad {
   id: string;
@@ -32,6 +34,7 @@ interface Ad {
 
 interface ServicesPageProps {
   ads: Ad[];
+  initialPromo?: Promo | null;
 }
 
 
@@ -52,7 +55,7 @@ const convertAdToService = (ad: Ad & { imageUrl?: string }) => {
   };
 };
 
-const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
+const ServicesPage: React.FC<ServicesPageProps> = ({ ads, initialPromo }) => {
   const t = useTranslations('pages.ServicesPage');
   const locale = useLocale();
   const { user } = useAuth();
@@ -62,6 +65,11 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
   const [favoriteAdIds, setFavoriteAdIds] = useState<string[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'favorites'>('all');
   const [isLoadingTags, setIsLoadingTags] = useState(true);
+  const [showPromo, setShowPromo] = useState(!!initialPromo && (!!initialPromo?.imageUrl || !!initialPromo?.youtubeUrl));
+
+  const handlePromoClose = () => {
+    setShowPromo(false);
+  };
 
   // Function to translate tags for display
   const translateTag = (tag: string): string => {
@@ -132,6 +140,19 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
     setFilterType(chipId as 'all' | 'favorites');
   };
 
+  // Show ad if it exists
+  if (showPromo && (initialPromo?.imageUrl || initialPromo?.youtubeUrl)) {
+    return (
+      <AdFullPage
+        type={initialPromo.youtubeUrl ? 'youtube' : 'image'}
+        time={5}
+        content={initialPromo.imageUrl || ''}
+        youtubeUrl={initialPromo.youtubeUrl}
+        onClose={handlePromoClose}
+      />
+    );
+  }
+
   return (
     <>
       <div className="mb-4">
@@ -177,21 +198,21 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
       )}
 
       {/* Combined Map and List View */}
-      <div className="w-full" style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}>
-        {filteredServices.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500">{t('noResults')}</p>
-            {ads.length === 0 && (
-              <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
-            )}
-            {filterType === 'favorites' && favoriteAdIds.length === 0 && (
-              <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
-            )}
-          </div>
-        ) : (
-          <ServicesMapView services={filteredServices} />
-        )}
-      </div>
+        <div className="w-full" style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}>
+          {filteredServices.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">{t('noResults')}</p>
+              {ads.length === 0 && (
+                <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
+              )}
+              {filterType === 'favorites' && favoriteAdIds.length === 0 && (
+                <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
+              )}
+            </div>
+          ) : (
+            <ServicesMapView services={filteredServices} />
+          )}
+        </div>
     </>
   );
 };

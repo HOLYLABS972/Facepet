@@ -36,6 +36,7 @@ export interface Coupon {
   name: string;
   description: string;
   imageUrl: string;
+  youtubeUrl?: string; // Optional YouTube video URL
   businessId: string;
   audienceId: string;
   isActive: boolean;
@@ -73,6 +74,7 @@ export interface CreateCouponData {
   name: string;
   description: string;
   imageUrl: string;
+  youtubeUrl?: string; // Optional YouTube video URL
   businessId: string;
   audienceId: string;
   startDate?: Date;

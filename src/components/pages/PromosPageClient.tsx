@@ -201,33 +201,33 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
         {/* Header */}
         <div className="mb-6">
           {business && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="mb-4"
-            >
-              {locale === 'he' ? (
-                <ArrowRight className="h-4 w-4 mr-2" />
-              ) : (
-                <ArrowLeft className="h-4 w-4 mr-2" />
-              )}
-              {t('back') || 'Back'}
-            </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="mb-4"
+          >
+            {locale === 'he' ? (
+              <ArrowRight className="h-4 w-4 mr-2" />
+            ) : (
+              <ArrowLeft className="h-4 w-4 mr-2" />
+            )}
+            {t('back') || 'Back'}
+          </Button>
           )}
           
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               {business?.imageUrl && (
-                <div className="w-16 h-16 rounded-lg overflow-hidden">
-                  <img 
-                    src={business.imageUrl} 
-                    alt={business.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <div>
+              <div className="w-16 h-16 rounded-lg overflow-hidden">
+                <img 
+                  src={business.imageUrl} 
+                  alt={business.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div>
                 <h1 className="text-3xl font-bold">
                   {business ? business.name : (t('allPromos') || 'All Promos')}
                 </h1>
@@ -269,25 +269,25 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
                   <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-primary rounded-full animate-spin"></div>
                 </div>
               ) : availablePromos.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
+          <Card>
+            <CardContent className="py-12 text-center">
                     <Tag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
                       {t('noPromos') || 'No Coupons Available'}
-                    </h3>
-                    <p className="text-gray-500">
+              </h3>
+              <p className="text-gray-500">
                       {business 
                         ? (t('noPromosDescription') || 'This business doesn\'t have any active coupons at the moment.')
                         : (t('noPromosAllDescription') || 'There are no active coupons available at the moment.')
                       }
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {availablePromos.map(renderPromoCard)}
-                </div>
-              )}
+                  </div>
+                )}
             </TabsContent>
 
             <TabsContent value="history">
@@ -310,8 +310,8 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {usedPromos.map(renderUsedPromoCard)}
-                </div>
-              )}
+                    </div>
+                  )}
             </TabsContent>
           </Tabs>
         ) : (
@@ -329,12 +329,12 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
                     : (t('noPromosAllDescription') || 'There are no active coupons available at the moment.')
                   }
                 </p>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {promos.map(renderPromoCard)}
-            </div>
+          </div>
           )
         )}
       </div>

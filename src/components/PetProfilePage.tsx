@@ -7,15 +7,16 @@ import { Promo } from '@/types/promo';
 import { motion } from 'framer-motion';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
 import AdFullPage from './get-started/AdFullPage';
 import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
 import ShareButton from './ShareButton';
-import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
+import { getBreedNameFromId, convertBreedSlugToName } from '@/src/lib/firebase/breed-utils';
 import { getGenders } from '@/src/lib/hardcoded-data';
+import { breedsData } from '@/src/lib/data/comprehensive-breeds';
 
 const computeAge = (birthDate: string) => {
   const birth = new Date(birthDate);
@@ -40,10 +41,16 @@ export default function PetProfilePage({
   const t = useTranslations('pages.PetProfilePage');
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPopup, setShowPopup] = useState(false);
-  const [showPromo, setShowPromo] = useState(!!initialPromo && !!initialPromo?.imageUrl);
+  const [showPromo, setShowPromo] = useState(!!initialPromo && (!!initialPromo?.imageUrl || !!initialPromo?.youtubeUrl));
   const [activeTab, setActiveTab] = useState<TabName>('pet');
   const prevTabRef = useRef<TabName>('pet');
+  
+  // Get data from URL parameters if available (passed from My Pets page)
+  const displayName = searchParams.get('displayName');
+  const displayBreed = searchParams.get('displayBreed');
+  const displayImage = searchParams.get('displayImage');
   
   const handlePromoClose = () => {
     setShowPromo(false);
@@ -62,8 +69,11 @@ export default function PetProfilePage({
 
   // Memoized values
   const petCardData = useMemo(
-    () => ({ name: pet.name, imageUrl: pet.imageUrl }),
-    [pet.name, pet.imageUrl]
+    () => ({ 
+      name: displayName || pet.name, 
+      imageUrl: displayImage || pet.imageUrl 
+    }),
+    [displayName, pet.name, displayImage, pet.imageUrl]
   );
 
   const lockedDirection = useMemo(() => {
@@ -98,16 +108,54 @@ export default function PetProfilePage({
     return gender ? gender.label : genderValue;
   };
 
+  // Helper function to get breed display name (EXACT same logic as MyPetsClient lines 69-83)
+  const getBreedDisplayName = (): string => {
+    // If breed was passed from My Pets via URL, use it directly (already translated)
+    if (displayBreed) {
+      console.log('PetProfilePage - using breed from URL:', displayBreed);
+      return displayBreed;
+    }
+    
+    console.log('PetProfilePage - pet data:', { 
+      breedId: pet.breedId, 
+      breedName: pet.breedName, 
+      breed: pet.breed,
+      locale 
+    });
+    
+    // Get breed name with proper translation (exact same logic as MyPetClient)
+    let breedDisplay = pet.breedName || pet.breed || 'Unknown Breed';
+    console.log('PetProfilePage - initial breedDisplay:', breedDisplay);
+    
+    if (pet.breedId) {
+      breedDisplay = getBreedNameFromId(String(pet.breedId), locale as 'en' | 'he');
+      console.log('PetProfilePage - breed from ID:', breedDisplay);
+    } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
+      // Try to find the breed in comprehensive data and translate it
+      const breed = breedsData.find(b => 
+        b.en.toLowerCase() === breedDisplay.toLowerCase() || 
+        b.he === breedDisplay
+      );
+      console.log('PetProfilePage - breed found in data:', breed);
+      if (breed) {
+        breedDisplay = locale === 'he' ? breed.he : breed.en;
+      }
+    }
+    
+    console.log('PetProfilePage - final breedDisplay:', breedDisplay);
+    return breedDisplay;
+  };
+
   // Build data arrays with privacy checks
   // Pet name, breed, gender, and age are always public
   const petInfo = [
     {
       label: t('labels.name'),
-      value: pet.name
+      value: displayName || pet.name
     },
     {
       label: t('labels.breed'),
-      value: pet.breed || pet.breedName ? getBreedNameFromId(pet.breed || pet.breedName, locale as 'en' | 'he') : t('labels.notSpecified')
+      value: getBreedDisplayName()
     },
     {
       label: t('labels.gender'),
@@ -215,12 +263,13 @@ export default function PetProfilePage({
   };
 
   // Conditional rendering after all hooks
-  if (showPromo && initialPromo?.imageUrl) {
+  if (showPromo && (initialPromo?.imageUrl || initialPromo?.youtubeUrl)) {
     return (
       <AdFullPage
-        type="image"
+        type={initialPromo.youtubeUrl ? 'youtube' : 'image'}
         time={5}
-        content={initialPromo.imageUrl}
+        content={initialPromo.imageUrl || ''}
+        youtubeUrl={initialPromo.youtubeUrl}
         onClose={handlePromoClose}
       />
     );

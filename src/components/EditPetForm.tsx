@@ -239,6 +239,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
         name: formData.name,
         type: formData.type,
         breedName: formData.breed,
+        breedId: breedId, // Include breedId so it can be used for localization
         imageUrl: formData.imageUrl, // Use the already uploaded image URL
         birthDate: formData.birthDate,
         gender: formData.gender,

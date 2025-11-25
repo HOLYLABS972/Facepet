@@ -8,15 +8,38 @@ import process from 'process';
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 
+// Helper function to extract YouTube video ID from URL
+const getYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  // Handle different YouTube URL formats
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    /youtube\.com\/embed\/([^&\n?#]+)/,
+    /youtube\.com\/v\/([^&\n?#]+)/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  return null;
+};
+
 const AdFullPage = ({
   type,
   time,
   content,
+  youtubeUrl,
   onClose
 }: {
-  type: 'image' | 'video';
+  type: 'image' | 'video' | 'youtube';
   time: number;
   content: string;
+  youtubeUrl?: string;
   onClose: () => void;
 }) => {
   const [countdown, setCountdown] = useState(time);
@@ -96,11 +119,23 @@ const AdFullPage = ({
               priority={true}
             />
           ) : null
+        ) : type === 'youtube' ? (
+          youtubeUrl ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <iframe
+                className="w-full h-full"
+                src={`https://www.youtube.com/embed/${getYouTubeVideoId(youtubeUrl)}?autoplay=1&mute=0&controls=1&rel=0`}
+                title="YouTube advertisement"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : null
         ) : type === 'video' ? (
           content ? (
             <video
               src={content}
-              className="w-full"
+              className="w-full h-full object-contain"
               autoPlay
               muted
               playsInline

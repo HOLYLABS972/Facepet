@@ -47,16 +47,16 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     if (isOpen) {
       fetchBusinesses();
       if (coupon) {
-        setFormData({
-          name: coupon.name || '',
-          description: coupon.description || '',
-          price: coupon.price?.toString() || '',
-          points: coupon.points?.toString() || '',
-          imageUrl: coupon.imageUrl || '',
+      setFormData({
+        name: coupon.name || '',
+        description: coupon.description || '',
+        price: coupon.price?.toString() || '',
+        points: coupon.points?.toString() || '',
+        imageUrl: coupon.imageUrl || '',
           validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().slice(0, 16) : '',
           validTo: coupon.validTo ? new Date(coupon.validTo).toISOString().slice(0, 16) : '',
           businessId: coupon.businessId || ''
-        });
+      });
       }
     }
   }, [isOpen, coupon]);

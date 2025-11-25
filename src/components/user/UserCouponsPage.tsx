@@ -472,8 +472,8 @@ export default function UserCouponsPage() {
                 </CardFooter>
               </Card>
             ))}
-          </div>
-        )}
+            </div>
+          )}
         </TabsContent>
 
         {/* History Tab */}

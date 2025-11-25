@@ -16,10 +16,10 @@ export default async function CouponsPage({ searchParams }: CouponsPageProps) {
   // Fetch businesses once for all cases
   const businessesResult = await getBusinesses();
   const businesses = businessesResult.success && businessesResult.businesses ? businessesResult.businesses : [];
-
+  
   // If businessId is provided, show coupons for that business
   if (params.businessId) {
-    if (!businessesResult.success || !businessesResult.businesses || !Array.isArray(businessesResult.businesses)) {
+  if (!businessesResult.success || !businessesResult.businesses || !Array.isArray(businessesResult.businesses)) {
       // If businesses can't be fetched, show all coupons instead
       const allCoupons = await getCoupons();
       return (
@@ -29,11 +29,11 @@ export default async function CouponsPage({ searchParams }: CouponsPageProps) {
           businesses={businesses}
         />
       );
-    }
-    
-    const business = businessesResult.businesses.find((b: any) => b.id === params.businessId);
-    
-    if (!business) {
+  }
+  
+  const business = businessesResult.businesses.find((b: any) => b.id === params.businessId);
+  
+  if (!business) {
       // If business not found, show all coupons instead
       const allCoupons = await getCoupons();
       return (
@@ -43,7 +43,7 @@ export default async function CouponsPage({ searchParams }: CouponsPageProps) {
           businesses={businesses}
         />
       );
-    }
+  }
 
     // Get coupons for this business
     const coupons = await getCouponsByBusiness(params.businessId);

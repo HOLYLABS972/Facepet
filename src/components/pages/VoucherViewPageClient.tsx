@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShoppingCart, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { UserCoupon } from '@/lib/firebase/user-coupons';
@@ -65,6 +65,31 @@ export default function VoucherViewPageClient({ userCoupon }: VoucherViewPageCli
     }
     
     redirectToShop(shopUrl, couponCode, undefined, true);
+  };
+
+  const handleShare = async () => {
+    if (!isMounted || !voucherUrl) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: coupon.name,
+          text: coupon.description || coupon.name,
+          url: voucherUrl,
+        });
+        toast.success(t('sharedSuccessfully') || 'Shared successfully!');
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          // Fallback to clipboard
+          navigator.clipboard.writeText(voucherUrl);
+          toast.success(t('linkCopied') || 'Link copied to clipboard!');
+        }
+      }
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(voucherUrl);
+      toast.success(t('linkCopied') || 'Link copied to clipboard!');
+    }
   };
 
   return (
@@ -146,6 +171,16 @@ export default function VoucherViewPageClient({ userCoupon }: VoucherViewPageCli
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 {t('use') || 'Use'}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleShare}
+                className="flex-1"
+                disabled={!isMounted || !voucherUrl}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {t('share') || 'Share'}
               </Button>
             </div>
           </CardContent>

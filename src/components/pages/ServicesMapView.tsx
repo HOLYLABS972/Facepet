@@ -545,51 +545,51 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
 
       {/* Services List Panel - Bottom on Mobile, Left Side on Desktop */}
       <div className="w-full lg:w-1/3 flex flex-col border rounded-lg bg-white overflow-hidden lg:order-1 max-h-[50vh] lg:max-h-none">
-        {/* Location Permission Button */}
-        {locationPermission === 'prompt' && (
+      {/* Location Permission Button */}
+      {locationPermission === 'prompt' && (
           <div className="p-4 bg-blue-50 border-b border-blue-200">
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <Navigation className="w-5 h-5 text-blue-600" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {t('map.findNearby') || 'Find services near you'}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    {t('map.locationPermission') || 'Allow location access to see closest services'}
-                  </p>
-                </div>
+            <div className="flex items-center gap-2">
+              <Navigation className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  {t('map.findNearby') || 'Find services near you'}
+                </p>
+                <p className="text-xs text-gray-600">
+                  {t('map.locationPermission') || 'Allow location access to see closest services'}
+                </p>
               </div>
-              <Button
-                onClick={requestUserLocation}
-                disabled={isLoading}
+            </div>
+            <Button
+              onClick={requestUserLocation}
+              disabled={isLoading}
                 className="bg-blue-600 hover:bg-blue-700 w-full"
                 size="sm"
-              >
-                {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <MapPin className="w-4 h-4 mr-2" />
-                    {t('map.useMyLocation') || 'Use My Location'}
-                  </>
-                )}
-              </Button>
-            </div>
+            >
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <MapPin className="w-4 h-4 mr-2" />
+                  {t('map.useMyLocation') || 'Use My Location'}
+                </>
+              )}
+            </Button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Location Denied Message */}
-        {locationPermission === 'denied' && (
+      {/* Location Denied Message */}
+      {locationPermission === 'denied' && (
           <div className="p-4 bg-yellow-50 border-b border-yellow-200">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-yellow-600" />
-              <p className="text-sm text-gray-700">
-                {t('map.locationDenied') || 'Location access denied. Showing all services.'}
-              </p>
-            </div>
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <p className="text-sm text-gray-700">
+              {t('map.locationDenied') || 'Location access denied. Showing all services.'}
+            </p>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Services List Header */}
         <div className="p-4 border-b bg-gray-50">
@@ -611,7 +611,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                 <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                 <p className="text-sm text-gray-600">
                   {t('map.loading') || 'Loading services...'}
-                </p>
+          </p>
               </div>
             </div>
           ) : servicesWithCoords.length === 0 ? (
@@ -650,16 +650,16 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                       <div className="flex items-center gap-2 mt-2">
                         {service.distance !== undefined && (
                           <span className="text-blue-600 font-semibold text-sm">
-                            {service.distance.toFixed(2)} km
-                          </span>
-                        )}
+                        {service.distance.toFixed(2)} km
+                      </span>
+                    )}
                         {(service.address || service.location) && (
                           <span className="text-xs text-gray-500 truncate flex items-center gap-1">
                             <MapPin size={12} />
                             {service.address || service.location}
                           </span>
                         )}
-                      </div>
+                  </div>
                       {/* Tags */}
                       {service.tags && service.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
@@ -674,14 +674,14 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                           {service.tags.length > 2 && (
                             <span className="text-xs text-gray-500">+{service.tags.length - 2}</span>
                           )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
-              ))}
+                      )}
+          </div>
+        </div>
             </div>
-          )}
+              ))}
+          </div>
+        )}
         </div>
       </div>
 

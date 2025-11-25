@@ -3,7 +3,7 @@
 import { useDirection } from '@radix-ui/react-direction';
 import { motion } from 'framer-motion';
 import { ArrowRight, Pencil, PawPrint } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import React from 'react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
@@ -68,7 +68,15 @@ const MyPetCard: React.FC<MyPetCardProps> = ({
   // Only navigate when not in edit mode.
   const handleCardClick = () => {
     if (!isEditMode) {
-      router.push(`/pet/${id}`);
+      // Pass all pet data as query parameters to avoid recalculation
+      const params = new URLSearchParams({
+        displayName: name,
+        displayBreed: breed,
+        displayImage: image
+      });
+      const targetUrl = `/pet/${id}?${params.toString()}`;
+      console.log('MyPetCard navigating to:', targetUrl);
+      router.push(targetUrl);
     }
   };
 
