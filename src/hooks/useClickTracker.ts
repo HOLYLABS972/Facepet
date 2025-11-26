@@ -1,16 +1,21 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 const CLICK_COUNT_KEY = 'ad_click_count';
 const CLICK_THRESHOLD = 6;
 const CLICK_DEBOUNCE_MS = 100; // Prevent rapid clicks from counting multiple times (reduced for faster tracking)
 
 export function useClickTracker() {
+  const pathname = usePathname();
   const [clickCount, setClickCount] = useState(0);
   const [shouldShowAd, setShouldShowAd] = useState(false);
   const lastClickTimeRef = useRef<number>(0);
   const isTrackingRef = useRef<boolean>(true);
+  
+  // Check if we're on a pet profile page (disable click tracking here)
+  const isPetProfilePage = pathname?.match(/\/pet\/[^\/]+$/) !== null;
 
   // Load click count from localStorage on mount
   useEffect(() => {
@@ -29,6 +34,11 @@ export function useClickTracker() {
   // Track all clicks globally
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
+      // Skip tracking on pet profile pages (they have their own mandatory ad)
+      if (isPetProfilePage) {
+        return;
+      }
+      
       // Skip if tracking is disabled (e.g., when ad is showing)
       if (!isTrackingRef.current) return;
 
@@ -84,7 +94,7 @@ export function useClickTracker() {
     return () => {
       document.removeEventListener('click', handleClick, true);
     };
-  }, []);
+  }, [isPetProfilePage]);
 
   const resetAdFlag = useCallback(() => {
     setShouldShowAd(false);

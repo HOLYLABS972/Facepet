@@ -6,13 +6,18 @@ import { usePetId } from '@/hooks/use-pet-id';
 import { fetchRandomPromo } from '@/lib/actions/promo-server';
 import AdFullPage from './get-started/AdFullPage';
 import { Promo } from '@/types/promo';
+import { usePathname } from 'next/navigation';
 
 export default function AdDisplayManager() {
+  const pathname = usePathname();
   const { shouldShowAd, resetAdFlag } = useClickTracker();
   const { petId } = usePetId();
   const [promo, setPromo] = useState<Promo | null>(null);
   const [showAd, setShowAd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Check if we're on a pet profile page (don't show click-based ads here)
+  const isPetProfilePage = pathname?.match(/\/pet\/[^\/]+$/) !== null;
 
   // Debug logging
   useEffect(() => {
@@ -22,7 +27,13 @@ export default function AdDisplayManager() {
   // Fetch promo when we should show an ad and pet exists
   useEffect(() => {
     const fetchPromo = async () => {
-      console.log('[AdDisplayManager] Checking conditions:', { shouldShowAd, petId, showAd, isLoading });
+      // Don't show click-based ads on pet profile pages (they have their own mandatory ad)
+      if (isPetProfilePage) {
+        console.log('[AdDisplayManager] Skipping click-based ad on pet profile page');
+        return;
+      }
+      
+      console.log('[AdDisplayManager] Checking conditions:', { shouldShowAd, petId, showAd, isLoading, isPetProfilePage });
       
       // Check if petId exists in localStorage (might be set but not loaded yet)
       const storedPetId = typeof window !== 'undefined' ? localStorage.getItem('petId') : null;
@@ -67,7 +78,7 @@ export default function AdDisplayManager() {
     };
 
     fetchPromo();
-  }, [shouldShowAd, petId, showAd, isLoading, resetAdFlag]);
+  }, [shouldShowAd, petId, showAd, isLoading, resetAdFlag, isPetProfilePage]);
 
   const handleAdClose = () => {
     setShowAd(false);

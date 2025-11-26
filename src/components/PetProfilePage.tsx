@@ -49,6 +49,7 @@ export default function PetProfilePage({
   const [showPromo, setShowPromo] = useState(false);
   const [promo, setPromo] = useState<Promo | null>(null);
   const [isLoadingPromo, setIsLoadingPromo] = useState(false);
+  const adShownRef = useRef<boolean>(false); // Track if ad has been shown on this page load
   
   // Get data from URL parameters if available (passed from My Pets page)
   const displayName = searchParams.get('displayName');
@@ -63,13 +64,13 @@ export default function PetProfilePage({
     }
   }, [pet?.id, localStoragePetId, savePetId]);
   
-  // Load and show ad when pet profile page loads (mandatory ad)
+  // Load and show ad when pet profile page loads (mandatory ad - only once)
   useEffect(() => {
     const loadPromo = async () => {
-      // Only show ad if pet exists (petId in localStorage or pet.id exists)
+      // Only show ad if pet exists and we haven't shown an ad yet on this page load
       const hasPet = localStoragePetId || pet?.id;
       
-      if (hasPet && !showPromo && !isLoadingPromo && !promo) {
+      if (hasPet && !adShownRef.current && !showPromo && !isLoadingPromo && !promo) {
         setIsLoadingPromo(true);
         try {
           console.log('[PetProfilePage] Loading mandatory ad for pet profile page');
@@ -77,12 +78,15 @@ export default function PetProfilePage({
           if (randomPromo && (randomPromo.imageUrl || randomPromo.youtubeUrl)) {
             setPromo(randomPromo);
             setShowPromo(true);
+            adShownRef.current = true; // Mark that ad has been shown
             console.log('[PetProfilePage] Ad loaded and will be displayed');
           } else {
             console.log('[PetProfilePage] No promo available');
+            adShownRef.current = true; // Mark as shown even if no promo (prevent retry)
           }
         } catch (error) {
           console.error('[PetProfilePage] Error loading promo:', error);
+          adShownRef.current = true; // Mark as shown even on error (prevent retry)
         } finally {
           setIsLoadingPromo(false);
         }
@@ -90,11 +94,12 @@ export default function PetProfilePage({
     };
 
     loadPromo();
-  }, [localStoragePetId, pet?.id, showPromo, isLoadingPromo, promo]);
+  }, [localStoragePetId, pet?.id]); // Removed showPromo, isLoadingPromo, promo from dependencies
 
   const handlePromoClose = () => {
     setShowPromo(false);
     setPromo(null);
+    // Don't reset adShownRef - we want to show ad only once per page load
   };
   
 
