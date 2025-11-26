@@ -46,7 +46,7 @@ export async function createPetInFirestore(
       return { success: false, error: 'User not authenticated' };
     }
 
-    const petDocData = {
+    const petDocData: any = {
       name: petData.name,
       type: petData.type,
       breedName: petData.breedName,
@@ -58,6 +58,18 @@ export async function createPetInFirestore(
       createdAt: new Date(),
       updatedAt: new Date()
     };
+    
+    // Include breedId if provided
+    if (petData.breedId) {
+      // Convert breedId to number if it's a string representation of a number
+      const breedIdNum = typeof petData.breedId === 'string' ? parseInt(petData.breedId, 10) : petData.breedId;
+      if (!isNaN(breedIdNum as number)) {
+        petDocData.breedId = breedIdNum;
+      } else {
+        // If it's not a number (e.g., 'dog-1'), save as string
+        petDocData.breedId = petData.breedId;
+      }
+    }
 
     const petRef = await addDoc(collection(db, 'pets'), petDocData);
 

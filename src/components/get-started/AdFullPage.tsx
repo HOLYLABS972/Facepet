@@ -61,7 +61,8 @@ const AdFullPage = ({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed z-50 h-full w-full overflow-hidden bg-black"
+        className="fixed z-50 h-full w-full overflow-hidden bg-black ad-full-page"
+        data-no-track
         initial={{ opacity: 1 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -72,6 +73,7 @@ const AdFullPage = ({
           variant="ghost"
           className="mix-blend-ifference absolute top-4 right-4 z-60 h-9 w-9 rounded-full hover:bg-white"
           onClick={closeAd}
+          data-no-track
         >
           <X className="h-4 w-4 stroke-white mix-blend-difference" />
         </Button>

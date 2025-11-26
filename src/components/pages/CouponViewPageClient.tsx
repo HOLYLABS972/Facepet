@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Tag, CheckCircle2, Share2, Trophy } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Share2, Trophy, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Promo, Business } from '@/types/promo';
@@ -14,6 +14,15 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { markPromoAsUsed, isPromoUsed } from '@/lib/firebase/user-promos';
 import { motion } from 'framer-motion';
+import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface CouponViewPageClientProps {
   coupon: Promo;
@@ -28,6 +37,18 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
   const [isUsingCoupon, setIsUsingCoupon] = useState(false);
   const [isUsed, setIsUsed] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [couponUrl, setCouponUrl] = useState('');
+
+  // Set mounted state and coupon URL only on client side to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      const url = `${window.location.origin}/${locale}/promos/${coupon.id}${business ? `?businessId=${business.id}` : ''}`;
+      setCouponUrl(url);
+    }
+  }, [locale, coupon.id, business]);
 
   // Check if coupon is already used
   useEffect(() => {
@@ -40,7 +61,7 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
     checkUsed();
   }, [user, coupon.id]);
 
-  const handleUseCoupon = async () => {
+  const handleUseCouponClick = () => {
     if (!user) {
       toast.error('Please sign in to use coupons');
       router.push('/auth');
@@ -52,6 +73,11 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
       return;
     }
 
+    setShowConfirmDialog(true);
+  };
+
+  const handleUseCoupon = async () => {
+    setShowConfirmDialog(false);
     setIsUsingCoupon(true);
     
     try {
@@ -80,35 +106,28 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
   };
 
   const handleShare = async () => {
-    const url = typeof window !== 'undefined' 
-      ? `${window.location.origin}/${locale}/promos/${coupon.id}${business ? `?businessId=${business.id}` : ''}`
-      : '';
+    if (!isMounted || !couponUrl) return;
 
     if (navigator.share) {
       try {
         await navigator.share({
           title: coupon.name,
           text: coupon.description || coupon.name,
-          url: url,
+          url: couponUrl,
         });
         toast.success(t('shared') || 'Shared successfully!');
       } catch (error: any) {
         if (error.name !== 'AbortError') {
           // Fallback to clipboard
-          navigator.clipboard.writeText(url);
+          navigator.clipboard.writeText(couponUrl);
           toast.success(t('linkCopied') || 'Link copied to clipboard!');
         }
       }
     } else {
       // Fallback to clipboard
-      navigator.clipboard.writeText(url);
+      navigator.clipboard.writeText(couponUrl);
       toast.success(t('linkCopied') || 'Link copied to clipboard!');
     }
-  };
-
-  const getCouponUrl = () => {
-    if (typeof window === 'undefined') return '';
-    return `${window.location.origin}/${locale}/promos/${coupon.id}${business ? `?businessId=${business.id}` : ''}`;
   };
 
   return (
@@ -133,8 +152,24 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
 
         <Card className="overflow-hidden">
           <CardContent className="p-8">
-            {/* Coupon Image */}
-            {coupon.imageUrl && (
+            {/* Coupon Image or Video */}
+            {coupon.youtubeUrl ? (
+              <div className="relative w-full h-64 mb-6 rounded-lg overflow-hidden bg-black">
+                {getYouTubeEmbedUrl(coupon.youtubeUrl) ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(coupon.youtubeUrl) || ''}
+                    title={coupon.name}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white">
+                    <span>Video unavailable</span>
+                  </div>
+                )}
+              </div>
+            ) : coupon.imageUrl && (
               <div className="relative w-full h-64 mb-6 rounded-lg overflow-hidden">
                 <img
                   src={coupon.imageUrl}
@@ -168,17 +203,39 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
             {/* QR Code */}
             <div className="flex flex-col items-center space-y-6 mb-8">
               <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
-                <QRCode
-                  value={getCouponUrl()}
-                  size={256}
-                  level="H"
-                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                  viewBox={`0 0 256 256`}
-                />
+                {isMounted && couponUrl ? (
+                  <QRCode
+                    value={couponUrl}
+                    size={256}
+                    level="H"
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                    viewBox={`0 0 256 256`}
+                  />
+                ) : (
+                  <div className="w-64 h-64 flex items-center justify-center">
+                    <div className="w-8 h-8 border-4 border-gray-300 border-t-primary rounded-full animate-spin"></div>
+                  </div>
+                )}
               </div>
               <p className="text-sm text-gray-600 text-center max-w-md">
                 {t('qrCodeDescription') || 'Scan this QR code to view this coupon'}
               </p>
+            </div>
+
+            {/* Important Information */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm text-blue-900 font-medium mb-1">
+                    {t('importantInfo') || 'Important Information'}
+                  </p>
+                  <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                    <li>{t('couponUsageInfo') || 'This coupon can only be used at the shop that offers this promo'}</li>
+                    <li>{t('oneTimeUse') || 'This coupon is valid for one-time use only'}</li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
             {/* Success Animation - Prize Icon */}
@@ -208,7 +265,7 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
                 <Button
                   variant={isUsed ? "secondary" : "default"}
                   size="lg"
-                  onClick={handleUseCoupon}
+                  onClick={handleUseCouponClick}
                   disabled={isUsed || isUsingCoupon}
                   className="flex-1"
                 >
@@ -239,16 +296,45 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
                   {t('share') || 'Share'}
                 </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => router.push(`/${locale}/promos${business ? `?businessId=${business.id}` : ''}`)}
-                className="w-full"
-              >
-                <Tag className="w-4 h-4 mr-2" />
-                {t('showAllCoupons') || 'Show All Coupons'}
-              </Button>
             </div>
+
+            {/* Confirmation Dialog */}
+            <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{t('confirmUse') || 'Confirm Use Coupon'}</DialogTitle>
+                  <DialogDescription>
+                    {t('confirmUseMessage') || `Are you sure you want to use "${coupon.name}"? This action cannot be undone.`}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowConfirmDialog(false)}
+                    disabled={isUsingCoupon}
+                  >
+                    {t('cancel') || 'Cancel'}
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={handleUseCoupon}
+                    disabled={isUsingCoupon}
+                  >
+                    {isUsingCoupon ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        {t('using') || 'Using...'}
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        {t('confirm') || 'Confirm'}
+                      </>
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
       </div>

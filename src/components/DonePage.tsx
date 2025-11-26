@@ -72,41 +72,41 @@ const AnimatedPet = ({ pet }: { pet: typeof petCharacters[0] }) => {
   
   const isLeftSide = !pet.isRight;
   
-  // Position pets at 45-degree corners around text/logo
-  // Safe distance from center to avoid touching text
-  const cornerDistance = 250; // Distance from center for 45-degree positioning
-  const bottomDistance = 250; // Distance for bottom pets (closer together)
+  // Position pets closer around text/logo - more centered
+  // Reduced distances to bring pets closer to the NFC logo and text block
+  const cornerDistance = 180; // Reduced from 250 - closer to center
+  const bottomDistance = 180; // Reduced from 250 - closer to center
   
   // Calculate positions for corners (45-degree angles)
-  // Top corners and bottom pets close together
+  // Top corners and bottom pets closer together
   let verticalPosition = 50;
   let horizontalDistance = 0;
   
-  // Position pets at corners with 45-degree angles
+  // Position pets at corners with 45-degree angles - closer to center
   if (pet.id === 2) {
-    // Top-left corner (45 degrees)
-    verticalPosition = -cornerDistance;
-    horizontalDistance = -cornerDistance;
+    // Top-left corner (45 degrees) - higher and more left
+    verticalPosition = -cornerDistance * 1.8; // Higher up
+    horizontalDistance = -cornerDistance * 1.0; // Closer together
   } else if (pet.id === 3) {
-    // Top-right corner (45 degrees)
+    // Top-right corner (45 degrees) - closer
     verticalPosition = -cornerDistance;
     horizontalDistance = cornerDistance;
   } else if (pet.id === 4) {
-    // Additional pet - top-left extended
-    verticalPosition = -cornerDistance * 0.7;
-    horizontalDistance = -cornerDistance * 1.2;
+    // Additional pet - top-left extended - higher and more left
+    verticalPosition = -cornerDistance * 1.5; // Higher up
+    horizontalDistance = -cornerDistance * 1.1; // Closer together
   } else if (pet.id === 5) {
-    // Additional pet - top-right extended
-    verticalPosition = -cornerDistance * 0.7;
-    horizontalDistance = cornerDistance * 1.2;
+    // Additional pet - top-right extended - higher and more right
+    verticalPosition = -cornerDistance * 1.6; // Higher up
+    horizontalDistance = cornerDistance * 1.0; // Closer together
   } else if (pet.id === 1) {
-    // Bottom-left - 50px from top, close to center
-    verticalPosition = -100; // Position at 50px from top (relative to center)
-    horizontalDistance = -bottomDistance * 0.6; // Closer together
+    // Bottom-left - more space and lower
+    verticalPosition = 180; // Moved much further down
+    horizontalDistance = -bottomDistance * 0.9; // Much more space between pets
   } else if (pet.id === 6) {
-    // Bottom-right - 50px from top, close to center (close to bear)
-    verticalPosition = -100; // Position at 50px from top (relative to center)
-    horizontalDistance = bottomDistance * 0.6; // Closer together
+    // Bottom-right - more space and lower
+    verticalPosition = 180; // Moved much further down
+    horizontalDistance = bottomDistance * 0.9; // Much more space between pets
   }
   
   const floorPosition = 600;
@@ -173,7 +173,7 @@ const AnimatedPet = ({ pet }: { pet: typeof petCharacters[0] }) => {
   // For bottom pets (1 and 6), position right after the button
   const isBottomPet = pet.id === 1 || pet.id === 6;
   // Button is approximately 350px from top (NFC + name + title + subtitle + button + margins)
-  const buttonBottomPosition = 370; // 20px down from button
+  const buttonBottomPosition = 480; // Positioned much further down below the button
   
   return (
     <motion.img
@@ -237,27 +237,27 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
     <>
       <Navbar />
       {/* Main Pet Card */}
-      <div className="relative mt-16 px-4 sm:px-7 py-8 min-h-[600px] overflow-visible max-w-7xl mx-auto">
+      <div className="relative mt-16 px-4 sm:px-7 py-8 min-h-[600px] overflow-visible max-w-7xl mx-auto flex items-center justify-center">
         {/* Pet Characters - positioned around text */}
         {petCharacters.map((pet) => (
           <AnimatedPet key={pet.id} pet={pet} />
         ))}
 
         {/* Content Section - centered with pets around it */}
-        <div className="relative z-10 flex flex-col items-center justify-center">
+        <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl">
           {/* NFC Image */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="mb-4"
+            className="mb-4 flex justify-center"
           >
             <Image
               alt="nfc"
               src={assets.nfc}
               width={150}
               height={100}
-              className="mx-auto block"
+              className="block"
               priority
             />
           </motion.div>
@@ -266,13 +266,13 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7 }}
-            className="mb-6"
+            className="mb-6 text-center"
           >
             <h2 className="text-2xl font-bold text-primary">{name}</h2>
           </motion.div>
 
           {/* Content */}
-          <div className="mb-8">
+          <div className="mb-8 flex flex-col items-center w-full">
             <motion.h1
               className="mt-4 h-10 text-center text-3xl font-semibold text-black"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -285,7 +285,7 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
               {t('title')}
             </motion.h1>
             <motion.p
-              className="text-grey-600 h-9 max-w-56 text-center text-base"
+              className="text-grey-600 h-9 max-w-56 text-center text-base mx-auto"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{

@@ -71,14 +71,20 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
                   if (result.pet.breedId) {
                     breedDisplay = getBreedNameFromId(String(result.pet.breedId), locale as 'en' | 'he');
                   } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
-                    // Try to find the breed in comprehensive data and translate it
-                    const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
-                    const breed = breedsData.find(b => 
-                      b.en.toLowerCase() === breedDisplay.toLowerCase() || 
-                      b.he === breedDisplay
-                    );
-                    if (breed) {
-                      breedDisplay = locale === 'he' ? breed.he : breed.en;
+                    // Check if breedDisplay is actually an ID (e.g., "dog-3", "cat-5")
+                    if (breedDisplay.startsWith('dog-') || breedDisplay.startsWith('cat-')) {
+                      // It's a legacy breed ID format, resolve it
+                      breedDisplay = getBreedNameFromId(breedDisplay, locale as 'en' | 'he');
+                    } else {
+                      // Try to find the breed in comprehensive data and translate it
+                      const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
+                      const breed = breedsData.find(b => 
+                        b.en.toLowerCase() === breedDisplay.toLowerCase() || 
+                        b.he === breedDisplay
+                      );
+                      if (breed) {
+                        breedDisplay = locale === 'he' ? breed.he : breed.en;
+                      }
                     }
                   }
                   
@@ -96,14 +102,20 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
                   if (data.breedId) {
                     breedDisplay = getBreedNameFromId(String(data.breedId), locale as 'en' | 'he');
                   } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
-                    // Try to find the breed in comprehensive data and translate it
-                    const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
-                    const breed = breedsData.find(b => 
-                      b.en.toLowerCase() === breedDisplay.toLowerCase() || 
-                      b.he === breedDisplay
-                    );
-                    if (breed) {
-                      breedDisplay = locale === 'he' ? breed.he : breed.en;
+                    // Check if breedDisplay is actually an ID (e.g., "dog-3", "cat-5")
+                    if (breedDisplay.startsWith('dog-') || breedDisplay.startsWith('cat-')) {
+                      // It's a legacy breed ID format, resolve it
+                      breedDisplay = getBreedNameFromId(breedDisplay, locale as 'en' | 'he');
+                    } else {
+                      // Try to find the breed in comprehensive data and translate it
+                      const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
+                      const breed = breedsData.find(b => 
+                        b.en.toLowerCase() === breedDisplay.toLowerCase() || 
+                        b.he === breedDisplay
+                      );
+                      if (breed) {
+                        breedDisplay = locale === 'he' ? breed.he : breed.en;
+                      }
                     }
                   }
                   

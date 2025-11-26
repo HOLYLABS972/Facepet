@@ -2,12 +2,21 @@ import { useEffect, useState } from 'react';
 
 export const usePetId = () => {
   const [petId, setPetId] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Retrieve petId from localStorage on initial load
+  // Retrieve petId from localStorage on initial load (client-side only)
   useEffect(() => {
-    const storedPetId = localStorage.getItem('petId');
-    if (storedPetId) {
-      setPetId(storedPetId);
+    setIsMounted(true);
+    try {
+      const storedPetId = localStorage.getItem('petId');
+      if (storedPetId) {
+        setPetId(storedPetId);
+        console.log('[usePetId] Loaded petId from localStorage:', storedPetId);
+      } else {
+        console.log('[usePetId] No petId found in localStorage');
+      }
+    } catch (error) {
+      console.error('[usePetId] Error accessing localStorage:', error);
     }
   }, []);
 

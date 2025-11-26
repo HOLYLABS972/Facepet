@@ -10,8 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserFavorites, getAllAdTags } from '@/lib/firebase/favorites';
 import { SERVICE_TAGS_TRANSLATIONS } from '@/lib/constants/hebrew-service-tags';
 import ServicesMapView from './ServicesMapView';
-import AdFullPage from '../get-started/AdFullPage';
-import { Promo } from '@/types/promo';
 
 interface Ad {
   id: string;
@@ -34,7 +32,6 @@ interface Ad {
 
 interface ServicesPageProps {
   ads: Ad[];
-  initialPromo?: Promo | null;
 }
 
 
@@ -55,7 +52,7 @@ const convertAdToService = (ad: Ad & { imageUrl?: string }) => {
   };
 };
 
-const ServicesPage: React.FC<ServicesPageProps> = ({ ads, initialPromo }) => {
+const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
   const t = useTranslations('pages.ServicesPage');
   const locale = useLocale();
   const { user } = useAuth();
@@ -65,11 +62,6 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, initialPromo }) => {
   const [favoriteAdIds, setFavoriteAdIds] = useState<string[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'favorites'>('all');
   const [isLoadingTags, setIsLoadingTags] = useState(true);
-  const [showPromo, setShowPromo] = useState(!!initialPromo && (!!initialPromo?.imageUrl || !!initialPromo?.youtubeUrl));
-
-  const handlePromoClose = () => {
-    setShowPromo(false);
-  };
 
   // Function to translate tags for display
   const translateTag = (tag: string): string => {
@@ -140,18 +132,6 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, initialPromo }) => {
     setFilterType(chipId as 'all' | 'favorites');
   };
 
-  // Show ad if it exists
-  if (showPromo && (initialPromo?.imageUrl || initialPromo?.youtubeUrl)) {
-    return (
-      <AdFullPage
-        type={initialPromo.youtubeUrl ? 'youtube' : 'image'}
-        time={5}
-        content={initialPromo.imageUrl || ''}
-        youtubeUrl={initialPromo.youtubeUrl}
-        onClose={handlePromoClose}
-      />
-    );
-  }
 
   return (
     <>

@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { isPromoUsed, getUserUsedPromos, UserPromo } from '@/lib/firebase/user-promos';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getYouTubeThumbnailUrl, getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 interface PromosPageClientProps {
   promos: Promo[];
@@ -109,7 +110,28 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
       key={promo.id} 
       className="overflow-hidden hover:shadow-lg transition-shadow relative"
     >
-      {promo.imageUrl && (
+      {promo.youtubeUrl ? (
+        <div className="relative w-full h-48">
+          {getYouTubeThumbnailUrl(promo.youtubeUrl) ? (
+            <img
+              src={getYouTubeThumbnailUrl(promo.youtubeUrl) || ''}
+              alt={promo.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500">Video</span>
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity">
+              <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      ) : promo.imageUrl && (
         <div className="relative w-full h-48">
           <img
             src={promo.imageUrl}
@@ -165,7 +187,28 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           {t('used') || 'Used'}
         </div>
       </div>
-      {userPromo.promo.imageUrl && (
+      {userPromo.promo.youtubeUrl ? (
+        <div className="relative w-full h-48">
+          {getYouTubeThumbnailUrl(userPromo.promo.youtubeUrl) ? (
+            <img
+              src={getYouTubeThumbnailUrl(userPromo.promo.youtubeUrl) || ''}
+              alt={userPromo.promo.name}
+              className="w-full h-full object-cover grayscale"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center grayscale">
+              <span className="text-gray-500">Video</span>
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center opacity-90">
+              <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      ) : userPromo.promo.imageUrl && (
         <div className="relative w-full h-48">
           <img
             src={userPromo.promo.imageUrl}

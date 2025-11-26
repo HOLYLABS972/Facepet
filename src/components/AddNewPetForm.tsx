@@ -12,9 +12,9 @@ import { Upload, Loader2, CheckCircle, XCircle, ArrowRight, ArrowLeft, Heart, St
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
 import { BreedSelect } from './ui/breed-select';
-import { getBreedsForType, type PetType } from '@/src/lib/data/breeds';
+import { getBreedsForType, getLocalizedBreedsForType, type PetType } from '@/src/lib/data/breeds';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface PetFormData {
   name: string;
@@ -31,6 +31,7 @@ interface UploadProgress {
 
 export default function AddNewPetForm() {
   const t = useTranslations('Pet.add');
+  const locale = useLocale() as 'en' | 'he';
   
   const PET_TYPES = [
     { id: 'cat', name: t('types.cat'), emoji: '🐱', icon: '🐱' },
@@ -51,6 +52,7 @@ export default function AddNewPetForm() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [breedId, setBreedId] = useState<string>('');
   
   const [formData, setFormData] = useState<PetFormData>({
     name: '',
@@ -59,6 +61,7 @@ export default function AddNewPetForm() {
     image: null,
     imageUrl: ''
   });
+
 
   const handleInputChange = (field: keyof PetFormData, value: string) => {
     setFormData(prev => ({
@@ -72,6 +75,7 @@ export default function AddNewPetForm() {
         ...prev,
         breed: ''
       }));
+      setBreedId('');
     }
   };
 
@@ -134,20 +138,16 @@ export default function AddNewPetForm() {
     setLoading(true);
 
     try {
-      const breeds = getBreedsForType(formData.type as PetType);
-      const selectedBreed = breeds.find(breed => breed.id === formData.breed);
-      
       const petData = {
         name: formData.name.trim(),
         type: formData.type,
-        breedName: selectedBreed ? selectedBreed.name : '',
-        imageUrl: formData.imageUrl || '/default-pet.png', // Use default image if none provided
+        breedName: formData.breed,
+        breedId: breedId,
+        imageUrl: formData.imageUrl || '/default-pet.png',
         description: '',
         age: '',
         gender: ''
       };
-
-      console.log('Creating pet with data:', petData);
 
       const result = await createPetInFirestore(petData, user);
 
@@ -250,8 +250,23 @@ export default function AddNewPetForm() {
             ) : (
               <BreedSelect
                 petType={formData.type as 'dog' | 'cat'}
-                value={formData.breed}
-                onValueChange={(value) => handleInputChange('breed', value)}
+                value={breedId}
+                onValueChange={(id) => {
+                  setBreedId(id);
+                  // Find breed name from ID
+                  try {
+                    const localizedBreeds = getLocalizedBreedsForType(formData.type as 'dog' | 'cat', locale);
+                    const selectedBreed = localizedBreeds.find(breed => breed.id === id);
+                    if (selectedBreed) {
+                      handleInputChange('breed', selectedBreed.name);
+                    } else {
+                      handleInputChange('breed', '');
+                    }
+                  } catch (error) {
+                    console.error('Error finding breed name:', error);
+                    handleInputChange('breed', '');
+                  }
+                }}
                 placeholder={t('breed.placeholder')}
               />
             )}
@@ -386,11 +401,7 @@ export default function AddNewPetForm() {
                 <div className="text-left">
                   <h4 className="font-semibold text-lg">{formData.name}</h4>
                   <p className="text-gray-600">
-                    {(() => {
-                      const breeds = getBreedsForType(formData.type as PetType);
-                      const selectedBreed = breeds.find(breed => breed.id === formData.breed);
-                      return selectedBreed ? selectedBreed.name : '';
-                    })()}
+                    {formData.breed || ''}
                   </p>
                 </div>
               </div>

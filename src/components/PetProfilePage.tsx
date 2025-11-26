@@ -10,13 +10,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
-import AdFullPage from './get-started/AdFullPage';
 import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
 import ShareButton from './ShareButton';
 import { getBreedNameFromId, convertBreedSlugToName } from '@/src/lib/firebase/breed-utils';
 import { getGenders } from '@/src/lib/hardcoded-data';
 import { breedsData } from '@/src/lib/data/comprehensive-breeds';
+import AdFullPage from './get-started/AdFullPage';
+import { fetchRandomPromo } from '@/lib/actions/promo-server';
+import { usePetId } from '@/hooks/use-pet-id';
 
 const computeAge = (birthDate: string) => {
   const birth = new Date(birthDate);
@@ -29,13 +31,11 @@ const computeAge = (birthDate: string) => {
 export default function PetProfilePage({
   pet,
   owner,
-  vet,
-  initialPromo
+  vet
 }: {
   pet: any;
   owner?: any;
   vet?: any;
-  initialPromo?: Promo | null;
 }) {
   // Place all hook calls at the top level, unconditionally
   const t = useTranslations('pages.PetProfilePage');
@@ -43,18 +43,60 @@ export default function PetProfilePage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showPopup, setShowPopup] = useState(false);
-  const [showPromo, setShowPromo] = useState(!!initialPromo && (!!initialPromo?.imageUrl || !!initialPromo?.youtubeUrl));
   const [activeTab, setActiveTab] = useState<TabName>('pet');
   const prevTabRef = useRef<TabName>('pet');
+  const { petId: localStoragePetId, savePetId } = usePetId();
+  const [showPromo, setShowPromo] = useState(false);
+  const [promo, setPromo] = useState<Promo | null>(null);
+  const [isLoadingPromo, setIsLoadingPromo] = useState(false);
   
   // Get data from URL parameters if available (passed from My Pets page)
   const displayName = searchParams.get('displayName');
   const displayBreed = searchParams.get('displayBreed');
   const displayImage = searchParams.get('displayImage');
   
+  // Save petId to localStorage when pet profile page loads (for ad tracking)
+  useEffect(() => {
+    if (pet?.id && pet.id !== localStoragePetId) {
+      savePetId(pet.id);
+      console.log('[PetProfilePage] Saved petId to localStorage:', pet.id);
+    }
+  }, [pet?.id, localStoragePetId, savePetId]);
+  
+  // Load and show ad when pet profile page loads (mandatory ad)
+  useEffect(() => {
+    const loadPromo = async () => {
+      // Only show ad if pet exists (petId in localStorage or pet.id exists)
+      const hasPet = localStoragePetId || pet?.id;
+      
+      if (hasPet && !showPromo && !isLoadingPromo && !promo) {
+        setIsLoadingPromo(true);
+        try {
+          console.log('[PetProfilePage] Loading mandatory ad for pet profile page');
+          const randomPromo = await fetchRandomPromo();
+          if (randomPromo && (randomPromo.imageUrl || randomPromo.youtubeUrl)) {
+            setPromo(randomPromo);
+            setShowPromo(true);
+            console.log('[PetProfilePage] Ad loaded and will be displayed');
+          } else {
+            console.log('[PetProfilePage] No promo available');
+          }
+        } catch (error) {
+          console.error('[PetProfilePage] Error loading promo:', error);
+        } finally {
+          setIsLoadingPromo(false);
+        }
+      }
+    };
+
+    loadPromo();
+  }, [localStoragePetId, pet?.id, showPromo, isLoadingPromo, promo]);
+
   const handlePromoClose = () => {
     setShowPromo(false);
+    setPromo(null);
   };
+  
 
   // Determine available tabs (exclude Vet if no vet data)
   const availableTabs: TabName[] = ['pet', 'owner'];
@@ -262,14 +304,14 @@ export default function PetProfilePage({
     }
   };
 
-  // Conditional rendering after all hooks
-  if (showPromo && (initialPromo?.imageUrl || initialPromo?.youtubeUrl)) {
+  // Show ad if promo is loaded (mandatory ad on pet profile page)
+  if (showPromo && promo && (promo.imageUrl || promo.youtubeUrl)) {
     return (
       <AdFullPage
-        type={initialPromo.youtubeUrl ? 'youtube' : 'image'}
+        type={promo.youtubeUrl ? 'youtube' : 'image'}
         time={5}
-        content={initialPromo.imageUrl || ''}
-        youtubeUrl={initialPromo.youtubeUrl}
+        content={promo.imageUrl || ''}
+        youtubeUrl={promo.youtubeUrl}
         onClose={handlePromoClose}
       />
     );
