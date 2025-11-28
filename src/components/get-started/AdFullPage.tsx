@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import process from 'process';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '../ui/button';
 import { getYouTubeVideoId } from '@/lib/utils/youtube';
 
@@ -24,6 +24,7 @@ const AdFullPage = ({
 }) => {
   const [countdown, setCountdown] = useState(time);
   const [adClosed, setAdClosed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const closeAd = () => {
     document.body.style.overflow = 'visible';
@@ -51,6 +52,20 @@ const AdFullPage = ({
     };
   }, []);
 
+  // Ensure video autoplays
+  useEffect(() => {
+    if (type === 'video' && videoRef.current) {
+      const video = videoRef.current;
+      const playPromise = video.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error('Error playing video:', error);
+        });
+      }
+    }
+  }, [type, content]);
+
   // Notify parent when ad is closed
   useEffect(() => {
     if (adClosed) {
@@ -61,7 +76,7 @@ const AdFullPage = ({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed z-50 h-full w-full overflow-hidden bg-black ad-full-page"
+        className="fixed inset-0 z-[9999] h-screen w-screen overflow-hidden bg-black ad-full-page"
         data-no-track
         initial={{ opacity: 1 }}
         animate={{ opacity: 1 }}
@@ -71,7 +86,7 @@ const AdFullPage = ({
         {/* Close Button (top right) */}
         <Button
           variant="ghost"
-          className="mix-blend-ifference absolute top-4 right-4 z-60 h-9 w-9 rounded-full hover:bg-white"
+          className="mix-blend-ifference absolute top-4 right-4 z-[10000] h-9 w-9 rounded-full hover:bg-white"
           onClick={closeAd}
           data-no-track
         >
@@ -79,7 +94,7 @@ const AdFullPage = ({
         </Button>
         {/* Countdown (top left) */}
         <motion.div
-          className="absolute top-4 left-4 h-9 w-9 items-center justify-center rounded-full text-center mix-blend-difference hover:bg-white"
+          className="absolute top-4 left-4 z-[10000] h-9 w-9 items-center justify-center rounded-full text-center mix-blend-difference hover:bg-white"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -103,25 +118,29 @@ const AdFullPage = ({
           ) : null
         ) : type === 'youtube' ? (
           youtubeUrl ? (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center">
               <iframe
                 className="w-full h-full"
-                src={`https://www.youtube.com/embed/${getYouTubeVideoId(youtubeUrl)}?autoplay=1&mute=0&controls=1&rel=0`}
+                src={`https://www.youtube.com/embed/${getYouTubeVideoId(youtubeUrl)}?autoplay=1&mute=1&controls=1&rel=0&enablejsapi=1&playsinline=1`}
                 title="YouTube advertisement"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
               />
             </div>
           ) : null
         ) : type === 'video' ? (
           content ? (
             <video
+              ref={videoRef}
               src={content}
-              className="w-full h-full object-contain"
+              className="absolute inset-0 w-full h-full object-contain"
               autoPlay
               muted
               playsInline
               loop
+              controls={false}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
             />
           ) : null
         ) : null}
