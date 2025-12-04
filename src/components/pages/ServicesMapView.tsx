@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Navigation, AlertCircle, Phone, Star, Send, Heart, HeartOff, Ticket } from 'lucide-react';
+import { MapPin, Phone, Star, Send, Heart, HeartOff, Ticket, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   Drawer,
@@ -15,7 +15,7 @@ import {
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -70,6 +70,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   const [servicesWithCoords, setServicesWithCoords] = useState<ServiceWithCoordinates[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [hasRequestedLocation, setHasRequestedLocation] = useState(false);
   const [markers, setMarkers] = useState<any[]>([]);
   const [markerInfoWindows, setMarkerInfoWindows] = useState<Map<string, any>>(new Map());
   const [currentInfoWindow, setCurrentInfoWindow] = useState<any>(null);
@@ -90,8 +91,125 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState<'collapsed' | 'expanded' | 'full'>('collapsed');
+  const [floatingCardPosition, setFloatingCardPosition] = useState<{ x: number; y: number } | null>(null);
   const geocoderRef = useRef<any>(null);
   const { user } = useAuth();
+  
+  // For drag gestures on mobile bottom sheet
+  const y = useMotionValue(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Force mobile view for all screen sizes
+  useEffect(() => {
+    setIsMobile(true);
+    setBottomSheetHeight('collapsed');
+    setFloatingCardPosition(null);
+  }, []);
+
+  // Add CSS to hide scrollbars for service cards
+  useEffect(() => {
+    const styleId = 'service-cards-scrollbar-hide';
+    if (document.getElementById(styleId)) return;
+    
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .service-cards-scroll::-webkit-scrollbar {
+        display: none;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      const existingStyle = document.getElementById(styleId);
+      if (existingStyle) {
+        document.head.removeChild(existingStyle);
+      }
+    };
+  }, []);
+
+  // Convert lat/lng to pixel coordinates for floating card positioning
+  const getPixelPosition = (lat: number, lng: number): { x: number; y: number } | null => {
+    if (!map || !mapRef.current) return null;
+    
+    try {
+      const scale = Math.pow(2, map.getZoom() || 10);
+      const worldCoordinate = project(lat, lng);
+      
+      const mapDiv = mapRef.current;
+      const mapBounds = map.getBounds();
+      if (!mapBounds) return null;
+      
+      const ne = mapBounds.getNorthEast();
+      const sw = mapBounds.getSouthWest();
+      const topRight = project(ne.lat(), ne.lng());
+      const bottomLeft = project(sw.lat(), sw.lng());
+      
+      const mapWidth = mapDiv.offsetWidth;
+      const mapHeight = mapDiv.offsetHeight;
+      
+      const x = ((worldCoordinate.x - bottomLeft.x) / (topRight.x - bottomLeft.x)) * mapWidth;
+      const y = ((worldCoordinate.y - topRight.y) / (bottomLeft.y - topRight.y)) * mapHeight;
+      
+      return { x, y };
+    } catch (error) {
+      console.error('Error calculating pixel position:', error);
+      return null;
+    }
+  };
+  
+  // Helper function to project lat/lng to world coordinates
+  const project = (lat: number, lng: number) => {
+    const siny = Math.sin((lat * Math.PI) / 180);
+    const y = Math.log((1 + siny) / (1 - siny)) / 2;
+    return {
+      x: lng / 360 + 0.5,
+      y: 0.5 - y / (4 * Math.PI)
+    };
+  };
+
+  // Handle bottom sheet drag end
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (!isMobile) return;
+    
+    const threshold = 50;
+    const currentHeight = bottomSheetHeight;
+    
+    if (info.offset.y > threshold) {
+      // Dragging down
+      if (currentHeight === 'full') {
+        setBottomSheetHeight('expanded');
+      } else if (currentHeight === 'expanded') {
+        setBottomSheetHeight('collapsed');
+      }
+    } else if (info.offset.y < -threshold) {
+      // Dragging up
+      if (currentHeight === 'collapsed') {
+        setBottomSheetHeight('expanded');
+      } else if (currentHeight === 'expanded') {
+        setBottomSheetHeight('full');
+      }
+    }
+    
+    y.set(0);
+  };
+
+  // Get bottom sheet height based on state
+  const getBottomSheetHeight = () => {
+    if (!isMobile) return 'auto';
+    switch (bottomSheetHeight) {
+      case 'collapsed':
+        return '30vh';
+      case 'expanded':
+        return '60vh';
+      case 'full':
+        return '90vh';
+      default:
+        return '30vh';
+    }
+  };
 
   // Load comments for a service
   const loadComments = async (serviceId: string) => {
@@ -234,8 +352,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
       return;
     }
 
+    if (isLoading) return; // Prevent multiple calls
+    
     setIsLoading(true);
-    navigator.geolocation.getCurrentPosition(
+    
+    try {
+      navigator.geolocation.getCurrentPosition(
       (position) => {
         const location = {
           lat: position.coords.latitude,
@@ -269,18 +391,49 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         calculateDistancesAndSort(location);
         setIsLoading(false);
       },
-      (error) => {
-        console.error('Error getting location:', error);
+      (error: GeolocationPositionError) => {
         setLocationPermission('denied');
         setIsLoading(false);
-        toast.error('Unable to get your location. Please enable location permissions.');
+        
+        // Only log non-permission errors (user denial is expected)
+        if (error && error.code !== 1) {
+          console.error('Error getting location:', error);
+        }
+        
+        // Only show toast for non-permission errors (user denial is silent)
+        if (error && error.code !== 1) {
+          let errorMessage = 'Unable to get your location.';
+          
+          // GeolocationPositionError codes:
+          // 1 = PERMISSION_DENIED (silent - user choice)
+          // 2 = POSITION_UNAVAILABLE
+          // 3 = TIMEOUT
+          switch (error.code) {
+            case 2: // POSITION_UNAVAILABLE
+              errorMessage = 'Location information is unavailable. Please check your device settings.';
+              break;
+            case 3: // TIMEOUT
+              errorMessage = 'Location request timed out. Please try again.';
+              break;
+            default:
+              errorMessage = error.message || 'Unable to get your location. Please try again.';
+          }
+          
+          toast.error(errorMessage);
+        }
       },
       {
         enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
+        timeout: 10000, // Increased timeout to 10 seconds
+        maximumAge: 60000 // Cache for 1 minute
       }
-    );
+      );
+    } catch (error) {
+      console.error('Unexpected error in geolocation request:', error);
+      setLocationPermission('denied');
+      setIsLoading(false);
+      toast.error('An unexpected error occurred while requesting location. Please try again.');
+    }
   };
 
   // Geocode service address to get coordinates
@@ -384,8 +537,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         if (service.id) {
           setHighlightedServiceId(service.id);
         }
+        
+        // Always show drawer
         setDrawerOpen(true);
-        // Load comments when drawer opens
+        
+        // Load comments when service is selected
         if (service.id) {
           loadComments(service.id);
         }
@@ -487,6 +643,17 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
     geocodeAllServices();
   };
 
+  // Automatically request location when map is ready
+  useEffect(() => {
+    if (map && !hasRequestedLocation) {
+      setHasRequestedLocation(true);
+      // Small delay to ensure map is fully initialized
+      setTimeout(() => {
+        requestUserLocation();
+      }, 500);
+    }
+  }, [map, hasRequestedLocation]);
+
   // Geocode all services
   const geocodeAllServices = async () => {
     if (!geocoderRef.current) return;
@@ -522,14 +689,17 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
           checkIfFavorited(service.id);
         }
       }
+      
+      // Always show drawer
       setDrawerOpen(true);
     }
   };
+  
 
   return (
-    <div className="w-full h-full flex flex-col lg:flex-row gap-4">
-      {/* Map Container - Top on Mobile, Right Side on Desktop */}
-      <div className="w-full lg:w-2/3 flex-1 relative border rounded-lg overflow-hidden bg-gray-100 lg:order-2">
+    <div className="w-full h-full relative">
+      {/* Map Container */}
+      <div className="w-full h-full relative overflow-hidden bg-gray-100 transition-all duration-300">
         {isLoading && (
           <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
             <div className="text-center">
@@ -543,154 +713,99 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         <div ref={mapRef} className="w-full h-full" />
       </div>
 
-      {/* Services List Panel - Bottom on Mobile, Left Side on Desktop */}
-      <div className="w-full lg:w-1/3 flex flex-col border rounded-lg bg-white overflow-hidden lg:order-1 max-h-[50vh] lg:max-h-none">
-      {/* Location Permission Button */}
-      {locationPermission === 'prompt' && (
-          <div className="p-4 bg-blue-50 border-b border-blue-200">
-            <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <Navigation className="w-5 h-5 text-blue-600" />
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {t('map.findNearby') || 'Find services near you'}
-                </p>
-                <p className="text-xs text-gray-600">
-                  {t('map.locationPermission') || 'Allow location access to see closest services'}
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={requestUserLocation}
-              disabled={isLoading}
-                className="bg-blue-600 hover:bg-blue-700 w-full"
-                size="sm"
-            >
-              {isLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <MapPin className="w-4 h-4 mr-2" />
-                  {t('map.useMyLocation') || 'Use My Location'}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
 
-      {/* Location Denied Message */}
-      {locationPermission === 'denied' && (
-          <div className="p-4 bg-yellow-50 border-b border-yellow-200">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-yellow-600" />
-            <p className="text-sm text-gray-700">
-              {t('map.locationDenied') || 'Location access denied. Showing all services.'}
-            </p>
-          </div>
-        </div>
-      )}
-
-        {/* Services List Header */}
-        <div className="p-4 border-b bg-gray-50">
-          <h3 className="text-lg font-semibold">
-            {locationPermission === 'granted' 
-              ? (t('map.closestServices') || 'Closest Services')
-              : (t('map.allServices') || 'All Services')}
-          </h3>
-          <p className="text-sm text-gray-600 mt-1">
-            {servicesWithCoords.length} {t('map.servicesFound') || 'services found'}
-          </p>
-        </div>
-
-        {/* Scrollable Services List */}
-        <div className="flex-1 overflow-y-auto">
-          {isLoading && servicesWithCoords.length === 0 ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="text-center">
-                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  {t('map.loading') || 'Loading services...'}
-          </p>
-              </div>
-            </div>
-          ) : servicesWithCoords.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <p>{t('map.noServices') || 'No services found'}</p>
-            </div>
-          ) : (
-            <div className="divide-y">
+      {/* Floating Service Cards - Horizontal Scrollable Row */}
+      {servicesWithCoords.length > 0 && (
+        <div className="absolute bottom-4 left-0 right-0 z-30 pointer-events-none px-4">
+          <div 
+            className="service-cards-scroll overflow-x-auto overflow-y-visible" 
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            } as React.CSSProperties & { WebkitOverflowScrolling?: string }}
+          >
+            <div className="flex gap-2 pb-2" style={{ width: 'max-content' }}>
               {servicesWithCoords.map((service, index) => (
-                <div
+                <motion.div
                   key={service.id || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                   className={cn(
-                    "p-4 cursor-pointer transition-colors hover:bg-gray-50",
-                    highlightedServiceId === service.id && "bg-blue-50 border-l-4 border-l-blue-600"
+                    "bg-white rounded-lg shadow-xl border-2 overflow-hidden pointer-events-auto flex-shrink-0",
+                    highlightedServiceId === service.id ? "border-blue-500" : "border-gray-200"
                   )}
+                  style={{ width: '220px' }}
                   onClick={() => handleServiceClick(service)}
                 >
-                  <div className="flex gap-3">
-                    {/* Service Image */}
-                    <div className="flex-shrink-0">
-                      <img
-                        src={service.image}
-                        alt={service.name}
-                        className="w-16 h-16 rounded-lg object-cover"
-                      />
-                    </div>
-                    
-                    {/* Service Info */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-base truncate">{service.name}</h4>
-                      {service.description && service.description.trim() !== '' && (
-                        <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                          {service.description}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        {service.distance !== undefined && (
-                          <span className="text-blue-600 font-semibold text-sm">
-                        {service.distance.toFixed(2)} km
-                      </span>
+                  {/* Service Image */}
+                  <div className="relative h-24 w-full">
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {service.distance !== undefined && (
+                      <div className="absolute bottom-1.5 left-1.5 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 flex items-center gap-1">
+                        <MapPin size={10} className="text-blue-600" />
+                        <span className="text-[10px] font-semibold text-blue-600">
+                          {service.distance.toFixed(2)} km
+                        </span>
+                      </div>
                     )}
-                        {(service.address || service.location) && (
-                          <span className="text-xs text-gray-500 truncate flex items-center gap-1">
-                            <MapPin size={12} />
-                            {service.address || service.location}
-                          </span>
-                        )}
                   </div>
-                      {/* Tags */}
-                      {service.tags && service.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {service.tags.slice(0, 2).map((tag, idx) => (
-                            <span
-                              key={idx}
-                              className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs"
-                            >
-                              {translateTag(tag)}
-                            </span>
-                          ))}
-                          {service.tags.length > 2 && (
-                            <span className="text-xs text-gray-500">+{service.tags.length - 2}</span>
-                          )}
-                </div>
-                      )}
-          </div>
-        </div>
-            </div>
+                  
+                  {/* Service Info */}
+                  <div className="p-2">
+                    <h3 className="font-bold text-sm mb-0.5 line-clamp-1">{service.name}</h3>
+                    {service.description && service.description.trim() !== '' && (
+                      <p className="text-[10px] text-gray-600 line-clamp-1 mb-1.5">
+                        {service.description}
+                      </p>
+                    )}
+                    
+                    {/* Tags */}
+                    {service.tags && service.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-1.5">
+                        {service.tags.slice(0, 2).map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-primary/10 text-primary rounded-full px-1 py-0.5 text-[10px]"
+                          >
+                            {translateTag(tag)}
+                          </span>
+                        ))}
+                        {service.tags.length > 2 && (
+                          <span className="text-[10px] text-gray-500">+{service.tags.length - 2}</span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Address */}
+                    {(service.address || service.location) && (
+                      <div className="flex items-start gap-1">
+                        <MapPin size={10} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-[10px] text-gray-600 line-clamp-1">
+                          {service.address || service.location}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
               ))}
+            </div>
           </div>
-        )}
         </div>
-      </div>
+      )}
 
-      {/* Service Details Drawer */}
+      {/* Service Details - Bottom Sheet */}
       {selectedService && (
-        <Drawer open={drawerOpen} onOpenChange={handleDrawerClose}>
-          <DrawerContent className="flex max-h-[90dvh] flex-col sm:max-w-[425px]">
+        <>
+            <Drawer open={drawerOpen} onOpenChange={handleDrawerClose}>
+              <DrawerContent className="flex !h-[50vh] max-h-[50vh] flex-col rounded-t-[20px] !mt-0">
             {/* Scrollable content */}
-            <div className="mx-4 mt-4 flex-1 overflow-x-hidden overflow-y-auto rounded-t-[10px]">
+            <div className="mx-4 mt-2 flex-1 overflow-x-hidden overflow-y-auto">
               <DrawerHeader className="ltr:text-left rtl:text-right">
                 <DrawerTitle className="text-3xl">
                   {selectedService.name}
@@ -722,11 +837,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                 )}
               </DrawerHeader>
               {/* Service photo */}
-              <div className="mt-3">
+              <div className="mt-3 -mx-4">
                 <img
                   src={selectedService.image}
                   alt={selectedService.name}
-                  className="h-48 w-full rounded-md object-cover"
+                  className="w-full h-auto object-contain"
+                  style={{ maxHeight: '300px', display: 'block' }}
                 />
               </div>
               
@@ -869,7 +985,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                 damping: 30,
                 delay: 0.2
               }}
-              className="sticky bottom-0 z-20 rounded-t-[10px] bg-white shadow-md"
+              className="sticky bottom-0 z-20 bg-white border-t pt-2 pb-2"
             >
               <DrawerFooter>
                 <div className="flex justify-around">
@@ -961,6 +1077,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
             </motion.div>
           </DrawerContent>
         </Drawer>
+        </>
       )}
     </div>
   );

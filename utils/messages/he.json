@@ -848,7 +848,8 @@
         "allServices": "כל השירותים",
         "servicesFound": "שירותים נמצאו",
         "noServices": "לא נמצאו שירותים",
-        "loading": "טוען מפה..."
+        "loading": "טוען מפה...",
+        "cancel": "ביטול"
       },
       "addToFavorites": "הוסף למועדפים",
       "removeFromFavorites": "הסר ממועדפים",

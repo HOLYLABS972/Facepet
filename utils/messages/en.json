@@ -856,7 +856,8 @@
         "allServices": "All Services",
         "servicesFound": "services found",
         "noServices": "No services found",
-        "loading": "Loading map..."
+        "loading": "Loading map...",
+        "cancel": "Cancel"
       },
       "addToFavorites": "Add to Favorites",
       "removeFromFavorites": "Remove from Favorites",

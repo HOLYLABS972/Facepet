@@ -153,29 +153,26 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
         />
       </div>
 
-      {/* Filter Chips */}
-      <div className="mb-4">
+      {/* Filter Chips and Tags Filter in same row */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <FilterChips 
           chips={filterChips} 
           onChipClick={handleChipClick}
-          className="mb-3"
         />
+        {!isLoadingTags && availableTags.length > 0 && (
+          <div className="flex-1 min-w-[200px]">
+            <TagsFilter
+              tags={availableTags}
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              placeholder={t('tagsFilter.placeholder')}
+              clearAllText={t('tagsFilter.clearAll')}
+              className="w-full"
+              translateTag={translateTag}
+            />
+          </div>
+        )}
       </div>
-
-      {/* Tags Filter */}
-      {!isLoadingTags && availableTags.length > 0 && (
-        <div className="mb-4">
-          <TagsFilter
-            tags={availableTags}
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-            placeholder={t('tagsFilter.placeholder')}
-            clearAllText={t('tagsFilter.clearAll')}
-            className="w-full"
-            translateTag={translateTag}
-          />
-        </div>
-      )}
 
       {/* Combined Map and List View */}
         <div className="w-full" style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}>
