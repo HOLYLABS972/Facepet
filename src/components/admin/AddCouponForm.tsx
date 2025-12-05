@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import MediaUpload from '@/components/admin/MediaUpload';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BusinessMultiselect } from '@/components/ui/business-multiselect';
 import { Business } from '@/types/promo';
 
 export default function AddCouponForm() {
@@ -32,7 +32,7 @@ export default function AddCouponForm() {
     imageUrl: '',
     validFrom: '',
     validTo: '',
-    businessId: ''
+    businessIds: [] as string[]
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,10 +71,10 @@ export default function AddCouponForm() {
     }));
   };
 
-  const handleSelectChange = (field: string, value: string) => {
+  const handleBusinessIdsChange = (selectedIds: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value === 'none' ? '' : value
+      businessIds: selectedIds
     }));
   };
 
@@ -106,7 +106,7 @@ export default function AddCouponForm() {
         imageUrl: formData.imageUrl,
         validFrom: new Date(formData.validFrom),
         validTo: new Date(formData.validTo),
-        businessId: formData.businessId || undefined
+        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined
       }, 'admin'); // TODO: Get actual user ID
 
       console.log('Create coupon result:', result);
@@ -223,24 +223,14 @@ export default function AddCouponForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="businessId">{t('couponsManagement.business') || 'Business (Optional)'}</Label>
-            <Select
-              value={formData.businessId || 'none'}
-              onValueChange={(value) => handleSelectChange('businessId', value)}
+            <Label>{t('couponsManagement.business') || 'Businesses (Optional)'}</Label>
+            <BusinessMultiselect
+              businesses={businesses}
+              selectedIds={formData.businessIds}
+              onSelectionChange={handleBusinessIdsChange}
+              placeholder={t('couponsManagement.businessPlaceholder') || 'Select businesses (optional)'}
               disabled={loadingBusinesses}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('couponsManagement.businessPlaceholder') || 'Select a business (optional)'} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t('couponsManagement.noBusiness') || 'No Business (General Voucher)'}</SelectItem>
-                {businesses.map((business) => (
-                  <SelectItem key={business.id} value={business.id}>
-                    {business.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

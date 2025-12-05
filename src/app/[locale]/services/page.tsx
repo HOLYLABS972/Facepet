@@ -4,11 +4,11 @@ import Navbar from '@/src/components/layout/Navbar';
 
 const page = async () => {
   const ads = await getActiveAdsForServices();
-  
+
   return (
     <>
       <Navbar />
-      <div className="flex grow flex-col p-4">
+      <div className="flex grow flex-col h-[calc(100vh-64px)]">
         <ServicesPage ads={ads} />
       </div>
     </>

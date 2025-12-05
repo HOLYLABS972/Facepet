@@ -38,7 +38,8 @@ export interface Coupon {
   description: string;
   imageUrl: string;
   youtubeUrl?: string; // Optional YouTube video URL
-  businessId: string;
+  businessId?: string; // Deprecated: use businessIds instead
+  businessIds?: string[]; // Optional business assignments (multiple stores)
   audienceId: string;
   isActive: boolean;
   startDate?: Date;
@@ -77,7 +78,8 @@ export interface CreateCouponData {
   description: string;
   imageUrl: string;
   youtubeUrl?: string; // Optional YouTube video URL
-  businessId: string;
+  businessId?: string; // Deprecated: use businessIds instead
+  businessIds?: string[]; // Optional business assignments (multiple stores)
   audienceId: string;
   startDate?: Date;
   endDate?: Date;

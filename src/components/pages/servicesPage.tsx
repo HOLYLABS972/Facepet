@@ -104,11 +104,11 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
       service.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
 
     // Tags filter
-    const matchesTags = selectedTags.length === 0 || 
+    const matchesTags = selectedTags.length === 0 ||
       selectedTags.some(selectedTag => service.tags.includes(selectedTag));
 
     // Favorites filter
-    const matchesFavorites = filterType === 'all' || 
+    const matchesFavorites = filterType === 'all' ||
       (filterType === 'favorites' && favoriteAdIds.includes(service.id || ''));
 
     return matchesSearch && matchesTags && matchesFavorites;
@@ -135,61 +135,74 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
 
   return (
     <>
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-      </div>
-      
-      {/* Search Bar */}
-      <div className="relative mb-4 h-9 rounded-lg bg-white">
-        <Search
-          className="absolute top-1/2 -translate-y-1/2 transform text-gray-400 ltr:left-3 rtl:right-3"
-          size={16}
-        />
-        <Input
-          placeholder={t('searchPlaceholder')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg p-2 ltr:pl-10 rtl:pr-10"
-        />
-      </div>
-
-      {/* Filter Chips and Tags Filter in same row */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <FilterChips 
-          chips={filterChips} 
-          onChipClick={handleChipClick}
-        />
-        {!isLoadingTags && availableTags.length > 0 && (
-          <div className="flex-1 min-w-[200px]">
-            <TagsFilter
-              tags={availableTags}
-              selectedTags={selectedTags}
-              onTagsChange={setSelectedTags}
-              placeholder={t('tagsFilter.placeholder')}
-              clearAllText={t('tagsFilter.clearAll')}
-              className="w-full"
-              translateTag={translateTag}
-            />
-          </div>
-        )}
-      </div>
-
       {/* Combined Map and List View */}
-        <div className="w-full" style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}>
-          {filteredServices.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">{t('noResults')}</p>
-              {ads.length === 0 && (
-                <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
-              )}
-              {filterType === 'favorites' && favoriteAdIds.length === 0 && (
-                <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
-              )}
+      <div className="w-full h-full">
+        <ServicesMapView
+          services={filteredServices}
+          mapFloatingControls={
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 p-1">
+              <FilterChips
+                chips={filterChips}
+                onChipClick={handleChipClick}
+              />
             </div>
-          ) : (
-            <ServicesMapView services={filteredServices} />
-          )}
-        </div>
+          }
+          headerContent={
+            <div className="space-y-4">
+              <div className="mb-4">
+                <h1 className="text-2xl font-bold">{t('title')}</h1>
+              </div>
+
+              {/* Search Bar and Filter Row */}
+              <div className="flex flex-row gap-3">
+                {/* Search Bar */}
+                <div className="relative h-9 grow rounded-lg bg-white border border-gray-200">
+                  <Search
+                    className="absolute top-1/2 -translate-y-1/2 transform text-gray-400 ltr:left-3 rtl:right-3"
+                    size={16}
+                  />
+                  <Input
+                    placeholder={t('searchPlaceholder')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full rounded-lg p-2 ltr:pl-10 rtl:pr-10 border-none focus-visible:ring-0"
+                  />
+                </div>
+
+                {/* Tags Filter */}
+                {!isLoadingTags && availableTags.length > 0 && (
+                  <div className="w-[200px] shrink-0">
+                    <TagsFilter
+                      tags={availableTags}
+                      selectedTags={selectedTags}
+                      onTagsChange={setSelectedTags}
+                      placeholder={t('tagsFilter.placeholder')}
+                      clearAllText={t('tagsFilter.clearAll')}
+                      className="w-full"
+                      translateTag={translateTag}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Only: No Results Message (Desktop shows in side panel) */}
+              <div className="md:hidden">
+                {filteredServices.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">{t('noResults')}</p>
+                    {ads.length === 0 && (
+                      <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
+                    )}
+                    {filterType === 'favorites' && favoriteAdIds.length === 0 && (
+                      <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          }
+        />
+      </div>
     </>
   );
 };

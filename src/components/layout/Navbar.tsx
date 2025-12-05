@@ -16,7 +16,8 @@ import {
   Mail,
   ShoppingBag,
   Ticket,
-  Tag
+  Tag,
+  Wallet
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -137,7 +138,7 @@ const Navbar = () => {
       label: t('coupons'),
       key: 'coupons',
       path: '/coupons',
-      icon: <Ticket className="h-5 w-5" />
+      icon: <Wallet className="h-5 w-5" />
     },
     {
       label: t('allPromos'),

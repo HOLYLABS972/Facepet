@@ -115,14 +115,16 @@ export async function getActiveCoupons(): Promise<Coupon[]> {
 
 export async function getCouponsByBusiness(businessId: string): Promise<Coupon[]> {
   try {
+    // Fetch all coupons and filter in memory to support both businessId and businessIds
+    // This is necessary because we need to check both the legacy businessId field
+    // and the new businessIds array field
     const q = query(
       collection(db, COUPONS_COLLECTION), 
-      where('businessId', '==', businessId),
       orderBy('createdAt', 'desc')
     );
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => ({
+    const allCoupons = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
@@ -130,6 +132,16 @@ export async function getCouponsByBusiness(businessId: string): Promise<Coupon[]
       validFrom: doc.data().validFrom?.toDate() || new Date(),
       validTo: doc.data().validTo?.toDate() || new Date()
     })) as Coupon[];
+    
+    // Filter coupons that match the businessId (either in businessId or businessIds array)
+    return allCoupons.filter(coupon => {
+      // Check new businessIds array format
+      if (coupon.businessIds && Array.isArray(coupon.businessIds)) {
+        return coupon.businessIds.includes(businessId);
+      }
+      // Check legacy businessId format
+      return coupon.businessId === businessId;
+    });
   } catch (error) {
     console.error('Error fetching coupons by business:', error);
     throw new Error('Failed to fetch coupons by business');

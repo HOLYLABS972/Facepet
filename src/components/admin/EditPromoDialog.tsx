@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { BusinessMultiselect } from '@/components/ui/business-multiselect';
 
 import { updatePromo, getBusinesses, getAudiences } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
@@ -41,7 +42,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     description: '',
     imageUrl: '',
     youtubeUrl: '',
-    businessId: '',
+    businessIds: [] as string[],
     audienceId: '',
     startDate: '',
     endDate: ''
@@ -62,12 +63,14 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
         const initialMediaType = hasYoutube ? 'youtube' : 'image';
         
         setMediaType(initialMediaType);
+        // Support both old businessId and new businessIds format
+        const businessIds = promo.businessIds || (promo.businessId ? [promo.businessId] : []);
         setFormData({
           name: promo.name || '',
           description: promo.description || '',
           imageUrl: promo.imageUrl || '',
           youtubeUrl: promo.youtubeUrl || '',
-          businessId: promo.businessId || '',
+          businessIds: businessIds,
           audienceId: promo.audienceId || '',
           startDate: promo.startDate ? new Date(promo.startDate).toISOString().split('T')[0] : '',
           endDate: promo.endDate ? new Date(promo.endDate).toISOString().split('T')[0] : ''
@@ -114,14 +117,21 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     }));
   };
 
+  const handleBusinessIdsChange = (selectedIds: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      businessIds: selectedIds
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
     try {
-      if (!formData.businessId || !formData.audienceId || formData.businessId === 'loading' || formData.audienceId === 'loading') {
-        throw new Error('Please select both business and audience');
+      if (!formData.audienceId || formData.audienceId === 'loading') {
+        throw new Error('Please select an audience');
       }
 
       const result = await updatePromo(promo.id, {
@@ -129,7 +139,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
         description: formData.description,
         imageUrl: mediaType === 'image' ? formData.imageUrl : '',
         youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
-        businessId: formData.businessId,
+        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
         audienceId: formData.audienceId,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined
@@ -256,52 +266,38 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="businessId">{t('promoManagement.business')}</Label>
-              <Select 
-                value={formData.businessId} 
-                onValueChange={(value) => handleSelectChange('businessId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('promoManagement.businessPlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {loading ? (
-                    <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading')}</SelectItem>
-                  ) : (
-                    businesses.map((business) => (
-                      <SelectItem key={business.id} value={business.id}>
-                        {business.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label>{t('promoManagement.business') || 'Businesses (Optional)'}</Label>
+            <BusinessMultiselect
+              businesses={businesses}
+              selectedIds={formData.businessIds}
+              onSelectionChange={handleBusinessIdsChange}
+              placeholder={t('promoManagement.businessPlaceholder') || 'Select businesses (optional)'}
+              disabled={loading}
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="audienceId">{t('promoManagement.audience')}</Label>
-              <Select 
-                value={formData.audienceId} 
-                onValueChange={(value) => handleSelectChange('audienceId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('promoManagement.audiencePlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {loading ? (
-                    <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading')}</SelectItem>
-                  ) : (
-                    audiences.map((audience) => (
-                      <SelectItem key={audience.id} value={audience.id}>
-                        {audience.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="audienceId">{t('promoManagement.audience')}</Label>
+            <Select 
+              value={formData.audienceId} 
+              onValueChange={(value) => handleSelectChange('audienceId', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('promoManagement.audiencePlaceholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {loading ? (
+                  <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading')}</SelectItem>
+                ) : (
+                  audiences.map((audience) => (
+                    <SelectItem key={audience.id} value={audience.id}>
+                      {audience.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

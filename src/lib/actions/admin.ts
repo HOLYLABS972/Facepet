@@ -1658,16 +1658,23 @@ export async function saveCookieSettings(cookieSettings: Omit<CookieSettings, 'i
  */
 export async function createCoupon(couponData: CreateCouponData, createdBy: string) {
   try {
-    // Remove businessId if it's empty string
-    const { businessId, ...restData } = couponData;
-    const dataToSave = {
+    // Handle both businessId (legacy) and businessIds (new)
+    const { businessId, businessIds, ...restData } = couponData;
+    const dataToSave: any = {
       ...restData,
-      ...(businessId ? { businessId } : {}),
       isActive: true,
       createdBy,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
+    
+    // Prefer businessIds array over single businessId
+    if (businessIds && businessIds.length > 0) {
+      dataToSave.businessIds = businessIds;
+    } else if (businessId) {
+      // Legacy support: convert single businessId to array
+      dataToSave.businessIds = [businessId];
+    }
     
     const docRef = await addDoc(collection(db, 'coupons'), dataToSave);
     return { success: true, id: docRef.id };
@@ -1742,20 +1749,34 @@ export async function getCouponById(id: string) {
 export async function updateCoupon(id: string, updateData: UpdateCouponData) {
   try {
     const docRef = doc(db, 'coupons', id);
-    // Handle businessId: if empty string, remove it; if undefined, don't include it
-    const { businessId, ...restData } = updateData;
+    // Handle both businessId (legacy) and businessIds (new)
+    const { businessId, businessIds, ...restData } = updateData;
     const dataToUpdate: any = {
       ...restData,
       updatedAt: serverTimestamp()
     };
     
-    // Only include businessId if it's a non-empty string
-    if (businessId !== undefined) {
-      if (businessId === '') {
-        // Remove businessId field using deleteField()
+    // Handle businessIds array (new format)
+    if (businessIds !== undefined) {
+      if (businessIds.length === 0) {
+        // Remove businessIds field if empty array
+        dataToUpdate.businessIds = deleteField();
+        // Also remove legacy businessId if it exists
         dataToUpdate.businessId = deleteField();
       } else {
-        dataToUpdate.businessId = businessId;
+        dataToUpdate.businessIds = businessIds;
+        // Remove legacy businessId when using new format
+        dataToUpdate.businessId = deleteField();
+      }
+    } else if (businessId !== undefined) {
+      // Legacy support: handle single businessId
+      if (businessId === '') {
+        dataToUpdate.businessId = deleteField();
+        dataToUpdate.businessIds = deleteField();
+      } else {
+        // Convert single businessId to array
+        dataToUpdate.businessIds = [businessId];
+        dataToUpdate.businessId = deleteField();
       }
     }
     

@@ -31,7 +31,7 @@ const MyGiftsPage: React.FC<MyGiftsPageProps> = ({ pets }) => {
           value={50}
           valueText="שקלים"
           title={'מתנת הצטרפות!'}
-          description="שובר קניה למזון אקאנה לכלב/חתול"
+          description="ארנק קניה למזון אקאנה לכלב/חתול"
         />
       </div>
       {/* )} */}

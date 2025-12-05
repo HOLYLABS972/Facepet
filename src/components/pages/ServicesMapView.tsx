@@ -38,6 +38,8 @@ interface Service {
 
 interface ServicesMapViewProps {
   services: Service[];
+  headerContent?: React.ReactNode;
+  mapFloatingControls?: React.ReactNode;
 }
 
 declare global {
@@ -52,7 +54,7 @@ interface ServiceWithCoordinates extends Service {
   distance?: number;
 }
 
-const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
+const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerContent, mapFloatingControls }) => {
   const t = useTranslations('pages.ServicesPage');
   const router = useRouter();
   const locale = useLocale();
@@ -96,23 +98,34 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   const [floatingCardPosition, setFloatingCardPosition] = useState<{ x: number; y: number } | null>(null);
   const geocoderRef = useRef<any>(null);
   const { user } = useAuth();
-  
+
   // For drag gestures on mobile bottom sheet
   const y = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Force mobile view for all screen sizes
+  // Handle window resize to update isMobile state
   useEffect(() => {
-    setIsMobile(true);
-    setBottomSheetHeight('collapsed');
-    setFloatingCardPosition(null);
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setBottomSheetHeight('collapsed');
+        setFloatingCardPosition(null);
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Add CSS to hide scrollbars for service cards
   useEffect(() => {
     const styleId = 'service-cards-scrollbar-hide';
     if (document.getElementById(styleId)) return;
-    
+
     const style = document.createElement('style');
     style.id = styleId;
     style.textContent = `
@@ -121,7 +134,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
       }
     `;
     document.head.appendChild(style);
-    
+
     return () => {
       const existingStyle = document.getElementById(styleId);
       if (existingStyle) {
@@ -133,33 +146,33 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   // Convert lat/lng to pixel coordinates for floating card positioning
   const getPixelPosition = (lat: number, lng: number): { x: number; y: number } | null => {
     if (!map || !mapRef.current) return null;
-    
+
     try {
       const scale = Math.pow(2, map.getZoom() || 10);
       const worldCoordinate = project(lat, lng);
-      
+
       const mapDiv = mapRef.current;
       const mapBounds = map.getBounds();
       if (!mapBounds) return null;
-      
+
       const ne = mapBounds.getNorthEast();
       const sw = mapBounds.getSouthWest();
       const topRight = project(ne.lat(), ne.lng());
       const bottomLeft = project(sw.lat(), sw.lng());
-      
+
       const mapWidth = mapDiv.offsetWidth;
       const mapHeight = mapDiv.offsetHeight;
-      
+
       const x = ((worldCoordinate.x - bottomLeft.x) / (topRight.x - bottomLeft.x)) * mapWidth;
       const y = ((worldCoordinate.y - topRight.y) / (bottomLeft.y - topRight.y)) * mapHeight;
-      
+
       return { x, y };
     } catch (error) {
       console.error('Error calculating pixel position:', error);
       return null;
     }
   };
-  
+
   // Helper function to project lat/lng to world coordinates
   const project = (lat: number, lng: number) => {
     const siny = Math.sin((lat * Math.PI) / 180);
@@ -173,10 +186,10 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   // Handle bottom sheet drag end
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (!isMobile) return;
-    
+
     const threshold = 50;
     const currentHeight = bottomSheetHeight;
-    
+
     if (info.offset.y > threshold) {
       // Dragging down
       if (currentHeight === 'full') {
@@ -192,7 +205,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         setBottomSheetHeight('full');
       }
     }
-    
+
     y.set(0);
   };
 
@@ -227,7 +240,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
   // Check if service is favorited
   const checkIfFavorited = async (serviceId: string) => {
     if (!user || !serviceId) return;
-    
+
     try {
       const favorited = await isAdFavorited(user, serviceId);
       setIsFavorited(favorited);
@@ -247,10 +260,10 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
       toast.error('Please log in to write a review');
       return;
     }
-    
+
     if (userRating > 0 && selectedService?.id) {
       setIsSubmittingComment(true);
-      
+
       try {
         const result = await submitComment({
           adId: selectedService.id,
@@ -294,7 +307,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
     }
 
     setIsTogglingFavorite(true);
-    
+
     try {
       if (isFavorited) {
         const result = await removeFromFavorites(user, selectedService.id);
@@ -336,7 +349,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = 
+    const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
       Math.sin(dLng / 2) * Math.sin(dLng / 2);
@@ -352,81 +365,81 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
       return;
     }
 
-    if (isLoading) return; // Prevent multiple calls
-    
+    // if (isLoading) return; // Prevent multiple calls - Removed to allow location request during initial load
+
     setIsLoading(true);
-    
+
     try {
       navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const location = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        setUserLocation(location);
-        setLocationPermission('granted');
-        
-        // Center map on user location
-        if (map) {
-          map.setCenter(location);
-          map.setZoom(13);
-          
-          // Add user location marker
-          new window.google.maps.Marker({
-            position: location,
-            map: map,
-            icon: {
-              path: window.google.maps.SymbolPath.CIRCLE,
-              scale: 8,
-              fillColor: '#4285F4',
-              fillOpacity: 1,
-              strokeColor: '#ffffff',
-              strokeWeight: 2
-            },
-            title: 'Your Location'
-          });
-        }
-        
-        // Calculate distances and sort services
-        calculateDistancesAndSort(location);
-        setIsLoading(false);
-      },
-      (error: GeolocationPositionError) => {
-        setLocationPermission('denied');
-        setIsLoading(false);
-        
-        // Only log non-permission errors (user denial is expected)
-        if (error && error.code !== 1) {
-          console.error('Error getting location:', error);
-        }
-        
-        // Only show toast for non-permission errors (user denial is silent)
-        if (error && error.code !== 1) {
-          let errorMessage = 'Unable to get your location.';
-          
-          // GeolocationPositionError codes:
-          // 1 = PERMISSION_DENIED (silent - user choice)
-          // 2 = POSITION_UNAVAILABLE
-          // 3 = TIMEOUT
-          switch (error.code) {
-            case 2: // POSITION_UNAVAILABLE
-              errorMessage = 'Location information is unavailable. Please check your device settings.';
-              break;
-            case 3: // TIMEOUT
-              errorMessage = 'Location request timed out. Please try again.';
-              break;
-            default:
-              errorMessage = error.message || 'Unable to get your location. Please try again.';
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(location);
+          setLocationPermission('granted');
+
+          // Center map on user location
+          if (map) {
+            map.setCenter(location);
+            map.setZoom(13);
+
+            // Add user location marker
+            new window.google.maps.Marker({
+              position: location,
+              map: map,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: '#4285F4',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2
+              },
+              title: 'Your Location'
+            });
           }
-          
-          toast.error(errorMessage);
+
+          // Calculate distances and sort services
+          calculateDistancesAndSort(location);
+          setIsLoading(false);
+        },
+        (error: GeolocationPositionError) => {
+          setLocationPermission('denied');
+          setIsLoading(false);
+
+          // Only log non-permission errors (user denial is expected)
+          if (error && error.code !== 1) {
+            console.error('Error getting location:', error);
+          }
+
+          // Only show toast for non-permission errors (user denial is silent)
+          if (error && error.code !== 1) {
+            let errorMessage = 'Unable to get your location.';
+
+            // GeolocationPositionError codes:
+            // 1 = PERMISSION_DENIED (silent - user choice)
+            // 2 = POSITION_UNAVAILABLE
+            // 3 = TIMEOUT
+            switch (error.code) {
+              case 2: // POSITION_UNAVAILABLE
+                errorMessage = 'Location information is unavailable. Please check your device settings.';
+                break;
+              case 3: // TIMEOUT
+                errorMessage = 'Location request timed out. Please try again.';
+                break;
+              default:
+                errorMessage = error.message || 'Unable to get your location. Please try again.';
+            }
+
+            toast.error(errorMessage);
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000, // Increased timeout to 10 seconds
+          maximumAge: 60000 // Cache for 1 minute
         }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000, // Increased timeout to 10 seconds
-        maximumAge: 60000 // Cache for 1 minute
-      }
       );
     } catch (error) {
       console.error('Unexpected error in geolocation request:', error);
@@ -537,10 +550,10 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         if (service.id) {
           setHighlightedServiceId(service.id);
         }
-        
+
         // Always show drawer
         setDrawerOpen(true);
-        
+
         // Load comments when service is selected
         if (service.id) {
           loadComments(service.id);
@@ -568,6 +581,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         bounds.extend(new window.google.maps.LatLng(userLocation.lat, userLocation.lng));
       }
       map.fitBounds(bounds);
+    } else if (!userLocation) {
+      // If no markers and no user location, center on Israel
+      const defaultCenter = { lat: 31.7683, lng: 35.2137 };
+      map.setCenter(defaultCenter);
+      map.setZoom(8);
     }
   };
 
@@ -605,7 +623,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
       script.async = true;
       script.defer = true;
       script.setAttribute('data-services-map', 'true');
-      
+
       window.initServicesMap = initializeMap;
       document.head.appendChild(script);
     };
@@ -654,6 +672,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
     }
   }, [map, hasRequestedLocation]);
 
+  // Update services when prop changes
+  useEffect(() => {
+    if (userLocation) {
+      calculateDistancesAndSort(userLocation);
+    } else {
+      geocodeAllServices();
+    }
+  }, [services]);
+
   // Geocode all services
   const geocodeAllServices = async () => {
     if (!geocoderRef.current) return;
@@ -667,6 +694,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
         servicesData.push({
           ...service,
           coordinates: coords
+        });
+      } else {
+        // Include service even if geocoding fails
+        servicesData.push({
+          ...service
         });
       }
     }
@@ -689,17 +721,80 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
           checkIfFavorited(service.id);
         }
       }
-      
+
       // Always show drawer
       setDrawerOpen(true);
     }
   };
-  
+
 
   return (
     <div className="w-full h-full relative">
-      {/* Map Container */}
-      <div className="w-full h-full relative overflow-hidden bg-gray-100 transition-all duration-300">
+      {/* Mobile Header (Search & Filters) */}
+      <div className="md:hidden absolute top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm p-4 shadow-sm">
+        {headerContent}
+      </div>
+
+      {/* Desktop Side Panel */}
+      <div className="hidden md:flex flex-col w-96 h-full bg-white shadow-lg z-20 absolute left-0 top-0 border-r border-gray-200">
+        <div className="p-4 border-b border-gray-100 bg-white z-10">
+          {headerContent}
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {servicesWithCoords.map((service, index) => (
+            <div
+              key={service.id || index}
+              className={cn(
+                "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
+                highlightedServiceId === service.id ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
+              )}
+              onClick={() => handleServiceClick(service)}
+            >
+              <div className="flex gap-3">
+                <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-sm mb-1 truncate">{service.name}</h3>
+                  {service.description && (
+                    <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                      {service.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    {service.distance !== undefined && (
+                      <span className="flex items-center gap-1 text-blue-600 font-medium">
+                        <MapPin size={12} />
+                        {service.distance.toFixed(1)} km
+                      </span>
+                    )}
+                    {service.tags && service.tags.length > 0 && (
+                      <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                        {translateTag(service.tags[0])}
+                        {service.tags.length > 1 && ` +${service.tags.length - 1}`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {servicesWithCoords.length === 0 && !isLoading && (
+            <div className="text-center py-8 text-gray-500">
+              <p>No services found in this area.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Map Container - Adjusted for desktop */}
+      <div className="w-full h-full relative overflow-hidden bg-gray-100 transition-all duration-300 md:pl-96">
         {isLoading && (
           <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
             <div className="text-center">
@@ -710,16 +805,34 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
             </div>
           </div>
         )}
+
+        {/* Floating Controls */}
+        {mapFloatingControls && (
+          <div className="absolute top-4 left-4 z-10 md:left-[calc(24rem+1rem)] rtl:md:right-[calc(24rem+1rem)] rtl:md:left-auto rtl:left-auto rtl:right-4">
+            {mapFloatingControls}
+          </div>
+        )}
+
+        {/* Locate Me Button */}
+        <button
+          onClick={requestUserLocation}
+          className="absolute bottom-6 right-4 z-10 bg-white p-3 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          title="Show my location"
+          aria-label="Show my location"
+        >
+          <MapPin className={cn("w-6 h-6", locationPermission === 'granted' ? "text-blue-600" : "text-gray-600")} />
+        </button>
+
         <div ref={mapRef} className="w-full h-full" />
       </div>
 
 
-      {/* Floating Service Cards - Horizontal Scrollable Row */}
-      {servicesWithCoords.length > 0 && (
+      {/* Floating Service Cards - Horizontal Scrollable Row (Mobile Only) */}
+      {isMobile && servicesWithCoords.length > 0 && (
         <div className="absolute bottom-4 left-0 right-0 z-30 pointer-events-none px-4">
-          <div 
-            className="service-cards-scroll overflow-x-auto overflow-y-visible" 
-            style={{ 
+          <div
+            className="service-cards-scroll overflow-x-auto overflow-y-visible"
+            style={{
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
@@ -755,7 +868,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Service Info */}
                   <div className="p-2">
                     <h3 className="font-bold text-sm mb-0.5 line-clamp-1">{service.name}</h3>
@@ -764,7 +877,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                         {service.description}
                       </p>
                     )}
-                    
+
                     {/* Tags */}
                     {service.tags && service.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-1.5">
@@ -781,7 +894,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
                         )}
                       </div>
                     )}
-                    
+
                     {/* Address */}
                     {(service.address || service.location) && (
                       <div className="flex items-start gap-1">
@@ -802,281 +915,281 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services }) => {
       {/* Service Details - Bottom Sheet */}
       {selectedService && (
         <>
-            <Drawer open={drawerOpen} onOpenChange={handleDrawerClose}>
-              <DrawerContent className="flex !h-[50vh] max-h-[50vh] flex-col rounded-t-[20px] !mt-0">
-            {/* Scrollable content */}
-            <div className="mx-4 mt-2 flex-1 overflow-x-hidden overflow-y-auto">
-              <DrawerHeader className="ltr:text-left rtl:text-right">
-                <DrawerTitle className="text-3xl">
-                  {selectedService.name}
-                </DrawerTitle>
-                {selectedService.description && selectedService.description.trim() !== '' && (
-                  <DrawerDescription className="text-base">
-                    {selectedService.description}
-                  </DrawerDescription>
-                )}
-                {/* Tags */}
-                {selectedService.tags && selectedService.tags.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {selectedService.tags.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="bg-primary rounded-full px-2 py-1 text-xs text-white"
-                      >
-                        {translateTag(tag)}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {/* Distance */}
-                {selectedService.distance && (
-                  <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 font-semibold">
-                    <MapPin size={16} />
-                    <span>{selectedService.distance.toFixed(2)} km away</span>
-                  </div>
-                )}
-              </DrawerHeader>
-              {/* Service photo */}
-              <div className="mt-3 -mx-4">
-                <img
-                  src={selectedService.image}
-                  alt={selectedService.name}
-                  className="w-full h-auto object-contain"
-                  style={{ maxHeight: '300px', display: 'block' }}
-                />
-              </div>
-              
-              {/* Contact Information */}
-              <div className="mt-4 space-y-2">
-                <h4 className="font-semibold">פרטי התקשרות</h4>
-                {selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null' && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone size={16} className="text-gray-500" />
-                    <span>{selectedService.phone}</span>
-                  </div>
-                )}
-                {(selectedService.address || selectedService.location) && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin size={16} className="text-gray-500" />
-                    <span>{selectedService.address || selectedService.location}</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Google Reviews */}
-              <div className="mt-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold">ביקורות Google</h3>
-                  {user ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowCommentForm(!showCommentForm)}
-                    >
-                      הוסף ביקורת
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toast.error('עליך להתחבר כדי לכתוב ביקורת')}
-                    >
-                      הוסף ביקורת
-                    </Button>
+          <Drawer open={drawerOpen} onOpenChange={handleDrawerClose}>
+            <DrawerContent className="flex !h-[50vh] max-h-[50vh] flex-col rounded-t-[20px] !mt-0">
+              {/* Scrollable content */}
+              <div className="mx-4 mt-2 flex-1 overflow-x-hidden overflow-y-auto">
+                <DrawerHeader className="ltr:text-left rtl:text-right">
+                  <DrawerTitle className="text-3xl">
+                    {selectedService.name}
+                  </DrawerTitle>
+                  {selectedService.description && selectedService.description.trim() !== '' && (
+                    <DrawerDescription className="text-base">
+                      {selectedService.description}
+                    </DrawerDescription>
+                  )}
+                  {/* Tags */}
+                  {selectedService.tags && selectedService.tags.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedService.tags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-primary rounded-full px-2 py-1 text-xs text-white"
+                        >
+                          {translateTag(tag)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {/* Distance */}
+                  {selectedService.distance && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 font-semibold">
+                      <MapPin size={16} />
+                      <span>{selectedService.distance.toFixed(2)} km away</span>
+                    </div>
+                  )}
+                </DrawerHeader>
+                {/* Service photo */}
+                <div className="mt-3 -mx-4">
+                  <img
+                    src={selectedService.image}
+                    alt={selectedService.name}
+                    className="w-full h-auto object-contain"
+                    style={{ maxHeight: '300px', display: 'block' }}
+                  />
+                </div>
+
+                {/* Contact Information */}
+                <div className="mt-4 space-y-2">
+                  <h4 className="font-semibold">פרטי התקשרות</h4>
+                  {selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null' && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone size={16} className="text-gray-500" />
+                      <span>{selectedService.phone}</span>
+                    </div>
+                  )}
+                  {(selectedService.address || selectedService.location) && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin size={16} className="text-gray-500" />
+                      <span>{selectedService.address || selectedService.location}</span>
+                    </div>
                   )}
                 </div>
-                
-                {/* Comment Form */}
-                {showCommentForm && (
-                  <div className="mt-4 rounded-lg border p-4 bg-gray-50">
-                    <h4 className="font-semibold mb-3">הוסף ביקורת חדשה</h4>
-                    <div className="space-y-3">
-                      <div>
-                        <Label>דירוג</Label>
-                        <div className="flex gap-1 mt-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              size={20}
-                              className={cn(
-                                'cursor-pointer transition-colors',
-                                star <= userRating
-                                  ? 'fill-orange-400 text-orange-400'
-                                  : 'text-gray-300 hover:text-orange-300'
-                              )}
-                              onClick={() => handleStarClick(star)}
-                            />
-                          ))}
+
+                {/* Google Reviews */}
+                <div className="mt-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold">ביקורות Google</h3>
+                    {user ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCommentForm(!showCommentForm)}
+                      >
+                        הוסף ביקורת
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toast.error('עליך להתחבר כדי לכתוב ביקורת')}
+                      >
+                        הוסף ביקורת
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Comment Form */}
+                  {showCommentForm && (
+                    <div className="mt-4 rounded-lg border p-4 bg-gray-50">
+                      <h4 className="font-semibold mb-3">הוסף ביקורת חדשה</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <Label>דירוג</Label>
+                          <div className="flex gap-1 mt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                size={20}
+                                className={cn(
+                                  'cursor-pointer transition-colors',
+                                  star <= userRating
+                                    ? 'fill-orange-400 text-orange-400'
+                                    : 'text-gray-300 hover:text-orange-300'
+                                )}
+                                onClick={() => handleStarClick(star)}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="comment">תגובה (אופציונלי)</Label>
+                          <Textarea
+                            id="comment"
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            placeholder="שתף את החוויה שלך... (אופציונלי)"
+                            rows={3}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button onClick={handleSubmitComment} size="sm" disabled={isSubmittingComment}>
+                            <Send size={16} className="mr-2" />
+                            {isSubmittingComment ? 'שולח...' : 'שלח'}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowCommentForm(false)}
+                          >
+                            ביטול
+                          </Button>
                         </div>
                       </div>
-                      <div>
-                        <Label htmlFor="comment">תגובה (אופציונלי)</Label>
-                        <Textarea
-                          id="comment"
-                          value={commentText}
-                          onChange={(e) => setCommentText(e.target.value)}
-                          placeholder="שתף את החוויה שלך... (אופציונלי)"
-                          rows={3}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button onClick={handleSubmitComment} size="sm" disabled={isSubmittingComment}>
-                          <Send size={16} className="mr-2" />
-                          {isSubmittingComment ? 'שולח...' : 'שלח'}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => setShowCommentForm(false)}
-                        >
-                          ביטול
-                        </Button>
-                      </div>
                     </div>
-                  </div>
-                )}
-                
-                {isLoadingComments ? (
-                  <div className="mt-4 text-center py-4 text-gray-500">
-                    <p>טוען ביקורות...</p>
-                  </div>
-                ) : comments.length > 0 ? (
-                  comments.map((comment) => (
-                    <div key={comment.id} className="mt-2 border-b border-gray-200 p-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold">{comment.userName}</span>
-                        <span className="ml-2 flex items-center gap-1 text-sm text-gray-600">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={14}
-                              className={
-                                i < comment.rating
-                                  ? 'fill-orange-400 text-orange-400'
-                                  : 'fill-gray-400 text-gray-400'
-                              }
-                            />
-                          ))}
+                  )}
+
+                  {isLoadingComments ? (
+                    <div className="mt-4 text-center py-4 text-gray-500">
+                      <p>טוען ביקורות...</p>
+                    </div>
+                  ) : comments.length > 0 ? (
+                    comments.map((comment) => (
+                      <div key={comment.id} className="mt-2 border-b border-gray-200 p-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{comment.userName}</span>
+                          <span className="ml-2 flex items-center gap-1 text-sm text-gray-600">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                size={14}
+                                className={
+                                  i < comment.rating
+                                    ? 'fill-orange-400 text-orange-400'
+                                    : 'fill-gray-400 text-gray-400'
+                                }
+                              />
+                            ))}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">{comment.content}</p>
+                        <span className="text-xs text-gray-400">
+                          {comment.createdAt.toLocaleDateString('he-IL')}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600">{comment.content}</p>
-                      <span className="text-xs text-gray-400">
-                        {comment.createdAt.toLocaleDateString('he-IL')}
-                      </span>
+                    ))
+                  ) : (
+                    <div className="mt-4 text-center py-4 text-gray-500">
+                      <p>אין עדיין ביקורות עבור השירות הזה</p>
+                      <p className="text-sm">היה הראשון לכתוב ביקורת!</p>
                     </div>
-                  ))
-                ) : (
-                  <div className="mt-4 text-center py-4 text-gray-500">
-                    <p>אין עדיין ביקורות עבור השירות הזה</p>
-                    <p className="text-sm">היה הראשון לכתוב ביקורת!</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Sticky footer */}
-            <motion.div
-              initial={{ y: 100 }}
-              animate={{ y: 0 }}
-              transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 30,
-                delay: 0.2
-              }}
-              className="sticky bottom-0 z-20 bg-white border-t pt-2 pb-2"
-            >
-              <DrawerFooter>
-                <div className="flex justify-around">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
-                    onClick={() => {
-                      if (selectedService.address || selectedService.location) {
-                        const address = selectedService.address || selectedService.location;
-                        const encodedAddress = encodeURIComponent(address);
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
-                      } else {
-                        toast.error('כתובת לא זמינה');
-                      }
-                    }}
-                    title={t('navigation') || 'Navigation'}
-                  >
-                    <MapPin size={20} />
-                  </Button>
-                  <Separator
-                    orientation="vertical"
-                    className="w-[1px] bg-gray-300"
-                  />
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
-                    onClick={() => {
-                      if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
-                        window.open(`tel:${selectedService.phone}`, '_self');
-                      } else {
-                        toast.error('מספר טלפון לא זמין');
-                      }
-                    }}
-                    title={t('call') || 'Call'}
-                  >
-                    <Phone size={20} />
-                  </Button>
-                  <Separator
-                    orientation="vertical"
-                    className="w-[1px] bg-gray-300"
-                  />
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      'transition-colors focus:outline-none',
-                      isFavorited 
-                        ? 'text-red-500 hover:text-red-600 focus:text-red-600' 
-                        : 'hover:text-red-500 focus:text-red-500'
-                    )}
-                    onClick={handleToggleFavorite}
-                    disabled={isTogglingFavorite}
-                    title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
-                  >
-                    {isTogglingFavorite ? (
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    ) : isFavorited ? (
-                      <Heart size={20} className="fill-current" />
-                    ) : (
-                      <HeartOff size={20} />
-                    )}
-                  </Button>
-                  <Separator
-                    orientation="vertical"
-                    className="w-[1px] bg-gray-300"
-                  />
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
-                    onClick={() => {
-                      if (selectedService.id) {
-                        router.push(`/${locale}/promos?businessId=${selectedService.id}`);
-                      } else {
-                        toast.error('Business ID not available');
-                      }
-                    }}
-                    title={t('coupons') || 'Vouchers'}
-                  >
-                    <Ticket size={20} />
-                  </Button>
+                  )}
                 </div>
-              </DrawerFooter>
-            </motion.div>
-          </DrawerContent>
-        </Drawer>
+              </div>
+
+              {/* Sticky footer */}
+              <motion.div
+                initial={{ y: 100 }}
+                animate={{ y: 0 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 30,
+                  delay: 0.2
+                }}
+                className="sticky bottom-0 z-20 bg-white border-t pt-2 pb-2"
+              >
+                <DrawerFooter>
+                  <div className="flex justify-around">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                      onClick={() => {
+                        if (selectedService.address || selectedService.location) {
+                          const address = selectedService.address || selectedService.location;
+                          const encodedAddress = encodeURIComponent(address);
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                        } else {
+                          toast.error('כתובת לא זמינה');
+                        }
+                      }}
+                      title={t('navigation') || 'Navigation'}
+                    >
+                      <MapPin size={20} />
+                    </Button>
+                    <Separator
+                      orientation="vertical"
+                      className="w-[1px] bg-gray-300"
+                    />
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                      onClick={() => {
+                        if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
+                          window.open(`tel:${selectedService.phone}`, '_self');
+                        } else {
+                          toast.error('מספר טלפון לא זמין');
+                        }
+                      }}
+                      title={t('call') || 'Call'}
+                    >
+                      <Phone size={20} />
+                    </Button>
+                    <Separator
+                      orientation="vertical"
+                      className="w-[1px] bg-gray-300"
+                    />
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        'transition-colors focus:outline-none',
+                        isFavorited
+                          ? 'text-red-500 hover:text-red-600 focus:text-red-600'
+                          : 'hover:text-red-500 focus:text-red-500'
+                      )}
+                      onClick={handleToggleFavorite}
+                      disabled={isTogglingFavorite}
+                      title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                    >
+                      {isTogglingFavorite ? (
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : isFavorited ? (
+                        <Heart size={20} className="fill-current" />
+                      ) : (
+                        <HeartOff size={20} />
+                      )}
+                    </Button>
+                    <Separator
+                      orientation="vertical"
+                      className="w-[1px] bg-gray-300"
+                    />
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                      onClick={() => {
+                        if (selectedService.id) {
+                          router.push(`/${locale}/promos?businessId=${selectedService.id}`);
+                        } else {
+                          toast.error('Business ID not available');
+                        }
+                      }}
+                      title={t('coupons') || 'Vouchers'}
+                    >
+                      <Ticket size={20} />
+                    </Button>
+                  </div>
+                </DrawerFooter>
+              </motion.div>
+            </DrawerContent>
+          </Drawer>
         </>
       )}
     </div>

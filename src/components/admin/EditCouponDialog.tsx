@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BusinessMultiselect } from '@/components/ui/business-multiselect';
 import { updateCoupon, getBusinesses } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
@@ -36,7 +36,7 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     imageUrl: '',
     validFrom: '',
     validTo: '',
-    businessId: ''
+    businessIds: [] as string[]
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +47,8 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     if (isOpen) {
       fetchBusinesses();
       if (coupon) {
+      // Support both old businessId and new businessIds format
+      const businessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
       setFormData({
         name: coupon.name || '',
         description: coupon.description || '',
@@ -55,7 +57,7 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
         imageUrl: coupon.imageUrl || '',
           validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().slice(0, 16) : '',
           validTo: coupon.validTo ? new Date(coupon.validTo).toISOString().slice(0, 16) : '',
-          businessId: coupon.businessId || ''
+          businessIds: businessIds
       });
       }
     }
@@ -85,10 +87,10 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     }));
   };
 
-  const handleSelectChange = (field: string, value: string) => {
+  const handleBusinessIdsChange = (selectedIds: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value === 'none' ? '' : value
+      businessIds: selectedIds
     }));
   };
 
@@ -117,7 +119,7 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
         imageUrl: formData.imageUrl,
         validFrom: new Date(formData.validFrom),
         validTo: new Date(formData.validTo),
-        businessId: formData.businessId || undefined
+        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined
       });
 
       if (!result.success) {
@@ -214,24 +216,14 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="businessId">{t('couponsManagement.business') || 'Business (Optional)'}</Label>
-            <Select
-              value={formData.businessId || 'none'}
-              onValueChange={(value) => handleSelectChange('businessId', value)}
+            <Label>{t('couponsManagement.business') || 'Businesses (Optional)'}</Label>
+            <BusinessMultiselect
+              businesses={businesses}
+              selectedIds={formData.businessIds}
+              onSelectionChange={handleBusinessIdsChange}
+              placeholder={t('couponsManagement.businessPlaceholder') || 'Select businesses (optional)'}
               disabled={loadingBusinesses}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('couponsManagement.businessPlaceholder') || 'Select a business (optional)'} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t('couponsManagement.noBusiness') || 'No Business (General Voucher)'}</SelectItem>
-                {businesses.map((business) => (
-                  <SelectItem key={business.id} value={business.id}>
-                    {business.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

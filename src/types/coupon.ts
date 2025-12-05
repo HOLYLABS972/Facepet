@@ -8,7 +8,8 @@ export interface Coupon {
   validFrom: Date;
   validTo: Date;
   isActive: boolean;
-  businessId?: string; // Optional business assignment
+  businessId?: string; // Deprecated: use businessIds instead
+  businessIds?: string[]; // Optional business assignments (multiple stores)
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;
@@ -22,7 +23,8 @@ export interface CreateCouponData {
   imageUrl: string;
   validFrom: Date;
   validTo: Date;
-  businessId?: string; // Optional business assignment
+  businessId?: string; // Deprecated: use businessIds instead
+  businessIds?: string[]; // Optional business assignments (multiple stores)
 }
 
 export interface UpdateCouponData extends Partial<CreateCouponData> {

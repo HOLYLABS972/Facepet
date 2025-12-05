@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { BusinessMultiselect } from '@/components/ui/business-multiselect';
 
 import { createPromo, getBusinesses, getAudiences } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
@@ -37,7 +38,7 @@ export default function AddPromoForm() {
     description: '',
     imageUrl: '',
     youtubeUrl: '',
-    businessId: '',
+    businessIds: [] as string[],
     audienceId: '',
     startDate: '',
     endDate: ''
@@ -94,14 +95,21 @@ export default function AddPromoForm() {
     }));
   };
 
+  const handleBusinessIdsChange = (selectedIds: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      businessIds: selectedIds
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
     try {
-      if (!formData.businessId || !formData.audienceId || formData.businessId === 'loading' || formData.audienceId === 'loading') {
-        throw new Error('Please select both business and audience');
+      if (!formData.audienceId || formData.audienceId === 'loading') {
+        throw new Error('Please select an audience');
       }
 
       const result = await createPromo({
@@ -109,7 +117,7 @@ export default function AddPromoForm() {
         description: formData.description,
         imageUrl: mediaType === 'image' ? formData.imageUrl : '',
         youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
-        businessId: formData.businessId,
+        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
         audienceId: formData.audienceId,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined
@@ -125,7 +133,7 @@ export default function AddPromoForm() {
         description: '',
         imageUrl: '',
         youtubeUrl: '',
-        businessId: '',
+        businessIds: [],
         audienceId: '',
         startDate: '',
         endDate: ''
@@ -255,52 +263,38 @@ export default function AddPromoForm() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="businessId">{t('promoManagement.business')}</Label>
-              <Select 
-                value={formData.businessId} 
-                onValueChange={(value) => handleSelectChange('businessId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('promoManagement.businessPlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {loading ? (
-                    <SelectItem value="loading" disabled>Loading...</SelectItem>
-                  ) : (
-                    businesses.map((business) => (
-                      <SelectItem key={business.id} value={business.id}>
-                        {business.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label>{t('promoManagement.business') || 'Businesses (Optional)'}</Label>
+            <BusinessMultiselect
+              businesses={businesses}
+              selectedIds={formData.businessIds}
+              onSelectionChange={handleBusinessIdsChange}
+              placeholder={t('promoManagement.businessPlaceholder') || 'Select businesses (optional)'}
+              disabled={loading}
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="audienceId">{t('promoManagement.audience')}</Label>
-              <Select 
-                value={formData.audienceId} 
-                onValueChange={(value) => handleSelectChange('audienceId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('promoManagement.audiencePlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {loading ? (
-                    <SelectItem value="loading" disabled>Loading...</SelectItem>
-                  ) : (
-                    audiences.map((audience) => (
-                      <SelectItem key={audience.id} value={audience.id}>
-                        {audience.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="audienceId">{t('promoManagement.audience')}</Label>
+            <Select 
+              value={formData.audienceId} 
+              onValueChange={(value) => handleSelectChange('audienceId', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('promoManagement.audiencePlaceholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {loading ? (
+                  <SelectItem value="loading" disabled>Loading...</SelectItem>
+                ) : (
+                  audiences.map((audience) => (
+                    <SelectItem key={audience.id} value={audience.id}>
+                      {audience.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

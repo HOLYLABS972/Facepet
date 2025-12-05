@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
 const CLICK_COUNT_KEY = 'ad_click_count';
-const CLICK_THRESHOLD = 6;
+const CLICK_THRESHOLD = 10;
 const CLICK_DEBOUNCE_MS = 100; // Prevent rapid clicks from counting multiple times (reduced for faster tracking)
 
 export function useClickTracker() {
@@ -77,7 +77,7 @@ export function useClickTracker() {
         setClickCount(newCount);
         localStorage.setItem(CLICK_COUNT_KEY, newCount.toString());
 
-        // Check if we should show an ad (every 6 clicks)
+        // Check if we should show an ad (every 10 clicks)
         if (newCount >= CLICK_THRESHOLD) {
           console.log(`[ClickTracker] Threshold reached! Showing ad (${newCount} clicks)`);
           setShouldShowAd(true);
