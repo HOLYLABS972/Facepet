@@ -4,8 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import dynamic from 'next/dynamic';
 import { Lobster, Rubik } from 'next/font/google';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { NotificationsProvider } from '@/contexts/NotificationsContext';
+import AppProviders from '@/components/providers/AppProviders';
 import GoogleSignupHandler from '@/components/GoogleSignupHandler';
 import './globals.css';
 
@@ -74,14 +73,12 @@ export default async function LocaleLayout({
         suppressHydrationWarning={true}
         data-testim-main-word-scripts-loaded="false"
       >
-        <AuthProvider>
-          <NotificationsProvider>
-            <NextIntlClientProvider messages={messages}>
-              <MainLayout direction={direction}>{children}</MainLayout>
-              <GoogleSignupHandler />
-            </NextIntlClientProvider>
-          </NotificationsProvider>
-        </AuthProvider>
+        <AppProviders>
+          <NextIntlClientProvider messages={messages}>
+            <MainLayout direction={direction}>{children}</MainLayout>
+            <GoogleSignupHandler />
+          </NextIntlClientProvider>
+        </AppProviders>
         <Analytics />
         <SpeedInsights />
       </body>

@@ -121,6 +121,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Reset y position when bottom sheet height changes
+  useEffect(() => {
+    if (isMobile) {
+      y.set(0);
+    }
+  }, [bottomSheetHeight, isMobile, y]);
+
   // Add CSS to hide scrollbars for service cards
   useEffect(() => {
     const styleId = 'service-cards-scrollbar-hide';
@@ -193,10 +200,28 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (!isMobile) return;
 
-    const threshold = 50;
+    const threshold = 80;
     const currentHeight = bottomSheetHeight;
+    const velocity = info.velocity.y;
 
-    if (info.offset.y > threshold) {
+    // Use velocity for better UX - if dragging fast, snap to next state
+    if (Math.abs(velocity) > 500) {
+      if (velocity < 0) {
+        // Dragging up fast
+        if (currentHeight === 'collapsed') {
+          setBottomSheetHeight('expanded');
+        } else if (currentHeight === 'expanded') {
+          setBottomSheetHeight('full');
+        }
+      } else {
+        // Dragging down fast
+        if (currentHeight === 'full') {
+          setBottomSheetHeight('expanded');
+        } else if (currentHeight === 'expanded') {
+          setBottomSheetHeight('collapsed');
+        }
+      }
+    } else if (info.offset.y > threshold) {
       // Dragging down
       if (currentHeight === 'full') {
         setBottomSheetHeight('expanded');
@@ -220,13 +245,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     if (!isMobile) return 'auto';
     switch (bottomSheetHeight) {
       case 'collapsed':
-        return '30vh';
+        return '35vh';
       case 'expanded':
-        return '60vh';
+        return '70vh';
       case 'full':
-        return '90vh';
+        return '100vh';
       default:
-        return '30vh';
+        return '35vh';
     }
   };
 
@@ -788,11 +813,6 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
   return (
     <div className="w-full h-full relative">
-      {/* Mobile Header (Search & Filters) */}
-      <div className="md:hidden absolute top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm p-4 shadow-sm">
-        {headerContent}
-      </div>
-
       {/* Desktop Side Panel */}
       <div className="hidden md:flex flex-col w-96 h-full bg-white shadow-lg z-20 absolute left-0 top-0 border-r border-gray-200">
         <div className="p-4 border-b border-gray-100 bg-white z-10">
@@ -851,134 +871,203 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         </div>
       </div>
 
-      {/* Map Container - Adjusted for desktop */}
-      <div className="w-full h-full relative overflow-hidden bg-gray-100 transition-all duration-300 md:pl-96">
-        {isLoading && (
-          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-sm text-gray-600">
-                {t('map.loading') || 'Loading map...'}
-              </p>
-            </div>
+      {/* Mobile Layout: Map + Draggable Bottom Sheet */}
+      {isMobile ? (
+        <div className="relative h-full w-full">
+          {/* Mobile Header */}
+          <div className="absolute top-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-b border-gray-200 p-4 shadow-sm z-30">
+            {headerContent}
           </div>
-        )}
 
-        {/* Floating Controls */}
-        {mapFloatingControls && (
-          <div className="absolute top-4 left-4 z-10 md:left-[calc(24rem+1rem)] rtl:md:right-[calc(24rem+1rem)] rtl:md:left-auto rtl:left-auto rtl:right-4">
-            {mapFloatingControls}
+          {/* Map Container - Mobile (Full Screen) */}
+          <div className="absolute inset-0 bg-gray-100">
+            {isLoading && (
+              <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
+                <div className="text-center">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">
+                    {t('map.loading') || 'Loading map...'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Floating Controls */}
+            {mapFloatingControls && (
+              <div className="absolute top-20 left-4 z-10">
+                {mapFloatingControls}
+              </div>
+            )}
+
+            {/* Locate Me Button - Position adjusts based on bottom sheet height */}
+            <button
+              onClick={requestUserLocation}
+              className={cn(
+                "absolute right-4 z-10 bg-white p-3 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all",
+                bottomSheetHeight === 'collapsed' ? 'bottom-[35vh]' : 
+                bottomSheetHeight === 'expanded' ? 'bottom-[70vh]' : 
+                'bottom-[100vh] opacity-0 pointer-events-none'
+              )}
+              title="Show my location"
+              aria-label="Show my location"
+            >
+              <MapPin className={cn("w-6 h-6", locationPermission === 'granted' ? "text-blue-600" : "text-gray-600")} />
+            </button>
+
+            <div ref={mapRef} className="w-full h-full" />
           </div>
-        )}
 
-        {/* Locate Me Button */}
-        <button
-          onClick={requestUserLocation}
-          className="absolute bottom-6 right-4 z-10 bg-white p-3 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-          title="Show my location"
-          aria-label="Show my location"
-        >
-          <MapPin className={cn("w-6 h-6", locationPermission === 'granted' ? "text-blue-600" : "text-gray-600")} />
-        </button>
-
-        <div ref={mapRef} className="w-full h-full" />
-      </div>
-
-
-      {/* Floating Service Cards - Horizontal Scrollable Row (Mobile Only) */}
-      {isMobile && servicesWithCoords.length > 0 && (
-        <div className="absolute bottom-4 left-0 right-0 z-30 pointer-events-none px-4">
-          <div
-            className="service-cards-scroll overflow-x-auto overflow-y-visible"
+          {/* Draggable Bottom Sheet - Mobile */}
+          <motion.div
+            ref={containerRef}
+            drag="y"
+            dragConstraints={{ top: -200, bottom: 0 }}
+            dragElastic={0.1}
+            onDragEnd={handleDragEnd}
             style={{
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            } as React.CSSProperties & { WebkitOverflowScrolling?: string }}
+              y,
+            }}
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-40 flex flex-col overflow-hidden"
+            initial={false}
+            animate={{
+              height: getBottomSheetHeight()
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 30
+            }}
           >
-            <div className="flex gap-2 pb-2" style={{ width: 'max-content' }}>
-              {servicesWithCoords.map((service, index) => (
-                <motion.div
-                  key={service.id || index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={cn(
-                    "bg-white rounded-lg shadow-xl border-2 overflow-hidden pointer-events-auto flex-shrink-0",
-                    highlightedServiceId === service.id ? "border-blue-500" : "border-gray-200"
-                  )}
-                  style={{ width: '220px' }}
-                  onClick={() => handleServiceClick(service)}
-                >
-                  {/* Service Image */}
-                  <div className="relative h-24 w-full">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="w-full h-full object-cover"
-                    />
-                    {service.distance !== undefined && (
-                      <div className="absolute bottom-1.5 left-1.5 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 flex items-center gap-1">
-                        <MapPin size={10} className="text-blue-600" />
-                        <span className="text-[10px] font-semibold text-blue-600">
-                          {service.distance.toFixed(2)} km
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Service Info */}
-                  <div className="p-2">
-                    <h3 className="font-bold text-sm mb-0.5 line-clamp-1">{service.name}</h3>
-                    {service.description && service.description.trim() !== '' && (
-                      <p className="text-[10px] text-gray-600 line-clamp-1 mb-1.5">
-                        {service.description}
-                      </p>
-                    )}
-
-                    {/* Tags */}
-                    {service.tags && service.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-1.5">
-                        {service.tags.slice(0, 2).map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="bg-primary/10 text-primary rounded-full px-1 py-0.5 text-[10px]"
-                          >
-                            {translateTag(tag)}
-                          </span>
-                        ))}
-                        {service.tags.length > 2 && (
-                          <span className="text-[10px] text-gray-500">+{service.tags.length - 2}</span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Address */}
-                    {(service.address || service.location) && (
-                      <div className="flex items-start gap-1">
-                        <MapPin size={10} className="text-gray-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-[10px] text-gray-600 line-clamp-1">
-                          {service.address || service.location}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
+              <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
             </div>
-          </div>
+
+            {/* Bottom Sheet Content */}
+            <div className="flex-1 overflow-y-auto">
+              {isLoading && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">
+                      {t('map.loading') || 'Loading services...'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!isLoading && servicesWithCoords.length > 0 && (
+                <div className="p-4 space-y-4">
+                  {servicesWithCoords.map((service, index) => (
+                    <div
+                      key={service.id || index}
+                      className={cn(
+                        "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
+                        highlightedServiceId === service.id ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
+                      )}
+                      onClick={() => handleServiceClick(service)}
+                    >
+                      <div className="flex gap-3">
+                        <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                          <img
+                            src={service.image}
+                            alt={service.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-sm mb-1 truncate">{service.name}</h3>
+                          {service.description && (
+                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                              {service.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            {service.distance !== undefined && (
+                              <span className="flex items-center gap-1 text-blue-600 font-medium">
+                                <MapPin size={12} />
+                                {service.distance.toFixed(1)} km
+                              </span>
+                            )}
+                            {service.tags && service.tags.length > 0 && (
+                              <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                                {translateTag(service.tags[0])}
+                                {service.tags.length > 1 && ` +${service.tags.length - 1}`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {!isLoading && servicesWithCoords.length === 0 && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center text-gray-500">
+                    <p>No services found in this area.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
         </div>
+      ) : (
+        <>
+          {/* Map Container - Desktop */}
+          <div className="w-full h-full relative overflow-hidden bg-gray-100 transition-all duration-300 md:pl-96">
+            {isLoading && (
+              <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
+                <div className="text-center">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">
+                    {t('map.loading') || 'Loading map...'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Floating Controls */}
+            {mapFloatingControls && (
+              <div className="absolute top-4 left-4 z-10 md:left-[calc(24rem+1rem)] rtl:md:right-[calc(24rem+1rem)] rtl:md:left-auto rtl:left-auto rtl:right-4">
+                {mapFloatingControls}
+              </div>
+            )}
+
+            {/* Locate Me Button */}
+            <button
+              onClick={requestUserLocation}
+              className="absolute bottom-6 right-4 z-10 bg-white p-3 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              title="Show my location"
+              aria-label="Show my location"
+            >
+              <MapPin className={cn("w-6 h-6", locationPermission === 'granted' ? "text-blue-600" : "text-gray-600")} />
+            </button>
+
+            <div ref={mapRef} className="w-full h-full" />
+          </div>
+        </>
       )}
 
       {/* Service Details - Bottom Sheet */}
       {selectedService && (
         <>
           <Drawer open={drawerOpen} onOpenChange={handleDrawerClose}>
-            <DrawerContent className="flex !h-[50vh] max-h-[50vh] flex-col rounded-t-[20px] !mt-0">
+            <DrawerContent className={cn(
+              "flex flex-col rounded-t-[20px] !mt-0",
+              isMobile ? "!h-[100vh] max-h-[100vh]" : "!h-[50vh] max-h-[50vh]"
+            )}>
               {/* Scrollable content */}
-              <div className="mx-4 mt-2 flex-1 overflow-x-hidden overflow-y-auto">
+              <div className={cn(
+                "mt-2 flex-1 overflow-x-hidden overflow-y-auto",
+                isMobile ? "mx-4" : "mx-4"
+              )}>
                 <DrawerHeader className="ltr:text-left rtl:text-right">
-                  <DrawerTitle className="text-3xl">
+                  <DrawerTitle className={cn(
+                    "font-bold",
+                    isMobile ? "text-2xl" : "text-3xl"
+                  )}>
                     {selectedService.name}
                   </DrawerTitle>
                   {selectedService.description && selectedService.description.trim() !== '' && (
@@ -1013,7 +1102,10 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     src={selectedService.image}
                     alt={selectedService.name}
                     className="w-full h-auto object-contain"
-                    style={{ maxHeight: '300px', display: 'block' }}
+                    style={{ 
+                      maxHeight: isMobile ? '400px' : '300px', 
+                      display: 'block' 
+                    }}
                   />
                 </div>
 
@@ -1156,13 +1248,19 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                   damping: 30,
                   delay: 0.2
                 }}
-                className="sticky bottom-0 z-20 bg-white border-t pt-2 pb-2"
+                className={cn(
+                  "sticky bottom-0 z-20 bg-white border-t",
+                  isMobile ? "pt-4 pb-4" : "pt-2 pb-2"
+                )}
               >
                 <DrawerFooter>
-                  <div className="flex justify-around">
+                  <div className={cn(
+                    "flex justify-around",
+                    isMobile ? "gap-4" : ""
+                  )}>
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size={isMobile ? "lg" : "icon"}
                       className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.address || selectedService.location) {
@@ -1175,7 +1273,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       }}
                       title={t('navigation') || 'Navigation'}
                     >
-                      <MapPin size={20} />
+                      <MapPin size={isMobile ? 24 : 20} />
                     </Button>
                     <Separator
                       orientation="vertical"
@@ -1184,7 +1282,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size={isMobile ? "lg" : "icon"}
                       className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
@@ -1195,7 +1293,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       }}
                       title={t('call') || 'Call'}
                     >
-                      <Phone size={20} />
+                      <Phone size={isMobile ? 24 : 20} />
                     </Button>
                     <Separator
                       orientation="vertical"
@@ -1204,7 +1302,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size={isMobile ? "lg" : "icon"}
                       className={cn(
                         'transition-colors focus:outline-none',
                         isFavorited
@@ -1216,11 +1314,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
                     >
                       {isTogglingFavorite ? (
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        <div className={cn("animate-spin rounded-full border-2 border-current border-t-transparent", isMobile ? "h-6 w-6" : "h-5 w-5")} />
                       ) : isFavorited ? (
-                        <Heart size={20} className="fill-current" />
+                        <Heart size={isMobile ? 24 : 20} className="fill-current" />
                       ) : (
-                        <HeartOff size={20} />
+                        <HeartOff size={isMobile ? 24 : 20} />
                       )}
                     </Button>
                     <Separator
@@ -1230,7 +1328,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size={isMobile ? "lg" : "icon"}
                       className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.id) {
@@ -1241,7 +1339,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       }}
                       title={t('coupons') || 'Vouchers'}
                     >
-                      <Ticket size={20} />
+                      <Ticket size={isMobile ? 24 : 20} />
                     </Button>
                   </div>
                 </DrawerFooter>
