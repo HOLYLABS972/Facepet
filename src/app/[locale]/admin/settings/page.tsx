@@ -1,10 +1,12 @@
 import ContactInfoForm from '@/components/admin/ContactInfoForm';
-import { getContactInfo } from '@/lib/actions/admin';
+import InstallBannerSettingsForm from '@/components/admin/InstallBannerSettingsForm';
+import { getContactInfo, getInstallBannerSettings } from '@/lib/actions/admin';
 import { getTranslations } from 'next-intl/server';
 
 export default async function SettingsPage() {
   const t = await getTranslations('Admin');
   const contactInfo = await getContactInfo();
+  const installBannerSettings = await getInstallBannerSettings();
 
   return (
     <div className="container mx-auto p-8">
@@ -13,8 +15,9 @@ export default async function SettingsPage() {
         <p className="text-gray-600 mt-2">{t('manageSettingsDescription')}</p>
       </div>
 
-      <div className="max-w-2xl">
+      <div className="space-y-8 max-w-2xl">
         <ContactInfoForm initialData={contactInfo} />
+        <InstallBannerSettingsForm initialData={installBannerSettings} />
       </div>
     </div>
   );

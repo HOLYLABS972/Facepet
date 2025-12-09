@@ -15,9 +15,11 @@ export default function AdDisplayManager() {
   const [promo, setPromo] = useState<Promo | null>(null);
   const [showAd, setShowAd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Check if we're on a pet profile page (don't show click-based ads here)
   const isPetProfilePage = pathname?.match(/\/pet\/[^\/]+$/) !== null;
+  // Check if we're on an admin page (don't show ads here)
+  const isAdminPage = pathname?.includes('/admin') || false;
 
   // Debug logging
   useEffect(() => {
@@ -28,19 +30,20 @@ export default function AdDisplayManager() {
   useEffect(() => {
     const fetchPromo = async () => {
       // Don't show click-based ads on pet profile pages (they have their own mandatory ad)
-      if (isPetProfilePage) {
-        console.log('[AdDisplayManager] Skipping click-based ad on pet profile page');
+      // Also don't show ads on admin pages
+      if (isPetProfilePage || isAdminPage) {
+        console.log('[AdDisplayManager] Skipping click-based ad on excluded page');
         return;
       }
-      
+
       console.log('[AdDisplayManager] Checking conditions:', { shouldShowAd, petId, showAd, isLoading, isPetProfilePage });
-      
+
       // Check if petId exists in localStorage (might be set but not loaded yet)
       const storedPetId = typeof window !== 'undefined' ? localStorage.getItem('petId') : null;
       const hasPetId = petId || storedPetId;
-      
+
       console.log('[AdDisplayManager] Pet ID check:', { petId, storedPetId, hasPetId });
-      
+
       // Only show ads if pet details exist (petId is set in localStorage or state)
       if (shouldShowAd && hasPetId && !showAd && !isLoading) {
         console.log('[AdDisplayManager] Fetching promo...');
@@ -48,7 +51,7 @@ export default function AdDisplayManager() {
         try {
           const randomPromo = await fetchRandomPromo();
           console.log('[AdDisplayManager] Fetched promo:', randomPromo);
-          
+
           if (randomPromo && (randomPromo.imageUrl || randomPromo.youtubeUrl)) {
             setPromo(randomPromo);
             setShowAd(true);
@@ -78,7 +81,7 @@ export default function AdDisplayManager() {
     };
 
     fetchPromo();
-  }, [shouldShowAd, petId, showAd, isLoading, resetAdFlag, isPetProfilePage]);
+  }, [shouldShowAd, petId, showAd, isLoading, resetAdFlag, isPetProfilePage, isAdminPage]);
 
   const handleAdClose = () => {
     setShowAd(false);

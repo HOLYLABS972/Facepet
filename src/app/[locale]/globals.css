@@ -76,6 +76,25 @@
   .all-\[unset\] {
     all: unset;
   }
+  
+  /* Adjust layout when install banner is visible */
+  body.install-banner-visible nav[class*="fixed"] {
+    top: 60px; /* Move navbar below banner */
+  }
+  
+  body.install-banner-visible #main-content {
+    padding-top: calc(4rem + 60px); /* navbar height + banner height */
+  }
+  
+  @media (max-width: 768px) {
+    body.install-banner-visible nav[class*="fixed"] {
+      top: 80px; /* Larger banner on mobile */
+    }
+    
+    body.install-banner-visible #main-content {
+      padding-top: calc(4rem + 80px); /* larger banner on mobile */
+    }
+  }
 }
 
 @layer base {

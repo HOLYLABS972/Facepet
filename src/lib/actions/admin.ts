@@ -1651,6 +1651,73 @@ export async function saveCookieSettings(cookieSettings: Omit<CookieSettings, 'i
   }
 }
 
+/**
+ * Install Banner Settings Management
+ */
+export interface InstallBannerSettings {
+  id?: string;
+  enabled: boolean;
+  bannerText: string;
+  logoUrl?: string;
+  updatedAt: Date;
+}
+
+/**
+ * Get install banner settings
+ */
+export async function getInstallBannerSettings(): Promise<InstallBannerSettings | null> {
+  try {
+    const settingsSnapshot = await getDocs(collection(db, 'installBannerSettings'));
+    
+    if (settingsSnapshot.empty) {
+      return null;
+    }
+    
+    const doc = settingsSnapshot.docs[0];
+    const data = doc.data();
+    
+    return {
+      id: doc.id,
+      enabled: data.enabled || false,
+      bannerText: data.bannerText || 'Add this website to your home screen for quick access!',
+      logoUrl: data.logoUrl || '',
+      updatedAt: data.updatedAt?.toDate() || new Date()
+    };
+  } catch (error) {
+    console.error('Error getting install banner settings:', error);
+    return null;
+  }
+}
+
+/**
+ * Save or update install banner settings
+ */
+export async function saveInstallBannerSettings(settings: Omit<InstallBannerSettings, 'id' | 'updatedAt'>) {
+  try {
+    const settingsSnapshot = await getDocs(collection(db, 'installBannerSettings'));
+    
+    if (settingsSnapshot.empty) {
+      // Create new settings
+      await addDoc(collection(db, 'installBannerSettings'), {
+        ...settings,
+        updatedAt: new Date()
+      });
+    } else {
+      // Update existing settings
+      const doc = settingsSnapshot.docs[0];
+      await updateDoc(doc.ref, {
+        ...settings,
+        updatedAt: new Date()
+      });
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving install banner settings:', error);
+    return { success: false, error: 'Failed to save install banner settings' };
+  }
+}
+
 // COUPON MANAGEMENT FUNCTIONS
 
 /**

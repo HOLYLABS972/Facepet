@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/routing';
 import { Button } from './ui/button';
@@ -225,12 +225,13 @@ interface DonePageProps {
 export default function DonePage({ name, imageUrl }: DonePageProps) {
   const t = useTranslations('pages.DonePage');
   const router = useRouter();
+  const locale = useLocale();
   
   // Debug: Log the values to see what we're getting
   console.log('DonePage props:', { name, imageUrl });
 
   const handleBackToMyPets = () => {
-    router.push('/pages/my-pets');
+    router.push(`/${locale}/promos`);
   };
 
   return (

@@ -85,11 +85,12 @@ export default function AddCouponForm() {
     setError(null);
 
     try {
-      const price = parseFloat(formData.price);
+      // Allow empty price for free vouchers (defaults to 0)
+      const price = formData.price === '' ? 0 : parseFloat(formData.price);
       const points = parseInt(formData.points);
       
       if (isNaN(price) || price < 0) {
-        throw new Error('Please enter a valid price');
+        throw new Error('Please enter a valid price (0 for free vouchers)');
       }
       
       if (isNaN(points) || points < 0) {
@@ -124,7 +125,7 @@ export default function AddCouponForm() {
         imageUrl: '',
         validFrom: '',
         validTo: '',
-        businessId: ''
+        businessIds: []
       });
       setIsOpen(false);
 
@@ -183,7 +184,7 @@ export default function AddCouponForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="price">{t('couponsManagement.price')}</Label>
+            <Label htmlFor="price">{t('couponsManagement.price')} (0 for free)</Label>
             <Input
               id="price"
               name="price"
@@ -192,8 +193,7 @@ export default function AddCouponForm() {
               min="0"
               value={formData.price}
               onChange={handleChange}
-              placeholder={t('couponsManagement.pricePlaceholder')}
-              required
+              placeholder={t('couponsManagement.pricePlaceholder') || '0.00 (leave empty or 0 for free)'}
             />
           </div>
 

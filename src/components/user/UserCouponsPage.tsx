@@ -96,7 +96,21 @@ export default function UserCouponsPage() {
         
         // TEMPORARY: Show ALL coupons for debugging, not just valid ones
         console.log('🔍 TEMPORARY DEBUG MODE: Showing all coupons regardless of validity');
-        setCoupons(couponsWithDates);
+        
+        // Sort coupons: free vouchers (price === 0) first, then by price ascending
+        const sortedCoupons = [...couponsWithDates].sort((a, b) => {
+          const aIsFree = a.price === 0;
+          const bIsFree = b.price === 0;
+          
+          // Free vouchers come first
+          if (aIsFree && !bIsFree) return -1;
+          if (!aIsFree && bIsFree) return 1;
+          
+          // If both are free or both are paid, sort by price ascending
+          return a.price - b.price;
+        });
+        
+        setCoupons(sortedCoupons);
       } else {
         console.error('❌ No coupons or failed to fetch:', couponsResult.error);
         setCoupons([]);
@@ -140,8 +154,18 @@ export default function UserCouponsPage() {
             purchasedAt: new Date(uc.purchasedAt as any),
             usedAt: uc.usedAt ? new Date(uc.usedAt as any) : undefined
           }));
-          // Sort by purchasedAt descending (newest first)
-          allCoupons.sort((a, b) => b.purchasedAt.getTime() - a.purchasedAt.getTime());
+          // Sort: free vouchers first, then by purchasedAt descending (newest first)
+          allCoupons.sort((a, b) => {
+            const aIsFree = a.coupon.price === 0;
+            const bIsFree = b.coupon.price === 0;
+            
+            // Free vouchers come first
+            if (aIsFree && !bIsFree) return -1;
+            if (!aIsFree && bIsFree) return 1;
+            
+            // If both are free or both are paid, sort by purchasedAt descending (newest first)
+            return b.purchasedAt.getTime() - a.purchasedAt.getTime();
+          });
           setCouponHistory(allCoupons);
         }
       }

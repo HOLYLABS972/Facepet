@@ -13,9 +13,11 @@ export function useClickTracker() {
   const [shouldShowAd, setShouldShowAd] = useState(false);
   const lastClickTimeRef = useRef<number>(0);
   const isTrackingRef = useRef<boolean>(true);
-  
+
   // Check if we're on a pet profile page (disable click tracking here)
   const isPetProfilePage = pathname?.match(/\/pet\/[^\/]+$/) !== null;
+  // Check if we're on an admin page (disable click tracking here)
+  const isAdminPage = pathname?.includes('/admin') || false;
 
   // Load click count from localStorage on mount
   useEffect(() => {
@@ -35,16 +37,17 @@ export function useClickTracker() {
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
       // Skip tracking on pet profile pages (they have their own mandatory ad)
-      if (isPetProfilePage) {
+      // Also skip tracking on admin pages
+      if (isPetProfilePage || isAdminPage) {
         return;
       }
-      
+
       // Skip if tracking is disabled (e.g., when ad is showing)
       if (!isTrackingRef.current) return;
 
       // Get the clicked element
       const target = event.target as HTMLElement;
-      
+
       // Skip clicks on certain elements (like ad close buttons, modals, etc.)
       if (
         target.closest('[data-no-track]') ||
@@ -69,11 +72,11 @@ export function useClickTracker() {
         // Get current count from localStorage to ensure we have the latest value
         const storedCount = localStorage.getItem(CLICK_COUNT_KEY);
         const currentCount = storedCount ? parseInt(storedCount, 10) : 0;
-        
+
         // Increment click count
         const newCount = currentCount + 1;
         console.log(`[ClickTracker] Click detected on ${target.tagName}, Count: ${currentCount} -> ${newCount}`);
-        
+
         setClickCount(newCount);
         localStorage.setItem(CLICK_COUNT_KEY, newCount.toString());
 
@@ -94,7 +97,7 @@ export function useClickTracker() {
     return () => {
       document.removeEventListener('click', handleClick, true);
     };
-  }, [isPetProfilePage]);
+  }, [isPetProfilePage, isAdminPage]);
 
   const resetAdFlag = useCallback(() => {
     setShouldShowAd(false);
