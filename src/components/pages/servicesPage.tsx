@@ -139,18 +139,15 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
       <div className="w-full h-full">
         <ServicesMapView
           services={filteredServices}
-          mapFloatingControls={
-            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 p-1">
-              <FilterChips
-                chips={filterChips}
-                onChipClick={handleChipClick}
-              />
-            </div>
-          }
           headerContent={
             <div className="space-y-4">
-              <div className="mb-4">
+              {/* Title and Filter Chips on Same Row */}
+              <div className="mb-4 flex flex-row items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold">{t('title')}</h1>
+                <FilterChips
+                  chips={filterChips}
+                  onChipClick={handleChipClick}
+                />
               </div>
 
               {/* Search Bar and Filter Row */}

@@ -385,10 +385,23 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
           setUserLocation(location);
           setLocationPermission('granted');
 
-          // Center map on user location
+          // Check if user is in Israel (approximate boundaries)
+          const isInIsrael = location.lat >= 29.5 && location.lat <= 33.3 &&
+                            location.lng >= 34.2 && location.lng <= 35.8;
+
+          // Keep map focused on Israel, but show user location marker
           if (map) {
-            map.setCenter(location);
-            map.setZoom(13);
+            const israelCenter = { lat: 31.7683, lng: 35.2137 };
+            
+            // Only center on user location if they're in Israel
+            if (isInIsrael) {
+              map.setCenter(location);
+              map.setZoom(13);
+            } else {
+              // Keep Israel centered
+              map.setCenter(israelCenter);
+              map.setZoom(8);
+            }
 
             // Add user location marker
             new window.google.maps.Marker({
@@ -579,18 +592,46 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     setMarkers(newMarkers);
     setMarkerInfoWindows(newInfoWindows);
 
-    // Fit bounds to show all markers
+    // Focus map on Israel with markers
+    const israelCenter = { lat: 31.7683, lng: 35.2137 }; // Center of Israel (Jerusalem area)
+    
     if (newMarkers.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       newMarkers.forEach(marker => bounds.extend(marker.getPosition()));
       if (userLocation) {
         bounds.extend(new window.google.maps.LatLng(userLocation.lat, userLocation.lng));
       }
-      map.fitBounds(bounds);
+      
+      // Check if bounds are within Israel's approximate boundaries
+      // Israel roughly: Lat 29.5-33.3, Lng 34.2-35.8
+      const israelBounds = {
+        north: 33.3,
+        south: 29.5,
+        east: 35.8,
+        west: 34.2
+      };
+      
+      const boundsNE = bounds.getNorthEast();
+      const boundsSW = bounds.getSouthWest();
+      
+      // If bounds are within Israel or close, fit them with padding
+      if (boundsSW.lat() >= israelBounds.south - 1 && 
+          boundsNE.lat() <= israelBounds.north + 1 &&
+          boundsSW.lng() >= israelBounds.west - 1 && 
+          boundsNE.lng() <= israelBounds.east + 1) {
+        map.fitBounds(bounds, { padding: 50 });
+      } else {
+        // If markers are outside Israel, center on Israel and show markers with wider zoom
+        map.setCenter(israelCenter);
+        map.setZoom(8);
+      }
     } else if (!userLocation) {
       // If no markers and no user location, center on Israel
-      const defaultCenter = { lat: 31.7683, lng: 35.2137 };
-      map.setCenter(defaultCenter);
+      map.setCenter(israelCenter);
+      map.setZoom(8);
+    } else if (userLocation) {
+      // If user location exists but no markers, center on Israel (user location will be visible)
+      map.setCenter(israelCenter);
       map.setZoom(8);
     }
   };
