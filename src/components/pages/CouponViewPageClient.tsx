@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, CheckCircle2, Share2, Trophy, Info } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Share2, Trophy, Info, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Promo, Business } from '@/types/promo';
@@ -24,12 +24,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+declare global {
+  interface Window {
+    google: any;
+    initCouponMap: () => void;
+  }
+}
+
 interface CouponViewPageClientProps {
   coupon: Promo;
   business: Business | null;
+  businesses?: Business[];
 }
 
-export default function CouponViewPageClient({ coupon, business }: CouponViewPageClientProps) {
+export default function CouponViewPageClient({ coupon, business, businesses = [] }: CouponViewPageClientProps) {
   const t = useTranslations('pages.PromosPage');
   const router = useRouter();
   const locale = useLocale();
@@ -40,6 +48,15 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [couponUrl, setCouponUrl] = useState('');
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [map, setMap] = useState<any>(null);
+  const [markers, setMarkers] = useState<any[]>([]);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
+  const initCallbackRef = useRef<(() => void) | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
 
   // Set mounted state and coupon URL only on client side to avoid hydration mismatch
   useEffect(() => {
@@ -61,6 +78,336 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
     checkUsed();
   }, [user, coupon.id]);
 
+  // Initialize map with business locations
+  useEffect(() => {
+    // Skip if component is not mounted or no businesses
+    if (!isMounted || !mapRef.current || businesses.length === 0) {
+      if (businesses.length === 0) {
+        setMapLoaded(true);
+      }
+      return () => {
+        // No cleanup needed if map wasn't initialized
+      };
+    }
+
+    isMountedRef.current = true;
+
+    const loadGoogleMaps = () => {
+      if (window.google && window.google.maps) {
+        initializeMap();
+        return;
+      }
+
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        console.error('NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set');
+        setMapLoaded(true);
+        return;
+      }
+
+      // Check if Google Maps is already loaded globally (by another component)
+      const existingGlobalScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingGlobalScript || (window.google && window.google.maps)) {
+        // Wait a bit for it to fully load if needed
+        if (window.google && window.google.maps) {
+          initializeMap();
+        } else {
+          intervalRef.current = setInterval(() => {
+            if (window.google && window.google.maps && isMountedRef.current) {
+              if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+              }
+              initializeMap();
+            }
+          }, 100);
+
+          // Timeout after 5 seconds
+          timeoutRef.current = setTimeout(() => {
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
+            if (!window.google || !window.google.maps) {
+              console.error('Google Maps failed to load');
+              if (isMountedRef.current) {
+                setMapLoaded(true);
+              }
+            }
+          }, 5000);
+        }
+        return;
+      }
+
+      // Check if our specific script already exists
+      const existingScript = document.querySelector('script[data-coupon-map]') as HTMLScriptElement;
+      if (existingScript) {
+        // Don't store reference - existing script might be from another component
+        // Only clean up scripts we create ourselves
+        if (window.google && window.google.maps) {
+          if (isMountedRef.current) {
+            initializeMap();
+          }
+        } else {
+          // Wait for script to load
+          intervalRef.current = setInterval(() => {
+            if (window.google && window.google.maps && isMountedRef.current) {
+              if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+              }
+              initializeMap();
+            }
+          }, 100);
+
+          // Cleanup interval after timeout
+          timeoutRef.current = setTimeout(() => {
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
+          }, 5000);
+        }
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initCouponMap`;
+      script.async = true;
+      script.defer = true;
+      script.setAttribute('data-coupon-map', 'true');
+
+      scriptRef.current = script;
+      initCallbackRef.current = initializeMap;
+
+      // Wrap the callback to ensure component is still mounted before executing
+      window.initCouponMap = () => {
+        if (isMountedRef.current && initCallbackRef.current) {
+          initCallbackRef.current();
+        }
+      };
+
+      // Only append if component is still mounted
+      if (isMountedRef.current && document.head) {
+        document.head.appendChild(script);
+      }
+
+      script.onerror = () => {
+        console.error('Failed to load Google Maps script');
+        setMapLoaded(true);
+      };
+    };
+
+    const initializeMap = async () => {
+      // Multiple safety checks before proceeding
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      if (!mapRef.current || !window.google) {
+        return;
+      }
+
+      // Double check the ref is still valid and in the DOM
+      if (!mapRef.current.parentNode || !document.body.contains(mapRef.current)) {
+        console.warn('Map ref is not in DOM, skipping map initialization');
+        return;
+      }
+
+      const defaultCenter = { lat: 31.7683, lng: 35.2137 }; // Default to Jerusalem
+      const mapInstance = new window.google.maps.Map(mapRef.current, {
+        center: defaultCenter,
+        zoom: 10,
+        mapTypeControl: true,
+        streetViewControl: false,
+        fullscreenControl: true,
+      });
+
+      setMap(mapInstance);
+      const geocoder = new window.google.maps.Geocoder();
+      const newMarkers: any[] = [];
+      const bounds = new window.google.maps.LatLngBounds();
+      let geocodeCount = 0;
+      const totalBusinesses = businesses.filter(b => b.contactInfo?.address).length;
+
+      // Geocode each business address and add marker
+      businesses.forEach((businessItem) => {
+        const address = businessItem.contactInfo?.address;
+        if (!address) {
+          geocodeCount++;
+          if (geocodeCount === totalBusinesses && isMountedRef.current) {
+            finalizeMap();
+          }
+          return;
+        }
+
+        geocoder.geocode({ address }, (results, status) => {
+          // Check if component is still mounted before proceeding
+          if (!isMountedRef.current || !mapRef.current || !mapRef.current.parentNode) {
+            return;
+          }
+
+          geocodeCount++;
+
+          if (status === 'OK' && results && results[0]) {
+            const location = results[0].geometry.location;
+            const position = { lat: location.lat(), lng: location.lng() };
+
+            const marker = new window.google.maps.Marker({
+              position,
+              map: mapInstance,
+              title: businessItem.name,
+              icon: {
+                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                scaledSize: new window.google.maps.Size(40, 40),
+              },
+            });
+
+            // Create info window
+            const phoneDisplay = businessItem.contactInfo?.phone
+              ? `<p style="margin: 0; color: #666; font-size: 14px;">Phone: ${businessItem.contactInfo.phone}</p>`
+              : '';
+            const addressDisplay = address
+              ? `<p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">${address}</p>`
+              : '';
+            const infoContent = '<div style="padding: 10px; max-width: 250px;">' +
+              '<h3 style="margin: 0 0 8px 0; font-weight: bold; font-size: 16px;">' + businessItem.name + '</h3>' +
+              addressDisplay +
+              phoneDisplay +
+              '</div>';
+
+            const infoWindow = new window.google.maps.InfoWindow({
+              content: infoContent,
+            });
+
+            marker.addListener('click', () => {
+              // Only handle clicks if component is still mounted
+              if (!isMountedRef.current) return;
+              // Close other info windows
+              newMarkers.forEach(m => {
+                if (m.infoWindow) m.infoWindow.close();
+              });
+              infoWindow.open(mapInstance, marker);
+            });
+
+            newMarkers.push({ marker, infoWindow });
+            bounds.extend(position);
+          }
+
+          // Finalize map when all geocoding is done, but only if still mounted
+          if (geocodeCount === totalBusinesses && isMountedRef.current) {
+            finalizeMap();
+          }
+        });
+      });
+
+      const finalizeMap = () => {
+        if (!isMountedRef.current || !mapRef.current || !mapRef.current.parentNode) return;
+
+        try {
+          if (newMarkers.length > 0) {
+            mapInstance.fitBounds(bounds);
+            // Don't zoom in too much if only one marker
+            if (newMarkers.length === 1) {
+              mapInstance.setZoom(15);
+            }
+          } else if (totalBusinesses === 0) {
+            // No businesses with addresses, just show default center
+            mapInstance.setCenter(defaultCenter);
+            mapInstance.setZoom(10);
+          }
+
+          // Only update state if component is still mounted
+          if (isMountedRef.current && mapRef.current && mapRef.current.parentNode) {
+            setMarkers(newMarkers);
+            setMapLoaded(true);
+          }
+        } catch (e) {
+          console.warn('Error finalizing map:', e);
+          if (isMountedRef.current) {
+            setMapLoaded(true);
+          }
+        }
+      };
+    };
+
+    loadGoogleMaps();
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup timeouts first
+      if (timeoutRef.current) {
+        try {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+
+      // Cleanup intervals
+      if (intervalRef.current) {
+        try {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+
+      // Cleanup callback first to prevent new map initialization
+      // Wrap callback deletion in a check to prevent race conditions
+      if (window.initCouponMap && initCallbackRef.current) {
+        try {
+          // Only delete if this is our callback - other components might be using it
+          if (window.initCouponMap === initCallbackRef.current) {
+            delete window.initCouponMap;
+          }
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
+      }
+      initCallbackRef.current = null;
+
+      // Don't remove the script element - it can be reused by other components
+      // Removing it can cause race conditions with React's DOM cleanup
+      // The script will remain in the DOM but won't cause issues since we've cleared the callback
+      scriptRef.current = null;
+
+      // Cleanup markers/map LAST - after ensuring no new operations start
+      // Only if container still exists (React hasn't removed it yet)
+      if (markers && Array.isArray(markers) && markers.length > 0) {
+        // Check if map container is still in DOM
+        const containerExists = mapRef.current &&
+          mapRef.current.parentNode &&
+          document.body.contains(mapRef.current);
+
+        if (containerExists) {
+          markers.forEach((item) => {
+            if (!item || typeof item !== 'object') return;
+
+            try {
+              if (item.infoWindow && typeof item.infoWindow.close === 'function') {
+                item.infoWindow.close();
+              }
+            } catch (e) {
+              // Ignore errors - window might already be closed
+            }
+
+            try {
+              if (item.marker && typeof item.marker.setMap === 'function') {
+                item.marker.setMap(null);
+              }
+            } catch (e) {
+              // Ignore errors - marker might already be removed
+            }
+          });
+        }
+      }
+    };
+  }, [isMounted, businesses]);
+
   const handleUseCouponClick = () => {
     if (!user) {
       toast.error('Please sign in to use coupons');
@@ -79,15 +426,15 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
   const handleUseCoupon = async () => {
     setShowConfirmDialog(false);
     setIsUsingCoupon(true);
-    
+
     try {
       const result = await markPromoAsUsed(user.uid, coupon.id);
-      
+
       if (result.success) {
         setIsUsed(true);
         setShowSuccessAnimation(true);
         toast.success(t('promoUsed') || 'Coupon marked as used!');
-        
+
         // Hide animation and redirect after 2 seconds
         setTimeout(() => {
           setShowSuccessAnimation(false);
@@ -133,7 +480,7 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Back Button */}
         <Button
@@ -179,6 +526,30 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
               </div>
             )}
 
+            {/* Business Locations Map */}
+            {businesses.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  {t('businessLocations') || 'Business Locations'}
+                </h2>
+                <div className="relative w-full h-96 rounded-lg border-2 border-gray-200 overflow-hidden">
+                  <div
+                    ref={mapRef}
+                    className="w-full h-full"
+                  />
+                  {!mapLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                      <div className="text-center">
+                        <div className="w-8 h-8 border-4 border-gray-300 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
+                        <p className="text-gray-600">{t('loadingMap') || 'Loading map...'}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Coupon Info */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-4">{coupon.name}</h1>
@@ -202,6 +573,7 @@ export default function CouponViewPageClient({ coupon, business }: CouponViewPag
 
             {/* QR Code */}
             <div className="flex flex-col items-center space-y-6 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900">{t('viewCoupon') || 'View Coupon'}</h2>
               <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
                 {isMounted && couponUrl ? (
                   <QRCode

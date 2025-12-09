@@ -31,6 +31,7 @@ export default function UserCouponsPage() {
   const [activeTab, setActiveTab] = useState('available');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [shopUrl, setShopUrl] = useState<string>('');
+  const [freeCouponPrice, setFreeCouponPrice] = useState<boolean>(false);
   const { redirectToShop } = useShopRedirect();
 
   useEffect(() => {
@@ -52,13 +53,13 @@ export default function UserCouponsPage() {
         console.log(`✅ Found ${couponsResult.coupons.length} total coupons`);
         
         // Convert ISO strings back to Date objects
-        const couponsWithDates = couponsResult.coupons.map(coupon => ({
+        const couponsWithDates = couponsResult.coupons.map((coupon: any) => ({
           ...coupon,
-          createdAt: new Date(coupon.createdAt as any),
-          updatedAt: new Date(coupon.updatedAt as any),
-          validFrom: new Date(coupon.validFrom as any),
-          validTo: new Date(coupon.validTo as any),
-        }));
+          createdAt: new Date(coupon.createdAt),
+          updatedAt: new Date(coupon.updatedAt),
+          validFrom: new Date(coupon.validFrom),
+          validTo: new Date(coupon.validTo),
+        })) as Coupon[];
         
         // Log all coupons for debugging
         couponsWithDates.forEach(coupon => {
@@ -117,6 +118,12 @@ export default function UserCouponsPage() {
         } else {
           // Default to 0 if points not found
           setUserPoints(0);
+        }
+
+        // Fetch user settings to check freeCouponPrice
+        const userResult = await getUserFromFirestore(user.uid);
+        if (userResult.success && userResult.user) {
+          setFreeCouponPrice(userResult.user.freeCouponPrice || false);
         }
 
         // Fetch all purchased coupons for history (active + inactive)
@@ -187,9 +194,9 @@ export default function UserCouponsPage() {
         if (result.success) {
           console.log('✅ Points awarded successfully');
           // Refresh user points
-          const userData = await getUserFromFirestore(user.uid);
-          if (userData) {
-            setUserPoints((userData.user?.points || 0) + 20);
+          const pointsResult = await getUserPoints(user);
+          if (pointsResult.success && pointsResult.points) {
+            setUserPoints(pointsResult.points.totalPoints || 0);
           }
         } else {
           console.error('Failed to award points:', result.error);
@@ -210,31 +217,38 @@ export default function UserCouponsPage() {
       return;
     }
 
-    if (userPoints < coupon.points) {
+    // Calculate actual points needed (0 if freeCouponPrice is enabled)
+    const pointsNeeded = freeCouponPrice ? 0 : coupon.points;
+
+    if (!freeCouponPrice && userPoints < coupon.points) {
       toast.error(t('insufficientPoints'));
       return;
     }
 
     try {
-      // Deduct points (deduct from 'share' category, or you can change this)
-      const deductResult = await deductPointsFromCategory(
-        user as User,
-        'share',
-        coupon.points,
-        `Purchased coupon: ${coupon.name}`
-      );
+      // Only deduct points if freeCouponPrice is disabled
+      if (!freeCouponPrice) {
+        const deductResult = await deductPointsFromCategory(
+          user as User,
+          'share',
+          coupon.points,
+          `Purchased coupon: ${coupon.name}`
+        );
 
-      if (!deductResult.success) {
-        toast.error(deductResult.error || t('failedToPurchase'));
-        return;
+        if (!deductResult.success) {
+          toast.error(deductResult.error || t('failedToPurchase'));
+          return;
+        }
       }
 
-      // Purchase the coupon
-      const purchaseResult = await purchaseCoupon(user.uid, coupon, coupon.points);
+      // Purchase the coupon (with 0 points if free)
+      const purchaseResult = await purchaseCoupon(user.uid, coupon, pointsNeeded);
       
       if (!purchaseResult.success) {
-        // Refund points if purchase failed
-        await addPointsToCategory(user as User, 'share', coupon.points, 'Refund for failed purchase');
+        // Refund points if purchase failed and points were deducted
+        if (!freeCouponPrice) {
+          await addPointsToCategory(user as User, 'share', coupon.points, 'Refund for failed purchase');
+        }
         toast.error(purchaseResult.error || t('failedToPurchase'));
         return;
       }
@@ -445,11 +459,19 @@ export default function UserCouponsPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
                       <span className="text-sm font-medium text-gray-600">{t('pointsRequired')}</span>
-                      <Badge variant="outline" className="flex items-center gap-1.5 bg-white border-amber-200 text-amber-700 px-3 py-1">
+                      <Badge variant="outline" className={`flex items-center gap-1.5 bg-white px-3 py-1 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
                         <Coins className="h-4 w-4" />
-                        <span className="font-semibold">{coupon.points}</span>
+                        <span className="font-semibold">{freeCouponPrice ? '0' : coupon.points}</span>
                       </Badge>
                     </div>
+                    {freeCouponPrice && (
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <span className="text-sm font-medium text-gray-600">{t('price')}</span>
+                        <Badge variant="outline" className="flex items-center gap-1.5 bg-white border-green-200 text-green-700 px-3 py-1">
+                          <span className="font-semibold">{t('free')}</span>
+                        </Badge>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                       <span className="text-sm font-medium text-gray-600">{t('validUntil')}</span>
                       <div className="flex items-center gap-1.5 text-sm font-medium text-blue-700">
@@ -462,12 +484,15 @@ export default function UserCouponsPage() {
                 <CardFooter className="pt-4">
                   <Button 
                     onClick={() => handlePurchaseCoupon(coupon)}
-                    disabled={userPoints < coupon.points}
+                    disabled={!freeCouponPrice && userPoints < coupon.points}
                     className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     size="lg"
                   >
                     <ShoppingCart className="h-5 w-5" />
-                    {userPoints < coupon.points ? t('insufficientPoints') : t('purchase')}
+                    {freeCouponPrice 
+                      ? t('getFree')
+                      : (userPoints < coupon.points ? t('insufficientPoints') : t('purchase'))
+                    }
                   </Button>
                 </CardFooter>
               </Card>

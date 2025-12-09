@@ -39,26 +39,78 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
 
   // Load Google Maps script
   useEffect(() => {
+    let isMounted = true;
+    let checkInterval: NodeJS.Timeout | null = null;
+
     const loadGoogleMaps = () => {
-      if (window.google) {
-        initializeMap();
+      if (window.google && window.google.maps) {
+        if (isMounted) {
+          initializeMap();
+        }
         return;
       }
 
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E&libraries=places&callback=initMap`;
-      script.async = true;
-      script.defer = true;
-      
-      window.initMap = initializeMap;
-      document.head.appendChild(script);
+      // Check if script already exists
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        if (window.google && window.google.maps) {
+          if (isMounted) {
+            initializeMap();
+          }
+        } else {
+          checkInterval = setInterval(() => {
+            if (window.google && window.google.maps && isMounted) {
+              if (checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+              }
+              initializeMap();
+            }
+          }, 100);
+          
+          setTimeout(() => {
+            if (checkInterval) {
+              clearInterval(checkInterval);
+              checkInterval = null;
+            }
+          }, 5000);
+        }
+        return;
+      }
 
-      return () => {
-        document.head.removeChild(script);
-      };
+      // Only create script if it doesn't exist and Google Maps isn't loaded
+      if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E&libraries=places&callback=initMap`;
+        script.async = true;
+        script.defer = true;
+        
+        window.initMap = initializeMap;
+        document.head.appendChild(script);
+      }
     };
 
     loadGoogleMaps();
+
+    return () => {
+      isMounted = false;
+      
+      // Clear any intervals
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+      }
+      
+      // Don't remove script - it might be used by other components
+      // Only clean up the callback if it's ours
+      if (window.initMap === initializeMap) {
+        try {
+          delete window.initMap;
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    };
   }, []);
 
   const initializeMap = () => {

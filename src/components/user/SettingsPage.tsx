@@ -40,7 +40,8 @@ export default function SettingsPage() {
     profileImage: null as File | null,
     profileImageURL: '',
     acceptCookies: false,
-    language: locale
+    language: locale,
+    freeCouponPrice: false
   });
 
   // Available languages
@@ -84,7 +85,8 @@ export default function SettingsPage() {
               address: userResult.user.address || '',
               profileImageURL: userResult.user.profileImage || user.photoURL || '',
               acceptCookies: userResult.user.acceptCookies || false,
-              language: locale // Always use current locale, not stored preference
+              language: locale, // Always use current locale, not stored preference
+              freeCouponPrice: userResult.user.freeCouponPrice || false
             }));
           } else {
             // Fallback to localStorage and Firebase Auth data
@@ -94,7 +96,8 @@ export default function SettingsPage() {
               address: '',
               profileImageURL: user.photoURL || '',
               acceptCookies: localStorage.getItem('acceptCookies') === 'true',
-              language: locale // Always use current locale
+              language: locale, // Always use current locale
+              freeCouponPrice: false
             }));
           }
         } catch (error) {
@@ -106,7 +109,8 @@ export default function SettingsPage() {
             address: '',
             profileImageURL: user.photoURL || '',
             acceptCookies: localStorage.getItem('acceptCookies') === 'true',
-            language: locale // Always use current locale
+            language: locale, // Always use current locale
+            freeCouponPrice: false
           }));
         }
       };
@@ -292,7 +296,8 @@ export default function SettingsPage() {
       // Update user profile in Firestore
       const updateData: any = {
         acceptCookies: formData.acceptCookies,
-        language: formData.language
+        language: formData.language,
+        freeCouponPrice: formData.freeCouponPrice
       };
 
       // Add full name if provided
@@ -354,7 +359,8 @@ export default function SettingsPage() {
               address: userResult.user.address || '',
               profileImageURL: userResult.user.profileImage || user.photoURL || '',
               acceptCookies: userResult.user.acceptCookies || false,
-              language: locale
+              language: locale,
+              freeCouponPrice: userResult.user.freeCouponPrice || false
             }));
           }
         }
@@ -687,7 +693,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>{t('privacySettings')}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Checkbox
                 id="acceptCookies"
@@ -704,6 +710,22 @@ export default function SettingsPage() {
               {savingCookies && (
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />
               )}
+            </div>
+            
+            <Separator />
+            
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="freeCouponPrice"
+                checked={formData.freeCouponPrice}
+                onCheckedChange={(checked) => handleInputChange('freeCouponPrice', checked)}
+              />
+              <div className="space-y-1 flex-1">
+                <Label htmlFor="freeCouponPrice" className="cursor-pointer">{t('freeCouponPrice')}</Label>
+                <p className="text-sm text-gray-500">
+                  {t('freeCouponPriceDescription')}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>

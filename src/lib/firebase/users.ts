@@ -13,6 +13,7 @@ interface UserData {
   language?: string;
   role?: 'user' | 'admin' | 'super_admin';
   audienceIds?: string[]; // Array of audience IDs the user belongs to
+  freeCouponPrice?: boolean; // If true, all coupons are free (0 points/price)
   createdAt: Date;
   updatedAt: Date;
 }

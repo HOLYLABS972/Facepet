@@ -32,7 +32,7 @@ export default async function CouponViewPage({ params, searchParams }: CouponVie
     redirect('/promos');
   }
 
-  // Get business if businessId is provided
+  // Get business if businessId is provided (for single business display)
   let business = null;
   if (resolvedSearchParams.businessId || coupon.businessId) {
     const businessesResult = await getBusinesses();
@@ -42,10 +42,19 @@ export default async function CouponViewPage({ params, searchParams }: CouponVie
     }
   }
 
+  // Get all businesses associated with this coupon (for map display)
+  let allBusinesses: Business[] = [];
+  const businessesResult = await getBusinesses();
+  if (businessesResult.success && businessesResult.businesses) {
+    const businessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
+    allBusinesses = businessesResult.businesses.filter((b: any) => businessIds.includes(b.id));
+  }
+
   return (
     <CouponViewPageClient 
       coupon={coupon} 
       business={business}
+      businesses={allBusinesses}
     />
   );
 }

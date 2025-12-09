@@ -124,6 +124,8 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   // Add CSS to hide scrollbars for service cards
   useEffect(() => {
     const styleId = 'service-cards-scrollbar-hide';
+    
+    // Only add if it doesn't already exist
     if (document.getElementById(styleId)) return;
 
     const style = document.createElement('style');
@@ -133,13 +135,17 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         display: none;
       }
     `;
-    document.head.appendChild(style);
+    
+    try {
+      document.head.appendChild(style);
+    } catch (e) {
+      console.warn('Failed to add style element:', e);
+    }
 
+    // Don't remove the style element on cleanup - it's harmless to leave it
+    // and removing it can cause errors if React StrictMode remounts the component
     return () => {
-      const existingStyle = document.getElementById(styleId);
-      if (existingStyle) {
-        document.head.removeChild(existingStyle);
-      }
+      // No cleanup needed - style element will persist
     };
   }, []);
 
@@ -610,10 +616,21 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       // Check if script already exists
       const existingScript = document.querySelector('script[data-services-map]') as HTMLScriptElement;
       if (existingScript) {
-        if (window.google) {
+        if (window.google && window.google.maps) {
           initializeMap();
         } else {
-          existingScript.addEventListener('load', initializeMap);
+          // Wait for script to load using polling instead of event listener
+          const checkInterval = setInterval(() => {
+            if (window.google && window.google.maps) {
+              clearInterval(checkInterval);
+              initializeMap();
+            }
+          }, 100);
+          
+          // Timeout after 5 seconds
+          setTimeout(() => {
+            clearInterval(checkInterval);
+          }, 5000);
         }
         return;
       }
