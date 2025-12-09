@@ -250,11 +250,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           </div>
 
           {/* Service image */}
-          <div className="w-1/3 min-h-[140px] overflow-hidden">
+          <div className="w-1/3 min-h-[140px] flex items-center justify-center bg-gray-100">
             <img
               src={service.image}
               alt={service.name}
-              className="h-full w-full object-cover"
+              className="max-w-full max-h-full object-contain"
             />
           </div>
         </div>
@@ -289,11 +289,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
               )}
             </DrawerHeader>
             {/* Service photo */}
-            <div className="mt-3">
+            <div className="mt-3 flex items-center justify-center bg-gray-100">
               <img
                 src={service.image}
                 alt={service.name}
-                className="h-48 w-full rounded-md object-cover"
+                className="max-w-full max-h-48 object-contain"
               />
             </div>
             

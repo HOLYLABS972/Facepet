@@ -832,11 +832,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
               onClick={() => handleServiceClick(service)}
             >
               <div className="flex gap-3">
-                <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                <div className="w-20 h-20 flex-shrink-0 bg-gray-100 flex items-center justify-center">
                   <img
                     src={service.image}
                     alt={service.name}
-                    className="w-full h-full object-cover"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -945,11 +945,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                         onClick={() => handleServiceClick(service)}
                       >
                         <div className="flex gap-3">
-                          <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                          <div className="w-20 h-20 flex-shrink-0 bg-gray-100 flex items-center justify-center">
                             <img
                               src={service.image}
                               alt={service.name}
-                              className="w-full h-full object-cover"
+                              className="max-w-full max-h-full object-contain"
                             />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1087,13 +1087,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                   )}
 
                   {/* Service photo */}
-                  <div className="mb-4 rounded-lg overflow-hidden">
+                  <div className="mb-4 flex items-center justify-center bg-gray-100">
                     <img
                       src={selectedService.image}
                       alt={selectedService.name}
-                      className="w-full h-auto object-cover"
+                      className="max-w-full max-h-[400px] object-contain"
                       style={{
-                        maxHeight: '400px',
                         display: 'block'
                       }}
                     />
@@ -1372,18 +1371,17 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       </div>
                     )}
 
-                    {/* Service photo */}
-                    <div className="mb-4 rounded-lg overflow-hidden">
-                      <img
-                        src={selectedService.image}
-                        alt={selectedService.name}
-                        className="w-full h-auto object-cover"
-                        style={{
-                          maxHeight: '400px',
-                          display: 'block'
-                        }}
-                      />
-                    </div>
+                      {/* Service photo */}
+                      <div className="mb-4 flex items-center justify-center bg-gray-100">
+                        <img
+                          src={selectedService.image}
+                          alt={selectedService.name}
+                          className="max-w-full max-h-[400px] object-contain"
+                          style={{
+                            display: 'block'
+                          }}
+                        />
+                      </div>
 
                     {/* Contact Information */}
                     <div className="mb-4 space-y-2">
