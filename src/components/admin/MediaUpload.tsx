@@ -5,10 +5,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { storage } from '@/lib/firebase/config';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
-import { FileUp, Image as ImageIcon, Video, X } from 'lucide-react';
+import { FileUp, Image as ImageIcon, Video, X, Edit } from 'lucide-react';
 import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
+import ImageEditor from './ImageEditor';
 
 interface MediaUploadProps {
   type: 'image' | 'video';
@@ -27,6 +28,8 @@ export default function MediaUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editedImageUrl, setEditedImageUrl] = useState<string | null>(null);
 
   const validateFile = (file: File): boolean => {
     // 20MB limit for images, 100MB for videos
@@ -203,6 +206,19 @@ export default function MediaUpload({
               </Button>
             </div>
             <div className="mt-2 flex gap-2">
+              {type === 'image' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setIsEditorOpen(true)}
+                  disabled={isUploading}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Image
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"
@@ -250,6 +266,36 @@ export default function MediaUpload({
           </div>
           <Progress value={progress} className="h-2" />
         </div>
+      )}
+
+      {/* Image Editor */}
+      {type === 'image' && value && isValidUrl(value) && (
+        <ImageEditor
+          imageUrl={value}
+          isOpen={isEditorOpen}
+          onClose={() => {
+            setIsEditorOpen(false);
+            setEditedImageUrl(null);
+          }}
+          onSave={async (editedDataUrl) => {
+            try {
+              // Convert data URL to blob
+              const response = await fetch(editedDataUrl);
+              const blob = await response.blob();
+              
+              // Create a file from blob
+              const file = new File([blob], 'edited-image.png', { type: 'image/png' });
+              
+              // Upload the edited image
+              await uploadFile(file);
+              setEditedImageUrl(null);
+              setIsEditorOpen(false);
+            } catch (error: any) {
+              console.error('Error saving edited image:', error);
+              toast.error('Failed to save edited image');
+            }
+          }}
+        />
       )}
     </div>
   );

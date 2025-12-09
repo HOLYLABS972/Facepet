@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, AlertTriangle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Image from 'next/image';
 
 interface DeletionVerificationPageProps {
   email: string;
@@ -61,17 +60,6 @@ const DeletionVerificationPage = ({ email, userName, onBack, onVerified }: Delet
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Image
-            src="/assets/Facepet-logo.png"
-            alt="לוגו Facepet"
-            width={120}
-            height={120}
-            className="mx-auto mb-4"
-          />
-        </div>
-
         <Card className="shadow-lg">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">

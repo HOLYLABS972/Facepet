@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { AppWindow, ArrowLeft, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Phone, Settings, Mail, Ticket, Menu, X } from 'lucide-react';
+import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Phone, Settings, Mail, Ticket, Menu, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -112,9 +112,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <h1 className="text-primary mb-4 p-2 font-['Lobster'] text-4xl">
-          FacePet
-        </h1>
         <nav>
           <ul className="space-y-2">
             <li>
@@ -194,19 +191,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="mt-8 p-2 bg-white/10 rounded">
           <p className="font-medium truncate">{user.email}</p>
           <p className="text-xs text-gray-500 capitalize">{userRole ? t(`roles.${userRole}`) : 'Loading...'}</p>
-        </div>
-
-        {/* Back button - right after email */}
-        <div className="mt-4 p-2">
-          <Link href={`/${locale}`} onClick={() => setSidebarOpen(false)}>
-            <Button
-              variant="ghost"
-              className="justify-center hover:text-primary w-full items-center gap-2 align-middle hover:shadow-xs"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>{t('goBack')}</span>
-            </Button>
-          </Link>
         </div>
       </div>
 

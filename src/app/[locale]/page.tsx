@@ -157,11 +157,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           ))}
 
         <div className="relative z-10">
-          <h1 className="text-primary py-4 text-center font-['Lobster'] text-5xl tracking-wide lg:text-7xl">
-            FacePet
-          </h1>
-
-          <div className="text-center text-3xl lg:text-4xl">
+          <div className="text-center text-3xl lg:text-4xl pt-4">
             <p className="text-gray-500">{t('upperTitle')}</p>
             <p className="text-black">{t('lowerTitle')}</p>
           </div>
