@@ -276,11 +276,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
               )}
               {/* Tags */}
               {service.tags && service.tags.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-col gap-2">
                   {service.tags.map((tag, idx) => (
                     <span
                       key={idx}
-                      className="bg-primary rounded-full px-2 py-1 text-xs text-white"
+                      className="bg-primary rounded-full px-2 py-1 text-xs text-white w-fit"
                     >
                       {translateTag(tag)}
                     </span>

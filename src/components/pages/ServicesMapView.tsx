@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { MapPin, Phone, Star, Send, Heart, HeartOff, Ticket, X } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -15,7 +15,6 @@ import {
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -94,14 +93,9 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const [isFavorited, setIsFavorited] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [bottomSheetHeight, setBottomSheetHeight] = useState<'collapsed' | 'expanded' | 'full'>('collapsed');
   const [floatingCardPosition, setFloatingCardPosition] = useState<{ x: number; y: number } | null>(null);
   const geocoderRef = useRef<any>(null);
   const { user } = useAuth();
-
-  // For drag gestures on mobile bottom sheet
-  const y = useMotionValue(0);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Handle window resize to update isMobile state
   useEffect(() => {
@@ -109,7 +103,6 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       if (!mobile) {
-        setBottomSheetHeight('collapsed');
         setFloatingCardPosition(null);
       }
     };
@@ -121,17 +114,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Reset y position when bottom sheet height changes
-  useEffect(() => {
-    if (isMobile) {
-      y.set(0);
-    }
-  }, [bottomSheetHeight, isMobile, y]);
+
 
   // Add CSS to hide scrollbars for service cards
   useEffect(() => {
     const styleId = 'service-cards-scrollbar-hide';
-    
+
     // Only add if it doesn't already exist
     if (document.getElementById(styleId)) return;
 
@@ -142,7 +130,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         display: none;
       }
     `;
-    
+
     try {
       document.head.appendChild(style);
     } catch (e) {
@@ -155,6 +143,58 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       // No cleanup needed - style element will persist
     };
   }, []);
+
+  // Add CSS to hide drag handle when drawer is fullscreen on mobile and ensure fullscreen
+  useEffect(() => {
+    const styleId = 'drawer-fullscreen-hide-handle';
+
+    if (document.getElementById(styleId)) return;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      @media (max-width: 767px) {
+        [data-vaul-drawer][style*="inset: 0px"] > div:first-child,
+        [data-vaul-drawer].drawer-fullscreen > div:first-child {
+          display: none !important;
+        }
+        [data-vaul-drawer] {
+          height: 100vh !important;
+          max-height: 100vh !important;
+          min-height: 100vh !important;
+          bottom: 0 !important;
+          top: 0 !important;
+        }
+        [data-vaul-drawer-wrapper] {
+          height: 100vh !important;
+        }
+      }
+    `;
+
+    try {
+      document.head.appendChild(style);
+    } catch (e) {
+      console.warn('Failed to add drawer style element:', e);
+    }
+  }, []);
+
+  // Force drawer to fullscreen when it opens on mobile
+  useEffect(() => {
+    if (isMobile && drawerOpen) {
+      const timer = setTimeout(() => {
+        const drawerContent = document.querySelector('[data-vaul-drawer]') as HTMLElement;
+        if (drawerContent) {
+          drawerContent.style.height = '100vh';
+          drawerContent.style.maxHeight = '100vh';
+          drawerContent.style.minHeight = '100vh';
+          drawerContent.style.bottom = '0';
+          drawerContent.style.top = '0';
+          drawerContent.style.transform = 'translateY(0%)';
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [drawerOpen, isMobile]);
 
   // Convert lat/lng to pixel coordinates for floating card positioning
   const getPixelPosition = (lat: number, lng: number): { x: number; y: number } | null => {
@@ -196,64 +236,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     };
   };
 
-  // Handle bottom sheet drag end
-  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (!isMobile) return;
 
-    const threshold = 80;
-    const currentHeight = bottomSheetHeight;
-    const velocity = info.velocity.y;
-
-    // Use velocity for better UX - if dragging fast, snap to next state
-    if (Math.abs(velocity) > 500) {
-      if (velocity < 0) {
-        // Dragging up fast
-        if (currentHeight === 'collapsed') {
-          setBottomSheetHeight('expanded');
-        } else if (currentHeight === 'expanded') {
-          setBottomSheetHeight('full');
-        }
-      } else {
-        // Dragging down fast
-        if (currentHeight === 'full') {
-          setBottomSheetHeight('expanded');
-        } else if (currentHeight === 'expanded') {
-          setBottomSheetHeight('collapsed');
-        }
-      }
-    } else if (info.offset.y > threshold) {
-      // Dragging down
-      if (currentHeight === 'full') {
-        setBottomSheetHeight('expanded');
-      } else if (currentHeight === 'expanded') {
-        setBottomSheetHeight('collapsed');
-      }
-    } else if (info.offset.y < -threshold) {
-      // Dragging up
-      if (currentHeight === 'collapsed') {
-        setBottomSheetHeight('expanded');
-      } else if (currentHeight === 'expanded') {
-        setBottomSheetHeight('full');
-      }
-    }
-
-    y.set(0);
-  };
-
-  // Get bottom sheet height based on state
-  const getBottomSheetHeight = () => {
-    if (!isMobile) return 'auto';
-    switch (bottomSheetHeight) {
-      case 'collapsed':
-        return '35vh';
-      case 'expanded':
-        return '70vh';
-      case 'full':
-        return '100vh';
-      default:
-        return '35vh';
-    }
-  };
 
   // Load comments for a service
   const loadComments = async (serviceId: string) => {
@@ -412,12 +395,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
           // Check if user is in Israel (approximate boundaries)
           const isInIsrael = location.lat >= 29.5 && location.lat <= 33.3 &&
-                            location.lng >= 34.2 && location.lng <= 35.8;
+            location.lng >= 34.2 && location.lng <= 35.8;
 
           // Keep map focused on Israel, but show user location marker
           if (map) {
             const israelCenter = { lat: 31.7683, lng: 35.2137 };
-            
+
             // Only center on user location if they're in Israel
             if (isInIsrael) {
               map.setCenter(location);
@@ -448,36 +431,55 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
           calculateDistancesAndSort(location);
           setIsLoading(false);
         },
-        (error: GeolocationPositionError) => {
+        (error: GeolocationPositionError | null | undefined) => {
           setLocationPermission('denied');
           setIsLoading(false);
 
-          // Only log non-permission errors (user denial is expected)
-          if (error && error.code !== 1) {
-            console.error('Error getting location:', error);
+          // Handle cases where error might be null, undefined, or empty
+          if (!error) {
+            // Silent failure - no error object provided
+            return;
           }
 
-          // Only show toast for non-permission errors (user denial is silent)
-          if (error && error.code !== 1) {
-            let errorMessage = 'Unable to get your location.';
+          // Check if error has a code property and is a valid GeolocationPositionError
+          const errorCode = error?.code;
 
-            // GeolocationPositionError codes:
-            // 1 = PERMISSION_DENIED (silent - user choice)
-            // 2 = POSITION_UNAVAILABLE
-            // 3 = TIMEOUT
-            switch (error.code) {
-              case 2: // POSITION_UNAVAILABLE
-                errorMessage = 'Location information is unavailable. Please check your device settings.';
-                break;
-              case 3: // TIMEOUT
-                errorMessage = 'Location request timed out. Please try again.';
-                break;
-              default:
-                errorMessage = error.message || 'Unable to get your location. Please try again.';
-            }
+          // Skip logging if error is empty object or doesn't have a valid code
+          // Also check if error object has any enumerable properties
+          const hasErrorProperties = error && Object.keys(error).length > 0;
+          if (errorCode === undefined || errorCode === null || !hasErrorProperties) {
+            // Silent failure - empty or invalid error object
+            return;
+          }
 
+          // Only log non-permission errors (user denial is expected)
+          // Code 1 = PERMISSION_DENIED (silent - user choice)
+          if (errorCode === 1) {
+            // Silent - user denied permission
+            return;
+          }
+
+          // Log only meaningful errors (codes 2 or 3)
+          // GeolocationPositionError codes:
+          // 1 = PERMISSION_DENIED (silent - user choice)
+          // 2 = POSITION_UNAVAILABLE
+          // 3 = TIMEOUT
+          if (errorCode === 2) {
+            const errorMessage = 'Location information is unavailable. Please check your device settings.';
+            console.error('Error getting location: POSITION_UNAVAILABLE', {
+              code: errorCode,
+              message: error.message || errorMessage
+            });
+            toast.error(errorMessage);
+          } else if (errorCode === 3) {
+            const errorMessage = 'Location request timed out. Please try again.';
+            console.error('Error getting location: TIMEOUT', {
+              code: errorCode,
+              message: error.message || errorMessage
+            });
             toast.error(errorMessage);
           }
+          // All other cases (including empty errors) are handled silently above
         },
         {
           enableHighAccuracy: true,
@@ -619,14 +621,14 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
     // Focus map on Israel with markers
     const israelCenter = { lat: 31.7683, lng: 35.2137 }; // Center of Israel (Jerusalem area)
-    
+
     if (newMarkers.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       newMarkers.forEach(marker => bounds.extend(marker.getPosition()));
       if (userLocation) {
         bounds.extend(new window.google.maps.LatLng(userLocation.lat, userLocation.lng));
       }
-      
+
       // Check if bounds are within Israel's approximate boundaries
       // Israel roughly: Lat 29.5-33.3, Lng 34.2-35.8
       const israelBounds = {
@@ -635,15 +637,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         east: 35.8,
         west: 34.2
       };
-      
+
       const boundsNE = bounds.getNorthEast();
       const boundsSW = bounds.getSouthWest();
-      
+
       // If bounds are within Israel or close, fit them with padding
-      if (boundsSW.lat() >= israelBounds.south - 1 && 
-          boundsNE.lat() <= israelBounds.north + 1 &&
-          boundsSW.lng() >= israelBounds.west - 1 && 
-          boundsNE.lng() <= israelBounds.east + 1) {
+      if (boundsSW.lat() >= israelBounds.south - 1 &&
+        boundsNE.lat() <= israelBounds.north + 1 &&
+        boundsSW.lng() >= israelBounds.west - 1 &&
+        boundsNE.lng() <= israelBounds.east + 1) {
         map.fitBounds(bounds, { padding: 50 });
       } else {
         // If markers are outside Israel, center on Israel and show markers with wider zoom
@@ -692,7 +694,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
               initializeMap();
             }
           }, 100);
-          
+
           // Timeout after 5 seconds
           setTimeout(() => {
             clearInterval(checkInterval);
@@ -871,7 +873,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         </div>
       </div>
 
-      {/* Mobile Layout: Map + Draggable Bottom Sheet */}
+      {/* Mobile Layout: Map + Drawer for Services List */}
       {isMobile ? (
         <div className="relative h-full w-full">
           {/* Mobile Header */}
@@ -899,15 +901,10 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
               </div>
             )}
 
-            {/* Locate Me Button - Position adjusts based on bottom sheet height */}
+            {/* Locate Me Button - Position adjusts based on drawer */}
             <button
               onClick={requestUserLocation}
-              className={cn(
-                "absolute right-4 z-10 bg-white p-3 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all",
-                bottomSheetHeight === 'collapsed' ? 'bottom-[35vh]' : 
-                bottomSheetHeight === 'expanded' ? 'bottom-[70vh]' : 
-                'bottom-[100vh] opacity-0 pointer-events-none'
-              )}
+              className="absolute bottom-32 right-4 z-10 bg-white p-3 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               title="Show my location"
               aria-label="Show my location"
             >
@@ -917,101 +914,78 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
             <div ref={mapRef} className="w-full h-full" />
           </div>
 
-          {/* Draggable Bottom Sheet - Mobile */}
-          <motion.div
-            ref={containerRef}
-            drag="y"
-            dragConstraints={{ top: -200, bottom: 0 }}
-            dragElastic={0.1}
-            onDragEnd={handleDragEnd}
-            style={{
-              y,
-            }}
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-40 flex flex-col overflow-hidden"
-            initial={false}
-            animate={{
-              height: getBottomSheetHeight()
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30
-            }}
+          {/* Services List Drawer (Always persistent) */}
+          <Drawer
+            open={true}
+            modal={false}
+            snapPoints={[0.15, 0.4, 1]}
+            activeSnapPoint={0.4}
+            fadeFromIndex={0}
+            shouldScaleBackground={false}
+            dismissible={false}
           >
-            {/* Drag Handle */}
-            <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
-              <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
-            </div>
-
-            {/* Bottom Sheet Content */}
-            <div className="flex-1 overflow-y-auto">
-              {isLoading && (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">
-                      {t('map.loading') || 'Loading services...'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {!isLoading && servicesWithCoords.length > 0 && (
-                <div className="p-4 space-y-4">
-                  {servicesWithCoords.map((service, index) => (
-                    <div
-                      key={service.id || index}
-                      className={cn(
-                        "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
-                        highlightedServiceId === service.id ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
-                      )}
-                      onClick={() => handleServiceClick(service)}
-                    >
-                      <div className="flex gap-3">
-                        <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-                          <img
-                            src={service.image}
-                            alt={service.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-sm mb-1 truncate">{service.name}</h3>
-                          {service.description && (
-                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
-                              {service.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            {service.distance !== undefined && (
-                              <span className="flex items-center gap-1 text-blue-600 font-medium">
-                                <MapPin size={12} />
-                                {service.distance.toFixed(1)} km
-                              </span>
+            <DrawerContent className="h-[100vh]">
+              <DrawerHeader className="sr-only">
+                <DrawerTitle>Services List</DrawerTitle>
+              </DrawerHeader>
+              {/* Search Bar Placeholder or Title */}
+              <div className="px-4 py-2 border-b">
+                <p className="text-sm font-semibold text-gray-500 text-center">{services.length} services found</p>
+              </div>
+              <div className="flex-1 overflow-y-auto bg-gray-50 p-4 service-cards-scroll">
+                {!isLoading && servicesWithCoords.length > 0 ? (
+                  <div className="space-y-4 pb-20">
+                    {servicesWithCoords.map((service, index) => (
+                      <div
+                        key={service.id || index}
+                        className={cn(
+                          "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
+                          highlightedServiceId === service.id ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
+                        )}
+                        onClick={() => handleServiceClick(service)}
+                      >
+                        <div className="flex gap-3">
+                          <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                            <img
+                              src={service.image}
+                              alt={service.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-sm mb-1 truncate">{service.name}</h3>
+                            {service.description && (
+                              <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                                {service.description}
+                              </p>
                             )}
-                            {service.tags && service.tags.length > 0 && (
-                              <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
-                                {translateTag(service.tags[0])}
-                                {service.tags.length > 1 && ` +${service.tags.length - 1}`}
-                              </span>
-                            )}
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              {service.distance !== undefined && (
+                                <span className="flex items-center gap-1 text-blue-600 font-medium">
+                                  <MapPin size={12} />
+                                  {service.distance.toFixed(1)} km
+                                </span>
+                              )}
+                              {service.tags && service.tags.length > 0 && (
+                                <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                                  {translateTag(service.tags[0])}
+                                  {service.tags.length > 1 && ` +${service.tags.length - 1}`}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {!isLoading && servicesWithCoords.length === 0 && (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-center text-gray-500">
-                    <p>No services found in this area.</p>
+                    ))}
                   </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    {!isLoading && <p>No services found in this area.</p>}
+                  </div>
+                )}
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       ) : (
         <>
@@ -1050,217 +1024,216 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         </>
       )}
 
-      {/* Service Details - Bottom Sheet */}
+      {/* Service Details - Side Panel (Desktop) / Bottom Sheet (Mobile) */}
       {selectedService && (
         <>
-          <Drawer open={drawerOpen} onOpenChange={handleDrawerClose}>
-            <DrawerContent className={cn(
-              "flex flex-col rounded-t-[20px] !mt-0",
-              isMobile ? "!h-[100vh] max-h-[100vh]" : "!h-[50vh] max-h-[50vh]"
-            )}>
-              {/* Scrollable content */}
-              <div className={cn(
-                "mt-2 flex-1 overflow-x-hidden overflow-y-auto",
-                isMobile ? "mx-4" : "mx-4"
-              )}>
-                <DrawerHeader className="ltr:text-left rtl:text-right">
-                  <DrawerTitle className={cn(
-                    "font-bold",
-                    isMobile ? "text-2xl" : "text-3xl"
-                  )}>
-                    {selectedService.name}
-                  </DrawerTitle>
+          {!isMobile ? (
+            /* Desktop Side Panel */
+            <>
+              {/* Overlay */}
+              {drawerOpen && (
+                <div
+                  className="fixed inset-0 bg-black/50 z-[99]"
+                  onClick={() => handleDrawerClose(false)}
+                />
+              )}
+              <div
+                className={cn(
+                  "fixed top-0 bottom-0 right-0 w-[500px] max-w-[90vw] bg-white shadow-2xl z-[100] transition-transform duration-300 ease-in-out overflow-hidden flex flex-col",
+                  drawerOpen ? "translate-x-0" : "translate-x-full"
+                )}
+              >
+                {/* Header with Close Button */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+                  <h2 className="text-2xl font-bold">{selectedService.name}</h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDrawerClose(false)}
+                    className="h-8 w-8"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto p-6">
                   {selectedService.description && selectedService.description.trim() !== '' && (
-                    <DrawerDescription className="text-base">
+                    <p className="text-base text-gray-600 mb-4">
                       {selectedService.description}
-                    </DrawerDescription>
+                    </p>
                   )}
+
                   {/* Tags */}
                   {selectedService.tags && selectedService.tags.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mb-4 flex flex-col gap-2">
                       {selectedService.tags.map((tag, idx) => (
                         <span
                           key={idx}
-                          className="bg-primary rounded-full px-2 py-1 text-xs text-white"
+                          className="bg-primary rounded-full px-2 py-1 text-xs text-white w-fit"
                         >
                           {translateTag(tag)}
                         </span>
                       ))}
                     </div>
                   )}
+
                   {/* Distance */}
                   {selectedService.distance && (
-                    <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 font-semibold">
+                    <div className="mb-4 flex items-center gap-2 text-sm text-blue-600 font-semibold">
                       <MapPin size={16} />
                       <span>{selectedService.distance.toFixed(2)} km away</span>
                     </div>
                   )}
-                </DrawerHeader>
-                {/* Service photo */}
-                <div className="mt-3 -mx-4">
-                  <img
-                    src={selectedService.image}
-                    alt={selectedService.name}
-                    className="w-full h-auto object-contain"
-                    style={{ 
-                      maxHeight: isMobile ? '400px' : '300px', 
-                      display: 'block' 
-                    }}
-                  />
-                </div>
 
-                {/* Contact Information */}
-                <div className="mt-4 space-y-2">
-                  <h4 className="font-semibold">פרטי התקשרות</h4>
-                  {selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null' && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone size={16} className="text-gray-500" />
-                      <span>{selectedService.phone}</span>
-                    </div>
-                  )}
-                  {(selectedService.address || selectedService.location) && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin size={16} className="text-gray-500" />
-                      <span>{selectedService.address || selectedService.location}</span>
-                    </div>
-                  )}
-                </div>
+                  {/* Service photo */}
+                  <div className="mb-4 rounded-lg overflow-hidden">
+                    <img
+                      src={selectedService.image}
+                      alt={selectedService.name}
+                      className="w-full h-auto object-cover"
+                      style={{
+                        maxHeight: '400px',
+                        display: 'block'
+                      }}
+                    />
+                  </div>
 
-                {/* Google Reviews */}
-                <div className="mt-5">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold">ביקורות Google</h3>
-                    {user ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowCommentForm(!showCommentForm)}
-                      >
-                        הוסף ביקורת
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toast.error('עליך להתחבר כדי לכתוב ביקורת')}
-                      >
-                        הוסף ביקורת
-                      </Button>
+                  {/* Contact Information */}
+                  <div className="mb-4 space-y-2">
+                    <h4 className="font-semibold">פרטי התקשרות</h4>
+                    {selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null' && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone size={16} className="text-gray-500" />
+                        <span>{selectedService.phone}</span>
+                      </div>
+                    )}
+                    {(selectedService.address || selectedService.location) && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin size={16} className="text-gray-500" />
+                        <span>{selectedService.address || selectedService.location}</span>
+                      </div>
                     )}
                   </div>
 
-                  {/* Comment Form */}
-                  {showCommentForm && (
-                    <div className="mt-4 rounded-lg border p-4 bg-gray-50">
-                      <h4 className="font-semibold mb-3">הוסף ביקורת חדשה</h4>
-                      <div className="space-y-3">
-                        <div>
-                          <Label>דירוג</Label>
-                          <div className="flex gap-1 mt-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                size={20}
-                                className={cn(
-                                  'cursor-pointer transition-colors',
-                                  star <= userRating
-                                    ? 'fill-orange-400 text-orange-400'
-                                    : 'text-gray-300 hover:text-orange-300'
-                                )}
-                                onClick={() => handleStarClick(star)}
-                              />
-                            ))}
+                  {/* Google Reviews */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold">ביקורות Google</h3>
+                      {user ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowCommentForm(!showCommentForm)}
+                        >
+                          הוסף ביקורת
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toast.error('עליך להתחבר כדי לכתוב ביקורת')}
+                        >
+                          הוסף ביקורת
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Comment Form */}
+                    {showCommentForm && (
+                      <div className="mt-4 rounded-lg border p-4 bg-gray-50">
+                        <h4 className="font-semibold mb-3">הוסף ביקורת חדשה</h4>
+                        <div className="space-y-3">
+                          <div>
+                            <Label>דירוג</Label>
+                            <div className="flex gap-1 mt-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  size={20}
+                                  className={cn(
+                                    'cursor-pointer transition-colors',
+                                    star <= userRating
+                                      ? 'fill-orange-400 text-orange-400'
+                                      : 'text-gray-300 hover:text-orange-300'
+                                  )}
+                                  onClick={() => handleStarClick(star)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="comment">תגובה (אופציונלי)</Label>
+                            <Textarea
+                              id="comment"
+                              value={commentText}
+                              onChange={(e) => setCommentText(e.target.value)}
+                              placeholder="שתף את החוויה שלך... (אופציונלי)"
+                              rows={3}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <Button onClick={handleSubmitComment} size="sm" disabled={isSubmittingComment}>
+                              <Send size={16} className="mr-2" />
+                              {isSubmittingComment ? 'שולח...' : 'שלח'}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowCommentForm(false)}
+                            >
+                              ביטול
+                            </Button>
                           </div>
                         </div>
-                        <div>
-                          <Label htmlFor="comment">תגובה (אופציונלי)</Label>
-                          <Textarea
-                            id="comment"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            placeholder="שתף את החוויה שלך... (אופציונלי)"
-                            rows={3}
-                            className="mt-1"
-                          />
-                        </div>
-                        <div className="flex gap-2">
-                          <Button onClick={handleSubmitComment} size="sm" disabled={isSubmittingComment}>
-                            <Send size={16} className="mr-2" />
-                            {isSubmittingComment ? 'שולח...' : 'שלח'}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowCommentForm(false)}
-                          >
-                            ביטול
-                          </Button>
-                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {isLoadingComments ? (
-                    <div className="mt-4 text-center py-4 text-gray-500">
-                      <p>טוען ביקורות...</p>
-                    </div>
-                  ) : comments.length > 0 ? (
-                    comments.map((comment) => (
-                      <div key={comment.id} className="mt-2 border-b border-gray-200 p-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">{comment.userName}</span>
-                          <span className="ml-2 flex items-center gap-1 text-sm text-gray-600">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                size={14}
-                                className={
-                                  i < comment.rating
-                                    ? 'fill-orange-400 text-orange-400'
-                                    : 'fill-gray-400 text-gray-400'
-                                }
-                              />
-                            ))}
+                    {isLoadingComments ? (
+                      <div className="mt-4 text-center py-4 text-gray-500">
+                        <p>טוען ביקורות...</p>
+                      </div>
+                    ) : comments.length > 0 ? (
+                      comments.map((comment) => (
+                        <div key={comment.id} className="mt-2 border-b border-gray-200 p-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold">{comment.userName}</span>
+                            <span className="ml-2 flex items-center gap-1 text-sm text-gray-600">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  size={14}
+                                  className={
+                                    i < comment.rating
+                                      ? 'fill-orange-400 text-orange-400'
+                                      : 'fill-gray-400 text-gray-400'
+                                  }
+                                />
+                              ))}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600">{comment.content}</p>
+                          <span className="text-xs text-gray-400">
+                            {comment.createdAt.toLocaleDateString('he-IL')}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600">{comment.content}</p>
-                        <span className="text-xs text-gray-400">
-                          {comment.createdAt.toLocaleDateString('he-IL')}
-                        </span>
+                      ))
+                    ) : (
+                      <div className="mt-4 text-center py-4 text-gray-500">
+                        <p>אין עדיין ביקורות עבור השירות הזה</p>
+                        <p className="text-sm">היה הראשון לכתוב ביקורת!</p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="mt-4 text-center py-4 text-gray-500">
-                      <p>אין עדיין ביקורות עבור השירות הזה</p>
-                      <p className="text-sm">היה הראשון לכתוב ביקורת!</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Sticky footer */}
-              <motion.div
-                initial={{ y: 100 }}
-                animate={{ y: 0 }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 300,
-                  damping: 30,
-                  delay: 0.2
-                }}
-                className={cn(
-                  "sticky bottom-0 z-20 bg-white border-t",
-                  isMobile ? "pt-4 pb-4" : "pt-2 pb-2"
-                )}
-              >
-                <DrawerFooter>
-                  <div className={cn(
-                    "flex justify-around",
-                    isMobile ? "gap-4" : ""
-                  )}>
+                {/* Footer */}
+                <div className="border-t border-gray-200 p-4 flex-shrink-0">
+                  <div className="flex justify-around gap-2">
                     <Button
                       variant="ghost"
-                      size={isMobile ? "lg" : "icon"}
+                      size="icon"
                       className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.address || selectedService.location) {
@@ -1273,16 +1246,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       }}
                       title={t('navigation') || 'Navigation'}
                     >
-                      <MapPin size={isMobile ? 24 : 20} />
+                      <MapPin size={20} />
                     </Button>
                     <Separator
                       orientation="vertical"
                       className="w-[1px] bg-gray-300"
                     />
-
                     <Button
                       variant="ghost"
-                      size={isMobile ? "lg" : "icon"}
+                      size="icon"
                       className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
@@ -1293,16 +1265,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       }}
                       title={t('call') || 'Call'}
                     >
-                      <Phone size={isMobile ? 24 : 20} />
+                      <Phone size={20} />
                     </Button>
                     <Separator
                       orientation="vertical"
                       className="w-[1px] bg-gray-300"
                     />
-
                     <Button
                       variant="ghost"
-                      size={isMobile ? "lg" : "icon"}
+                      size="icon"
                       className={cn(
                         'transition-colors focus:outline-none',
                         isFavorited
@@ -1314,21 +1285,20 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
                     >
                       {isTogglingFavorite ? (
-                        <div className={cn("animate-spin rounded-full border-2 border-current border-t-transparent", isMobile ? "h-6 w-6" : "h-5 w-5")} />
+                        <div className="animate-spin rounded-full border-2 border-current border-t-transparent h-5 w-5" />
                       ) : isFavorited ? (
-                        <Heart size={isMobile ? 24 : 20} className="fill-current" />
+                        <Heart size={20} className="fill-current" />
                       ) : (
-                        <HeartOff size={isMobile ? 24 : 20} />
+                        <HeartOff size={20} />
                       )}
                     </Button>
                     <Separator
                       orientation="vertical"
                       className="w-[1px] bg-gray-300"
                     />
-
                     <Button
                       variant="ghost"
-                      size={isMobile ? "lg" : "icon"}
+                      size="icon"
                       className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.id) {
@@ -1339,13 +1309,300 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       }}
                       title={t('coupons') || 'Vouchers'}
                     >
-                      <Ticket size={isMobile ? 24 : 20} />
+                      <Ticket size={20} />
                     </Button>
                   </div>
-                </DrawerFooter>
-              </motion.div>
-            </DrawerContent>
-          </Drawer>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Mobile Fullscreen Modal */
+            <Drawer
+              open={drawerOpen}
+              onOpenChange={handleDrawerClose}
+              snapPoints={[0.5, 1]}
+              activeSnapPoint={0.5}
+              dismissible={true}
+              modal={true} // Modal to focus comfortably
+            >
+              <DrawerContent className="h-[96vh] mt-24">
+                <DrawerHeader>
+                  <div className="flex items-center justify-between">
+                    <DrawerTitle className="text-xl font-bold">{selectedService.name}</DrawerTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDrawerClose(false)}
+                      className="h-8 w-8"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </DrawerHeader>
+                <div className="flex-1 overflow-y-auto p-4 h-full">
+                  <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-6" /> {/* Handle */}
+
+                  {/* Scrollable content */}
+                  <div className="flex-1 overflow-y-auto p-4">
+                    {selectedService.description && selectedService.description.trim() !== '' && (
+                      <p className="text-base text-gray-600 mb-4">
+                        {selectedService.description}
+                      </p>
+                    )}
+
+                    {/* Tags */}
+                    {selectedService.tags && selectedService.tags.length > 0 && (
+                      <div className="mb-4 flex flex-col gap-2">
+                        {selectedService.tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-primary rounded-full px-2 py-1 text-xs text-white w-fit"
+                          >
+                            {translateTag(tag)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Distance */}
+                    {selectedService.distance && (
+                      <div className="mb-4 flex items-center gap-2 text-sm text-blue-600 font-semibold">
+                        <MapPin size={16} />
+                        <span>{selectedService.distance.toFixed(2)} km away</span>
+                      </div>
+                    )}
+
+                    {/* Service photo */}
+                    <div className="mb-4 rounded-lg overflow-hidden">
+                      <img
+                        src={selectedService.image}
+                        alt={selectedService.name}
+                        className="w-full h-auto object-cover"
+                        style={{
+                          maxHeight: '400px',
+                          display: 'block'
+                        }}
+                      />
+                    </div>
+
+                    {/* Contact Information */}
+                    <div className="mb-4 space-y-2">
+                      <h4 className="font-semibold">פרטי התקשרות</h4>
+                      {selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null' && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone size={16} className="text-gray-500" />
+                          <span>{selectedService.phone}</span>
+                        </div>
+                      )}
+                      {(selectedService.address || selectedService.location) && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin size={16} className="text-gray-500" />
+                          <span>{selectedService.address || selectedService.location}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Google Reviews */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold">ביקורות Google</h3>
+                        {user ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowCommentForm(!showCommentForm)}
+                          >
+                            הוסף ביקורת
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toast.error('עליך להתחבר כדי לכתוב ביקורת')}
+                          >
+                            הוסף ביקורת
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Comment Form */}
+                      {showCommentForm && (
+                        <div className="mt-4 rounded-lg border p-4 bg-gray-50">
+                          <h4 className="font-semibold mb-3">הוסף ביקורת חדשה</h4>
+                          <div className="space-y-3">
+                            <div>
+                              <Label>דירוג</Label>
+                              <div className="flex gap-1 mt-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    size={20}
+                                    className={cn(
+                                      'cursor-pointer transition-colors',
+                                      star <= userRating
+                                        ? 'fill-orange-400 text-orange-400'
+                                        : 'text-gray-300 hover:text-orange-300'
+                                    )}
+                                    onClick={() => handleStarClick(star)}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <Label htmlFor="comment">תגובה (אופציונלי)</Label>
+                              <Textarea
+                                id="comment"
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                placeholder="שתף את החוויה שלך... (אופציונלי)"
+                                rows={3}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button onClick={handleSubmitComment} size="sm" disabled={isSubmittingComment}>
+                                <Send size={16} className="mr-2" />
+                                {isSubmittingComment ? 'שולח...' : 'שלח'}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowCommentForm(false)}
+                              >
+                                ביטול
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {isLoadingComments ? (
+                        <div className="mt-4 text-center py-4 text-gray-500">
+                          <p>טוען ביקורות...</p>
+                        </div>
+                      ) : comments.length > 0 ? (
+                        comments.map((comment) => (
+                          <div key={comment.id} className="mt-2 border-b border-gray-200 p-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold">{comment.userName}</span>
+                              <span className="ml-2 flex items-center gap-1 text-sm text-gray-600">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    size={14}
+                                    className={
+                                      i < comment.rating
+                                        ? 'fill-orange-400 text-orange-400'
+                                        : 'fill-gray-400 text-gray-400'
+                                    }
+                                  />
+                                ))}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600">{comment.content}</p>
+                            <span className="text-xs text-gray-400">
+                              {comment.createdAt.toLocaleDateString('he-IL')}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="mt-4 text-center py-4 text-gray-500">
+                          <p>אין עדיין ביקורות עבור השירות הזה</p>
+                          <p className="text-sm">היה הראשון לכתוב ביקורת!</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="border-t border-gray-200 p-4 flex-shrink-0 bg-white">
+                    <div className="flex justify-around gap-4">
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                        onClick={() => {
+                          if (selectedService.address || selectedService.location) {
+                            const address = selectedService.address || selectedService.location;
+                            const encodedAddress = encodeURIComponent(address);
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                          } else {
+                            toast.error('כתובת לא זמינה');
+                          }
+                        }}
+                        title={t('navigation') || 'Navigation'}
+                      >
+                        <MapPin size={24} />
+                      </Button>
+                      <Separator
+                        orientation="vertical"
+                        className="w-[1px] bg-gray-300"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                        onClick={() => {
+                          if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
+                            window.open(`tel:${selectedService.phone}`, '_self');
+                          } else {
+                            toast.error('מספר טלפון לא זמין');
+                          }
+                        }}
+                        title={t('call') || 'Call'}
+                      >
+                        <Phone size={24} />
+                      </Button>
+                      <Separator
+                        orientation="vertical"
+                        className="w-[1px] bg-gray-300"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className={cn(
+                          'transition-colors focus:outline-none',
+                          isFavorited
+                            ? 'text-red-500 hover:text-red-600 focus:text-red-600'
+                            : 'hover:text-red-500 focus:text-red-500'
+                        )}
+                        onClick={handleToggleFavorite}
+                        disabled={isTogglingFavorite}
+                        title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                      >
+                        {isTogglingFavorite ? (
+                          <div className="animate-spin rounded-full border-2 border-current border-t-transparent h-6 w-6" />
+                        ) : isFavorited ? (
+                          <Heart size={24} className="fill-current" />
+                        ) : (
+                          <HeartOff size={24} />
+                        )}
+                      </Button>
+                      <Separator
+                        orientation="vertical"
+                        className="w-[1px] bg-gray-300"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                        onClick={() => {
+                          if (selectedService.id) {
+                            router.push(`/${locale}/promos?businessId=${selectedService.id}`);
+                          } else {
+                            toast.error('Business ID not available');
+                          }
+                        }}
+                        title={t('coupons') || 'Vouchers'}
+                      >
+                        <Ticket size={24} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
         </>
       )}
     </div>
@@ -1353,4 +1610,3 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 };
 
 export default ServicesMapView;
-
