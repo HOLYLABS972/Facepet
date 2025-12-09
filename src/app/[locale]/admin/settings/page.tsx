@@ -1,5 +1,6 @@
 import ContactInfoForm from '@/components/admin/ContactInfoForm';
 import InstallBannerSettingsForm from '@/components/admin/InstallBannerSettingsForm';
+import InstallAutomationTools from '@/components/admin/InstallAutomationTools';
 import { getContactInfo, getInstallBannerSettings } from '@/lib/actions/admin';
 import { getTranslations } from 'next-intl/server';
 
@@ -15,9 +16,10 @@ export default async function SettingsPage() {
         <p className="text-gray-600 mt-2">{t('manageSettingsDescription')}</p>
       </div>
 
-      <div className="space-y-8 max-w-2xl">
+      <div className="space-y-8 max-w-4xl">
         <ContactInfoForm initialData={contactInfo} />
         <InstallBannerSettingsForm initialData={installBannerSettings} />
+        <InstallAutomationTools />
       </div>
     </div>
   );
