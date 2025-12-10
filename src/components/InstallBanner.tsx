@@ -11,13 +11,10 @@ export default function InstallBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
-    // Check if user is on mobile
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!isMobile) return;
-
     // Check if already installed (standalone mode)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
                         (window.navigator as any).standalone === true;
@@ -34,18 +31,21 @@ export default function InstallBanner() {
 
     // Detect platform
     const userAgent = navigator.userAgent;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
     setIsIOS(/iPhone|iPad|iPod/i.test(userAgent));
     setIsAndroid(/Android/i.test(userAgent));
+    setIsDesktop(!isMobile);
 
     // Load settings
     getInstallBannerSettings().then((data) => {
       if (data && data.enabled) {
         setSettings(data);
+        // Show banner if settings are enabled (works for both mobile and desktop)
         setIsVisible(true);
       }
     });
 
-    // Listen for beforeinstallprompt event (Android)
+    // Listen for beforeinstallprompt event (Android and Desktop Chrome/Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -64,8 +64,8 @@ export default function InstallBanner() {
   };
 
   const handleInstall = async () => {
-    if (isAndroid && deferredPrompt) {
-      // Android: Use the deferred prompt
+    if (deferredPrompt) {
+      // Android or Desktop: Use the deferred prompt
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -77,6 +77,9 @@ export default function InstallBanner() {
       // iOS: Show instructions
       // The banner will stay visible with instructions
       // User needs to manually add to home screen
+    } else if (isDesktop) {
+      // Desktop: Show instructions for manual installation
+      // User can use browser menu or address bar install icon
     }
   };
 
@@ -113,9 +116,14 @@ export default function InstallBanner() {
               Tap <Share className="inline h-3 w-3 mx-1" /> then &quot;Add to Home Screen&quot;
             </p>
           )}
+          {isDesktop && !deferredPrompt && (
+            <p className="text-xs mt-1 opacity-90">
+              Click the install icon in your browser&apos;s address bar, or use the browser menu
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {(isAndroid && deferredPrompt) && (
+          {deferredPrompt && (isAndroid || isDesktop) && (
             <Button
               onClick={handleInstall}
               size="sm"

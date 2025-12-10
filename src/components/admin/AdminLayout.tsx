@@ -2,11 +2,14 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Phone, Settings, Mail, Ticket, Menu, X } from 'lucide-react';
+import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Settings, Mail, Ticket, Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getUserRole, type UserRole } from '@/lib/utils/admin';
+import AdminInstallBanner from './AdminInstallBanner';
+import AdminTopNav from './AdminTopNav';
+import AdminBottomNav from './AdminBottomNav';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,14 +18,13 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading } = useAuth();
   const t = useTranslations('Admin');
-  
+
   // Get locale from URL or default to 'en'
-  const locale = typeof window !== 'undefined' 
+  const locale = typeof window !== 'undefined'
     ? window.location.pathname.split('/')[1] || 'en'
     : 'en';
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -90,34 +92,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex min-h-screen relative">
-      {/* Mobile Backdrop */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
+      {/* Mobile Navigation */}
+      <div className="md:hidden">
+        <AdminInstallBanner />
+        <AdminTopNav
+          userEmail={user.email || ''}
+          userRole={userRole ? t(`roles.${userRole}`) : 'Loading...'}
+          locale={locale}
         />
-      )}
+      </div>
 
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-lg md:hidden"
-      >
-        {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </button>
-
-      {/* Sidebar */}
-      <div className={`
-        bg-secondary-background text-primary fixed md:sticky md:top-0 h-screen w-64 p-4 z-50
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block bg-secondary-background text-primary sticky top-0 h-screen w-64 p-4">
         <nav>
           <ul className="space-y-2">
             <li>
               <Link
                 href={`/${locale}/admin`}
-                onClick={() => setSidebarOpen(false)}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <LayoutDashboard className="h-6 w-6" />
@@ -127,7 +118,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <li>
               <Link
                 href={`/${locale}/admin/ads`}
-                onClick={() => setSidebarOpen(false)}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <AppWindow className="h-6 w-6" />
@@ -137,7 +127,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <li>
               <Link
                 href={`/${locale}/admin/comments`}
-                onClick={() => setSidebarOpen(false)}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <MessageSquare className="h-6 w-6" />
@@ -147,7 +136,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <li>
               <Link
                 href={`/${locale}/admin/contact-submissions`}
-                onClick={() => setSidebarOpen(false)}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <Mail className="h-6 w-6" />
@@ -157,7 +145,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <li>
               <Link
                 href={`/${locale}/admin/settings`}
-                onClick={() => setSidebarOpen(false)}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <Settings className="h-6 w-6" />
@@ -167,7 +154,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <li>
               <Link
                 href={`/${locale}/admin/coupons`}
-                onClick={() => setSidebarOpen(false)}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <Ticket className="h-6 w-6" />
@@ -177,11 +163,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <li>
               <Link
                 href={`/${locale}/admin/users`}
-                onClick={() => setSidebarOpen(false)}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
                 <Users className="h-6 w-6" />
                 {t('navigation.manageUsers')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/admin/install`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Download className="h-6 w-6" />
+                Install App
               </Link>
             </li>
           </ul>
@@ -195,9 +189,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="bg-background flex-1 w-full md:ml-0">
-        <div className="md:hidden pt-16">{/* Spacer for mobile menu button */}</div>
-        {children}
+      <div className="bg-background flex-1 w-full">
+        {/* Mobile: Add top padding for fixed top nav */}
+        <div className="md:hidden h-[60px]" />
+
+        {/* Content */}
+        <div>
+          {children}
+        </div>
       </div>
     </div>
   );

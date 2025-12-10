@@ -9,9 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 export default function AdminDashboard() {
   const t = useTranslations('Admin');
-  
+
   // Get locale from URL or default to 'en'
-  const locale = typeof window !== 'undefined' 
+  const locale = typeof window !== 'undefined'
     ? window.location.pathname.split('/')[1] || 'en'
     : 'en';
 
@@ -23,13 +23,13 @@ export default function AdminDashboard() {
     comments: { total: 0 },
     rating: { average: '0.0' }
   });
-  
+
   const [activity, setActivity] = useState({
     users: [],
     pets: [],
     ads: []
   });
-  
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
           getDashboardStats(),
           getRecentActivity()
         ]);
-        
+
         setStats(statsData || {
           users: { total: 0, new: 0, byRole: {} },
           ads: { total: 0, byStatus: {}, byType: {} },
@@ -48,7 +48,7 @@ export default function AdminDashboard() {
           comments: { total: 0 },
           rating: { average: '0.0' }
         });
-        
+
         setActivity(activityData || {
           users: [],
           pets: [],
@@ -81,19 +81,19 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <h1 className="mb-6 text-2xl md:text-3xl font-bold">{t('dashboard')}</h1>
+    <div className="container mx-auto p-3 md:p-8">
+      <h1 className="mb-4 md:mb-6 text-xl md:text-3xl font-bold">{t('dashboard')}</h1>
 
       {/* Top Section - Statistics Overview */}
-      <div className="mb-6 grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+      <div className="mb-4 md:mb-6 grid grid-cols-2 gap-3 md:gap-6 lg:grid-cols-3 xl:grid-cols-6">
         {/* Total Ads */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('stats.totalAds')}</h3>
-            <div className="rounded-lg bg-blue-100 p-2 text-blue-800">
+        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+          <div className="mb-3 md:mb-4 flex items-center justify-between">
+            <h3 className="text-sm md:text-lg font-semibold">{t('stats.totalAds')}</h3>
+            <div className="rounded-lg bg-blue-100 p-1.5 md:p-2 text-blue-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -108,21 +108,21 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600">
+            <div className="text-2xl md:text-4xl font-bold text-blue-600">
               {stats.ads.total}
             </div>
-            <div className="mt-1 text-sm text-gray-500">{t('stats.advertisements')}</div>
+            <div className="mt-1 text-xs md:text-sm text-gray-500">{t('stats.advertisements')}</div>
           </div>
         </div>
 
         {/* Contact Forms */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('stats.contactForms')}</h3>
-            <div className="rounded-lg bg-green-100 p-2 text-green-800">
+        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+          <div className="mb-3 md:mb-4 flex items-center justify-between">
+            <h3 className="text-sm md:text-lg font-semibold">{t('stats.contactForms')}</h3>
+            <div className="rounded-lg bg-green-100 p-1.5 md:p-2 text-green-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -137,21 +137,21 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-green-600">
+            <div className="text-2xl md:text-4xl font-bold text-green-600">
               {stats.contactSubmissions.total}
             </div>
-            <div className='mt-1 text-sm text-gray-500'>{t('stats.submissions')}</div>
+            <div className='mt-1 text-xs md:text-sm text-gray-500'>{t('stats.submissions')}</div>
           </div>
         </div>
 
         {/* Ad Comments */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('stats.totalComments')}</h3>
-            <div className="rounded-lg bg-purple-100 p-2 text-purple-800">
+        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+          <div className="mb-3 md:mb-4 flex items-center justify-between">
+            <h3 className="text-sm md:text-lg font-semibold">{t('stats.totalComments')}</h3>
+            <div className="rounded-lg bg-purple-100 p-1.5 md:p-2 text-purple-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -166,21 +166,21 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-purple-600">
+            <div className="text-2xl md:text-4xl font-bold text-purple-600">
               {stats.comments.total}
             </div>
-            <div className='mt-1 text-sm text-gray-500'>{t('stats.comments')}</div>
+            <div className='mt-1 text-xs md:text-sm text-gray-500'>{t('stats.comments')}</div>
           </div>
         </div>
 
         {/* Rating */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('stats.rating')}</h3>
-            <div className="rounded-lg bg-yellow-100 p-2 text-yellow-800">
+        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+          <div className="mb-3 md:mb-4 flex items-center justify-between">
+            <h3 className="text-sm md:text-lg font-semibold">{t('stats.rating')}</h3>
+            <div className="rounded-lg bg-yellow-100 p-1.5 md:p-2 text-yellow-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -195,21 +195,21 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-yellow-600">
+            <div className="text-2xl md:text-4xl font-bold text-yellow-600">
               {stats.rating.average}
             </div>
-            <div className='mt-1 text-sm text-gray-500'>{t('stats.averageRating')}</div>
+            <div className='mt-1 text-xs md:text-sm text-gray-500'>{t('stats.averageRating')}</div>
           </div>
         </div>
 
         {/* Total Users */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('stats.totalUsers')}</h3>
-            <div className="rounded-lg bg-indigo-100 p-2 text-indigo-800">
+        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+          <div className="mb-3 md:mb-4 flex items-center justify-between">
+            <h3 className="text-sm md:text-lg font-semibold">{t('stats.totalUsers')}</h3>
+            <div className="rounded-lg bg-indigo-100 p-1.5 md:p-2 text-indigo-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -224,21 +224,21 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-indigo-600">
+            <div className="text-2xl md:text-4xl font-bold text-indigo-600">
               {stats.users.total}
             </div>
-            <div className='mt-1 text-sm text-gray-500'>{t('stats.users')}</div>
+            <div className='mt-1 text-xs md:text-sm text-gray-500'>{t('stats.users')}</div>
           </div>
         </div>
 
         {/* Total Pets */}
-        <div className="rounded-lg bg-white p-6 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('stats.totalPets')}</h3>
-            <div className="rounded-lg bg-pink-100 p-2 text-pink-800">
+        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+          <div className="mb-3 md:mb-4 flex items-center justify-between">
+            <h3 className="text-sm md:text-lg font-semibold">{t('stats.totalPets')}</h3>
+            <div className="rounded-lg bg-pink-100 p-1.5 md:p-2 text-pink-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -253,103 +253,106 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-pink-600">
+            <div className="text-2xl md:text-4xl font-bold text-pink-600">
               {stats.pets.total}
             </div>
-            <div className='mt-1 text-sm text-gray-500'>{t('stats.pets')}</div>
+            <div className='mt-1 text-xs md:text-sm text-gray-500'>{t('stats.pets')}</div>
           </div>
         </div>
       </div>
 
       {/* Bottom Section - Management Tables */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="rounded-lg bg-white p-4 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
+        <div className="rounded-lg bg-white p-3 md:p-4 shadow-md">
+          <div className="mb-3 md:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <h3 className="text-base md:text-lg font-semibold order-1">{t('userActivity')}</h3>
             <Link
               href={`/${locale}/admin/users`}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 rtl:order-2"
+              className="rounded bg-blue-500 px-3 md:px-4 py-2 text-sm md:text-base text-white transition hover:bg-blue-600 w-full sm:w-auto text-center order-2"
             >
               {t('manageUsers')}
             </Link>
-            <h3 className="text-lg font-semibold text-right rtl:text-right rtl:order-1">{t('userActivity')}</h3>
           </div>
-          <div className="overflow-hidden">
-            <Table className="min-w-0">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="px-0.5">{t('usersManagement.table.name')}</TableHead>
-                  <TableHead className="px-0.5">{t('usersManagement.table.email')}</TableHead>
-                  <TableHead className="px-0.5">{t('usersManagement.table.joined')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {activity.users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="px-0.5">{user.fullName}</TableCell>
-                    <TableCell className="px-0.5 text-sm text-gray-600">{user.email}</TableCell>
-                    <TableCell className="px-0.5 text-sm">
-                      {formatDate(user.createdAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {activity.users.length === 0 && (
+          <div className="overflow-x-auto -mx-3 md:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <Table className="min-w-full">
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={3} className='text-center text-gray-500'>
-                      {t('noActivity')}
-                    </TableCell>
+                    <TableHead className="px-2 md:px-4 text-xs md:text-sm">{t('usersManagement.table.name')}</TableHead>
+                    <TableHead className="px-2 md:px-4 text-xs md:text-sm">{t('usersManagement.table.email')}</TableHead>
+                    <TableHead className="px-2 md:px-4 text-xs md:text-sm">{t('usersManagement.table.joined')}</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {activity.users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="px-2 md:px-4 text-xs md:text-sm">{user.fullName}</TableCell>
+                      <TableCell className="px-2 md:px-4 text-xs md:text-sm text-gray-600">{user.email}</TableCell>
+                      <TableCell className="px-2 md:px-4 text-xs md:text-sm">
+                        {formatDate(user.createdAt)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {activity.users.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={3} className='text-center text-gray-500 text-xs md:text-sm'>
+                        {t('noActivity')}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-4 shadow-md">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="rounded-lg bg-white p-3 md:p-4 shadow-md">
+          <div className="mb-3 md:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <h3 className="text-base md:text-lg font-semibold order-1">{t('adActivity')}</h3>
             <Link
               href={`/${locale}/admin/ads`}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 rtl:order-2"
+              className="rounded bg-blue-500 px-3 md:px-4 py-2 text-sm md:text-base text-white transition hover:bg-blue-600 w-full sm:w-auto text-center order-2"
             >
               {t('adsManagement.manageAds')}
             </Link>
-            <h3 className="text-lg font-semibold text-right rtl:text-right rtl:order-1">{t('adActivity')}</h3>
           </div>
-          <div className="overflow-hidden">
-            <Table className="min-w-0 w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="px-0 pr-1 text-left rtl:text-right">{t('adsManagement.table.title')}</TableHead>
-                  <TableHead className="px-0 pl-1 text-left rtl:text-right">{t('adsManagement.table.status')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {activity.ads.map((ad) => (
-                  <TableRow key={ad.id}>
-                    <TableCell className="px-0 pr-1">{ad.title}</TableCell>
-                    <TableCell className="px-0 pl-1">
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs ${
-                          ad.status === 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : ad.status === 'scheduled'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {t(`adsManagement.status.${ad.status}`)}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {activity.ads.length === 0 && (
+          <div className="overflow-x-auto -mx-3 md:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <Table className="min-w-full">
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={2} className='text-center text-gray-500'>
-                      {t('noActivity')}
-                    </TableCell>
+                    <TableHead className="px-2 md:px-4 text-xs md:text-sm">{t('adsManagement.table.title')}</TableHead>
+                    <TableHead className="px-2 md:px-4 text-xs md:text-sm">{t('adsManagement.table.status')}</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {activity.ads.map((ad) => (
+                    <TableRow key={ad.id}>
+                      <TableCell className="px-2 md:px-4 text-xs md:text-sm">{ad.title}</TableCell>
+                      <TableCell className="px-2 md:px-4">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] md:text-xs ${ad.status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : ad.status === 'scheduled'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}
+                        >
+                          {t(`adsManagement.status.${ad.status}`)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {activity.ads.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={2} className='text-center text-gray-500 text-xs md:text-sm'>
+                        {t('noActivity')}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
       </div>
