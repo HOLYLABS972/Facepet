@@ -552,8 +552,9 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   };
 
   // Update map markers
-  const updateMapMarkers = (servicesData: ServiceWithCoordinates[]) => {
-    if (!map || !window.google) return;
+  const updateMapMarkers = (servicesData: ServiceWithCoordinates[], targetMap?: any) => {
+    const mapToUse = targetMap || map;
+    if (!mapToUse || !window.google) return;
 
     // Clear existing markers
     markers.forEach(marker => marker.setMap(null));
@@ -565,7 +566,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
       const marker = new window.google.maps.Marker({
         position: service.coordinates,
-        map: map,
+        map: mapToUse,
         title: service.name,
         icon: {
           url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
@@ -646,20 +647,20 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         boundsNE.lat() <= israelBounds.north + 1 &&
         boundsSW.lng() >= israelBounds.west - 1 &&
         boundsNE.lng() <= israelBounds.east + 1) {
-        map.fitBounds(bounds, { padding: 50 });
+        mapToUse.fitBounds(bounds, { padding: 50 });
       } else {
         // If markers are outside Israel, center on Israel and show markers with wider zoom
-        map.setCenter(israelCenter);
-        map.setZoom(8);
+        mapToUse.setCenter(israelCenter);
+        mapToUse.setZoom(8);
       }
     } else if (!userLocation) {
       // If no markers and no user location, center on Israel
-      map.setCenter(israelCenter);
-      map.setZoom(8);
+      mapToUse.setCenter(israelCenter);
+      mapToUse.setZoom(8);
     } else if (userLocation) {
       // If user location exists but no markers, center on Israel (user location will be visible)
-      map.setCenter(israelCenter);
-      map.setZoom(8);
+      mapToUse.setCenter(israelCenter);
+      mapToUse.setZoom(8);
     }
   };
 
@@ -723,8 +724,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     };
   }, []);
 
-  const initializeMap = () => {
+  const initializeMap = (force = false) => {
     if (!mapRef.current || !window.google) return;
+
+    // If map already exists and is bound to the same container, skip unless forced
+    if (map && !force && map.getDiv && map.getDiv() === mapRef.current) {
+      return;
+    }
 
     // Default center (Israel)
     const defaultCenter = { lat: 31.7683, lng: 35.2137 };
@@ -743,7 +749,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     setMap(mapInstance);
 
     // Geocode all services and add markers
-    geocodeAllServices();
+    geocodeAllServices(mapInstance);
   };
 
   // Automatically request location when map is ready
@@ -762,12 +768,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     if (userLocation) {
       calculateDistancesAndSort(userLocation);
     } else {
-      geocodeAllServices();
+      geocodeAllServices(map);
     }
   }, [services]);
 
   // Geocode all services
-  const geocodeAllServices = async () => {
+  const geocodeAllServices = async (targetMap?: any) => {
     if (!geocoderRef.current) return;
 
     setIsLoading(true);
@@ -789,9 +795,21 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     }
 
     setServicesWithCoords(servicesData);
-    updateMapMarkers(servicesData);
+    updateMapMarkers(servicesData, targetMap);
     setIsLoading(false);
   };
+
+  // Reinitialize map when layout/container changes (e.g., mobile vs desktop refresh)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.google) return;
+    if (!mapRef.current) return;
+
+    const needsNewMap = !map || (map.getDiv && map.getDiv() !== mapRef.current);
+    if (needsNewMap) {
+      initializeMap(true);
+    }
+  }, [isMobile, map]);
 
   // Handle service click from list
   const handleServiceClick = (service: ServiceWithCoordinates) => {

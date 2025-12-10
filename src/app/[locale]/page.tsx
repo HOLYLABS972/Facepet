@@ -157,7 +157,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           ))}
 
         <div className="relative z-10">
-          <div className="text-center text-3xl lg:text-4xl pt-4">
+          <div className="text-center text-3xl lg:text-4xl pt-4 mt-[100px]">
             <p className="text-gray-500">{t('upperTitle')}</p>
             <p className="text-black">{t('lowerTitle')}</p>
           </div>
