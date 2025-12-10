@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, X, MessageSquare, Mail, Ticket, LayoutDashboard, AppWindow, Users, Settings, Download } from 'lucide-react';
+import { Menu, X, MessageSquare, Mail, Ticket, LayoutDashboard, AppWindow, Users, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -51,11 +51,6 @@ export default function AdminTopNav({ userEmail, userRole, locale }: AdminTopNav
             href: `/${locale}/admin/coupons`,
             icon: Ticket,
             label: t('navigation.manageCoupons'),
-        },
-        {
-            href: `/${locale}/admin/install`,
-            icon: Download,
-            label: 'Install App',
         },
     ];
 
