@@ -43,7 +43,7 @@ export function BusinessMultiselect({
   // Filter businesses based on search query
   const filteredBusinesses = useMemo(() => {
     if (!searchQuery) return businesses;
-    
+
     const query = searchQuery.toLowerCase();
     return businesses.filter(business =>
       business.name.toLowerCase().includes(query) ||
@@ -96,14 +96,22 @@ export function BusinessMultiselect({
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   {business.name}
-                  <button
-                    type="button"
-                    className="ml-1 rounded-full hover:bg-secondary-foreground/20"
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    className="ml-1 rounded-full hover:bg-secondary-foreground/20 inline-flex items-center justify-center p-0.5"
                     onClick={(e) => removeBusiness(business.id, e)}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeBusiness(business.id, e as any);
+                      }
+                    }}
                   >
                     <X className="h-3 w-3" />
-                  </button>
+                  </span>
                 </Badge>
               ))
             )}

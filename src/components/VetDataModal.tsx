@@ -40,6 +40,7 @@ export default function VetDataModal({
   isEditing = false 
 }: VetDataModalProps) {
   const t = useTranslations('pages.PetProfilePage');
+  const commonT = useTranslations('common');
   const [isLoading, setIsLoading] = useState(false);
   
   const {
@@ -248,14 +249,14 @@ export default function VetDataModal({
               onClick={handleClose}
               disabled={isLoading}
             >
-              Cancel
+            {commonT('cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
               className="bg-purple-600 hover:bg-purple-700"
             >
-              {isLoading ? 'Saving...' : (isEditing ? 'Update' : 'Add')}
+            {isLoading ? commonT('saving') : (isEditing ? commonT('update') : commonT('add'))}
             </Button>
           </div>
         </form>

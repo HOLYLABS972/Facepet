@@ -102,7 +102,12 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     try {
       // Allow empty price for free vouchers (defaults to 0)
       const price = formData.price === '' ? 0 : parseFloat(formData.price);
-      const points = parseInt(formData.points);
+      
+      // Default points to 0 if empty and price is 0
+      let points = parseInt(formData.points);
+      if (isNaN(points) && price === 0) {
+        points = 0;
+      }
       
       if (isNaN(price) || price < 0) {
         throw new Error('Please enter a valid price (0 for free vouchers)');
@@ -191,18 +196,19 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="points">{t('couponsManagement.points')}</Label>
-              <Input
-                id="points"
-                name="points"
-                type="number"
-                value={formData.points}
-                onChange={handleChange}
-                placeholder={t('couponsManagement.pointsPlaceholder')}
-                required
-              />
-            </div>
+            {(formData.price !== '' && parseFloat(formData.price) > 0) && (
+              <div className="space-y-2">
+                <Label htmlFor="points">{t('couponsManagement.points')}</Label>
+                <Input
+                  id="points"
+                  name="points"
+                  type="number"
+                  value={formData.points}
+                  onChange={handleChange}
+                  placeholder={t('couponsManagement.pointsPlaceholder')}
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -213,6 +219,7 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
               onChange={(filePath) => {
                 setFormData((prev) => ({ ...prev, imageUrl: filePath }));
               }}
+              className="w-1/5"
             />
           </div>
 

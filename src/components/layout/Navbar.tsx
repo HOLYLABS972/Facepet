@@ -1,17 +1,14 @@
 'use client';
 
 import { cn } from '@/src/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
 import {
   CircleUserRound,
   Coins,
   LogIn,
   LogOut,
-  Menu,
   PawPrint,
   Stethoscope,
   UserRoundPlus,
-  X,
   LayoutDashboard,
   Mail,
   ShoppingBag,
@@ -47,7 +44,6 @@ type NavLink = {
 
 const Navbar = () => {
   const t = useTranslations('components.Navbar');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { user, loading, signOut } = useAuth();
   const { notifications } = useNotifications();
@@ -162,9 +158,7 @@ const Navbar = () => {
       <nav
         className={cn(
           'fixed top-0 left-0 right-0 z-50',
-          isMenuOpen
-            ? 'to-background bg-linear-to-t from-white'
-            : 'bg-background'
+          'bg-background'
         )}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -173,9 +167,6 @@ const Navbar = () => {
             <Link href="/">
               <div
                 className="flex cursor-pointer items-center"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                }}
               >
                 <span className="text-primary font-['Lobster'] text-2xl">
                   Facepet
@@ -184,7 +175,7 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-4">
               {/* Store Button - always visible */}
               {storeUrl && (
                 <Button
@@ -195,7 +186,7 @@ const Navbar = () => {
                   {t('store')}
                 </Button>
               )}
-              
+
               {user ? (
                 <>
                   {/* User Dropdown Menu */}
@@ -288,170 +279,11 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-
-            {/* Mobile Navigation */}
-            <div className="flex md:hidden items-center gap-2 rtl:flex-row-reverse">
-              {/* Mobile Store Button */}
-              {storeUrl && (
-                <Button
-                  onClick={() => window.location.href = storeUrl}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-2 text-sm"
-                >
-                  <ShoppingBag className="h-4 w-4 mr-1" />
-                  {t('store')}
-                </Button>
-              )}
-              
-              {/* Mobile Menu Button */}
-              <Button
-                variant={'ghost'}
-                type="button"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="inline-flex items-center justify-center rounded-md p-2 active:bg-inherit"
-                aria-expanded={isMenuOpen}
-              >
-                <AnimatePresence mode="wait">
-                  {isMenuOpen ? (
-                    <motion.div
-                      key="close"
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0.8, rotate: 90 }}
-                      transition={{ duration: 0.1 }}
-                    >
-                      <X className="block h-6 w-6" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="open"
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0.8, rotate: -90 }}
-                      transition={{ duration: 0.1 }}
-                    >
-                      <Menu className="block h-6 w-6" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </Button>
-            </div>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.1 }}
-              className="overflow-hidden"
-            >
-              {user ? (
-                <div className="border-b px-4 pb-2">
-                  <div className="space-y-1">
-                    {authPages.map((link) => (
-                      <MobileNavLink
-                        key={link.key}
-                        path={link.path}
-                        locale={locale}
-                        onClick={() => setIsMenuOpen(false)}
-                        icon={link.icon}
-                      >
-                        {link.label}
-                      </MobileNavLink>
-                    ))}
-                    {(userRole === 'admin' || userRole === 'super_admin') && (
-                      <MobileNavLink
-                        key="admin"
-                        path="/admin"
-                        locale={locale}
-                        onClick={() => setIsMenuOpen(false)}
-                        icon={<LayoutDashboard className="h-5 w-5" />}
-                      >
-                        {t('adminPanel')}
-                      </MobileNavLink>
-                    )}
-                  </div>
-                  <Button
-                    variant={'ghost'}
-                    type="button"
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="active:bg-accent flex w-full justify-start gap-5 rounded-md p-2 text-left text-base font-medium text-black transition-colors rtl:text-right"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    {t('signOut')}
-                  </Button>
-                  <Separator className="mt-5 mb-2" />
-                  <div className="flex w-full justify-between rounded-md px-2 text-base font-medium text-black transition-colors">
-                    <Link href={'/user/settings'} locale={locale} passHref>
-                      <Button
-                        variant={'ghost'}
-                        type="button"
-                        id="profile"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                        }}
-                        className="active:text-primary m-0 flex gap-5 p-0 hover:bg-inherit active:bg-inherit"
-                      >
-                        <CircleUserRound className="h-5 w-5" />
-                        {user?.displayName || user?.email}
-                      </Button>
-                    </Link>
-
-                  </div>
-                </div>
-              ) : (
-                <div className="border-b px-4 pb-7">
-                  {publicPages.map((link) => (
-                    <MobileNavLink
-                      key={link.key}
-                      path={link.path}
-                      locale={locale}
-                      onClick={() => setIsMenuOpen(false)}
-                      icon={link.icon}
-                    >
-                      {link.label}
-                    </MobileNavLink>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </nav>
     </>
   );
 };
-
-type MobileNavLinkProps = {
-  onClick: () => void;
-  path: string;
-  locale: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-};
-
-const MobileNavLink = ({
-  onClick,
-  path,
-  locale,
-  icon,
-  children
-}: MobileNavLinkProps) => (
-  <Link href={path} locale={locale} passHref>
-    <Button
-      variant={'ghost'}
-      type="button"
-      onClick={onClick}
-      className="active:bg-accent flex w-full justify-start gap-5 rounded-md p-2 text-left text-base font-medium text-black transition-colors rtl:text-right"
-    >
-      {icon && <span>{icon}</span>}
-      <span>{children}</span>
-    </Button>
-  </Link>
-);
 
 export default Navbar;

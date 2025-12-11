@@ -56,7 +56,7 @@ export default function AdminTopNav({ userEmail, userRole, locale }: AdminTopNav
 
     return (
         <>
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 md:hidden">
+            <div className="sticky top-0 z-50 bg-white border-b border-gray-200 md:hidden w-full">
                 <div
                     className="px-4 py-3 flex items-center justify-between"
                     style={{ paddingTop: 'max(env(safe-area-inset-top), 0.75rem)' }}

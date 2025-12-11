@@ -130,12 +130,12 @@ export default function PromosTable() {
 
   const getBusinessName = (businessId: string) => {
     const business = businesses.find(b => b.id === businessId);
-    return business ? business.name : 'Unknown Business';
+    return business ? business.name : t('promoManagement.unknownBusiness');
   };
 
   const getAudienceName = (audienceId: string) => {
     const audience = audiences.find(a => a.id === audienceId);
-    return audience ? audience.name : 'Unknown Audience';
+    return audience ? audience.name : t('promoManagement.unknownAudience');
   };
 
   if (loading) {
@@ -225,7 +225,7 @@ export default function PromosTable() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={promo.isActive ? 'default' : 'secondary'}>
-                      {promo.isActive ? 'Active' : 'Inactive'}
+                    {promo.isActive ? t('status.active') : t('status.inactive')}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-gray-500">

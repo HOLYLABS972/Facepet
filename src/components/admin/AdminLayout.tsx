@@ -92,15 +92,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen relative">
+    <div className="flex flex-col md:flex-row min-h-screen relative">
       {/* Mobile Navigation */}
       <div className="md:hidden">
-        <AdminInstallBanner />
         <AdminTopNav
           userEmail={user.email || ''}
           userRole={userRole ? t(`roles.${userRole}`) : 'Loading...'}
           locale={locale}
         />
+
       </div>
 
       {/* Desktop Sidebar */}
@@ -187,11 +187,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main content */}
       <div className="bg-background flex-1 w-full">
-        {/* Mobile: Add top padding for fixed top nav */}
-        <div className="md:hidden h-[60px]" />
+        {/* Mobile: Add top padding for fixed top nav (banner will add its own space) */}
+        <AdminInstallBanner />
+
 
         {/* Content - Add padding top for banner on desktop */}
-        <div className="md:pt-[73px]">
+        <div className='flex-1'>
           {children}
         </div>
       </div>

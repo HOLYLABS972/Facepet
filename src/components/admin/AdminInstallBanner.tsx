@@ -80,8 +80,7 @@ export default function AdminInstallBanner() {
 
     return (
         <div
-            className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg md:hidden"
-            style={{ paddingTop: 'max(env(safe-area-inset-top), 0.5rem)' }}
+            className="md:hidden w-full bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg"
         >
             <div className="px-3 py-2 flex items-center gap-2">
                 {settings.logoUrl && (

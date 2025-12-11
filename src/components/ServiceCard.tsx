@@ -261,10 +261,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
       </div>
 
       {/* Drawer with service details */}
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="flex max-h-[90dvh] flex-col sm:max-w-[425px]">
+      <Drawer 
+        open={open} 
+        onOpenChange={setOpen}
+        snapPoints={[1]}
+        activeSnapPoint={1}
+        dismissible={true}
+        closeThreshold={0.9}
+      >
+        <DrawerContent className="flex h-screen flex-col rounded-none mt-0 sm:rounded-t-[10px] sm:max-h-[90dvh] sm:max-w-[425px] sm:h-auto sm:mt-24">
           {/* Scrollable content */}
-          <div className="mx-4 mt-4 flex-1 overflow-x-hidden overflow-y-auto rounded-t-[10px]">
+          <div className="mx-4 mt-4 flex-1 overflow-x-hidden overflow-y-auto">
             <DrawerHeader className="ltr:text-left rtl:text-right">
               <DrawerTitle className="text-3xl">
                 {service.name}

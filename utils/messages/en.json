@@ -448,12 +448,24 @@
       "businessPlaceholder": "Select business",
       "audience": "Audience",
       "audiencePlaceholder": "Select audience",
+      "mediaTypeLabel": "Media Type",
+      "mediaTypes": {
+        "image": "Image",
+        "youtube": "YouTube Video"
+      },
+      "youtubeUrlLabel": "YouTube URL",
+      "youtubeUrlPlaceholder": "https://www.youtube.com/watch?v=...",
+      "youtubeUrlHelp": "Enter a YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)",
+      "youtubePreviewTitle": "YouTube video preview",
+      "unknownBusiness": "Unknown Business",
+      "unknownAudience": "Unknown Audience",
       "startDate": "Start Date",
       "endDate": "End Date",
       "status": "Status",
       "createdAt": "Created At",
       "noPromos": "No promos found.",
       "createPromo": "Create Promo",
+      "creating": "Creating...",
       "edit": "Edit",
       "delete": "Delete",
       "confirmDelete": "Are you sure you want to delete the promo \"{name}\"?",
@@ -749,10 +761,16 @@
         "image": "JPG, PNG or GIF up to 20MB",
         "video": "MP4, WebM or MOV up to 100MB"
       }
-    },
-    "common": {
-      "cancel": "Cancel"
     }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "add": "Add",
+    "update": "Update",
+    "select": "Select & Move"
   },
   "pages": {
     "WelcomePage": {
@@ -1290,7 +1308,24 @@
       "lastUpdated": "Last updated"
     },
     "Admin": {
-      "uploading": "Uploading"
+      "uploading": "Uploading",
+      "mediaUpload": {
+        "editImage": "Edit Image",
+        "replaceImage": "Replace Image",
+        "replaceVideo": "Replace Video",
+        "uploading": "Uploading...",
+        "clickToUploadImage": "Click to upload image",
+        "clickToUploadVideo": "Click to upload video",
+        "fileFormats": {
+          "image": "PNG, JPG up to 20MB",
+          "video": "MP4 up to 100MB"
+        }
+      },
+      "imageEditor": {
+        "title": "Edit Image",
+        "applyCrop": "Apply Crop",
+        "clear": "Clear"
+      }
     }
   },
   "errors": {
@@ -1396,6 +1431,8 @@
       "back": "Back",
       "validFrom": "Valid from",
       "qrCodeDescription": "Scan this QR code to view this voucher",
+      "storeLocation": "Store Location",
+      "loadingMap": "Loading map...",
       "share": "Share",
       "use": "Use"
     },

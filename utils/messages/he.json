@@ -516,12 +516,24 @@
       "businessPlaceholder": "בחר עסק",
       "audience": "קהל יעד",
       "audiencePlaceholder": "בחר קהל יעד",
+      "mediaTypeLabel": "סוג מדיה",
+      "mediaTypes": {
+        "image": "תמונה",
+        "youtube": "סרטון YouTube"
+      },
+      "youtubeUrlLabel": "כתובת URL של YouTube",
+      "youtubeUrlPlaceholder": "https://www.youtube.com/watch?v=...",
+      "youtubeUrlHelp": "הזן כתובת URL של סרטון YouTube (לדוגמה, https://www.youtube.com/watch?v=dQw4w9WgXcQ)",
+      "youtubePreviewTitle": "תצוגה מקדימה של סרטון YouTube",
+      "unknownBusiness": "עסק לא ידוע",
+      "unknownAudience": "קהל יעד לא ידוע",
       "startDate": "תאריך התחלה",
       "endDate": "תאריך סיום",
       "status": "סטטוס",
       "createdAt": "נוצר ב",
       "noPromos": "לא נמצאו קופונים.",
       "createPromo": "צור קופון",
+      "creating": "יוצר...",
       "edit": "ערוך",
       "delete": "מחק",
       "confirmDelete": "האם אתה בטוח שברצונך למחוק את הקופון \"{name}\"?",
@@ -750,10 +762,16 @@
         "image": "JPG, PNG או GIF עד 20MB",
         "video": "MP4, WebM או MOV עד 100MB"
       }
-    },
-    "common": {
-      "cancel": "ביטול"
     }
+  },
+  "common": {
+    "cancel": "ביטול",
+    "save": "שמור",
+    "saving": "שומר...",
+    "creating": "יוצר...",
+    "add": "הוסף",
+    "update": "עדכן",
+    "select": "בחר והזז"
   },
   "pages": {
     "WelcomePage": {
@@ -1289,6 +1307,26 @@
       "title": "תנאי שימוש",
       "heroDescription": "אנא קראו את התנאים האלה בעיון לפני השימוש בשירותי FacePet.",
       "lastUpdated": "עודכן לאחרונה"
+    },
+    "Admin": {
+      "uploading": "מעלה...",
+      "mediaUpload": {
+        "editImage": "ערוך תמונה",
+        "replaceImage": "החלף תמונה",
+        "replaceVideo": "החלף וידאו",
+        "uploading": "מעלה...",
+        "clickToUploadImage": "לחץ להעלאת תמונה",
+        "clickToUploadVideo": "לחץ להעלאת וידאו",
+        "fileFormats": {
+          "image": "PNG, JPG עד 20MB",
+          "video": "MP4 עד 100MB"
+        }
+      },
+      "imageEditor": {
+        "title": "ערוך תמונה",
+        "applyCrop": "החל חיתוך",
+        "clear": "נקה"
+      }
     }
   },
   "errors": {
@@ -1394,6 +1432,8 @@
       "back": "חזור",
       "validFrom": "תקף מ",
       "qrCodeDescription": "סרקו את קוד ה-QR הזה כדי לצפות במתנה/שובר",
+      "storeLocation": "מיקום החנות",
+      "loadingMap": "טוען מפה...",
       "share": "שתף",
       "use": "השתמש"
     },

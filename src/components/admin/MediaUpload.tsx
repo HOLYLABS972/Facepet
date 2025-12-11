@@ -24,7 +24,7 @@ export default function MediaUpload({
   onChange,
   className = ''
 }: MediaUploadProps) {
-  const t = useTranslations('Admin.mediaUpload');
+  const t = useTranslations('pages.Admin.mediaUpload');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -178,12 +178,12 @@ export default function MediaUpload({
       {value && isValidUrl(value) ? (
         <Card className="relative overflow-hidden">
           <CardContent className="p-2">
-            <div className="relative w-full max-h-48 overflow-hidden rounded-md">
+            <div className="relative w-full overflow-hidden rounded-md">
               {type === 'image' ? (
                 <img
                   src={value}
                   alt="Advertisement image"
-                  className="h-full w-full object-cover"
+                  className="w-full h-auto object-cover"
                   loading="lazy"
                   onError={handleImageError}
                 />
@@ -211,24 +211,13 @@ export default function MediaUpload({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="w-full"
                   onClick={() => setIsEditorOpen(true)}
                   disabled={isUploading}
                 >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Image
+                  <Edit className="h-4 w-4" />
                 </Button>
               )}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={handleUploadClick}
-                disabled={isUploading}
-              >
-                {type === 'image' ? t('replaceImage') : t('replaceVideo')}
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -236,22 +225,22 @@ export default function MediaUpload({
         <Button
           type="button"
           variant="outline"
-          className="h-32 w-full border-dashed"
+          className="h-24 w-full border-dashed"
           onClick={handleUploadClick}
           disabled={isUploading}
         >
           <div className="flex flex-col items-center justify-center">
             {type === 'image' ? (
-              <ImageIcon className="text-muted-foreground mb-2 h-8 w-8" />
+              <ImageIcon className="text-muted-foreground mb-1 h-6 w-6" />
             ) : (
-              <Video className="text-muted-foreground mb-2 h-8 w-8" />
+              <Video className="text-muted-foreground mb-1 h-6 w-6" />
             )}
-            <span className="text-sm font-medium">
+            <span className="text-xs font-medium">
               {isUploading
                 ? t('uploading')
                 : (type === 'image' ? t('clickToUploadImage') : t('clickToUploadVideo'))}
             </span>
-            <span className="text-muted-foreground mt-1 text-xs">
+            <span className="text-muted-foreground mt-0.5 text-[10px]">
               {type === 'image' ? t('fileFormats.image') : t('fileFormats.video')}
             </span>
           </div>

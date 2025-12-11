@@ -23,6 +23,7 @@ import { Business } from '@/types/promo';
 
 export default function AddCouponForm() {
   const t = useTranslations('Admin');
+  const commonT = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -87,7 +88,12 @@ export default function AddCouponForm() {
     try {
       // Allow empty price for free vouchers (defaults to 0)
       const price = formData.price === '' ? 0 : parseFloat(formData.price);
-      const points = parseInt(formData.points);
+      
+      // Default points to 0 if empty and price is 0
+      let points = parseInt(formData.points);
+      if (isNaN(points) && price === 0) {
+        points = 0;
+      }
       
       if (isNaN(price) || price < 0) {
         throw new Error('Please enter a valid price (0 for free vouchers)');
@@ -183,32 +189,35 @@ export default function AddCouponForm() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="price">{t('couponsManagement.price')} (0 for free)</Label>
-            <Input
-              id="price"
-              name="price"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.price}
-              onChange={handleChange}
-              placeholder={t('couponsManagement.pricePlaceholder') || '0.00 (leave empty or 0 for free)'}
-            />
-          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">{t('couponsManagement.price')} (0 for free)</Label>
+              <Input
+                id="price"
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder={t('couponsManagement.pricePlaceholder') || '0.00 (leave empty or 0 for free)'}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="points">{t('couponsManagement.points')}</Label>
-            <Input
-              id="points"
-              name="points"
-              type="number"
-              min="0"
-              value={formData.points}
-              onChange={handleChange}
-              placeholder={t('couponsManagement.pointsPlaceholder')}
-              required
-            />
+            {(formData.price !== '' && parseFloat(formData.price) > 0) && (
+              <div className="space-y-2">
+                <Label htmlFor="points">{t('couponsManagement.points')}</Label>
+                <Input
+                  id="points"
+                  name="points"
+                  type="number"
+                  min="0"
+                  value={formData.points}
+                  onChange={handleChange}
+                  placeholder={t('couponsManagement.pointsPlaceholder')}
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -264,10 +273,10 @@ export default function AddCouponForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              {t('common.cancel')}
+              {commonT('cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : t('couponsManagement.createCoupon')}
+              {isSubmitting ? commonT('creating') : t('couponsManagement.createCoupon')}
             </Button>
           </DialogFooter>
         </form>

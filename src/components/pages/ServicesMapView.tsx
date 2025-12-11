@@ -885,7 +885,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
           {servicesWithCoords.length === 0 && !isLoading && (
             <div className="text-center py-8 text-gray-500">
-              <p>No services found in this area.</p>
+              <p>{t('map.noServices')}</p>
             </div>
           )}
         </div>
@@ -948,7 +948,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
               </DrawerHeader>
               {/* Search Bar Placeholder or Title */}
               <div className="px-4 py-2 border-b">
-                <p className="text-sm font-semibold text-gray-500 text-center">{services.length} services found</p>
+                <p className="text-sm font-semibold text-gray-500 text-center">{services.length} {t('map.servicesFound')}</p>
               </div>
               <div className="flex-1 overflow-y-auto bg-gray-50 p-4 service-cards-scroll">
                 {!isLoading && servicesWithCoords.length > 0 ? (
@@ -998,7 +998,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    {!isLoading && <p>No services found in this area.</p>}
+                    {!isLoading && <p>{t('map.noServices')}</p>}
                   </div>
                 )}
               </div>
@@ -1337,12 +1337,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
             <Drawer
               open={drawerOpen}
               onOpenChange={handleDrawerClose}
-              snapPoints={[0.5, 1]}
-              activeSnapPoint={0.5}
+              snapPoints={[1]}
+              activeSnapPoint={1}
               dismissible={true}
               modal={true} // Modal to focus comfortably
+              closeThreshold={0.9}
             >
-              <DrawerContent className="h-[96vh] mt-24">
+              <DrawerContent className="h-screen mt-0 rounded-none">
                 <DrawerHeader>
                   <div className="flex items-center justify-between">
                     <DrawerTitle className="text-xl font-bold">{selectedService.name}</DrawerTitle>
@@ -1357,8 +1358,6 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                   </div>
                 </DrawerHeader>
                 <div className="flex-1 overflow-y-auto p-4 h-full">
-                  <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-6" /> {/* Handle */}
-
                   {/* Scrollable content */}
                   <div className="flex-1 overflow-y-auto p-4">
                     {selectedService.description && selectedService.description.trim() !== '' && (

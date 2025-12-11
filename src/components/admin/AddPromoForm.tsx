@@ -31,6 +31,7 @@ import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 export default function AddPromoForm() {
   const t = useTranslations('Admin');
+  const commonT = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const [mediaType, setMediaType] = useState<'image' | 'youtube'>('image');
   const [formData, setFormData] = useState({
@@ -196,7 +197,7 @@ export default function AddPromoForm() {
           </div>
 
           <div className="space-y-2">
-            <Label>Media Type</Label>
+            <Label>{t('promoManagement.mediaTypeLabel')}</Label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -206,7 +207,7 @@ export default function AddPromoForm() {
                   onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
                   className="cursor-pointer"
                 />
-                <span>Image</span>
+                <span>{t('promoManagement.mediaTypes.image')}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -216,7 +217,7 @@ export default function AddPromoForm() {
                   onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
                   className="cursor-pointer"
                 />
-                <span>YouTube Video</span>
+                <span>{t('promoManagement.mediaTypes.youtube')}</span>
               </label>
             </div>
           </div>
@@ -230,30 +231,31 @@ export default function AddPromoForm() {
                 onChange={(filePath) => {
                   setFormData((prev) => ({ ...prev, imageUrl: filePath }));
                 }}
+                className="w-1/5"
               />
             </div>
           ) : (
             <div className="space-y-2">
-              <Label htmlFor="youtubeUrl">YouTube URL</Label>
+              <Label htmlFor="youtubeUrl">{t('promoManagement.youtubeUrlLabel')}</Label>
               <Input
                 id="youtubeUrl"
                 name="youtubeUrl"
                 value={formData.youtubeUrl}
                 onChange={handleChange}
-                placeholder="https://www.youtube.com/watch?v=..."
+                placeholder={t('promoManagement.youtubeUrlPlaceholder')}
                 type="url"
                 required={mediaType === 'youtube'}
               />
               <p className="text-sm text-gray-500">
-                Enter a YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+                {t('promoManagement.youtubeUrlHelp')}
               </p>
               {formData.youtubeUrl && getYouTubeEmbedUrl(formData.youtubeUrl) && (
-                <div className="mt-4 rounded-md overflow-hidden border">
+                <div className="mt-4 rounded-md overflow-hidden border w-1/5">
                   <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                     <iframe
                       className="absolute top-0 left-0 w-full h-full"
                       src={getYouTubeEmbedUrl(formData.youtubeUrl) || ''}
-                      title="YouTube video preview"
+                      title={t('promoManagement.youtubePreviewTitle')}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
@@ -327,10 +329,10 @@ export default function AddPromoForm() {
               variant="outline"
               onClick={() => setIsOpen(false)}
             >
-              {t('common.cancel')}
+              {commonT('cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : t('promoManagement.createPromo')}
+              {isSubmitting ? t('promoManagement.creating') : t('promoManagement.createPromo')}
             </Button>
           </DialogFooter>
         </form>

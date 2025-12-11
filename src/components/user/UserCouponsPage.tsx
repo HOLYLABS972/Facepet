@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, Ticket, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye } from 'lucide-react';
+import { Coins, Wallet, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Coupon } from '@/types/coupon';
 import { getCoupons, getContactInfo } from '@/lib/actions/admin';
@@ -32,6 +32,7 @@ export default function UserCouponsPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [shopUrl, setShopUrl] = useState<string>('');
   const [freeCouponPrice, setFreeCouponPrice] = useState<boolean>(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const { redirectToShop } = useShopRedirect();
 
   useEffect(() => {
@@ -282,7 +283,8 @@ export default function UserCouponsPage() {
       // Refresh all data
       await fetchData();
 
-      // Switch to "History" tab to show the purchased voucher
+      // Clear selected coupon and switch to "History" tab to show the purchased voucher
+      setSelectedCoupon(null);
       setActiveTab('history');
     } catch (error) {
       console.error('Error purchasing coupon:', error);
@@ -422,7 +424,10 @@ export default function UserCouponsPage() {
         </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
+        setSelectedCoupon(null); // Clear selection when switching tabs
+      }} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2 mb-8 lg:mb-10 h-12 lg:h-14 bg-gray-100/50 p-1 rounded-xl">
           <TabsTrigger 
             value="available" 
@@ -446,16 +451,19 @@ export default function UserCouponsPage() {
         {coupons.length === 0 ? (
           <div className="text-center py-16 lg:py-24 bg-white rounded-2xl border-2 border-dashed border-gray-200">
             <div className="inline-flex p-4 rounded-full bg-gray-100 mb-4">
-              <Ticket className="h-12 w-12 lg:h-16 lg:w-16 text-gray-400" />
+              <Wallet className="h-12 w-12 lg:h-16 lg:w-16 text-gray-400" />
             </div>
             <p className="text-lg lg:text-xl text-gray-500 font-medium">{t('noCoupons')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8 pb-24">
             {coupons.map((coupon) => (
               <Card 
                 key={coupon.id} 
-                className="relative group hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/20 overflow-hidden bg-white"
+                onClick={() => setSelectedCoupon(coupon)}
+                className={`relative group hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden bg-white cursor-pointer ${
+                  selectedCoupon?.id === coupon.id ? 'border-primary ring-2 ring-primary/20' : 'hover:border-primary/20'
+                }`}
               >
                 {coupon.imageUrl && (
                   <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
@@ -465,6 +473,13 @@ export default function UserCouponsPage() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    {/* Date Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm px-3 py-2">
+                      <div className="flex items-center gap-1.5 text-white text-sm font-medium">
+                        <Calendar className="h-4 w-4" />
+                        <span>{t('validUntil')}: {formatDate(coupon.validTo)}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
                 <CardHeader className={coupon.imageUrl ? "pb-3" : ""}>
@@ -474,19 +489,25 @@ export default function UserCouponsPage() {
                     </CardTitle>
                     {!coupon.imageUrl && (
                       <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex-shrink-0">
-                        <Ticket className="w-full h-full p-3 text-primary/40" />
+                        <Wallet className="w-full h-full p-3 text-primary/40" />
                       </div>
                     )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                    <div className={`flex items-center justify-between p-3 rounded-lg ${coupon.price === 0 ? 'bg-green-50' : 'bg-amber-50'}`}>
                       <span className="text-sm font-medium text-gray-600">{t('pointsRequired')}</span>
+                      {coupon.price === 0 ? (
+                        <Badge className="bg-green-500 text-white hover:bg-green-600 px-3 py-1">
+                          <span className="font-bold">{t('free')}</span>
+                        </Badge>
+                      ) : (
                       <Badge variant="outline" className={`flex items-center gap-1.5 bg-white px-3 py-1 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
                         <Coins className="h-4 w-4" />
                         <span className="font-semibold">{freeCouponPrice ? '0' : coupon.points}</span>
                       </Badge>
+                      )}
                     </div>
                     {freeCouponPrice && (
                       <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
@@ -496,29 +517,8 @@ export default function UserCouponsPage() {
                         </Badge>
                       </div>
                     )}
-                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                      <span className="text-sm font-medium text-gray-600">{t('validUntil')}</span>
-                      <div className="flex items-center gap-1.5 text-sm font-medium text-blue-700">
-                        <Calendar className="h-4 w-4" />
-                        {formatDate(coupon.validTo)}
-                      </div>
-                    </div>
                   </div>
                 </CardContent>
-                <CardFooter className="pt-4">
-                  <Button 
-                    onClick={() => handlePurchaseCoupon(coupon)}
-                    disabled={!freeCouponPrice && userPoints < coupon.points}
-                    className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    size="lg"
-                  >
-                    <ShoppingCart className="h-5 w-5" />
-                    {freeCouponPrice 
-                      ? t('getFree')
-                      : (userPoints < coupon.points ? t('insufficientPoints') : t('purchase'))
-                    }
-                  </Button>
-                </CardFooter>
               </Card>
             ))}
             </div>
@@ -581,6 +581,15 @@ export default function UserCouponsPage() {
                         <div className={`absolute inset-0 bg-gradient-to-t ${
                           isActive && !isExpired ? 'from-black/20' : 'from-black/30'
                         } to-transparent`} />
+                        {/* Date Overlay */}
+                        {isActive && !isExpired && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm px-3 py-2">
+                            <div className="flex items-center gap-1.5 text-white text-sm font-medium">
+                              <Calendar className="h-4 w-4" />
+                              <span>{t('validUntil')}: {formatDate(coupon.validTo)}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                     <CardHeader className={coupon.imageUrl ? "pb-3" : "pt-6"}>
@@ -596,7 +605,7 @@ export default function UserCouponsPage() {
                               ? 'from-green-100 to-green-200' 
                               : 'from-gray-100 to-gray-200 grayscale'
                           }`}>
-                            <Ticket className={`w-full h-full p-3 ${
+                            <Wallet className={`w-full h-full p-3 ${
                               isActive && !isExpired ? 'text-green-600' : 'text-gray-400'
                             }`} />
                           </div>
@@ -613,21 +622,12 @@ export default function UserCouponsPage() {
                           </span>
                           <span className={`text-lg font-bold ${
                             isActive && !isExpired 
-                              ? 'text-primary' 
+                              ? (coupon.price === 0 ? 'text-green-600' : 'text-primary')
                               : 'text-gray-600 line-through'
                           }`}>
-                            {formatPrice(coupon.price)}
+                            {coupon.price === 0 ? t('free') : formatPrice(coupon.price)}
                           </span>
                         </div>
-                        {isActive && !isExpired && (
-                          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-600">{t('validUntil')}</span>
-                            <div className="flex items-center gap-1.5 text-sm font-medium text-blue-700">
-                              <Calendar className="h-4 w-4" />
-                              {formatDate(coupon.validTo)}
-                            </div>
-                          </div>
-                        )}
                         {userCoupon.usedAt && (
                           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-500">{t('usedOn') || 'Used on'}</span>
@@ -655,6 +655,45 @@ export default function UserCouponsPage() {
         </TabsContent>
       </Tabs>
       </div>
+
+      {/* Fixed Bottom Bar for Selected Coupon - Only on Available Tab */}
+      {activeTab === 'available' && selectedCoupon && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 p-4">
+          <div className="container mx-auto max-w-7xl">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-gray-900 truncate">{selectedCoupon.name}</h3>
+                <div className="flex items-center gap-4 mt-1">
+                  <Badge variant="outline" className={`flex items-center gap-1.5 bg-white px-3 py-1 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
+                    <Coins className="h-4 w-4" />
+                    <span className="font-semibold">{freeCouponPrice ? '0' : selectedCoupon.points} {t('pointsRequired')}</span>
+                  </Badge>
+                  {freeCouponPrice && (
+                    <Badge variant="outline" className="flex items-center gap-1.5 bg-white border-green-200 text-green-700 px-3 py-1">
+                      <span className="font-semibold">{t('free')}</span>
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <Button 
+                onClick={() => {
+                  handlePurchaseCoupon(selectedCoupon);
+                  setSelectedCoupon(null);
+                }}
+                disabled={!freeCouponPrice && userPoints < selectedCoupon.points}
+                className="flex items-center justify-center gap-2 h-12 px-6 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                size="lg"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {freeCouponPrice 
+                  ? t('getFree')
+                  : (userPoints < selectedCoupon.points ? t('insufficientPoints') : t('purchase'))
+                }
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
