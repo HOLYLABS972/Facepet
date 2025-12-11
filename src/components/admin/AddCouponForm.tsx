@@ -228,6 +228,7 @@ export default function AddCouponForm() {
               onChange={(filePath) => {
                 setFormData((prev) => ({ ...prev, imageUrl: filePath }));
               }}
+              className="w-1/5"
             />
           </div>
 
