@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Coins, Wallet, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye, MapPin } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Coupon } from '@/types/coupon';
-import { getCoupons, getContactInfo, getBusinesses } from '@/lib/actions/admin';
+import { getCoupons, getContactInfo, getBusinesses, getCouponById } from '@/lib/actions/admin';
 import { Business } from '@/types/promo';
 import MapCard from '@/components/cards/MapCard';
 import {
@@ -41,12 +41,48 @@ export default function UserCouponsPage() {
   const [shopUrl, setShopUrl] = useState<string>('');
   const [freeCouponPrice, setFreeCouponPrice] = useState<boolean>(false);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+  const [selectedCouponWithBusinesses, setSelectedCouponWithBusinesses] = useState<Coupon | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [showMapDialog, setShowMapDialog] = useState(false);
   const [couponForDialog, setCouponForDialog] = useState<Coupon | null>(null);
   const [userCouponForDialog, setUserCouponForDialog] = useState<UserCoupon | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const { redirectToShop } = useShopRedirect();
+  
+  // Fetch full coupon data when selected (to ensure we have businessIds)
+  useEffect(() => {
+    const fetchSelectedCouponData = async () => {
+      if (selectedCoupon && (!selectedCoupon.businessIds && !selectedCoupon.businessId)) {
+        console.log('🔄 Fetching full coupon data for:', selectedCoupon.id);
+        const result = await getCouponById(selectedCoupon.id);
+        if (result.success && result.coupon) {
+          const fetchedCoupon = result.coupon as Coupon;
+          console.log('✅ Fetched coupon with businessIds:', {
+            hasBusinessId: !!fetchedCoupon.businessId,
+            hasBusinessIds: !!fetchedCoupon.businessIds,
+            businessId: fetchedCoupon.businessId,
+            businessIds: fetchedCoupon.businessIds
+          });
+          // Merge the businessIds into the selected coupon
+          setSelectedCouponWithBusinesses({
+            ...selectedCoupon,
+            businessId: fetchedCoupon.businessId,
+            businessIds: fetchedCoupon.businessIds
+          });
+        } else {
+          setSelectedCouponWithBusinesses(selectedCoupon);
+        }
+      } else {
+        setSelectedCouponWithBusinesses(selectedCoupon);
+      }
+    };
+    
+    if (selectedCoupon) {
+      fetchSelectedCouponData();
+    } else {
+      setSelectedCouponWithBusinesses(null);
+    }
+  }, [selectedCoupon]);
 
   useEffect(() => {
     if (user) {
@@ -78,11 +114,16 @@ export default function UserCouponsPage() {
         // Log all coupons for debugging
         couponsWithDates.forEach(coupon => {
           console.log(`Coupon: ${coupon.name}`, {
+            id: coupon.id,
             isActive: coupon.isActive,
             validFrom: coupon.validFrom,
             validTo: coupon.validTo,
             points: coupon.points,
-            price: coupon.price
+            price: coupon.price,
+            hasBusinessId: !!coupon.businessId,
+            hasBusinessIds: !!coupon.businessIds,
+            businessId: coupon.businessId,
+            businessIds: coupon.businessIds
           });
         });
         
@@ -780,16 +821,41 @@ export default function UserCouponsPage() {
                   
                   {/* Businesses that accept this coupon */}
                   {(() => {
-                    const couponBusinessIds = selectedCoupon.businessIds || (selectedCoupon.businessId ? [selectedCoupon.businessId] : []);
-                    const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
+                    // Use the coupon with businesses data if available, otherwise fall back to selectedCoupon
+                    const couponToUse = selectedCouponWithBusinesses || selectedCoupon;
+                    
+                    // Get business IDs from coupon - support both old and new format
+                    let couponBusinessIds = couponToUse.businessIds || (couponToUse.businessId ? [couponToUse.businessId] : []);
+                    
+                    // Debug: Log the coupon structure
+                    console.log('🔍 Sidebar - Selected Coupon Debug:', {
+                      couponId: couponToUse.id,
+                      couponName: couponToUse.name,
+                      hasBusinessId: !!couponToUse.businessId,
+                      hasBusinessIds: !!couponToUse.businessIds,
+                      businessId: couponToUse.businessId,
+                      businessIds: couponToUse.businessIds,
+                      usingFetchedData: !!selectedCouponWithBusinesses
+                    });
+                    
+                    // Filter businesses that match the coupon's business IDs
+                    const couponBusinesses = businesses.filter(b => {
+                      const matches = couponBusinessIds.includes(b.id);
+                      if (!matches && couponBusinessIds.length > 0) {
+                        console.log(`⚠️ Business ${b.id} (${b.name}) not in coupon businessIds:`, couponBusinessIds);
+                      }
+                      return matches;
+                    });
+                    
                     // Filter businesses to only include those with addresses for the map
                     const couponBusinessesWithAddress = couponBusinesses.filter(b => b.contactInfo?.address);
                     
                     console.log('🔍 Sidebar - Businesses Debug:', {
-                      couponId: selectedCoupon.id,
-                      couponName: selectedCoupon.name,
+                      couponId: couponToUse.id,
+                      couponName: couponToUse.name,
                       couponBusinessIds,
                       totalBusinesses: businesses.length,
+                      allBusinessIds: businesses.map(b => b.id),
                       filteredBusinesses: couponBusinesses.length,
                       businessesWithAddress: couponBusinessesWithAddress.length,
                       businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
@@ -808,7 +874,7 @@ export default function UserCouponsPage() {
                                 className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-primary"
                                 onClick={() => {
                                   setSelectedBusiness(biz);
-                                  setCouponForDialog(selectedCoupon);
+                                  setCouponForDialog(couponToUse);
                                   setShowMapDialog(true);
                                 }}
                               >
@@ -842,7 +908,7 @@ export default function UserCouponsPage() {
                             size="sm"
                             className="w-full"
                             onClick={() => {
-                              setCouponForDialog(selectedCoupon);
+                              setCouponForDialog(couponToUse);
                               setSelectedBusiness(null);
                               setShowMapDialog(true);
                             }}
