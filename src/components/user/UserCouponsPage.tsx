@@ -8,10 +8,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, Wallet, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye } from 'lucide-react';
+import { Coins, Wallet, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye, MapPin } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Coupon } from '@/types/coupon';
-import { getCoupons, getContactInfo } from '@/lib/actions/admin';
+import { getCoupons, getContactInfo, getBusinesses } from '@/lib/actions/admin';
+import { Business } from '@/types/promo';
+import MapCard from '@/components/cards/MapCard';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { getUserFromFirestore } from '@/src/lib/firebase/users';
 import { addPointsToCategory, getUserPoints, deductPointsFromCategory } from '@/src/lib/firebase/points';
 import { purchaseCoupon, getActiveUserCoupons, getCouponHistory, markCouponAsUsed, UserCoupon } from '@/src/lib/firebase/user-coupons';
@@ -33,6 +41,10 @@ export default function UserCouponsPage() {
   const [shopUrl, setShopUrl] = useState<string>('');
   const [freeCouponPrice, setFreeCouponPrice] = useState<boolean>(false);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [showMapDialog, setShowMapDialog] = useState(false);
+  const [couponForDialog, setCouponForDialog] = useState<Coupon | null>(null);
+  const [userCouponForDialog, setUserCouponForDialog] = useState<UserCoupon | null>(null);
   const { redirectToShop } = useShopRedirect();
 
   useEffect(() => {
@@ -121,6 +133,16 @@ export default function UserCouponsPage() {
       const contactInfo = await getContactInfo();
       if (contactInfo?.storeUrl) {
         setShopUrl(contactInfo.storeUrl);
+      }
+
+      // Fetch businesses for map
+      const businessesResult = await getBusinesses();
+      if (businessesResult.success && businessesResult.businesses) {
+        // Filter and ensure businesses have required fields for map
+        const validBusinesses = businessesResult.businesses.filter((b: any) => 
+          b.id && b.name && b.contactInfo?.address
+        ) as Business[];
+        setBusinesses(validBusinesses);
       }
 
       // Fetch user points from userPoints collection
@@ -456,7 +478,7 @@ export default function UserCouponsPage() {
             <p className="text-lg lg:text-xl text-gray-500 font-medium">{t('noCoupons')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8 pb-24">
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${activeTab === 'available' && selectedCoupon ? 'xl:grid-cols-2 2xl:grid-cols-3' : 'xl:grid-cols-3 2xl:grid-cols-4'} gap-6 lg:gap-8 pb-24`}>
             {coupons.map((coupon) => (
               <Card 
                 key={coupon.id} 
@@ -553,7 +575,7 @@ export default function UserCouponsPage() {
                 return (
                   <Card 
                     key={userCoupon.id} 
-                    className={`relative group hover:shadow-xl transition-all duration-300 border-2 overflow-hidden ${
+                    className={`relative group hover:shadow-xl transition-all duration-300 border-2 overflow-hidden flex flex-col ${
                       isActive && !isExpired 
                         ? 'border-green-200 hover:border-green-300 bg-gradient-to-br from-white to-green-50/30 opacity-100' 
                         : 'opacity-75 hover:opacity-90 border-gray-200 bg-gradient-to-br from-gray-50 to-white'
@@ -612,8 +634,8 @@ export default function UserCouponsPage() {
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-4">
+                    <CardContent className="space-y-4 flex-1 flex flex-col">
+                      <div className="space-y-4 flex-1">
                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <span className={`text-sm font-medium ${
                             isActive && !isExpired ? 'text-gray-600' : 'text-gray-500'
@@ -636,7 +658,7 @@ export default function UserCouponsPage() {
                         )}
                       </div>
                     </CardContent>
-                    <CardFooter className="pt-4">
+                    <CardFooter className="pt-4 flex flex-col gap-2 mt-auto">
                       <Button
                         variant="outline"
                         size="lg"
@@ -645,6 +667,18 @@ export default function UserCouponsPage() {
                       >
                         <Eye className="h-5 w-5" />
                         {t('view') || 'View'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setUserCouponForDialog(userCoupon);
+                          setShowMapDialog(true);
+                        }}
+                      >
+                        <MapPin className="h-4 w-4 mr-2" />
+                        {t('showMap')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -656,9 +690,104 @@ export default function UserCouponsPage() {
       </Tabs>
       </div>
 
-      {/* Fixed Bottom Bar for Selected Coupon - Only on Available Tab */}
+      {/* Sidebar for Selected Coupon - Desktop Only */}
       {activeTab === 'available' && selectedCoupon && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 p-4">
+        <>
+          {/* Backdrop Overlay */}
+          <div 
+            className="hidden lg:block fixed inset-0 bg-black/50 z-40 animate-fade-in"
+            onClick={() => setSelectedCoupon(null)}
+          />
+          {/* Sidebar */}
+          <div className="hidden lg:block fixed top-0 right-0 h-full w-96 max-w-[90vw] z-50 shadow-2xl animate-slide-in-right">
+            <Card className="h-full border-l-2 border-r-0 border-t-0 border-b-0 shadow-2xl bg-white rounded-none flex flex-col overflow-y-auto">
+              <CardHeader className="pb-4 border-b sticky top-0 bg-white z-10">
+                <div className="flex items-start justify-between gap-3">
+                  <CardTitle className="text-xl font-bold text-gray-900 leading-tight flex-1">
+                    {selectedCoupon.name}
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSelectedCoupon(null)}
+                    className="h-8 w-8 flex-shrink-0 hover:bg-gray-100 rounded-full"
+                  >
+                    <span className="sr-only">Close</span>
+                    ×
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-6 flex-1">
+                {selectedCoupon.imageUrl && (
+                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg">
+                    <img 
+                      src={selectedCoupon.imageUrl} 
+                      alt={selectedCoupon.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                
+                <div className="space-y-4">
+                  <div className={`flex items-center justify-between p-4 rounded-lg ${selectedCoupon.price === 0 ? 'bg-green-50' : 'bg-amber-50'}`}>
+                    <span className="text-sm font-medium text-gray-600">{t('pointsRequired')}</span>
+                    {selectedCoupon.price === 0 ? (
+                      <Badge className="bg-green-500 text-white hover:bg-green-600 px-3 py-1">
+                        <span className="font-bold">{t('free')}</span>
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className={`flex items-center gap-1.5 bg-white px-3 py-1 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
+                        <Coins className="h-4 w-4" />
+                        <span className="font-semibold">{freeCouponPrice ? '0' : selectedCoupon.points}</span>
+                      </Badge>
+                    )}
+                  </div>
+                  {freeCouponPrice && (
+                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600">{t('price')}</span>
+                      <Badge variant="outline" className="flex items-center gap-1.5 bg-white border-green-200 text-green-700 px-3 py-1">
+                        <span className="font-semibold">{t('free')}</span>
+                      </Badge>
+                    </div>
+                  )}
+                  {selectedCoupon.description && (
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600">{selectedCoupon.description}</p>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">
+                      {t('validUntil')}: {formatDate(selectedCoupon.validTo)}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-6 border-t sticky bottom-0 bg-white">
+                <Button 
+                  onClick={() => {
+                    handlePurchaseCoupon(selectedCoupon);
+                    setSelectedCoupon(null);
+                  }}
+                  disabled={!freeCouponPrice && userPoints < selectedCoupon.points}
+                  className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  size="lg"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {freeCouponPrice 
+                    ? t('getFree')
+                    : (userPoints < selectedCoupon.points ? t('insufficientPoints') : t('purchase'))
+                  }
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {/* Fixed Bottom Bar for Selected Coupon - Mobile Only */}
+      {activeTab === 'available' && selectedCoupon && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 p-4">
           <div className="container mx-auto max-w-7xl">
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1 min-w-0">
@@ -677,23 +806,50 @@ export default function UserCouponsPage() {
               </div>
               <Button 
                 onClick={() => {
-                  handlePurchaseCoupon(selectedCoupon);
-                  setSelectedCoupon(null);
+                  if (selectedCoupon) {
+                    handlePurchaseCoupon(selectedCoupon);
+                    setSelectedCoupon(null);
+                  }
                 }}
-                disabled={!freeCouponPrice && userPoints < selectedCoupon.points}
+                disabled={!freeCouponPrice && selectedCoupon && userPoints < selectedCoupon.points}
                 className="flex items-center justify-center gap-2 h-12 px-6 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 size="lg"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {freeCouponPrice 
                   ? t('getFree')
-                  : (userPoints < selectedCoupon.points ? t('insufficientPoints') : t('purchase'))
+                  : (selectedCoupon && userPoints < selectedCoupon.points ? t('insufficientPoints') : t('purchase'))
                 }
               </Button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Map Dialog */}
+      <Dialog open={showMapDialog} onOpenChange={setShowMapDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {(() => {
+                const couponName = userCouponForDialog?.coupon.name || couponForDialog?.name;
+                return couponName ? `${t('mapFor')} ${couponName}` : t('showMap');
+              })()}
+            </DialogTitle>
+          </DialogHeader>
+          {(() => {
+            const coupon = userCouponForDialog?.coupon || couponForDialog;
+            if (!coupon) return null;
+            
+            // Get businesses associated with this coupon
+            const couponBusinessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
+            const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
+            
+            // Always show the map, even if no businesses are found
+            return <MapCard businesses={couponBusinesses} />;
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

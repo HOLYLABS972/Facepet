@@ -892,6 +892,7 @@
       "viewCoupon": "צפייה בקופון",
       "qrCodeDescription": "סרוק את קוד ה-QR כדי לצפות בקופון זה",
       "businessLocations": "מיקומי עסקים",
+      "storeLocation": "מיקום החנות",
       "loadingMap": "טוען מפה...",
       "copyLink": "העתק קישור",
       "linkCopied": "הקישור הועתק ללוח!",
@@ -1418,7 +1419,7 @@
       "failedToPurchase": "נכשל ברכישת מתנות ושוברים",
       "couponCode": "קוד מתנה/שובר",
       "goToStore": "עבור לחנות",
-      "view": "צפה",
+      "view": "צפייה בקופון",
       "useCoupon": "השתמש במתנה/שובר",
       "codeCopied": "קוד המתנה/שובר הועתק ללוח!",
       "failedToCopy": "נכשל בהעתקת הקוד",
@@ -1435,7 +1436,10 @@
       "storeLocation": "מיקום החנות",
       "loadingMap": "טוען מפה...",
       "share": "שתף",
-      "use": "השתמש"
+      "use": "השתמש",
+      "showMap": "הצג מפה",
+      "mapFor": "מפה עבור",
+      "noBusinessLocation": "אין מיקום עסק זמין עבור קופון זה"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",

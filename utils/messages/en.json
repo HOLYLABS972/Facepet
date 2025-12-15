@@ -900,6 +900,7 @@
       "viewCoupon": "View Coupon",
       "qrCodeDescription": "Scan this QR code to view this coupon",
       "businessLocations": "Business Locations",
+      "storeLocation": "Store Location",
       "loadingMap": "Loading map...",
       "copyLink": "Copy Link",
       "linkCopied": "Link copied to clipboard!",
@@ -1434,7 +1435,10 @@
       "storeLocation": "Store Location",
       "loadingMap": "Loading map...",
       "share": "Share",
-      "use": "Use"
+      "use": "Use",
+      "showMap": "Show Map",
+      "mapFor": "Map for",
+      "noBusinessLocation": "No business location available for this coupon"
     },
     "Footer": {
       "usefulLinks": "Useful Links",
