@@ -222,7 +222,7 @@ export default function PromosTable() {
                       {getBusinessNames(promo).map((businessName, index) => (
                         <Badge key={index} variant="outline">
                           {businessName}
-                        </Badge>
+                    </Badge>
                       ))}
                     </div>
                   </TableCell>

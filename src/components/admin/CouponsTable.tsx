@@ -244,7 +244,7 @@ export default function CouponsTable() {
                       {getBusinessNames(coupon).map((businessName, index) => (
                         <Badge key={index} variant="outline">
                           {businessName}
-                        </Badge>
+                    </Badge>
                       ))}
                     </div>
                   </TableCell>

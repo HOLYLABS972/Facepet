@@ -145,13 +145,25 @@ const Navbar = () => {
     }
   ];
 
-  // Don't display navbar for non-logged in users
-  if (!isMounted || loading || !user) {
+  // Show loading state during hydration
+  if (!isMounted || loading) {
     return (
       <>
         {isPopupOpen && (
           <PointsExplenationPopup onClose={() => setIsPopupOpen(false)} />
         )}
+        <nav
+          className={cn(
+            'fixed top-0 left-0 right-0 z-50',
+            'bg-background'
+          )}
+        >
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+            <div className="flex h-16 items-center justify-between rtl:flex-row-reverse">
+              <div className="h-8 w-8" />
+            </div>
+          </div>
+        </nav>
       </>
     );
   }
@@ -185,7 +197,7 @@ const Navbar = () => {
               {loading ? (
                 // Show loading state during authentication check
                 <div className="h-8 w-8" />
-              ) : (
+              ) : user ? (
                 <>
                   {/* User Dropdown Menu */}
                   <DropdownMenu>
@@ -262,6 +274,42 @@ const Navbar = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
+                    {storeUrl && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <button
+                            onClick={() => window.location.href = storeUrl}
+                            className="flex items-center w-full"
+                          >
+                            <ShoppingBag className="mr-2 h-4 w-4" />
+                            <span>{t('store')}</span>
+                          </button>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem asChild>
+                      <Link href="/contact" className="flex items-center">
+                        <Mail className="mr-2 h-4 w-4" />
+                        <span>{t('contact')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/auth" className="flex items-center">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        <span>{t('signIn')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           </div>

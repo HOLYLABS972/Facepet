@@ -140,7 +140,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 pt-16">
       <Navbar />
 
       {/* Hero Section */}

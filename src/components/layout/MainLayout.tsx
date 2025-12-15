@@ -36,17 +36,15 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
     };
   }, [user, loading]);
   
-  // Check if navbar should be shown (only for logged in users)
-  const showNavbar = !loading && user;
-  
+  // Navbar is always shown now (for both logged in and non-logged in users)
   // Hide bottom navigation since buttons are now in navbar dropdown
   const showBottomNav = false;
   
   return (
     <main className="flex min-h-dvh flex-col m-0 p-0">
       <DirectionProvider dir={direction}>
-        {showNavbar && <Navbar />}
-        <div className={`flex min-h-dvh flex-col ${showNavbar ? 'pt-16' : 'pt-0'}`} id="main-content">
+        <Navbar />
+        <div className="flex min-h-dvh flex-col pt-16" id="main-content">
           <Toaster />
           {!isAdminRoute && <AdDisplayManager />}
           {children}

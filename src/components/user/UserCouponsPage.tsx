@@ -782,6 +782,8 @@ export default function UserCouponsPage() {
                   {(() => {
                     const couponBusinessIds = selectedCoupon.businessIds || (selectedCoupon.businessId ? [selectedCoupon.businessId] : []);
                     const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
+                    // Filter businesses to only include those with addresses for the map
+                    const couponBusinessesWithAddress = couponBusinesses.filter(b => b.contactInfo?.address);
                     
                     console.log('🔍 Sidebar - Businesses Debug:', {
                       couponId: selectedCoupon.id,
@@ -789,6 +791,7 @@ export default function UserCouponsPage() {
                       couponBusinessIds,
                       totalBusinesses: businesses.length,
                       filteredBusinesses: couponBusinesses.length,
+                      businessesWithAddress: couponBusinessesWithAddress.length,
                       businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
                     });
                     
@@ -840,6 +843,7 @@ export default function UserCouponsPage() {
                             className="w-full"
                             onClick={() => {
                               setCouponForDialog(selectedCoupon);
+                              setSelectedBusiness(null);
                               setShowMapDialog(true);
                             }}
                           >
@@ -847,14 +851,20 @@ export default function UserCouponsPage() {
                             {t('showMap')}
                           </Button>
                           
-                          {/* Map directly in sidebar */}
-                          {couponBusinesses.length > 0 && (
+                          {/* Map directly in sidebar - only show if there are businesses with addresses */}
+                          {couponBusinessesWithAddress.length > 0 ? (
                             <div className="mt-4">
                               <MapCard 
-                                key={`sidebar-map-${selectedCoupon.id}-${couponBusinesses.length}`}
-                                businesses={couponBusinesses}
+                                key={`sidebar-map-${selectedCoupon.id}-${couponBusinessesWithAddress.length}`}
+                                businesses={couponBusinessesWithAddress}
                                 title={t('businessLocations') || 'Business Locations'}
                               />
+                            </div>
+                          ) : (
+                            <div className="mt-4 p-4 bg-gray-50 rounded-lg text-center">
+                              <p className="text-sm text-gray-500">
+                                {t('noBusinessesFound') || 'No businesses with addresses found for this coupon'}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -981,6 +991,8 @@ export default function UserCouponsPage() {
             // Otherwise, show all businesses associated with this coupon
             const couponBusinessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
             const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
+            // Filter businesses to only include those with addresses for the map
+            const couponBusinessesWithAddress = couponBusinesses.filter(b => b.contactInfo?.address);
             
             console.log('🔍 Map Dialog - Coupon Debug:', {
               couponId: coupon.id,
@@ -988,6 +1000,7 @@ export default function UserCouponsPage() {
               couponBusinessIds,
               totalBusinesses: businesses.length,
               filteredBusinesses: couponBusinesses.length,
+              businessesWithAddress: couponBusinessesWithAddress.length,
               businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
             });
             
@@ -1007,8 +1020,25 @@ export default function UserCouponsPage() {
               );
             }
             
-            // Always show the map
-            return <MapCard businesses={couponBusinesses} />;
+            // Only show map if there are businesses with addresses
+            if (couponBusinessesWithAddress.length === 0) {
+              return (
+                <div className="p-4 text-center">
+                  <p className="text-gray-500 mb-4">
+                    {t('noBusinessesFound') || 'No businesses with addresses found for this coupon'}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {couponBusinesses.length > 0 
+                      ? `Found ${couponBusinesses.length} business(es) but none have addresses configured.`
+                      : 'This coupon has no businesses assigned.'
+                    }
+                  </p>
+                </div>
+              );
+            }
+            
+            // Show the map with businesses that have addresses
+            return <MapCard businesses={couponBusinessesWithAddress} />;
           })()}
         </DialogContent>
       </Dialog>
