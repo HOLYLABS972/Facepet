@@ -152,20 +152,6 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
 
               {/* Search Bar and Filter Row */}
               <div className="flex flex-row gap-3">
-                {/* Search Bar */}
-                <div className="relative h-9 grow rounded-lg bg-white border border-gray-200">
-                  <Search
-                    className="absolute top-1/2 -translate-y-1/2 transform text-gray-400 ltr:left-3 rtl:right-3"
-                    size={16}
-                  />
-                  <Input
-                    placeholder={t('searchPlaceholder')}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-lg p-2 ltr:pl-10 rtl:pr-10 border-none focus-visible:ring-0"
-                  />
-                </div>
-
                 {/* Tags Filter */}
                 {!isLoadingTags && availableTags.length > 0 && (
                   <div className="w-[200px] shrink-0">
@@ -180,6 +166,20 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
                     />
                   </div>
                 )}
+
+                {/* Search Bar */}
+                <div className="relative h-9 grow rounded-lg bg-white border border-gray-200">
+                  <Search
+                    className="absolute top-1/2 -translate-y-1/2 transform text-gray-400 ltr:left-3 rtl:right-3"
+                    size={16}
+                  />
+                  <Input
+                    placeholder={t('searchPlaceholder')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full rounded-lg p-2 ltr:pl-10 rtl:pr-10 border-none focus-visible:ring-0"
+                  />
+                </div>
               </div>
 
               {/* Mobile Only: No Results Message (Desktop shows in side panel) */}

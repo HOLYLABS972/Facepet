@@ -126,7 +126,7 @@ export async function markCouponAsUsed(userCouponId: string, metadata?: any): Pr
 
 /**
  * Get active coupons (not expired, not used)
- * Once purchased, coupons remain active until explicitly used, regardless of validity dates
+ * Filters out coupons that are past their validTo date
  */
 export async function getActiveUserCoupons(userId: string): Promise<{ success: boolean; coupons?: UserCoupon[]; error?: string }> {
   try {
@@ -135,10 +135,21 @@ export async function getActiveUserCoupons(userId: string): Promise<{ success: b
       return result;
     }
 
-    // Filter only coupons with status 'active'
-    // Don't check validity dates - once purchased, coupons stay active until used
+    const now = new Date();
+    
+    // Filter only coupons with status 'active' and that are still within valid date range
     const activeCoupons = result.coupons.filter((userCoupon) => {
-      return userCoupon.status === 'active';
+      if (userCoupon.status !== 'active') {
+        return false;
+      }
+      
+      // Check if coupon is past its validTo date
+      const validTo = new Date(userCoupon.coupon.validTo);
+      if (validTo < now) {
+        return false;
+      }
+      
+      return true;
     });
 
     return { success: true, coupons: activeCoupons };

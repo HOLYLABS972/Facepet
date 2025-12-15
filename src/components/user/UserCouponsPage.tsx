@@ -107,11 +107,8 @@ export default function UserCouponsPage() {
         console.log(`✅ Found ${validCoupons.length} valid coupons after filtering`);
         console.log('Valid coupons:', validCoupons);
         
-        // TEMPORARY: Show ALL coupons for debugging, not just valid ones
-        console.log('🔍 TEMPORARY DEBUG MODE: Showing all coupons regardless of validity');
-        
         // Sort coupons: free vouchers (price === 0) first, then by price ascending
-        const sortedCoupons = [...couponsWithDates].sort((a, b) => {
+        const sortedCoupons = [...validCoupons].sort((a, b) => {
           const aIsFree = a.price === 0;
           const bIsFree = b.price === 0;
           
@@ -177,8 +174,21 @@ export default function UserCouponsPage() {
             purchasedAt: new Date(uc.purchasedAt as any),
             usedAt: uc.usedAt ? new Date(uc.usedAt as any) : undefined
           }));
+          
+          // Filter out expired vouchers (past validTo date) unless they're already marked as used
+          const now = new Date();
+          const validCoupons = allCoupons.filter(uc => {
+            // Keep used coupons in history
+            if (uc.status === 'used') return true;
+            // Keep coupons that are explicitly marked as expired
+            if (uc.status === 'expired') return true;
+            // Filter out coupons that are past their validTo date
+            const validTo = new Date(uc.coupon.validTo);
+            return validTo >= now;
+          });
+          
           // Sort: free vouchers first, then by purchasedAt descending (newest first)
-          allCoupons.sort((a, b) => {
+          validCoupons.sort((a, b) => {
             const aIsFree = a.coupon.price === 0;
             const bIsFree = b.coupon.price === 0;
             
@@ -189,7 +199,7 @@ export default function UserCouponsPage() {
             // If both are free or both are paid, sort by purchasedAt descending (newest first)
             return b.purchasedAt.getTime() - a.purchasedAt.getTime();
           });
-          setCouponHistory(allCoupons);
+          setCouponHistory(validCoupons);
         }
       }
     } catch (error) {

@@ -867,7 +867,10 @@
         "servicesFound": "שירותים נמצאו",
         "noServices": "לא נמצאו שירותים",
         "loading": "טוען מפה...",
-        "cancel": "ביטול"
+        "cancel": "ביטול",
+        "distanceUnavailable": "מרחק לא זמין",
+        "km": "ק\"מ",
+        "kmAway": "ק\"מ מכאן"
       },
       "addToFavorites": "הוסף למועדפים",
       "removeFromFavorites": "הסר ממועדפים",

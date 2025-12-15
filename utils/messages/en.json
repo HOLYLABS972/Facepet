@@ -875,7 +875,10 @@
         "servicesFound": "services found",
         "noServices": "No services found",
         "loading": "Loading map...",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "distanceUnavailable": "Distance unavailable",
+        "km": "km",
+        "kmAway": "km away"
       },
       "addToFavorites": "Add to Favorites",
       "removeFromFavorites": "Remove from Favorites",

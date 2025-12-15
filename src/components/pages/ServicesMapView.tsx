@@ -778,13 +778,20 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
     setIsLoading(true);
     const servicesData: ServiceWithCoordinates[] = [];
+    
+    // Use default location (Israel center) if user location is not available
+    const defaultLocation = { lat: 31.7683, lng: 35.2137 };
+    const locationToUse = userLocation || defaultLocation;
 
     for (const service of services) {
       const coords = await geocodeService(service);
       if (coords) {
+        // Calculate distance even if user location is not available (use default location)
+        const distance = calculateDistance(locationToUse.lat, locationToUse.lng, coords.lat, coords.lng);
         servicesData.push({
           ...service,
-          coordinates: coords
+          coordinates: coords,
+          distance
         });
       } else {
         // Include service even if geocoding fails
@@ -793,6 +800,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         });
       }
     }
+
+    // Sort by distance if available
+    servicesData.sort((a, b) => {
+      if (!a.distance) return 1;
+      if (!b.distance) return -1;
+      return a.distance - b.distance;
+    });
 
     setServicesWithCoords(servicesData);
     updateMapMarkers(servicesData, targetMap);
@@ -865,10 +879,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     </p>
                   )}
                   <div className="flex items-center gap-2 text-xs text-gray-500">
-                    {service.distance !== undefined && (
+                    {service.distance !== undefined ? (
                       <span className="flex items-center gap-1 text-blue-600 font-medium">
                         <MapPin size={12} />
                         {service.distance.toFixed(1)} km
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-gray-400 font-medium">
+                        <MapPin size={12} />
+                        {t('map.distanceUnavailable') || 'Distance unavailable'}
                       </span>
                     )}
                     {service.tags && service.tags.length > 0 && (
@@ -978,10 +997,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                               </p>
                             )}
                             <div className="flex items-center gap-2 text-xs text-gray-500">
-                              {service.distance !== undefined && (
+                              {service.distance !== undefined ? (
                                 <span className="flex items-center gap-1 text-blue-600 font-medium">
                                   <MapPin size={12} />
                                   {service.distance.toFixed(1)} km
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 text-gray-400 font-medium">
+                                  <MapPin size={12} />
+                                  {t('map.distanceUnavailable') || 'Distance unavailable'}
                                 </span>
                               )}
                               {service.tags && service.tags.length > 0 && (
