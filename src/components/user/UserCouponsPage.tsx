@@ -907,9 +907,24 @@ export default function UserCouponsPage() {
                             variant="outline"
                             size="sm"
                             className="w-full"
-                            onClick={() => {
-                              setCouponForDialog(couponToUse);
+                            onClick={async () => {
+                              // Ensure we have the latest coupon data with businessIds
+                              let couponToSet = couponToUse;
+                              if (!couponToUse.businessIds && !couponToUse.businessId) {
+                                console.log('🔄 Fetching coupon data before opening map dialog...');
+                                const result = await getCouponById(couponToUse.id);
+                                if (result.success && result.coupon) {
+                                  const fetchedCoupon = result.coupon as Coupon;
+                                  couponToSet = {
+                                    ...couponToUse,
+                                    businessId: fetchedCoupon.businessId,
+                                    businessIds: fetchedCoupon.businessIds
+                                  };
+                                }
+                              }
+                              setCouponForDialog(couponToSet);
                               setSelectedBusiness(null);
+                              setUserCouponForDialog(null); // Clear user coupon if set
                               setShowMapDialog(true);
                             }}
                           >
@@ -1055,7 +1070,15 @@ export default function UserCouponsPage() {
             }
             
             // Otherwise, show all businesses associated with this coupon
-            const couponBusinessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
+            let couponBusinessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
+            
+            // If no businessIds found, try to fetch the coupon again
+            if (couponBusinessIds.length === 0) {
+              console.log('⚠️ No businessIds in dialog coupon, fetching fresh data...');
+              // Note: We can't use async/await here in the render, so we'll show a loading state
+              // and the useEffect should handle fetching
+            }
+            
             const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
             // Filter businesses to only include those with addresses for the map
             const couponBusinessesWithAddress = couponBusinesses.filter(b => b.contactInfo?.address);
@@ -1065,46 +1088,47 @@ export default function UserCouponsPage() {
               couponName: coupon.name,
               couponBusinessIds,
               totalBusinesses: businesses.length,
+              allBusinessIds: businesses.map(b => b.id),
               filteredBusinesses: couponBusinesses.length,
               businessesWithAddress: couponBusinessesWithAddress.length,
               businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
             });
             
+            // Show businesses even if they don't have addresses - just show them in the list
+            // Only filter by address for the map display
             if (couponBusinesses.length === 0) {
+              // If we have businessIds but no matching businesses, there's a data mismatch
+              if (couponBusinessIds.length > 0) {
+                return (
+                  <div className="p-4 text-center">
+                    <p className="text-gray-500 mb-4">
+                      {t('noBusinessesFound') || 'No businesses found for this coupon'}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      Business IDs: {couponBusinessIds.join(', ')}. Found {businesses.length} total businesses in database.
+                      <br />
+                      The business IDs might not match any existing businesses.
+                    </p>
+                  </div>
+                );
+              }
+              
+              // No businessIds at all
               return (
                 <div className="p-4 text-center">
                   <p className="text-gray-500 mb-4">
                     {t('noBusinessesFound') || 'No businesses found for this coupon'}
                   </p>
                   <p className="text-sm text-gray-400">
-                    {couponBusinessIds.length === 0 
-                      ? 'This coupon has no businesses assigned.'
-                      : `Business IDs: ${couponBusinessIds.join(', ')}. Found ${businesses.length} total businesses.`
-                    }
+                    This coupon has no businesses assigned.
                   </p>
                 </div>
               );
             }
             
-            // Only show map if there are businesses with addresses
-            if (couponBusinessesWithAddress.length === 0) {
-              return (
-                <div className="p-4 text-center">
-                  <p className="text-gray-500 mb-4">
-                    {t('noBusinessesFound') || 'No businesses with addresses found for this coupon'}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {couponBusinesses.length > 0 
-                      ? `Found ${couponBusinesses.length} business(es) but none have addresses configured.`
-                      : 'This coupon has no businesses assigned.'
-                    }
-                  </p>
-                </div>
-              );
-            }
-            
-            // Show the map with businesses that have addresses
-            return <MapCard businesses={couponBusinessesWithAddress} />;
+            // Show the map - if no businesses with addresses, show empty map but don't show error
+            // The businesses list above already shows all businesses
+            return <MapCard businesses={couponBusinessesWithAddress.length > 0 ? couponBusinessesWithAddress : couponBusinesses} />;
           })()}
         </DialogContent>
       </Dialog>
