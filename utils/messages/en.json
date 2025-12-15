@@ -1556,5 +1556,12 @@
         "geocodeFailed": "Could not find the address. Please try a different search term."
       }
     }
+  },
+  "installBanner": {
+    "iosInstructionsPart1": "Tap",
+    "iosInstructionsPart2": "then \"Add to Home Screen\"",
+    "desktopInstructions": "Click the install icon in your browser's address bar, or use the browser menu",
+    "desktopInstructionsShort": "Click the install icon in your browser's address bar",
+    "installButton": "Install"
   }
 }

@@ -1557,5 +1557,12 @@
         "geocodeFailed": "לא ניתן למצוא את הכתובת. אנא נסה מונח חיפוש אחר."
       }
     }
+  },
+  "installBanner": {
+    "iosInstructionsPart1": "הקש על",
+    "iosInstructionsPart2": "ואז \"הוסף למסך הבית\"",
+    "desktopInstructions": "לחץ על סמל ההתקנה בשורת הכתובת של הדפדפן, או השתמש בתפריט הדפדפן",
+    "desktopInstructionsShort": "לחץ על סמל ההתקנה בשורת הכתובת של הדפדפן",
+    "installButton": "התקן"
   }
 }

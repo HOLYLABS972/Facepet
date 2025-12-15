@@ -12,19 +12,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { BusinessMultiselect } from '@/components/ui/business-multiselect';
 
-import { updatePromo, getBusinesses, getFilters } from '@/lib/actions/admin';
+import { updatePromo, getBusinesses } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Business, Filter, Promo } from '@/types/promo';
+import { Business, Promo } from '@/types/promo';
 import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 interface EditPromoDialogProps {
@@ -43,14 +36,12 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     imageUrl: '',
     youtubeUrl: '',
     businessIds: [] as string[],
-    filterId: '',
     startDate: '',
     endDate: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [filters, setFilters] = useState<Filter[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -71,7 +62,6 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
           imageUrl: promo.imageUrl || '',
           youtubeUrl: promo.youtubeUrl || '',
           businessIds: businessIds,
-          filterId: promo.filterId || '',
           startDate: promo.startDate ? new Date(promo.startDate).toISOString().split('T')[0] : '',
           endDate: promo.endDate ? new Date(promo.endDate).toISOString().split('T')[0] : ''
         });
@@ -82,16 +72,10 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [businessesResult, filtersResult] = await Promise.all([
-        getBusinesses(),
-        getFilters()
-      ]);
+      const businessesResult = await getBusinesses();
 
       if (businessesResult.success) {
         setBusinesses(businessesResult.businesses);
-      }
-      if (filtersResult.success) {
-        setFilters(filtersResult.filters);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -130,17 +114,12 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     setError(null);
 
     try {
-      if (!formData.filterId || formData.filterId === 'loading') {
-        throw new Error('Please select a filter');
-      }
-
       const result = await updatePromo(promo.id, {
         name: formData.name,
         description: formData.description,
         imageUrl: mediaType === 'image' ? formData.imageUrl : '',
         youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
         businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
-        filterId: formData.filterId,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined
       });
@@ -276,29 +255,6 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
               placeholder={t('promoManagement.businessPlaceholder') || 'Select businesses (optional)'}
               disabled={loading}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="filterId">{t('promoManagement.filter') || 'Filter'}</Label>
-            <Select 
-              value={formData.filterId} 
-              onValueChange={(value) => handleSelectChange('filterId', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('promoManagement.filterPlaceholder') || 'Select a filter'} />
-              </SelectTrigger>
-              <SelectContent>
-                {loading ? (
-                  <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading') || 'Loading...'}</SelectItem>
-                ) : (
-                  filters.filter(f => f.isActive).map((filter) => (
-                    <SelectItem key={filter.id} value={filter.id}>
-                      {filter.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

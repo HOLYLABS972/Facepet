@@ -19,31 +19,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Edit, Trash2, Eye, Image, Youtube } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Promo, Business, Filter } from '@/types/promo';
-import { getPromos, getBusinesses, getFilters, updatePromo, deletePromo } from '@/lib/actions/admin';
+import { Promo, Business } from '@/types/promo';
+import { getPromos, getBusinesses, updatePromo, deletePromo } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import EditPromoDialog from './EditPromoDialog';
 import { getYouTubeThumbnailUrl } from '@/lib/utils/youtube';
-import { useMemo } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 export default function PromosTable() {
   const t = useTranslations('Admin');
   const router = useRouter();
   const [promos, setPromos] = useState<Promo[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [filters, setFilters] = useState<Filter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingPromo, setEditingPromo] = useState<Promo | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedFilterId, setSelectedFilterId] = useState<string>('__all__');
 
   useEffect(() => {
     fetchData();
@@ -52,10 +42,9 @@ export default function PromosTable() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [promosResult, businessesResult, filtersResult] = await Promise.all([
+      const [promosResult, businessesResult] = await Promise.all([
         getPromos(),
-        getBusinesses(),
-        getFilters()
+        getBusinesses()
       ]);
 
       if (promosResult.success) {
@@ -66,10 +55,6 @@ export default function PromosTable() {
 
       if (businessesResult.success) {
         setBusinesses(businessesResult.businesses);
-      }
-
-      if (filtersResult.success) {
-        setFilters(filtersResult.filters);
       }
     } catch (err) {
       setError('Failed to fetch data');
@@ -142,28 +127,6 @@ export default function PromosTable() {
     return business ? business.name : t('promoManagement.unknownBusiness');
   };
 
-  const getFilterName = (filterId: string) => {
-    const filter = filters.find(f => f.id === filterId);
-    return filter ? filter.name : t('promoManagement.unknownFilter') || 'Unknown Filter';
-  };
-
-  // Get selected filter
-  const selectedFilter = useMemo(() => {
-    if (selectedFilterId === '__all__') {
-      return null;
-    }
-    return filters.find(f => f.id === selectedFilterId);
-  }, [filters, selectedFilterId]);
-
-  // Filter promos based on selected filter
-  const filteredPromos = useMemo(() => {
-    if (!selectedFilter) {
-      return promos;
-    }
-    return promos.filter(promo => 
-      promo.filterId === selectedFilterId
-    );
-  }, [promos, selectedFilterId, selectedFilter]);
 
   if (loading) {
     return (
@@ -186,38 +149,6 @@ export default function PromosTable() {
 
   return (
     <div className="space-y-4">
-      {/* Filter Section */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg border">
-        <div className="flex-1 w-full sm:max-w-md">
-          <label className="text-sm font-medium mb-2 block">
-            {t('promoManagement.filterByFilter') || 'Filter by Filter'}
-          </label>
-          <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('promoManagement.selectFilter') || 'Select a filter...'} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all__">{t('promoManagement.allPromos') || 'All Promos'}</SelectItem>
-              {filters.filter(f => f.isActive).map((filter) => (
-                <SelectItem key={filter.id} value={filter.id}>
-                  {filter.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {selectedFilterId && selectedFilterId !== '__all__' && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedFilterId('__all__')}
-            className="text-sm"
-          >
-            {t('promoManagement.clearFilter') || 'Clear Filter'}
-          </Button>
-        )}
-      </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -226,24 +157,20 @@ export default function PromosTable() {
               <TableHead>{t('promoManagement.image')}</TableHead>
               <TableHead>{t('promoManagement.description')}</TableHead>
               <TableHead>{t('promoManagement.business')}</TableHead>
-              <TableHead>{t('promoManagement.filter') || 'Filter'}</TableHead>
               <TableHead>{t('promoManagement.status')}</TableHead>
               <TableHead>{t('promoManagement.createdAt')}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredPromos.length === 0 ? (
+            {promos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                  {selectedFilterId && selectedFilterId !== '__all__'
-                    ? t('promoManagement.noPromosForFilter') || 'No promos found for selected filter'
-                    : t('promoManagement.noPromos')
-                  }
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  {t('promoManagement.noPromos')}
                 </TableCell>
               </TableRow>
             ) : (
-              filteredPromos.map((promo) => (
+              promos.map((promo) => (
                 <TableRow key={promo.id}>
                   <TableCell className="font-medium">{promo.name}</TableCell>
                   <TableCell>
@@ -278,11 +205,6 @@ export default function PromosTable() {
                   <TableCell>
                     <Badge variant="outline">
                       {getBusinessName(promo.businessId)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {getFilterName(promo.filterId)}
                     </Badge>
                   </TableCell>
                   <TableCell>

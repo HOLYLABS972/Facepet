@@ -31,6 +31,7 @@ export interface Business {
 // Note: This Coupon type is for business promos/coupons
 // There's also a Coupon type in coupon.ts for vouchers (with price/points)
 // Both are called "Coupons" in the UI but serve different purposes
+// Filters are assigned to businesses, not promos - promos inherit filters through their assigned businesses
 export interface Coupon {
   id: string;
   name: string;
@@ -39,7 +40,6 @@ export interface Coupon {
   youtubeUrl?: string; // Optional YouTube video URL
   businessId?: string; // Deprecated: use businessIds instead
   businessIds?: string[]; // Optional business assignments (multiple stores)
-  filterId: string;
   isActive: boolean;
   startDate?: Date;
   endDate?: Date;
@@ -78,7 +78,7 @@ export interface CreateCouponData {
   youtubeUrl?: string; // Optional YouTube video URL
   businessId?: string; // Deprecated: use businessIds instead
   businessIds?: string[]; // Optional business assignments (multiple stores)
-  filterId: string;
+  // Filters are assigned to businesses, not promos - promos inherit filters through their assigned businesses
   startDate?: Date;
   endDate?: Date;
 }

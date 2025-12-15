@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { InstallBannerSettings } from '@/lib/actions/admin';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 interface InstallBannerPreviewProps {
   initialData?: InstallBannerSettings | null;
 }
 
 export default function InstallBannerPreview({ initialData }: InstallBannerPreviewProps) {
+  const t = useTranslations('installBanner');
   const [settings, setSettings] = useState<InstallBannerSettings | null>(initialData || null);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
@@ -100,12 +102,12 @@ export default function InstallBannerPreview({ initialData }: InstallBannerPrevi
                   <p className="text-sm font-medium">{settings.bannerText}</p>
                   {isIOS && (
                     <p className="text-xs mt-1 opacity-90">
-                      Tap <Share className="inline h-3 w-3 mx-1" /> then &quot;Add to Home Screen&quot;
+                      {t('iosInstructionsPart1')} <Share className="inline h-3 w-3 mx-1" /> {t('iosInstructionsPart2')}
                     </p>
                   )}
                   {isDesktop && !deferredPrompt && (
                     <p className="text-xs mt-1 opacity-90">
-                      Click the install icon in your browser&apos;s address bar, or use the browser menu
+                      {t('desktopInstructions')}
                     </p>
                   )}
                 </div>
@@ -118,7 +120,7 @@ export default function InstallBannerPreview({ initialData }: InstallBannerPrevi
                       className="bg-white text-primary hover:bg-gray-100"
                     >
                       <Download className="h-4 w-4 mr-1" />
-                      Install
+                      {t('installButton')}
                     </Button>
                   )}
                   <Button

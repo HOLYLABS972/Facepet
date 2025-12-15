@@ -5,8 +5,10 @@ import { X, Download, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getInstallBannerSettings, InstallBannerSettings } from '@/lib/actions/admin';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 export default function InstallBanner() {
+  const t = useTranslations('installBanner');
   const [settings, setSettings] = useState<InstallBannerSettings | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -113,12 +115,12 @@ export default function InstallBanner() {
           <p className="text-sm font-medium">{settings.bannerText}</p>
           {isIOS && (
             <p className="text-xs mt-1 opacity-90">
-              Tap <Share className="inline h-3 w-3 mx-1" /> then &quot;Add to Home Screen&quot;
+              {t('iosInstructionsPart1')} <Share className="inline h-3 w-3 mx-1" /> {t('iosInstructionsPart2')}
             </p>
           )}
           {isDesktop && !deferredPrompt && (
             <p className="text-xs mt-1 opacity-90">
-              Click the install icon in your browser&apos;s address bar, or use the browser menu
+              {t('desktopInstructions')}
             </p>
           )}
         </div>
@@ -131,7 +133,7 @@ export default function InstallBanner() {
               className="bg-white text-primary hover:bg-gray-100"
             >
               <Download className="h-4 w-4 mr-1" />
-              Install
+              {t('installButton')}
             </Button>
           )}
           <Button
