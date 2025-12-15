@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin } from 'lucide-react';
 import { Business } from '@/types/promo';
@@ -22,6 +24,8 @@ declare global {
 
 export default function MapCard({ businesses = [], contactInfo, title }: MapCardProps) {
   const t = useTranslations('pages.PromosPage');
+  const router = useRouter();
+  const locale = useLocale();
   const [mapLoaded, setMapLoaded] = useState(false);
   const [map, setMap] = useState<any>(null);
   const [markers, setMarkers] = useState<any[]>([]);
@@ -252,6 +256,11 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
                   if (m.infoWindow) m.infoWindow.close();
                 });
                 infoWindow.open(mapInstance, marker);
+                
+                // Navigate to business page
+                if (businessItem.id) {
+                  router.push(`/promos?businessId=${businessItem.id}`);
+                }
               });
 
               newMarkers.push({ marker, infoWindow });

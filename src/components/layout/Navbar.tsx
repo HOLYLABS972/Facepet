@@ -15,7 +15,9 @@ import {
   Ticket,
   Tag,
   Wallet,
-  Menu
+  Menu,
+  Gift,
+  MapPin
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -143,6 +145,17 @@ const Navbar = () => {
     }
   ];
 
+  // Don't display navbar for non-logged in users
+  if (!isMounted || loading || !user) {
+    return (
+      <>
+        {isPopupOpen && (
+          <PointsExplenationPopup onClose={() => setIsPopupOpen(false)} />
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       {isPopupOpen && (
@@ -169,10 +182,10 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="flex items-center gap-4 relative">
-              {!isMounted ? (
-                // Show loading state during hydration
+              {loading ? (
+                // Show loading state during authentication check
                 <div className="h-8 w-8" />
-              ) : user ? (
+              ) : (
                 <>
                   {/* User Dropdown Menu */}
                   <DropdownMenu>
@@ -195,12 +208,32 @@ const Navbar = () => {
                         </div>
                       </div>
                       <DropdownMenuSeparator />
+                      {/* Desktop Navigation Items (from bottom nav) */}
                       <DropdownMenuItem asChild>
                         <Link href="/pages/my-pets" className="flex items-center">
                           <PawPrint className="mr-2 h-4 w-4" />
-                          <span>{t('myPets')}</span>
+                          <span>{t('bottomNav.myPets') || t('myPets')}</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/promos" className="flex items-center">
+                          <Gift className="mr-2 h-4 w-4" />
+                          <span>{t('bottomNav.giftsAndVouchers') || t('allPromos')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/coupons" className="flex items-center">
+                          <Ticket className="mr-2 h-4 w-4" />
+                          <span>{t('bottomNav.myCoupons') || t('coupons')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/services" className="flex items-center">
+                          <MapPin className="mr-2 h-4 w-4" />
+                          <span>{t('bottomNav.businessesNearby') || t('services')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/user/settings" className="flex items-center">
                           <CircleUserRound className="mr-2 h-4 w-4" />
@@ -229,42 +262,6 @@ const Navbar = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
-              ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <Menu className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
-                    {storeUrl && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <button
-                            onClick={() => window.location.href = storeUrl}
-                            className="flex items-center w-full"
-                          >
-                            <ShoppingBag className="mr-2 h-4 w-4" />
-                            <span>{t('store')}</span>
-                          </button>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem asChild>
-                      <Link href="/contact" className="flex items-center">
-                        <Mail className="mr-2 h-4 w-4" />
-                        <span>{t('contact')}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/auth" className="flex items-center">
-                        <LogIn className="mr-2 h-4 w-4" />
-                        <span>{t('signIn')}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               )}
             </div>
           </div>

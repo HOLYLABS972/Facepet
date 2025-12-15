@@ -609,6 +609,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         if (user && service.id) {
           checkIfFavorited(service.id);
         }
+        
+        // Navigate to business page
+        if (service.id) {
+          router.push(`/promos?businessId=${service.id}`);
+        }
       });
 
       newMarkers.push(marker);

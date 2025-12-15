@@ -177,6 +177,11 @@
       'rlig' 1,
       'calt' 1;
   }
+
+  /* Remove background for non-authenticated users */
+  body.no-background {
+    background: transparent !important;
+  }
 }
 
 /* Phone input styles */
