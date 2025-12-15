@@ -67,7 +67,7 @@ export default function AdminDashboard() {
   // Helper function to safely format dates
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return 'N/A';
-    return format(new Date(date), 'yyyy-MM-dd');
+    return format(new Date(date), 'dd/MM/yyyy');
   };
 
   if (loading) {

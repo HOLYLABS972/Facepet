@@ -140,6 +140,20 @@ export default function CouponsTable() {
     return business ? business.name : 'Unknown';
   };
 
+  const getBusinessNames = (coupon: Coupon) => {
+    // Support both old businessId and new businessIds format
+    const businessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
+
+    if (businessIds.length === 0) {
+      return ['General'];
+    }
+
+    return businessIds.map(id => {
+      const business = businesses.find(b => b.id === id);
+      return business ? business.name : 'Unknown';
+    });
+  };
+
   const formatDate = (date: Date | string | null | undefined) => {
     // Handle null, undefined, or invalid dates
     if (!date) {
@@ -159,7 +173,7 @@ export default function CouponsTable() {
       return 'Invalid Date';
     }
 
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('en-GB', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -216,14 +230,23 @@ export default function CouponsTable() {
             ) : (
               coupons.map((coupon) => (
                 <TableRow key={coupon.id}>
-                  <TableCell className="font-medium">{coupon.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {coupon.name}
+                    {coupon.id === 'IvmgfeBPfGRXLIQ5ce0Q' && (
+                      <span className="ml-2 text-xs text-red-600">(No businesses assigned)</span>
+                    )}
+                  </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {coupon.description}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {getBusinessName(coupon.businessId)}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1">
+                      {getBusinessNames(coupon).map((businessName, index) => (
+                        <Badge key={index} variant="outline">
+                          {businessName}
+                        </Badge>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>{formatPrice(coupon.price)}</TableCell>
                   <TableCell>

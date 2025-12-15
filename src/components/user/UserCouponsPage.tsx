@@ -369,7 +369,7 @@ export default function UserCouponsPage() {
 
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat(locale === 'he' ? 'he-IL' : 'en-US', {
+    return new Intl.DateTimeFormat(locale === 'he' ? 'he-IL' : 'en-GB', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -797,7 +797,7 @@ export default function UserCouponsPage() {
 
       {/* Fixed Bottom Bar for Selected Coupon - Mobile Only */}
       {activeTab === 'available' && selectedCoupon && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 p-4">
+        <div className="lg:hidden fixed bottom-16 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-[90] p-4 md:bottom-0">
           <div className="container mx-auto max-w-7xl">
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1 min-w-0">

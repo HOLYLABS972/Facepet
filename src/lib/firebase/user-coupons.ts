@@ -38,6 +38,9 @@ export async function purchaseCoupon(
         imageUrl: coupon.imageUrl,
         validFrom: coupon.validFrom instanceof Date ? Timestamp.fromDate(coupon.validFrom) : coupon.validFrom,
         validTo: coupon.validTo instanceof Date ? Timestamp.fromDate(coupon.validTo) : coupon.validTo,
+        // Include business information
+        businessId: coupon.businessId,
+        businessIds: coupon.businessIds,
       },
       purchasedAt: Timestamp.now(),
       status: 'active' as const,

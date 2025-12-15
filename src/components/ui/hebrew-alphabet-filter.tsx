@@ -128,7 +128,7 @@ export function HebrewAlphabetFilter({
       </div>
       
       {/* Results count */}
-      {selectedLetters.length > 0 && (
+      {selectedLetters && Array.isArray(selectedLetters) && selectedLetters.length > 0 && (
         <div className="text-xs text-gray-500">
           מציג פריטים המתחילים ב: {selectedLetters.join(', ')}
         </div>

@@ -1766,6 +1766,17 @@ export async function getCoupons() {
       const validFrom = data.validFrom?.toDate() || new Date();
       const validTo = data.validTo?.toDate() || new Date();
       
+      // Debug: Log business data for each coupon
+      if (doc.id === 'IvmgfeBPfGRXLIQ5ce0Q') {
+        console.log('🔍 getCoupons - Coupon IvmgfeBPfGRXLIQ5ce0Q raw data:', {
+          hasBusinessId: !!data.businessId,
+          hasBusinessIds: !!data.businessIds,
+          businessId: data.businessId,
+          businessIds: data.businessIds,
+          allFields: Object.keys(data)
+        });
+      }
+      
       return {
         id: doc.id,
         ...data,
@@ -1793,13 +1804,23 @@ export async function getCouponById(id: string) {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
+      const data = docSnap.data();
+      console.log('🔍 getCouponById - Raw Firestore data:', {
+        id: docSnap.id,
+        hasBusinessId: !!data.businessId,
+        hasBusinessIds: !!data.businessIds,
+        businessId: data.businessId,
+        businessIds: data.businessIds,
+        allFields: Object.keys(data)
+      });
+      
       const coupon = {
         id: docSnap.id,
-        ...docSnap.data(),
-        createdAt: docSnap.data().createdAt?.toDate() || new Date(),
-        updatedAt: docSnap.data().updatedAt?.toDate() || new Date(),
-        validFrom: docSnap.data().validFrom?.toDate() || new Date(),
-        validTo: docSnap.data().validTo?.toDate() || new Date()
+        ...data,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+        validFrom: data.validFrom?.toDate() || new Date(),
+        validTo: data.validTo?.toDate() || new Date()
       };
       return { success: true, coupon };
     }
@@ -1818,6 +1839,15 @@ export async function updateCoupon(id: string, updateData: UpdateCouponData) {
     const docRef = doc(db, 'coupons', id);
     // Handle both businessId (legacy) and businessIds (new)
     const { businessId, businessIds, ...restData } = updateData;
+    
+    console.log('🔍 updateCoupon - Input data:', {
+      couponId: id,
+      businessId,
+      businessIds,
+      hasBusinessIds: businessIds !== undefined,
+      businessIdsLength: businessIds?.length || 0
+    });
+    
     const dataToUpdate: any = {
       ...restData,
       updatedAt: serverTimestamp()
@@ -1830,27 +1860,39 @@ export async function updateCoupon(id: string, updateData: UpdateCouponData) {
         dataToUpdate.businessIds = deleteField();
         // Also remove legacy businessId if it exists
         dataToUpdate.businessId = deleteField();
+        console.log('🔍 updateCoupon - Removing businessIds (empty array)');
       } else {
         dataToUpdate.businessIds = businessIds;
         // Remove legacy businessId when using new format
         dataToUpdate.businessId = deleteField();
+        console.log('🔍 updateCoupon - Setting businessIds:', businessIds);
       }
     } else if (businessId !== undefined) {
       // Legacy support: handle single businessId
       if (businessId === '') {
         dataToUpdate.businessId = deleteField();
         dataToUpdate.businessIds = deleteField();
+        console.log('🔍 updateCoupon - Removing businessId (empty string)');
       } else {
         // Convert single businessId to array
         dataToUpdate.businessIds = [businessId];
         dataToUpdate.businessId = deleteField();
+        console.log('🔍 updateCoupon - Converting businessId to array:', [businessId]);
       }
+    } else {
+      console.log('⚠️ updateCoupon - No businessIds or businessId provided, not updating business fields');
     }
     
+    console.log('🔍 updateCoupon - Final dataToUpdate:', {
+      ...dataToUpdate,
+      updatedAt: '[serverTimestamp]'
+    });
+    
     await updateDoc(docRef, dataToUpdate);
+    console.log('✅ updateCoupon - Successfully updated coupon:', id);
     return { success: true };
   } catch (error) {
-    console.error('Error updating coupon:', error);
+    console.error('❌ Error updating coupon:', error);
     return { success: false, error: 'Failed to update coupon' };
   }
 }

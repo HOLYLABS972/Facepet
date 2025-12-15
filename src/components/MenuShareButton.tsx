@@ -171,7 +171,7 @@ const MenuShareMenu = () => {
           size="lg"
           type="button"
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="bg-primary fixed bottom-4 z-70 h-[60px] w-[60px] rounded-full p-0 hover:bg-[#ff6243]/90 ltr:right-4 rtl:left-4"
+          className="bg-primary fixed bottom-20 md:bottom-4 z-70 h-[60px] w-[60px] rounded-full p-0 hover:bg-[#ff6243]/90 ltr:right-4 rtl:left-4"
         >
           {menuOpen ? <X className="h-6 w-6" /> : <Share className="h-6 w-6" />}
         </Button>

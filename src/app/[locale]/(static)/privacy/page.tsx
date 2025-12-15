@@ -53,7 +53,7 @@ export default function PrivacyPage() {
             className="flex items-center justify-center gap-2 mt-4 text-orange-200"
           >
             <Eye className="h-4 w-4" />
-            <span>{t('lastUpdated')}: {new Date().toLocaleDateString()}</span>
+            <span>{t('lastUpdated')}: {new Date().toLocaleDateString('en-GB')}</span>
           </motion.div>
         </div>
       </div>

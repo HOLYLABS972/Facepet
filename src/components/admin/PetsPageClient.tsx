@@ -119,7 +119,7 @@ export default function PetsPageClient({ pets, searchParams, hideOwnerColumn = f
   // Helper function to safely format dates
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return 'N/A';
-    return format(new Date(date), 'yyyy-MM-dd');
+    return format(new Date(date), 'dd/MM/yyyy');
   };
 
   // Handle pet field updates

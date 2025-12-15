@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ShoppingCart, Share2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShoppingCart, Share2, MapPin, Phone, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { UserCoupon } from '@/lib/firebase/user-coupons';
 import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent } from '@/components/ui/card';
+import { Business } from '@/types/promo';
 import toast from 'react-hot-toast';
 import { useShopRedirect } from '@/hooks/use-shop-redirect';
 import QRCodeCard from '@/components/cards/QRCodeCard';
@@ -16,13 +17,22 @@ import QRCodeCard from '@/components/cards/QRCodeCard';
 
 interface VoucherViewPageClientProps {
   userCoupon: UserCoupon;
+  businesses?: Business[];
 }
 
-export default function VoucherViewPageClient({ userCoupon }: VoucherViewPageClientProps) {
+export default function VoucherViewPageClient({ userCoupon, businesses = [] }: VoucherViewPageClientProps) {
   const t = useTranslations('components.UserCoupons');
   const router = useRouter();
   const locale = useLocale();
   const coupon = userCoupon.coupon;
+
+  // Debug: Log businesses prop
+  useEffect(() => {
+    console.log('🔍 VoucherViewPageClient - businesses prop:', {
+      count: businesses.length,
+      businesses: businesses.map(b => ({ id: b.id, name: b.name }))
+    });
+  }, [businesses]);
   const { redirectToShop } = useShopRedirect();
   const [shopUrl, setShopUrl] = useState<string>('');
   const [voucherUrl, setVoucherUrl] = useState<string>('');
@@ -135,11 +145,81 @@ export default function VoucherViewPageClient({ userCoupon }: VoucherViewPageCli
               )}
               {coupon.validFrom && coupon.validTo && isMounted && (
                 <div className="text-sm text-gray-500 mb-4">
-                  <p>{t('validFrom') || 'Valid from'}: {new Date(coupon.validFrom).toLocaleDateString()}</p>
-                  <p>{t('validUntil') || 'Valid until'}: {new Date(coupon.validTo).toLocaleDateString()}</p>
+                  <p>{t('validFrom') || 'Valid from'}: {new Date(coupon.validFrom).toLocaleDateString('en-GB')}</p>
+                  <p>{t('validUntil') || 'Valid until'}: {new Date(coupon.validTo).toLocaleDateString('en-GB')}</p>
                 </div>
               )}
             </div>
+
+            {/* Businesses that accept this voucher */}
+            {businesses.length > 0 ? (
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">
+                  {t('acceptedAt')} ({businesses.length})
+                </h2>
+                <div className="space-y-4">
+                  {businesses.map((biz) => (
+                    <Card key={biz.id} className="border-l-4 border-l-primary">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          {biz.imageUrl && (
+                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                              <img
+                                src={biz.imageUrl}
+                                alt={biz.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg mb-2">{biz.name}</h3>
+                            {biz.description && (
+                              <p className="text-sm text-gray-600 mb-3">{biz.description}</p>
+                            )}
+                            <div className="space-y-1 text-sm text-gray-600">
+                              {biz.contactInfo?.address && (
+                                <div className="flex items-start gap-2">
+                                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                  <span>{biz.contactInfo.address}</span>
+                                </div>
+                              )}
+                              {biz.contactInfo?.phone && (
+                                <div className="flex items-center gap-2">
+                                  <Phone className="w-4 h-4 flex-shrink-0" />
+                                  <a 
+                                    href={`tel:${biz.contactInfo.phone}`}
+                                    className="hover:text-primary transition-colors"
+                                  >
+                                    {biz.contactInfo.phone}
+                                  </a>
+                                </div>
+                              )}
+                              {biz.contactInfo?.email && (
+                                <div className="flex items-center gap-2">
+                                  <Mail className="w-4 h-4 flex-shrink-0" />
+                                  <a 
+                                    href={`mailto:${biz.contactInfo.email}`}
+                                    className="hover:text-primary transition-colors"
+                                  >
+                                    {biz.contactInfo.email}
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  {t('noBusinessesFound') || 'No businesses found for this voucher. This may be a data issue.'}
+                </p>
+              </div>
+            )}
 
             {/* QR Code Card */}
             <div className="mb-8">

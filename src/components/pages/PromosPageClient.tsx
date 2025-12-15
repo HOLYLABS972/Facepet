@@ -182,10 +182,10 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
         {(promo.startDate || promo.endDate) && (
           <div className="text-sm text-gray-500 mb-4">
             {promo.startDate && (
-              <p>{t('startDate') || 'Start'}: {new Date(promo.startDate).toLocaleDateString()}</p>
+              <p>{t('startDate') || 'Start'}: {new Date(promo.startDate).toLocaleDateString('en-GB')}</p>
             )}
             {promo.endDate && (
-              <p>{t('endDate') || 'End'}: {new Date(promo.endDate).toLocaleDateString()}</p>
+              <p>{t('endDate') || 'End'}: {new Date(promo.endDate).toLocaleDateString('en-GB')}</p>
             )}
           </div>
         )}
@@ -278,7 +278,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
         )}
         {userPromo.usedAt && (
           <p className="text-xs text-gray-500 mb-4">
-            {t('usedOn') || 'Used on'}: {new Date(userPromo.usedAt).toLocaleDateString()}
+            {t('usedOn') || 'Used on'}: {new Date(userPromo.usedAt).toLocaleDateString('en-GB')}
           </p>
         )}
         {/* Action Buttons for used promos */}

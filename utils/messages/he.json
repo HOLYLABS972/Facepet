@@ -1423,7 +1423,13 @@
       "adminPanel": "לוח בקרה",
       "store": "חנות פייספט",
       "coupons": "המתנות והשוברים שלי",
-      "allPromos": "קופונים"
+      "allPromos": "קופונים",
+      "bottomNav": {
+        "myPets": "החיות שלי",
+        "giftsAndVouchers": "מתנות ושוברים",
+        "myCoupons": "הקופונים שלי",
+        "businessesNearby": "עסקים בסביבה"
+      }
     },
     "UserCoupons": {
       "title": "המתנות והשוברים שלי",
@@ -1475,6 +1481,8 @@
       "getFree": "קבל חינם",
       "free": "חינם",
       "codeCopiedForStore": "הקוד הועתק! מעביר לחנות...",
+      "noBusinessesFound": "לא נמצאו עסקים עבור שובר זה",
+      "acceptedAt": "תקף ב",
       "couponMarkedAsUsed": "המתנה/שובר סומן כמשומש והועבר להיסטוריה",
       "failedToMarkAsUsed": "נכשל בסימון המתנה/שובר כמשומש",
       "points": "נקודות",
@@ -1482,6 +1490,7 @@
       "back": "חזור",
       "validFrom": "תקף מ",
       "qrCodeDescription": "סרקו את קוד ה-QR הזה כדי לצפות במתנה/שובר",
+      "acceptedAt": "תקף ב",
       "storeLocation": "מיקום החנות",
       "loadingMap": "טוען מפה...",
       "share": "שתף",

@@ -136,24 +136,6 @@ const Navbar = () => {
       icon: <PawPrint className="h-5 w-5" />
     },
     {
-      label: t('services'),
-      key: 'services',
-      path: '/services',
-      icon: <Stethoscope className="h-5 w-5" />
-    },
-    {
-      label: t('coupons'),
-      key: 'coupons',
-      path: '/coupons',
-      icon: <Wallet className="h-5 w-5" />
-    },
-    {
-      label: t('allPromos'),
-      key: 'promos',
-      path: '/promos',
-      icon: <Tag className="h-5 w-5" />
-    },
-    {
       label: t('contact'),
       key: 'contact',
       path: '/contact',
@@ -223,24 +205,6 @@ const Navbar = () => {
                         <Link href="/user/settings" className="flex items-center">
                           <CircleUserRound className="mr-2 h-4 w-4" />
                           <span>{t('profile')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/services" className="flex items-center">
-                          <Stethoscope className="mr-2 h-4 w-4" />
-                          <span>{t('services')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/coupons" className="flex items-center">
-                          <Ticket className="mr-2 h-4 w-4" />
-                          <span>{t('coupons')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/promos" className="flex items-center">
-                          <Tag className="mr-2 h-4 w-4" />
-                          <span>{t('allPromos')}</span>
                         </Link>
                       </DropdownMenuItem>
                       {(userRole === 'admin' || userRole === 'super_admin') && (

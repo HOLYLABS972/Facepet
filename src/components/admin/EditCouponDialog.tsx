@@ -49,6 +49,17 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
       if (coupon) {
       // Support both old businessId and new businessIds format
       const businessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
+      
+      console.log('🔍 EditCouponDialog - Coupon data received:', {
+        couponId: coupon.id,
+        couponName: coupon.name,
+        hasBusinessId: !!coupon.businessId,
+        hasBusinessIds: !!coupon.businessIds,
+        businessId: coupon.businessId,
+        businessIds: coupon.businessIds,
+        extractedBusinessIds: businessIds
+      });
+      
       setFormData({
         name: coupon.name || '',
         description: coupon.description || '',
@@ -117,6 +128,13 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
         throw new Error('Please enter valid points');
       }
 
+      console.log('🔍 EditCouponDialog - Submitting with businessIds:', {
+        couponId: coupon.id,
+        businessIds: formData.businessIds,
+        businessIdsLength: formData.businessIds.length,
+        willSend: formData.businessIds.length > 0 ? formData.businessIds : undefined
+      });
+
       const result = await updateCoupon(coupon.id, {
         name: formData.name,
         description: formData.description,
@@ -130,6 +148,20 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to update coupon');
+      }
+
+      // Verify the update was successful by fetching the coupon again
+      console.log('✅ Update successful, verifying saved data...');
+      const { getCouponById } = await import('@/lib/actions/admin');
+      const verifyResult = await getCouponById(coupon.id);
+      if (verifyResult.success && verifyResult.coupon) {
+        console.log('🔍 Verification - Coupon after update:', {
+          couponId: verifyResult.coupon.id,
+          hasBusinessId: !!verifyResult.coupon.businessId,
+          hasBusinessIds: !!verifyResult.coupon.businessIds,
+          businessId: verifyResult.coupon.businessId,
+          businessIds: verifyResult.coupon.businessIds
+        });
       }
 
       onSuccess();

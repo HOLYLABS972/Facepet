@@ -53,7 +53,7 @@ export default function CookiesPage() {
             className="flex items-center justify-center gap-2 mt-4 text-orange-200"
           >
             <Calendar className="h-4 w-4" />
-            <span>Last Updated: {new Date().toLocaleDateString()}</span>
+            <span>Last Updated: {new Date().toLocaleDateString('en-GB')}</span>
           </motion.div>
         </div>
       </div>

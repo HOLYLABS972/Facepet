@@ -191,7 +191,7 @@ export default function ContactSubmissionActions({
               <div>
                 <label className="text-sm font-medium text-gray-700">{t('contactSubmissions.viewDialog.submitted')}</label>
                 <p className="text-sm text-gray-900">
-                  {new Date(submission.createdAt).toLocaleString()}
+                  {new Date(submission.createdAt).toLocaleString('en-GB')}
                 </p>
               </div>
               <div>

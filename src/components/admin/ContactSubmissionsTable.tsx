@@ -43,7 +43,7 @@ export default function ContactSubmissionsTable({
 
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return 'N/A';
-    return format(new Date(date), 'yyyy-MM-dd HH:mm');
+    return format(new Date(date), 'dd/MM/yyyy HH:mm');
   };
 
   const getSortUrl = (field: string) => {

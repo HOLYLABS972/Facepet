@@ -1422,7 +1422,13 @@
       "adminPanel": "Admin Panel",
       "store": "Store Facepet",
       "coupons": "Vouchers",
-      "allPromos": "Coupons"
+      "allPromos": "Coupons",
+      "bottomNav": {
+        "myPets": "My Pets",
+        "giftsAndVouchers": "Gifts & Vouchers",
+        "myCoupons": "My Coupons",
+        "businessesNearby": "Businesses Nearby"
+      }
     },
     "UserCoupons": {
       "title": "Vouchers",
@@ -1474,6 +1480,8 @@
       "getFree": "Get Free",
       "free": "Free",
       "codeCopiedForStore": "Code copied! Redirecting to store...",
+      "noBusinessesFound": "No businesses found for this voucher",
+      "acceptedAt": "Accepted at",
       "couponMarkedAsUsed": "Voucher marked as used and moved to history",
       "failedToMarkAsUsed": "Failed to mark voucher as used",
       "points": "points",
@@ -1481,6 +1489,7 @@
       "back": "Back",
       "validFrom": "Valid from",
       "qrCodeDescription": "Scan this QR code to view this voucher",
+      "acceptedAt": "Accepted at",
       "storeLocation": "Store Location",
       "loadingMap": "Loading map...",
       "share": "Share",
