@@ -15,6 +15,7 @@ import { markPromoAsUsed, isPromoUsed } from '@/lib/firebase/user-promos';
 import { motion } from 'framer-motion';
 import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 import QRCodeCard from '@/components/cards/QRCodeCard';
+import MapCard from '@/components/cards/MapCard';
 import {
   Dialog,
   DialogContent,
@@ -211,7 +212,14 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                 </h2>
                 <div className="space-y-4">
                   {businesses.map((biz) => (
-                    <Card key={biz.id} className="border-l-4 border-l-primary">
+                    <Card 
+                      key={biz.id} 
+                      className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => {
+                        setSelectedBusiness(biz);
+                        setShowMapDialog(true);
+                      }}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start gap-4">
                           {biz.imageUrl && (
@@ -241,6 +249,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                                   <a 
                                     href={`tel:${biz.contactInfo.phone}`}
                                     className="hover:text-primary transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
                                   >
                                     {biz.contactInfo.phone}
                                   </a>
@@ -252,6 +261,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                                   <a 
                                     href={`mailto:${biz.contactInfo.email}`}
                                     className="hover:text-primary transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
                                   >
                                     {biz.contactInfo.email}
                                   </a>
@@ -264,6 +274,20 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                     </Card>
                   ))}
                 </div>
+                {businesses.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full mt-4"
+                    onClick={() => {
+                      setSelectedBusiness(null);
+                      setShowMapDialog(true);
+                    }}
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {t('showMap') || 'Show Map'}
+                  </Button>
+                )}
               </div>
             )}
 
@@ -347,6 +371,34 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                 </Button>
               </div>
             </div>
+
+            {/* Map Dialog */}
+            <Dialog open={showMapDialog} onOpenChange={(open) => {
+              setShowMapDialog(open);
+              if (!open) {
+                setSelectedBusiness(null);
+              }
+            }}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {selectedBusiness 
+                      ? `${t('mapFor') || 'Map for'} ${selectedBusiness.name}`
+                      : `${t('mapFor') || 'Map for'} ${coupon.name}`
+                    }
+                  </DialogTitle>
+                </DialogHeader>
+                {selectedBusiness ? (
+                  <MapCard businesses={[selectedBusiness]} />
+                ) : businesses.length > 0 ? (
+                  <MapCard businesses={businesses} />
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    {t('noBusinessesFound') || 'No businesses found for this coupon'}
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
 
             {/* Confirmation Dialog */}
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>

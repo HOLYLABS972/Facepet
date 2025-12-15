@@ -837,6 +837,13 @@ export default function UserCouponsPage() {
                             <MapPin className="h-4 w-4 mr-2" />
                             {t('showMap')}
                           </Button>
+                          
+                          {/* Map directly in sidebar */}
+                          {couponBusinesses.length > 0 && (
+                            <div className="mt-4">
+                              <MapCard businesses={couponBusinesses} />
+                            </div>
+                          )}
                         </div>
                       );
                     }
