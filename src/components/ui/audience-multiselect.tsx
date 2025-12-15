@@ -96,14 +96,22 @@ export function AudienceMultiselect({
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   {audience.name}
-                  <button
-                    type="button"
-                    className="ml-1 rounded-full hover:bg-secondary-foreground/20"
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    className="ml-1 rounded-full hover:bg-secondary-foreground/20 inline-flex items-center justify-center p-0.5"
                     onClick={(e) => removeAudience(audience.id, e)}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeAudience(audience.id, e as any);
+                      }
+                    }}
                   >
                     <X className="h-3 w-3" />
-                  </button>
+                  </span>
                 </Badge>
               ))
             )}
