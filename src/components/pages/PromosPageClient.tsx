@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Tag, Eye, CheckCircle2, History } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Tag, CheckCircle2, History, MapPin, QrCode } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Promo, Business } from '@/types/promo';
@@ -14,6 +14,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { isPromoUsed, getUserUsedPromos, UserPromo } from '@/lib/firebase/user-promos';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getYouTubeThumbnailUrl, getYouTubeEmbedUrl } from '@/lib/utils/youtube';
+import MapCard from '@/components/cards/MapCard';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface PromosPageClientProps {
   promos: Promo[];
@@ -30,6 +37,8 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   const [usedPromos, setUsedPromos] = useState<UserPromo[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('available');
+  const [showMapDialog, setShowMapDialog] = useState(false);
+  const [selectedPromo, setSelectedPromo] = useState<Promo | null>(null);
 
   // Function to load used promos
   const loadUsedPromos = useCallback(async () => {
@@ -94,6 +103,17 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
     router.push(url);
   };
 
+
+  const handleShowMap = (promo: Promo) => {
+    setSelectedPromo(promo);
+    setShowMapDialog(true);
+  };
+
+  const getPromoBusinesses = (promo: Promo): Business[] => {
+    const businessIds = promo.businessIds || (promo.businessId ? [promo.businessId] : []);
+    return businesses.filter(b => businessIds.includes(b.id));
+  };
+
   // Refresh used promos when tab changes to history
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
@@ -142,11 +162,20 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
       )}
       <CardContent className="p-6">
         <h3 className="text-xl font-bold mb-2">{promo.name}</h3>
-        {!business && promo.businessId && (
-          <p className="text-sm text-gray-500 mb-2">
-            {businesses.find(b => b.id === promo.businessId)?.name || 'Business'}
-          </p>
-        )}
+        {!business && (() => {
+          const promoBusinesses = getPromoBusinesses(promo);
+          if (promoBusinesses.length > 0) {
+            return (
+              <div className="text-sm text-gray-500 mb-2">
+                {promoBusinesses.length === 1 
+                  ? promoBusinesses[0].name
+                  : `${promoBusinesses.length} ${t('businesses') || 'Businesses'}`
+                }
+              </div>
+            );
+          }
+          return null;
+        })()}
         {promo.description && (
           <p className="text-gray-600 mb-4 line-clamp-3">{promo.description}</p>
         )}
@@ -161,17 +190,28 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           </div>
         )}
         
-        {/* Action Button */}
+        {/* Action Buttons */}
         <div className="flex gap-2 mt-4">
           <Button
             variant="outline"
             size="sm"
             onClick={() => handleViewQR(promo)}
-            className="w-full"
+            className="flex-1"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            {t('view') || 'View'}
+            <QrCode className="w-4 h-4 mr-2" />
+            {t('showQRCode') || 'QR Code'}
           </Button>
+          {getPromoBusinesses(promo).length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleShowMap(promo)}
+              className="flex-1"
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              {t('showMap') || 'Map'}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -219,11 +259,20 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
       )}
       <CardContent className="p-6">
         <h3 className="text-xl font-bold mb-2">{userPromo.promo.name}</h3>
-        {!business && userPromo.promo.businessId && (
-          <p className="text-sm text-gray-500 mb-2">
-            {businesses.find(b => b.id === userPromo.promo.businessId)?.name || 'Business'}
-          </p>
-        )}
+        {!business && (() => {
+          const promoBusinesses = getPromoBusinesses(userPromo.promo);
+          if (promoBusinesses.length > 0) {
+            return (
+              <div className="text-sm text-gray-500 mb-2">
+                {promoBusinesses.length === 1 
+                  ? promoBusinesses[0].name
+                  : `${promoBusinesses.length} ${t('businesses') || 'Businesses'}`
+                }
+              </div>
+            );
+          }
+          return null;
+        })()}
         {userPromo.promo.description && (
           <p className="text-gray-600 mb-4 line-clamp-3">{userPromo.promo.description}</p>
         )}
@@ -232,6 +281,29 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             {t('usedOn') || 'Used on'}: {new Date(userPromo.usedAt).toLocaleDateString()}
           </p>
         )}
+        {/* Action Buttons for used promos */}
+        <div className="flex gap-2 mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewQR(userPromo.promo)}
+            className="flex-1"
+          >
+            <QrCode className="w-4 h-4 mr-2" />
+            {t('showQRCode') || 'QR Code'}
+          </Button>
+          {getPromoBusinesses(userPromo.promo).length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleShowMap(userPromo.promo)}
+              className="flex-1"
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              {t('showMap') || 'Map'}
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -380,6 +452,22 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           </div>
           )
         )}
+
+        {/* Map Dialog */}
+        <Dialog open={showMapDialog} onOpenChange={setShowMapDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedPromo 
+                  ? `${t('mapFor') || 'Map for'} ${selectedPromo.name}`
+                  : t('showMap') || 'Show Map'}
+              </DialogTitle>
+            </DialogHeader>
+            {selectedPromo && (
+              <MapCard businesses={getPromoBusinesses(selectedPromo)} />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

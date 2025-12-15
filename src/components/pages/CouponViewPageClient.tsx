@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, CheckCircle2, Share2, Trophy, Info } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Share2, Trophy, Info, MapPin, Phone, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Promo, Business } from '@/types/promo';
@@ -15,7 +15,6 @@ import { markPromoAsUsed, isPromoUsed } from '@/lib/firebase/user-promos';
 import { motion } from 'framer-motion';
 import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 import QRCodeCard from '@/components/cards/QRCodeCard';
-import MapCard from '@/components/cards/MapCard';
 import {
   Dialog,
   DialogContent,
@@ -183,13 +182,6 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
               </div>
             )}
 
-            {/* Business Locations Map Card */}
-            {businesses.length > 0 && (
-              <div className="mb-8">
-                <MapCard businesses={businesses} />
-              </div>
-            )}
-
             {/* Coupon Info */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-4">{coupon.name}</h1>
@@ -210,6 +202,70 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                 </div>
               )}
             </div>
+
+            {/* Businesses that accept this coupon */}
+            {businesses.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">
+                  {t('acceptedAt') || 'Accepted at'} ({businesses.length})
+                </h2>
+                <div className="space-y-4">
+                  {businesses.map((biz) => (
+                    <Card key={biz.id} className="border-l-4 border-l-primary">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          {biz.imageUrl && (
+                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                              <img
+                                src={biz.imageUrl}
+                                alt={biz.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg mb-2">{biz.name}</h3>
+                            {biz.description && (
+                              <p className="text-sm text-gray-600 mb-3">{biz.description}</p>
+                            )}
+                            <div className="space-y-1 text-sm text-gray-600">
+                              {biz.contactInfo?.address && (
+                                <div className="flex items-start gap-2">
+                                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                  <span>{biz.contactInfo.address}</span>
+                                </div>
+                              )}
+                              {biz.contactInfo?.phone && (
+                                <div className="flex items-center gap-2">
+                                  <Phone className="w-4 h-4 flex-shrink-0" />
+                                  <a 
+                                    href={`tel:${biz.contactInfo.phone}`}
+                                    className="hover:text-primary transition-colors"
+                                  >
+                                    {biz.contactInfo.phone}
+                                  </a>
+                                </div>
+                              )}
+                              {biz.contactInfo?.email && (
+                                <div className="flex items-center gap-2">
+                                  <Mail className="w-4 h-4 flex-shrink-0" />
+                                  <a 
+                                    href={`mailto:${biz.contactInfo.email}`}
+                                    className="hover:text-primary transition-colors"
+                                  >
+                                    {biz.contactInfo.email}
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* QR Code Card */}
             <div className="mb-8">

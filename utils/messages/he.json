@@ -950,13 +950,19 @@
       "noHistoryDescription": "עדיין לא השתמשת בקופונים.",
       "usedOn": "שומש ב",
       "showAllCoupons": "הצג את כל הקופונים",
+      "showQRCode": "קוד QR",
+      "business": "עסק",
+      "businesses": "עסקים",
       "confirmUse": "אישור שימוש בקופון",
       "confirmUseMessage": "האם אתה בטוח שברצונך להשתמש בקופון זה? פעולה זו לא ניתנת לביטול.",
       "cancel": "ביטול",
       "confirm": "אישור",
       "importantInfo": "מידע חשוב",
       "couponUsageInfo": "קופון זה ניתן לשימוש רק בחנות המציעה את הקופון הזה",
-      "oneTimeUse": "קופון זה תקף לשימוש חד-פעמי בלבד"
+      "oneTimeUse": "קופון זה תקף לשימוש חד-פעמי בלבד",
+      "showMap": "הצג מפה",
+      "mapFor": "מפה עבור",
+      "acceptedAt": "תקף ב"
     },
 
     "ConfirmationPage": {

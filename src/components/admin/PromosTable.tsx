@@ -122,9 +122,24 @@ export default function PromosTable() {
     }).format(date);
   };
 
-  const getBusinessName = (businessId: string) => {
+  const getBusinessName = (businessId?: string) => {
+    if (!businessId) return null;
     const business = businesses.find(b => b.id === businessId);
     return business ? business.name : t('promoManagement.unknownBusiness');
+  };
+
+  const getBusinessNames = (promo: Promo) => {
+    // Support both old businessId and new businessIds format
+    const businessIds = promo.businessIds || (promo.businessId ? [promo.businessId] : []);
+    
+    if (businessIds.length === 0) {
+      return [t('promoManagement.unknownBusiness')];
+    }
+    
+    return businessIds.map(id => {
+      const business = businesses.find(b => b.id === id);
+      return business ? business.name : t('promoManagement.unknownBusiness');
+    });
   };
 
 
@@ -203,9 +218,13 @@ export default function PromosTable() {
                     {promo.description}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {getBusinessName(promo.businessId)}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1">
+                      {getBusinessNames(promo).map((businessName, index) => (
+                        <Badge key={index} variant="outline">
+                          {businessName}
+                        </Badge>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={promo.isActive ? 'default' : 'secondary'}>

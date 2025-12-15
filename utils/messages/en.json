@@ -958,13 +958,19 @@
       "noHistoryDescription": "You haven't used any coupons yet.",
       "usedOn": "Used on",
       "showAllCoupons": "Show All Coupons",
+      "showQRCode": "QR Code",
+      "business": "Business",
+      "businesses": "Businesses",
       "confirmUse": "Confirm Use Coupon",
       "confirmUseMessage": "Are you sure you want to use this coupon? This action cannot be undone.",
       "cancel": "Cancel",
       "confirm": "Confirm",
       "importantInfo": "Important Information",
       "couponUsageInfo": "This coupon can only be used at the shop that offers this promo",
-      "oneTimeUse": "This coupon is valid for one-time use only"
+      "oneTimeUse": "This coupon is valid for one-time use only",
+      "showMap": "Show Map",
+      "mapFor": "Map for",
+      "acceptedAt": "Accepted at"
     },
 
     "SignUpPage": {

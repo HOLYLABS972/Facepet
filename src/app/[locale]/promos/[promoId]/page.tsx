@@ -3,6 +3,7 @@ import { getBusinesses } from '@/lib/actions/admin';
 import { redirect } from 'next/navigation';
 import CouponViewPageClient from '@/components/pages/CouponViewPageClient';
 import { getTranslations } from 'next-intl/server';
+import { Business } from '@/types/promo';
 
 interface CouponViewPageProps {
   params: Promise<{
