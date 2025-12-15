@@ -44,11 +44,13 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
   useEffect(() => {
     // Always initialize map, even if no businesses/contact info
     if (!mapRef.current) {
+      console.log('⚠️ MapCard: No mapRef.current, setting mapLoaded to true');
       setMapLoaded(true);
       return () => {};
     }
 
     isMountedRef.current = true;
+    console.log('🗺️ MapCard: useEffect triggered, businesses:', businesses.length);
 
     const loadGoogleMaps = () => {
       if (window.google && window.google.maps) {
@@ -148,13 +150,30 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
 
     const initializeMap = async () => {
       if (!isMountedRef.current || !mapRef.current || !window.google) {
+        console.log('⚠️ MapCard: Cannot initialize - missing requirements', {
+          isMounted: isMountedRef.current,
+          hasMapRef: !!mapRef.current,
+          hasGoogle: !!window.google
+        });
         return;
       }
 
       if (!mapRef.current.parentNode || !document.body.contains(mapRef.current)) {
-        console.warn('Map ref is not in DOM, skipping map initialization');
+        console.warn('⚠️ MapCard: Map ref is not in DOM, skipping map initialization', {
+          hasParentNode: !!mapRef.current.parentNode,
+          inBody: document.body.contains(mapRef.current)
+        });
+        // Try again after a short delay
+        setTimeout(() => {
+          if (isMountedRef.current && mapRef.current && mapRef.current.parentNode) {
+            console.log('🔄 MapCard: Retrying map initialization...');
+            initializeMap();
+          }
+        }, 100);
         return;
       }
+      
+      console.log('✅ MapCard: Initializing map with', businesses.length, 'businesses');
 
       const defaultCenter = { lat: 31.7683, lng: 35.2137 }; // Default to Jerusalem
       const mapInstance = new window.google.maps.Map(mapRef.current, {
@@ -202,6 +221,11 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
       if (businesses.length > 0) {
         const businessesWithAddress = businesses.filter(b => b.contactInfo?.address);
         const totalBusinesses = businessesWithAddress.length;
+        console.log('📍 MapCard: Processing businesses', {
+          total: businesses.length,
+          withAddress: totalBusinesses,
+          businesses: businesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
+        });
 
         businessesWithAddress.forEach((businessItem) => {
           const address = businessItem.contactInfo?.address;
@@ -268,7 +292,10 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
             }
 
             if (geocodeCount === totalBusinesses && isMountedRef.current) {
+              console.log('✅ MapCard: All businesses geocoded, finalizing map');
               finalizeMap();
+            } else if (geocodeCount === totalBusinesses) {
+              console.warn('⚠️ MapCard: All businesses geocoded but component unmounted');
             }
           });
         });

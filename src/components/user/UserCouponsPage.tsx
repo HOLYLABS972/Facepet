@@ -783,6 +783,15 @@ export default function UserCouponsPage() {
                     const couponBusinessIds = selectedCoupon.businessIds || (selectedCoupon.businessId ? [selectedCoupon.businessId] : []);
                     const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
                     
+                    console.log('🔍 Sidebar - Businesses Debug:', {
+                      couponId: selectedCoupon.id,
+                      couponName: selectedCoupon.name,
+                      couponBusinessIds,
+                      totalBusinesses: businesses.length,
+                      filteredBusinesses: couponBusinesses.length,
+                      businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
+                    });
+                    
                     if (couponBusinesses.length > 0) {
                       return (
                         <div className="space-y-3">
@@ -841,7 +850,11 @@ export default function UserCouponsPage() {
                           {/* Map directly in sidebar */}
                           {couponBusinesses.length > 0 && (
                             <div className="mt-4">
-                              <MapCard businesses={couponBusinesses} />
+                              <MapCard 
+                                key={`sidebar-map-${selectedCoupon.id}-${couponBusinesses.length}`}
+                                businesses={couponBusinesses}
+                                title={t('businessLocations') || 'Business Locations'}
+                              />
                             </div>
                           )}
                         </div>
