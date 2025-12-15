@@ -20,8 +20,7 @@ export interface Business {
     address: string;
   };
   tags: string[];
-  audienceId?: string; // Legacy field for backward compatibility
-  audienceIds?: string[]; // New field for multiple audiences
+  filterIds?: string[]; // Filters assigned to this business
   rating?: number;
   isActive: boolean;
   createdAt: Date;
@@ -40,7 +39,7 @@ export interface Coupon {
   youtubeUrl?: string; // Optional YouTube video URL
   businessId?: string; // Deprecated: use businessIds instead
   businessIds?: string[]; // Optional business assignments (multiple stores)
-  audienceId: string;
+  filterId: string;
   isActive: boolean;
   startDate?: Date;
   endDate?: Date;
@@ -68,8 +67,7 @@ export interface CreateBusinessData {
     address: string;
   };
   tags: string[];
-  audienceId?: string; // Legacy field for backward compatibility
-  audienceIds?: string[]; // New field for multiple audiences
+  filterIds?: string[]; // Filters assigned to this business
   rating?: number;
 }
 
@@ -80,7 +78,7 @@ export interface CreateCouponData {
   youtubeUrl?: string; // Optional YouTube video URL
   businessId?: string; // Deprecated: use businessIds instead
   businessIds?: string[]; // Optional business assignments (multiple stores)
-  audienceId: string;
+  filterId: string;
   startDate?: Date;
   endDate?: Date;
 }
@@ -102,3 +100,22 @@ export interface UpdateCouponData extends Partial<CreateCouponData> {
 
 // Legacy alias for backward compatibility
 export type UpdatePromoData = UpdateCouponData;
+
+export interface Filter {
+  id: string;
+  name: string;
+  audienceIds: string[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+}
+
+export interface CreateFilterData {
+  name: string;
+  audienceIds: string[];
+}
+
+export interface UpdateFilterData extends Partial<CreateFilterData> {
+  isActive?: boolean;
+}

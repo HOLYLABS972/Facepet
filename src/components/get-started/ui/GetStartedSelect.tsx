@@ -78,7 +78,7 @@ const GetStartedSelect = ({
 
         <SelectContent>
           {selectOptions
-            .filter((option) => option.value && option.label) // Filter out undefined values
+            .filter((option) => option.value && option.value !== '' && option.label) // Filter out undefined and empty string values
             .map((option, index) => (
               <SelectItem key={option.value || `option-${index}`} value={option.value}>
                 {option.label}

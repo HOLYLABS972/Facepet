@@ -12,12 +12,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { AudienceMultiselect } from '@/components/ui/audience-multiselect';
-
-import { updateBusiness, getAudiences } from '@/lib/actions/admin';
+import { updateBusiness, getFilters } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Business, Audience } from '@/types/promo';
+import { Business, Filter } from '@/types/promo';
 import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
 
 interface EditBusinessDialogProps {
@@ -39,17 +37,17 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
       address: ''
     },
     tags: [] as string[],
-    audienceIds: [] as string[],
+    filterIds: [] as string[],
     rating: ''
   });
-  const [audiences, setAudiences] = useState<Audience[]>([]);
+  const [filters, setFilters] = useState<Filter[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      fetchAudiences();
+      fetchFilters();
       if (business) {
         setFormData({
           name: business.name || '',
@@ -61,22 +59,22 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
             address: business.contactInfo?.address || ''
           },
           tags: business.tags || [],
-          audienceIds: business.audienceIds || (business.audienceId ? [business.audienceId] : []),
+          filterIds: business.filterIds || [],
           rating: business.rating?.toString() || ''
         });
       }
     }
   }, [isOpen, business]);
 
-  const fetchAudiences = async () => {
+  const fetchFilters = async () => {
     setLoading(true);
     try {
-      const audiencesResult = await getAudiences();
-      if (audiencesResult.success && audiencesResult.audiences) {
-        setAudiences(audiencesResult.audiences as Audience[]);
+      const filtersResult = await getFilters();
+      if (filtersResult.success && filtersResult.filters) {
+        setFilters(filtersResult.filters);
       }
     } catch (err) {
-      console.error('Error fetching audiences:', err);
+      console.error('Error fetching filters:', err);
     } finally {
       setLoading(false);
     }
@@ -127,10 +125,10 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
     }));
   };
 
-  const handleAudienceChange = (selectedIds: string[]) => {
+  const handleFilterChange = (selectedIds: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      audienceIds: selectedIds
+      filterIds: selectedIds
     }));
   };
 
@@ -146,7 +144,7 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
         imageUrl: formData.imageUrl,
         contactInfo: formData.contactInfo,
         tags: formData.tags,
-        audienceIds: formData.audienceIds && formData.audienceIds.length > 0 ? formData.audienceIds : undefined,
+        filterIds: formData.filterIds && formData.filterIds.length > 0 ? formData.filterIds : undefined,
         rating: formData.rating ? Number(formData.rating) : undefined
       });
 
@@ -309,14 +307,29 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
           </div>
 
           <div className="space-y-2">
-            <Label>{t('businessManagement.audience')}</Label>
-            <AudienceMultiselect
-              audiences={audiences}
-              selectedIds={formData.audienceIds}
-              onSelectionChange={handleAudienceChange}
-              placeholder={t('businessManagement.audiencePlaceholder')}
-              disabled={loading}
-            />
+            <Label>{t('businessManagement.filters') || 'Filters'}</Label>
+            <div className="space-y-2">
+              {filters.filter(f => f.isActive).map((filter) => (
+                <label key={filter.id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.filterIds.includes(filter.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        handleFilterChange([...formData.filterIds, filter.id]);
+                      } else {
+                        handleFilterChange(formData.filterIds.filter(id => id !== filter.id));
+                      }
+                    }}
+                    className="cursor-pointer"
+                  />
+                  <span>{filter.name}</span>
+                </label>
+              ))}
+              {filters.filter(f => f.isActive).length === 0 && (
+                <p className="text-sm text-gray-500">{t('businessManagement.noFiltersAvailable') || 'No filters available'}</p>
+              )}
+            </div>
           </div>
 
           <DialogFooter>

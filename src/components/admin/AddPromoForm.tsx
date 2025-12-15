@@ -22,11 +22,11 @@ import {
 } from '@/components/ui/select';
 import { BusinessMultiselect } from '@/components/ui/business-multiselect';
 
-import { createPromo, getBusinesses, getAudiences } from '@/lib/actions/admin';
+import { createPromo, getBusinesses, getFilters } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Business, Audience } from '@/types/promo';
+import { Business, Filter } from '@/types/promo';
 import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 export default function AddPromoForm() {
@@ -40,14 +40,14 @@ export default function AddPromoForm() {
     imageUrl: '',
     youtubeUrl: '',
     businessIds: [] as string[],
-    audienceId: '',
+    filterId: '',
     startDate: '',
     endDate: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [audiences, setAudiences] = useState<Audience[]>([]);
+  const [filters, setFilters] = useState<Filter[]>([]);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -61,16 +61,16 @@ export default function AddPromoForm() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [businessesResult, audiencesResult] = await Promise.all([
+      const [businessesResult, filtersResult] = await Promise.all([
         getBusinesses(),
-        getAudiences()
+        getFilters()
       ]);
 
       if (businessesResult.success) {
         setBusinesses(businessesResult.businesses);
       }
-      if (audiencesResult.success) {
-        setAudiences(audiencesResult.audiences);
+      if (filtersResult.success) {
+        setFilters(filtersResult.filters);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -109,8 +109,8 @@ export default function AddPromoForm() {
     setError(null);
 
     try {
-      if (!formData.audienceId || formData.audienceId === 'loading') {
-        throw new Error('Please select an audience');
+      if (!formData.filterId || formData.filterId === 'loading') {
+        throw new Error('Please select a filter');
       }
 
       const result = await createPromo({
@@ -119,7 +119,7 @@ export default function AddPromoForm() {
         imageUrl: mediaType === 'image' ? formData.imageUrl : '',
         youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
         businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
-        audienceId: formData.audienceId,
+        filterId: formData.filterId,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined
       }, 'admin'); // TODO: Get actual user ID
@@ -135,7 +135,7 @@ export default function AddPromoForm() {
         imageUrl: '',
         youtubeUrl: '',
         businessIds: [],
-        audienceId: '',
+        filterId: '',
         startDate: '',
         endDate: ''
       });
@@ -277,21 +277,21 @@ export default function AddPromoForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="audienceId">{t('promoManagement.audience')}</Label>
+            <Label htmlFor="filterId">{t('promoManagement.filter') || 'Filter'}</Label>
             <Select 
-              value={formData.audienceId} 
-              onValueChange={(value) => handleSelectChange('audienceId', value)}
+              value={formData.filterId} 
+              onValueChange={(value) => handleSelectChange('filterId', value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder={t('promoManagement.audiencePlaceholder')} />
+                <SelectValue placeholder={t('promoManagement.filterPlaceholder') || 'Select a filter'} />
               </SelectTrigger>
               <SelectContent>
                 {loading ? (
                   <SelectItem value="loading" disabled>Loading...</SelectItem>
                 ) : (
-                  audiences.map((audience) => (
-                    <SelectItem key={audience.id} value={audience.id}>
-                      {audience.name}
+                  filters.filter(f => f.isActive).map((filter) => (
+                    <SelectItem key={filter.id} value={filter.id}>
+                      {filter.name}
                     </SelectItem>
                   ))
                 )}

@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase/config';
 import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp, deleteField } from 'firebase/firestore';
 import { hash } from 'bcryptjs';
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
-import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData } from '@/types/promo';
+import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData, CreateFilterData, UpdateFilterData } from '@/types/promo';
 import { addPointsToUserByUid, getUserPointsByUid } from '@/lib/firebase/points-server';
 
 // DASHBOARD STATISTICS FUNCTIONS
@@ -2014,6 +2014,81 @@ export async function deleteBusiness(id: string) {
   } catch (error) {
     console.error('Error deleting business:', error);
     return { success: false, error: 'Failed to delete business' };
+  }
+}
+
+// FILTER MANAGEMENT FUNCTIONS
+
+/**
+ * Create a new filter
+ */
+export async function createFilter(filterData: CreateFilterData, createdBy: string) {
+  try {
+    const docRef = await addDoc(collection(db, 'filters'), {
+      ...filterData,
+      isActive: true,
+      createdBy,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error creating filter:', error);
+    return { success: false, error: 'Failed to create filter' };
+  }
+}
+
+/**
+ * Get all filters
+ */
+export async function getFilters() {
+  try {
+    const q = query(collection(db, 'filters'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const filters = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      audienceIds: doc.data().audienceIds || [],
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date()
+    }));
+    
+    return { success: true, filters };
+  } catch (error) {
+    console.error('Error fetching filters:', error);
+    return { success: false, error: 'Failed to fetch filters' };
+  }
+}
+
+/**
+ * Update a filter
+ */
+export async function updateFilter(id: string, updateData: UpdateFilterData) {
+  try {
+    const docRef = doc(db, 'filters', id);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: serverTimestamp()
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating filter:', error);
+    return { success: false, error: 'Failed to update filter' };
+  }
+}
+
+/**
+ * Delete a filter
+ */
+export async function deleteFilter(id: string) {
+  try {
+    const docRef = doc(db, 'filters', id);
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting filter:', error);
+    return { success: false, error: 'Failed to delete filter' };
   }
 }
 

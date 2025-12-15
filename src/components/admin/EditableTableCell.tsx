@@ -151,11 +151,13 @@ export default function EditableTableCell({
             {isLoading ? (
               <SelectItem value="loading" disabled>Loading...</SelectItem>
             ) : (
-              options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))
+              options
+                .filter((option) => option.value && option.value !== '')
+                .map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))
             )}
           </SelectContent>
         </Select>

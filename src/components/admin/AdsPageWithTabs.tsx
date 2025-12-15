@@ -4,17 +4,17 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Building2, Megaphone } from 'lucide-react';
+import { Building2, Megaphone, Filter } from 'lucide-react';
 
 // Import new promo components
 import AddPromoForm from '@/components/admin/AddPromoForm';
 import PromosTable from '@/components/admin/PromosTable';
 
-// Import new audience and business components
-import AddAudienceForm from '@/components/admin/AddAudienceForm';
+// Import new business and filter components
 import AddBusinessForm from '@/components/admin/AddBusinessForm';
-import AudiencesFloatingChips from '@/components/admin/AudiencesFloatingChips';
 import BusinessesTable from '@/components/admin/BusinessesTable';
+import AddFilterForm from '@/components/admin/AddFilterForm';
+import FiltersTable from '@/components/admin/FiltersTable';
 
 // Import table components
 import {
@@ -54,9 +54,9 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
             <Megaphone className="h-4 w-4" />
             {t('adsManagement.tabs.promo')}
           </TabsTrigger>
-          <TabsTrigger value="audience" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            {t('adsManagement.tabs.audience')}
+          <TabsTrigger value="filters" className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            {t('adsManagement.tabs.filters') || 'Filters'}
           </TabsTrigger>
           <TabsTrigger value="businesses" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
@@ -80,20 +80,20 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
           <PromosTable />
         </TabsContent>
 
-        <TabsContent value="audience" className="space-y-6">
+        <TabsContent value="filters" className="space-y-6">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 rtl:md:flex-row-reverse">
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                {t('audienceManagement.title')}
+                {t('filterManagement.title') || 'Filter Management'}
               </h2>
               <p className="text-gray-600 mt-2 text-sm md:text-base">
-                {t('audienceManagement.description')}
+                {t('filterManagement.description') || 'Create and manage filters from audiences to filter businesses.'}
               </p>
             </div>
-            <AddAudienceForm />
+            <AddFilterForm />
           </div>
           
-          <AudiencesFloatingChips />
+          <FiltersTable />
         </TabsContent>
 
         <TabsContent value="businesses" className="space-y-6">

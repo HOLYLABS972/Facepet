@@ -21,10 +21,10 @@ import {
 } from '@/components/ui/select';
 import { BusinessMultiselect } from '@/components/ui/business-multiselect';
 
-import { updatePromo, getBusinesses, getAudiences } from '@/lib/actions/admin';
+import { updatePromo, getBusinesses, getFilters } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Business, Audience, Promo } from '@/types/promo';
+import { Business, Filter, Promo } from '@/types/promo';
 import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 interface EditPromoDialogProps {
@@ -43,14 +43,14 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     imageUrl: '',
     youtubeUrl: '',
     businessIds: [] as string[],
-    audienceId: '',
+    filterId: '',
     startDate: '',
     endDate: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [audiences, setAudiences] = useState<Audience[]>([]);
+  const [filters, setFilters] = useState<Filter[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
           imageUrl: promo.imageUrl || '',
           youtubeUrl: promo.youtubeUrl || '',
           businessIds: businessIds,
-          audienceId: promo.audienceId || '',
+          filterId: promo.filterId || '',
           startDate: promo.startDate ? new Date(promo.startDate).toISOString().split('T')[0] : '',
           endDate: promo.endDate ? new Date(promo.endDate).toISOString().split('T')[0] : ''
         });
@@ -82,16 +82,16 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [businessesResult, audiencesResult] = await Promise.all([
+      const [businessesResult, filtersResult] = await Promise.all([
         getBusinesses(),
-        getAudiences()
+        getFilters()
       ]);
 
       if (businessesResult.success) {
         setBusinesses(businessesResult.businesses);
       }
-      if (audiencesResult.success) {
-        setAudiences(audiencesResult.audiences);
+      if (filtersResult.success) {
+        setFilters(filtersResult.filters);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -130,8 +130,8 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     setError(null);
 
     try {
-      if (!formData.audienceId || formData.audienceId === 'loading') {
-        throw new Error('Please select an audience');
+      if (!formData.filterId || formData.filterId === 'loading') {
+        throw new Error('Please select a filter');
       }
 
       const result = await updatePromo(promo.id, {
@@ -140,7 +140,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
         imageUrl: mediaType === 'image' ? formData.imageUrl : '',
         youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
         businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
-        audienceId: formData.audienceId,
+        filterId: formData.filterId,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined
       });
@@ -279,21 +279,21 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="audienceId">{t('promoManagement.audience')}</Label>
+            <Label htmlFor="filterId">{t('promoManagement.filter') || 'Filter'}</Label>
             <Select 
-              value={formData.audienceId} 
-              onValueChange={(value) => handleSelectChange('audienceId', value)}
+              value={formData.filterId} 
+              onValueChange={(value) => handleSelectChange('filterId', value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder={t('promoManagement.audiencePlaceholder')} />
+                <SelectValue placeholder={t('promoManagement.filterPlaceholder') || 'Select a filter'} />
               </SelectTrigger>
               <SelectContent>
                 {loading ? (
-                  <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading')}</SelectItem>
+                  <SelectItem value="loading" disabled>{t('dialogs.editPromo.loading') || 'Loading...'}</SelectItem>
                 ) : (
-                  audiences.map((audience) => (
-                    <SelectItem key={audience.id} value={audience.id}>
-                      {audience.name}
+                  filters.filter(f => f.isActive).map((filter) => (
+                    <SelectItem key={filter.id} value={filter.id}>
+                      {filter.name}
                     </SelectItem>
                   ))
                 )}
