@@ -13,6 +13,13 @@ import { Business } from '@/types/promo';
 import toast from 'react-hot-toast';
 import { useShopRedirect } from '@/hooks/use-shop-redirect';
 import QRCodeCard from '@/components/cards/QRCodeCard';
+import MapCard from '@/components/cards/MapCard';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 
 interface VoucherViewPageClientProps {
@@ -37,6 +44,8 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
   const [shopUrl, setShopUrl] = useState<string>('');
   const [voucherUrl, setVoucherUrl] = useState<string>('');
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [showMapDialog, setShowMapDialog] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -159,7 +168,14 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
                 </h2>
                 <div className="space-y-4">
                   {businesses.map((biz) => (
-                    <Card key={biz.id} className="border-l-4 border-l-primary">
+                    <Card 
+                      key={biz.id} 
+                      className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => {
+                        setSelectedBusiness(biz);
+                        setShowMapDialog(true);
+                      }}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start gap-4">
                           {biz.imageUrl && (
@@ -212,6 +228,20 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
                     </Card>
                   ))}
                 </div>
+                {businesses.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full mt-4"
+                    onClick={() => {
+                      setSelectedBusiness(null);
+                      setShowMapDialog(true);
+                    }}
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {t('showMap') || 'Show Map'}
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -253,6 +283,33 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
             </div>
           </CardContent>
         </Card>
+
+        {/* Map Dialog */}
+        <Dialog open={showMapDialog} onOpenChange={(open) => {
+          setShowMapDialog(open);
+          if (!open) {
+            setSelectedBusiness(null);
+          }
+        }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedBusiness 
+                  ? `${t('mapFor') || 'Map for'} ${selectedBusiness.name}`
+                  : t('showMap') || 'Show Map'}
+              </DialogTitle>
+            </DialogHeader>
+            {selectedBusiness ? (
+              <MapCard businesses={[selectedBusiness]} />
+            ) : businesses.length > 0 ? (
+              <MapCard businesses={businesses} />
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                {t('noBusinessesFound') || 'No businesses found for this voucher'}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

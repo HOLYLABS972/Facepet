@@ -45,6 +45,7 @@ export default function UserCouponsPage() {
   const [showMapDialog, setShowMapDialog] = useState(false);
   const [couponForDialog, setCouponForDialog] = useState<Coupon | null>(null);
   const [userCouponForDialog, setUserCouponForDialog] = useState<UserCoupon | null>(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const { redirectToShop } = useShopRedirect();
 
   useEffect(() => {
@@ -135,11 +136,13 @@ export default function UserCouponsPage() {
       // Fetch businesses for map
       const businessesResult = await getBusinesses();
       if (businessesResult.success && businessesResult.businesses) {
-        // Filter and ensure businesses have required fields for map
+        // Store all businesses (don't filter by address here - MapCard will handle that)
+        // This ensures we can match businesses by ID even if they don't have addresses yet
         const validBusinesses = businessesResult.businesses.filter((b: any) => 
-          b.id && b.name && b.contactInfo?.address
+          b.id && b.name
         ) as Business[];
         setBusinesses(validBusinesses);
+        console.log('✅ Loaded businesses for map:', validBusinesses.length);
       }
 
       // Fetch user points from userPoints collection
@@ -683,7 +686,10 @@ export default function UserCouponsPage() {
                         size="sm"
                         className="w-full"
                         onClick={() => {
+                          console.log('🗺️ Opening map for user coupon:', userCoupon.id, userCoupon.coupon?.name);
                           setUserCouponForDialog(userCoupon);
+                          setCouponForDialog(null); // Clear coupon if set
+                          setSelectedBusiness(null); // Clear selected business
                           setShowMapDialog(true);
                         }}
                       >
@@ -771,6 +777,71 @@ export default function UserCouponsPage() {
                       {t('validUntil')}: {formatDate(selectedCoupon.validTo)}
                     </span>
                   </div>
+                  
+                  {/* Businesses that accept this coupon */}
+                  {(() => {
+                    const couponBusinessIds = selectedCoupon.businessIds || (selectedCoupon.businessId ? [selectedCoupon.businessId] : []);
+                    const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
+                    
+                    if (couponBusinesses.length > 0) {
+                      return (
+                        <div className="space-y-3">
+                          <h3 className="text-sm font-semibold text-gray-700">
+                            {t('acceptedAt')} ({couponBusinesses.length})
+                          </h3>
+                          <div className="space-y-2">
+                            {couponBusinesses.map((biz) => (
+                              <Card 
+                                key={biz.id}
+                                className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-primary"
+                                onClick={() => {
+                                  setSelectedBusiness(biz);
+                                  setCouponForDialog(selectedCoupon);
+                                  setShowMapDialog(true);
+                                }}
+                              >
+                                <CardContent className="p-3">
+                                  <div className="flex items-start gap-3">
+                                    {biz.imageUrl && (
+                                      <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img
+                                          src={biz.imageUrl}
+                                          alt={biz.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-semibold text-sm mb-1">{biz.name}</h4>
+                                      {biz.contactInfo?.address && (
+                                        <div className="flex items-start gap-1.5 text-xs text-gray-600">
+                                          <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                          <span className="line-clamp-1">{biz.contactInfo.address}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              setCouponForDialog(selectedCoupon);
+                              setShowMapDialog(true);
+                            }}
+                          >
+                            <MapPin className="h-4 w-4 mr-2" />
+                            {t('showMap')}
+                          </Button>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </CardContent>
               <CardFooter className="pt-6 border-t sticky bottom-0 bg-white">
@@ -837,25 +908,86 @@ export default function UserCouponsPage() {
       )}
 
       {/* Map Dialog */}
-      <Dialog open={showMapDialog} onOpenChange={setShowMapDialog}>
+      <Dialog open={showMapDialog} onOpenChange={(open) => {
+        setShowMapDialog(open);
+        if (!open) {
+          setSelectedBusiness(null);
+          // Don't clear couponForDialog/userCouponForDialog here - they might be needed for re-opening
+        }
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {(() => {
+                if (selectedBusiness) {
+                  return `${t('mapFor')} ${selectedBusiness.name}`;
+                }
                 const couponName = userCouponForDialog?.coupon.name || couponForDialog?.name;
                 return couponName ? `${t('mapFor')} ${couponName}` : t('showMap');
               })()}
             </DialogTitle>
           </DialogHeader>
           {(() => {
-            const coupon = userCouponForDialog?.coupon || couponForDialog;
-            if (!coupon) return null;
+            // Debug: Log what we have
+            console.log('🔍 Map Dialog - State Debug:', {
+              hasUserCouponForDialog: !!userCouponForDialog,
+              hasCouponForDialog: !!couponForDialog,
+              hasSelectedBusiness: !!selectedBusiness,
+              userCouponCoupon: userCouponForDialog?.coupon,
+              couponForDialog: couponForDialog,
+              totalBusinesses: businesses.length
+            });
             
-            // Get businesses associated with this coupon
+            const coupon = userCouponForDialog?.coupon || couponForDialog;
+            
+            if (!coupon) {
+              console.warn('⚠️ No coupon found in dialog state');
+              return (
+                <div className="p-4 text-center text-gray-500">
+                  <p className="mb-2">{t('noBusinessesFound') || 'No coupon selected'}</p>
+                  <p className="text-sm text-gray-400">
+                    Please try clicking the map button again.
+                  </p>
+                </div>
+              );
+            }
+            
+            // If a specific business is selected, show only that business
+            if (selectedBusiness) {
+              console.log('📍 Showing map for selected business:', selectedBusiness.name);
+              return <MapCard businesses={[selectedBusiness]} />;
+            }
+            
+            // Otherwise, show all businesses associated with this coupon
             const couponBusinessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
             const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
             
-            // Always show the map, even if no businesses are found
+            console.log('🔍 Map Dialog - Coupon Debug:', {
+              couponId: coupon.id,
+              couponName: coupon.name,
+              couponBusinessIds,
+              totalBusinesses: businesses.length,
+              filteredBusinesses: couponBusinesses.length,
+              businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
+            });
+            
+            if (couponBusinesses.length === 0) {
+              return (
+                <div className="p-4 text-center">
+                  <p className="text-gray-500 mb-4">
+                    {t('noBusinessesFound') || 'No businesses found for this coupon'}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {couponBusinessIds.length === 0 
+                      ? 'This coupon has no businesses assigned.'
+                      : `Business IDs: ${couponBusinessIds.join(', ')}. Found ${businesses.length} total businesses.`
+                    }
+                  </p>
+                </div>
+              );
+            }
+            
+            // Always show the map
             return <MapCard businesses={couponBusinesses} />;
           })()}
         </DialogContent>
