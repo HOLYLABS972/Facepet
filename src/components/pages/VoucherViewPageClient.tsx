@@ -41,7 +41,7 @@ export default function VoucherViewPageClient({ userCoupon }: VoucherViewPageCli
       const { getContactInfo } = await import('@/lib/actions/admin');
       const info = await getContactInfo();
       if (info?.storeUrl) {
-        setShopUrl(info.storeUrl);
+          setShopUrl(info.storeUrl);
       }
     };
     fetchContactData();

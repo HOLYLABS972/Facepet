@@ -807,8 +807,8 @@ export default function UserCouponsPage() {
               <Button 
                 onClick={() => {
                   if (selectedCoupon) {
-                    handlePurchaseCoupon(selectedCoupon);
-                    setSelectedCoupon(null);
+                  handlePurchaseCoupon(selectedCoupon);
+                  setSelectedCoupon(null);
                   }
                 }}
                 disabled={!freeCouponPrice && selectedCoupon && userPoints < selectedCoupon.points}

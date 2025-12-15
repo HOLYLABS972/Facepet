@@ -14,7 +14,8 @@ import {
   ShoppingBag,
   Ticket,
   Tag,
-  Wallet
+  Wallet,
+  Menu
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -49,10 +50,16 @@ const Navbar = () => {
   const { notifications } = useNotifications();
   const [userRole, setUserRole] = useState<'user' | 'admin' | 'super_admin' | null>(null);
   const [storeUrl, setStoreUrl] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const locale = useLocale();
   const router = useRouter();
 
-  // Fetch user role and store URL
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Fetch user role
   useEffect(() => {
     const checkUserRole = async () => {
       if (!user) {
@@ -73,6 +80,11 @@ const Navbar = () => {
       }
     };
 
+    checkUserRole();
+  }, [user]);
+
+  // Fetch store URL (always, regardless of user status)
+  useEffect(() => {
     const fetchStoreUrl = async () => {
       try {
         const contactInfo = await getContactInfo();
@@ -84,9 +96,8 @@ const Navbar = () => {
       }
     };
 
-    checkUserRole();
     fetchStoreUrl();
-  }, [user]);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -161,7 +172,7 @@ const Navbar = () => {
           'bg-background'
         )}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
           <div className="flex h-16 items-center justify-between rtl:flex-row-reverse">
             {/* Brand / Logo */}
             <Link href="/">
@@ -175,19 +186,11 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="flex items-center gap-4">
-              {/* Store Button - always visible */}
-              {storeUrl && (
-                <Button
-                  onClick={() => window.location.href = storeUrl}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold"
-                >
-                  <ShoppingBag className="h-4 w-4 mr-2" />
-                  {t('store')}
-                </Button>
-              )}
-
-              {user ? (
+            <div className="flex items-center gap-4 relative">
+              {!isMounted ? (
+                // Show loading state during hydration
+                <div className="h-8 w-8" />
+              ) : user ? (
                 <>
                   {/* User Dropdown Menu */}
                   <DropdownMenu>
@@ -198,7 +201,7 @@ const Navbar = () => {
                         </div>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuContent className="w-56" align="end">
                       <div className="flex items-center justify-start gap-2 p-2">
                         <div className="flex flex-col space-y-1 leading-none">
                           {user?.displayName && (
@@ -263,20 +266,41 @@ const Navbar = () => {
                   </DropdownMenu>
                 </>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Link href="/contact">
-                    <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
-                      <Mail className="h-4 w-4 mr-2" />
-                      {t('contact')}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <Menu className="h-5 w-5" />
                     </Button>
-                  </Link>
-                  <Link href="/auth">
-                    <Button className="bg-primary hover:bg-primary/90 text-white">
-                      <LogIn className="h-5 w-5 mr-2" />
-                      {t('signIn')}
-                    </Button>
-                  </Link>
-                </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
+                    {storeUrl && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <button
+                            onClick={() => window.location.href = storeUrl}
+                            className="flex items-center w-full"
+                          >
+                            <ShoppingBag className="mr-2 h-4 w-4" />
+                            <span>{t('store')}</span>
+                          </button>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem asChild>
+                      <Link href="/contact" className="flex items-center">
+                        <Mail className="mr-2 h-4 w-4" />
+                        <span>{t('contact')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/auth" className="flex items-center">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        <span>{t('signIn')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           </div>
