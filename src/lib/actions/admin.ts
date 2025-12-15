@@ -1777,7 +1777,7 @@ export async function getCoupons() {
         });
       }
       
-      return {
+      const couponData = {
         id: doc.id,
         ...data,
         // Convert Date objects to ISO strings for serialization
@@ -1786,6 +1786,20 @@ export async function getCoupons() {
         validFrom: validFrom.toISOString(),
         validTo: validTo.toISOString()
       };
+      
+      // Ensure businessIds is properly included (it should be in ...data, but let's be explicit)
+      // Debug: Log specific coupon
+      if (doc.id === 'IvmgfeBPfGRXLIQ5ce0Q') {
+        console.log('🔍 Server Action - getCoupons returning coupon IvmgfeBPfGRXLIQ5ce0Q:', {
+          hasBusinessIds: !!couponData.businessIds,
+          businessIds: couponData.businessIds,
+          businessIdsType: typeof couponData.businessIds,
+          businessIdsIsArray: Array.isArray(couponData.businessIds),
+          allKeys: Object.keys(couponData)
+        });
+      }
+      
+      return couponData;
     });
     
     return { success: true, coupons };

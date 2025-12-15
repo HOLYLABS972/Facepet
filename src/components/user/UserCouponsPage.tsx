@@ -63,11 +63,23 @@ export default function UserCouponsPage() {
             businessId: fetchedCoupon.businessId,
             businessIds: fetchedCoupon.businessIds
           });
+          // Parse and normalize businessIds from fetched coupon
+          let normalizedBusinessIds: string[] = [];
+          if (fetchedCoupon.businessIds) {
+            if (Array.isArray(fetchedCoupon.businessIds)) {
+              normalizedBusinessIds = fetchedCoupon.businessIds.filter(id => id != null && id !== '');
+            } else if (typeof fetchedCoupon.businessIds === 'string') {
+              normalizedBusinessIds = [fetchedCoupon.businessIds];
+            }
+          } else if (fetchedCoupon.businessId) {
+            normalizedBusinessIds = [fetchedCoupon.businessId];
+          }
+          
           // Merge the businessIds into the selected coupon
           setSelectedCouponWithBusinesses({
             ...selectedCoupon,
             businessId: fetchedCoupon.businessId,
-            businessIds: fetchedCoupon.businessIds
+            businessIds: normalizedBusinessIds.length > 0 ? normalizedBusinessIds : undefined
           });
         } else {
           setSelectedCouponWithBusinesses(selectedCoupon);
@@ -102,14 +114,56 @@ export default function UserCouponsPage() {
       if (couponsResult.success && couponsResult.coupons) {
         console.log(`✅ Found ${couponsResult.coupons.length} total coupons`);
         
-        // Convert ISO strings back to Date objects
-        const couponsWithDates = couponsResult.coupons.map((coupon: any) => ({
-          ...coupon,
-          createdAt: new Date(coupon.createdAt),
-          updatedAt: new Date(coupon.updatedAt),
-          validFrom: new Date(coupon.validFrom),
-          validTo: new Date(coupon.validTo),
-        })) as Coupon[];
+        // Convert ISO strings back to Date objects and normalize businessIds
+        const couponsWithDates = couponsResult.coupons.map((coupon: any) => {
+          // Parse and normalize businessIds
+          let normalizedBusinessIds: string[] | undefined = undefined;
+          if (coupon.businessIds) {
+            if (Array.isArray(coupon.businessIds)) {
+              normalizedBusinessIds = coupon.businessIds.filter((id: any) => id != null && id !== '');
+            } else if (typeof coupon.businessIds === 'string') {
+              normalizedBusinessIds = [coupon.businessIds];
+            }
+          } else if (coupon.businessId) {
+            // Legacy format: convert single businessId to array
+            normalizedBusinessIds = [coupon.businessId];
+          }
+          
+          // Debug: Log specific coupon
+          if (coupon.id === 'IvmgfeBPfGRXLIQ5ce0Q') {
+            console.log('🔍🔍🔍 CLIENT - Parsing coupon IvmgfeBPfGRXLIQ5ce0Q:', {
+              rawBusinessIds: coupon.businessIds,
+              rawBusinessId: coupon.businessId,
+              normalizedBusinessIds,
+              normalizedLength: normalizedBusinessIds?.length,
+              isArray: Array.isArray(coupon.businessIds),
+              type: typeof coupon.businessIds,
+              couponKeys: Object.keys(coupon)
+            });
+          }
+          
+          const parsedCoupon = {
+            ...coupon,
+            createdAt: new Date(coupon.createdAt),
+            updatedAt: new Date(coupon.updatedAt),
+            validFrom: new Date(coupon.validFrom),
+            validTo: new Date(coupon.validTo),
+            businessIds: normalizedBusinessIds && normalizedBusinessIds.length > 0 ? normalizedBusinessIds : undefined,
+            // Keep businessId for backward compatibility
+            businessId: coupon.businessId
+          };
+          
+          // Debug: Log specific coupon after parsing
+          if (coupon.id === 'IvmgfeBPfGRXLIQ5ce0Q') {
+            console.log('🔍 Client - After parsing coupon IvmgfeBPfGRXLIQ5ce0Q:', {
+              parsedBusinessIds: parsedCoupon.businessIds,
+              parsedBusinessIdsLength: parsedCoupon.businessIds?.length,
+              parsedBusinessIdsIsArray: Array.isArray(parsedCoupon.businessIds)
+            });
+          }
+          
+          return parsedCoupon;
+        }) as Coupon[];
         
         // Log all coupons for debugging
         couponsWithDates.forEach(coupon => {
@@ -161,6 +215,23 @@ export default function UserCouponsPage() {
           // If both are free or both are paid, sort by price ascending
           return a.price - b.price;
         });
+        
+        // Debug: Log final coupons before setting state
+        const targetCoupon = sortedCoupons.find(c => c.id === 'IvmgfeBPfGRXLIQ5ce0Q');
+        if (targetCoupon) {
+          console.log('🔍🔍🔍 CLIENT - Final coupon before setState IvmgfeBPfGRXLIQ5ce0Q:', {
+            id: targetCoupon.id,
+            name: targetCoupon.name,
+            businessIds: targetCoupon.businessIds,
+            businessIdsLength: targetCoupon.businessIds?.length,
+            businessIdsIsArray: Array.isArray(targetCoupon.businessIds),
+            hasBusinessId: !!targetCoupon.businessId,
+            hasBusinessIds: !!targetCoupon.businessIds,
+            allKeys: Object.keys(targetCoupon)
+          });
+        } else {
+          console.warn('⚠️⚠️⚠️ CLIENT - Target coupon IvmgfeBPfGRXLIQ5ce0Q NOT FOUND in sortedCoupons!');
+        }
         
         setCoupons(sortedCoupons);
       } else {
@@ -536,7 +607,17 @@ export default function UserCouponsPage() {
             {coupons.map((coupon) => (
               <Card 
                 key={coupon.id} 
-                onClick={() => setSelectedCoupon(coupon)}
+                onClick={() => {
+                  console.log('🔍🔍🔍 CLICK - Setting selected coupon:', {
+                    id: coupon.id,
+                    name: coupon.name,
+                    businessIds: coupon.businessIds,
+                    businessIdsLength: coupon.businessIds?.length,
+                    businessIdsIsArray: Array.isArray(coupon.businessIds),
+                    allKeys: Object.keys(coupon)
+                  });
+                  setSelectedCoupon(coupon);
+                }}
                 className={`relative group hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden bg-white cursor-pointer ${
                   selectedCoupon?.id === coupon.id ? 'border-primary ring-2 ring-primary/20' : 'hover:border-primary/20'
                 }`}
@@ -825,17 +906,37 @@ export default function UserCouponsPage() {
                     const couponToUse = selectedCouponWithBusinesses || selectedCoupon;
                     
                     // Get business IDs from coupon - support both old and new format
-                    let couponBusinessIds = couponToUse.businessIds || (couponToUse.businessId ? [couponToUse.businessId] : []);
+                    // Parse and normalize businessIds to ensure it's always an array
+                    let couponBusinessIds: string[] = [];
+                    if (couponToUse.businessIds) {
+                      // Ensure it's an array (could be undefined, null, or already an array)
+                      if (Array.isArray(couponToUse.businessIds)) {
+                        couponBusinessIds = couponToUse.businessIds.filter(id => id != null && id !== '');
+                      } else if (typeof couponToUse.businessIds === 'string') {
+                        // Handle case where it might be a string (shouldn't happen, but just in case)
+                        couponBusinessIds = [couponToUse.businessIds];
+                      }
+                    } else if (couponToUse.businessId) {
+                      // Legacy format: single businessId
+                      couponBusinessIds = [couponToUse.businessId];
+                    }
                     
                     // Debug: Log the coupon structure
-                    console.log('🔍 Sidebar - Selected Coupon Debug:', {
+                    console.log('🔍🔍🔍 SIDEBAR - Selected Coupon Debug:', {
                       couponId: couponToUse.id,
                       couponName: couponToUse.name,
                       hasBusinessId: !!couponToUse.businessId,
                       hasBusinessIds: !!couponToUse.businessIds,
                       businessId: couponToUse.businessId,
                       businessIds: couponToUse.businessIds,
-                      usingFetchedData: !!selectedCouponWithBusinesses
+                      businessIdsType: typeof couponToUse.businessIds,
+                      businessIdsIsArray: Array.isArray(couponToUse.businessIds),
+                      couponBusinessIds: couponBusinessIds,
+                      couponBusinessIdsLength: couponBusinessIds.length,
+                      usingFetchedData: !!selectedCouponWithBusinesses,
+                      allCouponKeys: Object.keys(couponToUse),
+                      selectedCouponFromState: selectedCoupon,
+                      selectedCouponWithBusinessesFromState: selectedCouponWithBusinesses
                     });
                     
                     // Filter businesses that match the coupon's business IDs
@@ -915,10 +1016,23 @@ export default function UserCouponsPage() {
                                 const result = await getCouponById(couponToUse.id);
                                 if (result.success && result.coupon) {
                                   const fetchedCoupon = result.coupon as Coupon;
+                                  
+                                  // Parse and normalize businessIds
+                                  let normalizedBusinessIds: string[] = [];
+                                  if (fetchedCoupon.businessIds) {
+                                    if (Array.isArray(fetchedCoupon.businessIds)) {
+                                      normalizedBusinessIds = fetchedCoupon.businessIds.filter(id => id != null && id !== '');
+                                    } else if (typeof fetchedCoupon.businessIds === 'string') {
+                                      normalizedBusinessIds = [fetchedCoupon.businessIds];
+                                    }
+                                  } else if (fetchedCoupon.businessId) {
+                                    normalizedBusinessIds = [fetchedCoupon.businessId];
+                                  }
+                                  
                                   couponToSet = {
                                     ...couponToUse,
                                     businessId: fetchedCoupon.businessId,
-                                    businessIds: fetchedCoupon.businessIds
+                                    businessIds: normalizedBusinessIds.length > 0 ? normalizedBusinessIds : undefined
                                   };
                                 }
                               }
