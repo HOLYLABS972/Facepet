@@ -6,31 +6,31 @@ import { useTranslations } from 'next-intl';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
-  const t = useTranslations('components.Navbar.bottomNav');
+  const t = useTranslations('components.Navbar');
 
   const navItems = [
     {
       href: '/pages/my-pets',
       icon: PawPrint,
-      label: t('myPets'),
+      label: t('bottomNav.myPets') || t('myPets'),
       isActive: pathname?.startsWith('/pages/my-pets'),
     },
     {
       href: '/promos',
       icon: Gift,
-      label: t('giftsAndVouchers'),
+      label: t('bottomNav.giftsAndVouchers') || t('allPromos'),
       isActive: pathname?.startsWith('/promos'),
     },
     {
       href: '/coupons',
       icon: Ticket,
-      label: t('myCoupons'),
+      label: t('bottomNav.myCoupons') || t('coupons'),
       isActive: pathname?.startsWith('/coupons') || pathname?.startsWith('/vouchers'),
     },
     {
       href: '/services',
       icon: MapPin,
-      label: t('businessesNearby'),
+      label: t('bottomNav.businessesNearby') || t('services'),
       isActive: pathname?.startsWith('/services'),
     },
   ];
