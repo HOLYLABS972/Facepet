@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 export default function AdminInstallBanner() {
+    const t = useTranslations('installBanner');
     const [settings, setSettings] = useState<InstallBannerSettings | null>(null);
     const [isVisible, setIsVisible] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
