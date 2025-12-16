@@ -219,32 +219,35 @@ const Navbar = () => {
                         </div>
                       </div>
                       <DropdownMenuSeparator />
-                      {/* Desktop Navigation Items (from bottom nav) */}
-                      <DropdownMenuItem asChild>
-                        <Link href="/pages/my-pets" className="flex items-center">
-                          <PawPrint className="mr-2 h-4 w-4" />
-                          <span>{t('bottomNav.myPets') || t('myPets')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/promos" className="flex items-center">
-                          <Gift className="mr-2 h-4 w-4" />
-                          <span>{t('bottomNav.giftsAndVouchers') || t('allPromos')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/coupons" className="flex items-center">
-                          <Ticket className="mr-2 h-4 w-4" />
-                          <span>{t('bottomNav.myCoupons') || t('coupons')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/services" className="flex items-center">
-                          <MapPin className="mr-2 h-4 w-4" />
-                          <span>{t('bottomNav.businessesNearby') || t('services')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
+                      {/* Desktop Navigation Items - Hidden on mobile (mobile has bottom nav) */}
+                      <div className="hidden md:block">
+                        <DropdownMenuItem asChild>
+                          <Link href="/pages/my-pets" className="flex items-center">
+                            <PawPrint className="mr-2 h-4 w-4" />
+                            <span>{t('bottomNav.myPets') || t('myPets')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/promos" className="flex items-center">
+                            <Gift className="mr-2 h-4 w-4" />
+                            <span>{t('bottomNav.giftsAndVouchers') || t('allPromos')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/coupons" className="flex items-center">
+                            <Ticket className="mr-2 h-4 w-4" />
+                            <span>{t('bottomNav.myCoupons') || t('coupons')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/services" className="flex items-center">
+                            <MapPin className="mr-2 h-4 w-4" />
+                            <span>{t('bottomNav.businessesNearby') || t('services')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </div>
+                      {/* Settings and Actions */}
                       <DropdownMenuItem asChild>
                         <Link href="/user/settings" className="flex items-center">
                           <CircleUserRound className="mr-2 h-4 w-4" />
@@ -327,7 +330,7 @@ const Navbar = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = storeUrl}
-                  className="border-orange-500 text-orange-500 text-xs sm:text-sm"
+                  className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 text-xs sm:text-sm"
                 >
                   חנות צ'אפיז
                 </Button>

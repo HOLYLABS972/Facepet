@@ -610,7 +610,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         if (user && service.id) {
           checkIfFavorited(service.id);
         }
-        
+
         // Navigate to business page
         if (service.id) {
           router.push(`/promos?businessId=${service.id}`);
@@ -798,7 +798,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
     setIsLoading(true);
     const servicesData: ServiceWithCoordinates[] = [];
-    
+
     // Use default location (Israel center) if user location is not available
     const defaultLocation = { lat: 31.7683, lng: 35.2137 };
     const locationToUse = userLocation || defaultLocation;
@@ -1432,17 +1432,17 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       </div>
                     )}
 
-                      {/* Service photo */}
-                      <div className="mb-4 flex items-center justify-center bg-gray-100">
-                        <img
-                          src={selectedService.image}
-                          alt={selectedService.name}
-                          className="max-w-full max-h-[400px] object-contain"
-                          style={{
-                            display: 'block'
-                          }}
-                        />
-                      </div>
+                    {/* Service photo */}
+                    <div className="mb-4 flex items-center justify-center bg-gray-100">
+                      <img
+                        src={selectedService.image}
+                        alt={selectedService.name}
+                        className="max-w-full max-h-[400px] object-contain"
+                        style={{
+                          display: 'block'
+                        }}
+                      />
+                    </div>
 
                     {/* Contact Information */}
                     <div className="mb-4 space-y-2">
@@ -1579,7 +1579,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       <Button
                         variant="ghost"
                         size="lg"
-                        className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                        className="hover:bg-primary/10 hover:text-primary focus:bg-primary transition-colors focus:text-white focus:outline-none"
                         onClick={() => {
                           if (selectedService.address || selectedService.location) {
                             const address = selectedService.address || selectedService.location;
@@ -1600,7 +1600,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       <Button
                         variant="ghost"
                         size="lg"
-                        className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                        className="hover:bg-primary/10 hover:text-primary focus:bg-primary transition-colors focus:text-white focus:outline-none"
                         onClick={() => {
                           if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
                             window.open(`tel:${selectedService.phone}`, '_self');
@@ -1644,7 +1644,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       <Button
                         variant="ghost"
                         size="lg"
-                        className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                        className="hover:bg-primary/10 hover:text-primary focus:bg-primary transition-colors focus:text-white focus:outline-none"
                         onClick={() => {
                           if (selectedService.id) {
                             router.push(`/${locale}/promos?businessId=${selectedService.id}`);

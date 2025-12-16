@@ -1,14 +1,17 @@
 'use client';
 
-import { Gift, Ticket, PawPrint, MapPin } from 'lucide-react';
+import { Gift, Ticket, PawPrint, MapPin, Mail, LogIn } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
   const t = useTranslations('components.Navbar');
+  const { user } = useAuth();
 
-  const navItems = [
+  // Navigation items for logged-in users
+  const loggedInNavItems = [
     {
       href: '/pages/my-pets',
       icon: PawPrint,
@@ -35,6 +38,36 @@ export default function BottomNavigation() {
     },
   ];
 
+  // Navigation items for non-logged-in users
+  const publicNavItems = [
+    {
+      href: '/services',
+      icon: MapPin,
+      label: t('services') || 'Services',
+      isActive: pathname?.startsWith('/services'),
+    },
+    {
+      href: '/promos',
+      icon: Gift,
+      label: t('allPromos') || 'Promos',
+      isActive: pathname?.startsWith('/promos'),
+    },
+    {
+      href: '/contact',
+      icon: Mail,
+      label: t('contact') || 'Contact',
+      isActive: pathname?.startsWith('/contact'),
+    },
+    {
+      href: '/auth',
+      icon: LogIn,
+      label: t('signIn') || 'Sign In',
+      isActive: pathname?.startsWith('/auth'),
+    },
+  ];
+
+  const navItems = user ? loggedInNavItems : publicNavItems;
+
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t-2 border-gray-300 shadow-lg md:hidden"
@@ -47,13 +80,12 @@ export default function BottomNavigation() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 rounded-lg transition-colors ${
-                item.isActive
-                  ? 'text-primary bg-primary/5'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+              className={`flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 rounded-lg transition-all duration-200 ${item.isActive
+                  ? 'text-primary bg-primary/10'
+                  : 'text-gray-600 hover:text-primary hover:bg-primary/5 hover:scale-105 active:scale-95'
+                }`}
             >
-              <Icon className={`h-6 w-6 mb-1 ${item.isActive ? 'text-primary' : ''}`} />
+              <Icon className={`h-6 w-6 mb-1 transition-transform ${item.isActive ? 'text-primary' : ''}`} />
               <span className={`text-[10px] font-medium text-center leading-tight ${item.isActive ? 'text-primary' : 'text-gray-600'}`}>
                 {item.label}
               </span>

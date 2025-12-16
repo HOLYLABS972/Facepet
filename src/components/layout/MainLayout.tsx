@@ -19,7 +19,7 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
   const isAdminRoute = pathname?.startsWith('/admin');
   const isAuthRoute = pathname?.startsWith('/auth');
   const { user, loading } = useAuth();
-  
+
   // Remove background for non-authenticated users
   useEffect(() => {
     if (!loading) {
@@ -29,17 +29,16 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
         document.body.classList.remove('no-background');
       }
     }
-    
+
     // Cleanup on unmount
     return () => {
       document.body.classList.remove('no-background');
     };
   }, [user, loading]);
-  
-  // Navbar is always shown now (for both logged in and non-logged in users)
-  // Hide bottom navigation since buttons are now in navbar dropdown
-  const showBottomNav = false;
-  
+
+  // Show bottom navigation on mobile for all users
+  const showBottomNav = true;
+
   return (
     <main className="flex min-h-dvh flex-col m-0 p-0">
       <DirectionProvider dir={direction}>
