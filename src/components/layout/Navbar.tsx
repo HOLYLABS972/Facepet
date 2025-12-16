@@ -200,13 +200,11 @@ const Navbar = () => {
                 <div className="h-8 w-8" />
               ) : user ? (
                 <>
-                  {/* User Dropdown Menu */}
+                  {/* User Dropdown Menu - Using Burger Icon */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                          <CircleUserRound className="h-5 w-5 text-white" />
-                        </div>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Menu className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end">
