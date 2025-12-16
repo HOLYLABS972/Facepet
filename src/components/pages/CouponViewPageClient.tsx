@@ -43,6 +43,8 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [couponUrl, setCouponUrl] = useState('');
+  const [showMapDialog, setShowMapDialog] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
   // Set mounted state and coupon URL only on client side to avoid hydration mismatch
   useEffect(() => {
@@ -212,8 +214,8 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                 </h2>
                 <div className="space-y-4">
                   {businesses.map((biz) => (
-                    <Card 
-                      key={biz.id} 
+                    <Card
+                      key={biz.id}
                       className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => {
                         setSelectedBusiness(biz);
@@ -246,7 +248,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                               {biz.contactInfo?.phone && (
                                 <div className="flex items-center gap-2">
                                   <Phone className="w-4 h-4 flex-shrink-0" />
-                                  <a 
+                                  <a
                                     href={`tel:${biz.contactInfo.phone}`}
                                     className="hover:text-primary transition-colors"
                                     onClick={(e) => e.stopPropagation()}
@@ -258,7 +260,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                               {biz.contactInfo?.email && (
                                 <div className="flex items-center gap-2">
                                   <Mail className="w-4 h-4 flex-shrink-0" />
-                                  <a 
+                                  <a
                                     href={`mailto:${biz.contactInfo.email}`}
                                     className="hover:text-primary transition-colors"
                                     onClick={(e) => e.stopPropagation()}
@@ -382,7 +384,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {selectedBusiness 
+                    {selectedBusiness
                       ? `${t('mapFor') || 'Map for'} ${selectedBusiness.name}`
                       : `${t('mapFor') || 'Map for'} ${coupon.name}`
                     }

@@ -22,13 +22,17 @@ export const usePetId = () => {
 
   // Save petId to localStorage and state
   const savePetId = (id: string) => {
-    localStorage.setItem('petId', id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('petId', id);
+    }
     setPetId(id);
   };
 
   // Clear petId from localStorage and state
   const clearPetId = () => {
-    localStorage.removeItem('petId');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('petId');
+    }
     setPetId(null);
   };
 

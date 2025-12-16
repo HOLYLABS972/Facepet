@@ -97,7 +97,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   }, [user, activeTab, loadUsedPromos]);
 
   const handleViewQR = (promo: Promo) => {
-    const url = business 
+    const url = business
       ? `/${locale}/promos/${promo.id}?businessId=${business.id}`
       : `/${locale}/promos/${promo.id}`;
     router.push(url);
@@ -126,9 +126,9 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   const availablePromos = promos.filter(promo => !usedPromoIds.has(promo.id));
 
   const renderPromoCard = (promo: Promo) => (
-    <Card 
-      key={promo.id} 
-      className="overflow-hidden hover:shadow-lg transition-shadow relative"
+    <Card
+      key={promo.id}
+      className="overflow-hidden hover:shadow-lg transition-shadow relative flex flex-col"
     >
       {promo.youtubeUrl ? (
         <div className="relative w-full h-48">
@@ -146,7 +146,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           <div className="absolute inset-0 flex items-center justify-center bg-black/20">
             <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity">
               <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
+                <path d="M8 5v14l11-7z" />
               </svg>
             </div>
           </div>
@@ -160,36 +160,38 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           />
         </div>
       )}
-      <CardContent className="p-6">
-        <h3 className="text-xl font-bold mb-2">{promo.name}</h3>
-        {!business && (() => {
-          const promoBusinesses = getPromoBusinesses(promo);
-          if (promoBusinesses.length > 0) {
-            return (
-              <div className="text-sm text-gray-500 mb-2">
-                {promoBusinesses.length === 1 
-                  ? promoBusinesses[0].name
-                  : `${promoBusinesses.length} ${t('businesses') || 'Businesses'}`
-                }
-              </div>
-            );
-          }
-          return null;
-        })()}
-        {promo.description && (
-          <p className="text-gray-600 mb-4 line-clamp-3">{promo.description}</p>
-        )}
-        {(promo.startDate || promo.endDate) && (
-          <div className="text-sm text-gray-500 mb-4">
-            {promo.startDate && (
-              <p>{t('startDate') || 'Start'}: {new Date(promo.startDate).toLocaleDateString('en-GB')}</p>
-            )}
-            {promo.endDate && (
-              <p>{t('endDate') || 'End'}: {new Date(promo.endDate).toLocaleDateString('en-GB')}</p>
-            )}
-          </div>
-        )}
-        
+      <CardContent className="p-6 flex flex-col h-full">
+        <div className="flex-1">
+          <h3 className="text-xl font-bold mb-2">{promo.name}</h3>
+          {!business && (() => {
+            const promoBusinesses = getPromoBusinesses(promo);
+            if (promoBusinesses.length > 0) {
+              return (
+                <div className="text-sm text-gray-500 mb-2">
+                  {promoBusinesses.length === 1
+                    ? promoBusinesses[0].name
+                    : `${promoBusinesses.length} ${t('businesses') || 'Businesses'}`
+                  }
+                </div>
+              );
+            }
+            return null;
+          })()}
+          {promo.description && (
+            <p className="text-gray-600 mb-4 line-clamp-3">{promo.description}</p>
+          )}
+          {(promo.startDate || promo.endDate) && (
+            <div className="text-sm text-gray-500 mb-4">
+              {promo.startDate && (
+                <p>{t('startDate') || 'Start'}: {new Date(promo.startDate).toLocaleDateString('en-GB')}</p>
+              )}
+              {promo.endDate && (
+                <p>{t('endDate') || 'End'}: {new Date(promo.endDate).toLocaleDateString('en-GB')}</p>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Action Buttons */}
         <div className="flex gap-2 mt-4">
           <Button
@@ -218,9 +220,9 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   );
 
   const renderUsedPromoCard = (userPromo: UserPromo) => (
-    <Card 
-      key={userPromo.id} 
-      className="overflow-hidden hover:shadow-lg transition-shadow relative opacity-75"
+    <Card
+      key={userPromo.id}
+      className="overflow-hidden hover:shadow-lg transition-shadow relative opacity-75 flex flex-col"
     >
       <div className="absolute top-2 right-2 z-10">
         <div className="bg-gray-500 text-white px-2 py-1 rounded text-xs font-medium">
@@ -243,7 +245,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           <div className="absolute inset-0 flex items-center justify-center bg-black/20">
             <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center opacity-90">
               <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
+                <path d="M8 5v14l11-7z" />
               </svg>
             </div>
           </div>
@@ -257,30 +259,32 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           />
         </div>
       )}
-      <CardContent className="p-6">
-        <h3 className="text-xl font-bold mb-2">{userPromo.promo.name}</h3>
-        {!business && (() => {
-          const promoBusinesses = getPromoBusinesses(userPromo.promo);
-          if (promoBusinesses.length > 0) {
-            return (
-              <div className="text-sm text-gray-500 mb-2">
-                {promoBusinesses.length === 1 
-                  ? promoBusinesses[0].name
-                  : `${promoBusinesses.length} ${t('businesses') || 'Businesses'}`
-                }
-              </div>
-            );
-          }
-          return null;
-        })()}
-        {userPromo.promo.description && (
-          <p className="text-gray-600 mb-4 line-clamp-3">{userPromo.promo.description}</p>
-        )}
-        {userPromo.usedAt && (
-          <p className="text-xs text-gray-500 mb-4">
-            {t('usedOn') || 'Used on'}: {new Date(userPromo.usedAt).toLocaleDateString('en-GB')}
-          </p>
-        )}
+      <CardContent className="p-6 flex flex-col h-full">
+        <div className="flex-1">
+          <h3 className="text-xl font-bold mb-2">{userPromo.promo.name}</h3>
+          {!business && (() => {
+            const promoBusinesses = getPromoBusinesses(userPromo.promo);
+            if (promoBusinesses.length > 0) {
+              return (
+                <div className="text-sm text-gray-500 mb-2">
+                  {promoBusinesses.length === 1
+                    ? promoBusinesses[0].name
+                    : `${promoBusinesses.length} ${t('businesses') || 'Businesses'}`
+                  }
+                </div>
+              );
+            }
+            return null;
+          })()}
+          {userPromo.promo.description && (
+            <p className="text-gray-600 mb-4 line-clamp-3">{userPromo.promo.description}</p>
+          )}
+          {userPromo.usedAt && (
+            <p className="text-xs text-gray-500 mb-4">
+              {t('usedOn') || 'Used on'}: {new Date(userPromo.usedAt).toLocaleDateString('en-GB')}
+            </p>
+          )}
+        </div>
         {/* Action Buttons for used promos */}
         <div className="flex gap-2 mt-4">
           <Button
@@ -311,38 +315,38 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-6">
           {business && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="mb-4"
-          >
-            {locale === 'he' ? (
-              <ArrowRight className="h-4 w-4 mr-2" />
-            ) : (
-              <ArrowLeft className="h-4 w-4 mr-2" />
-            )}
-            {t('back') || 'Back'}
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="mb-4"
+            >
+              {locale === 'he' ? (
+                <ArrowRight className="h-4 w-4 mr-2" />
+              ) : (
+                <ArrowLeft className="h-4 w-4 mr-2" />
+              )}
+              {t('back') || 'Back'}
+            </Button>
           )}
-          
+
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               {business?.imageUrl && (
-              <div className="w-16 h-16 rounded-lg overflow-hidden">
-                <img 
-                  src={business.imageUrl} 
-                  alt={business.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-            <div>
+                <div className="w-16 h-16 rounded-lg overflow-hidden">
+                  <img
+                    src={business.imageUrl}
+                    alt={business.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div>
                 <h1 className="text-3xl font-bold">
                   {business ? business.name : (t('allPromos') || 'All Promos')}
                 </h1>
@@ -384,25 +388,25 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
                   <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-primary rounded-full animate-spin"></div>
                 </div>
               ) : availablePromos.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
+                <Card>
+                  <CardContent className="py-12 text-center">
                     <Tag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
                       {t('noPromos') || 'No Coupons Available'}
-              </h3>
-              <p className="text-gray-500">
-                      {business 
+                    </h3>
+                    <p className="text-gray-500">
+                      {business
                         ? (t('noPromosDescription') || 'This business doesn\'t have any active coupons at the moment.')
                         : (t('noPromosAllDescription') || 'There are no active coupons available at the moment.')
                       }
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {availablePromos.map(renderPromoCard)}
-                  </div>
-                )}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="history">
@@ -425,8 +429,8 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {usedPromos.map(renderUsedPromoCard)}
-                    </div>
-                  )}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         ) : (
@@ -439,17 +443,17 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
                   {t('noPromos') || 'No Coupons Available'}
                 </h3>
                 <p className="text-gray-500">
-                  {business 
+                  {business
                     ? (t('noPromosDescription') || 'This business doesn\'t have any active coupons at the moment.')
                     : (t('noPromosAllDescription') || 'There are no active coupons available at the moment.')
                   }
                 </p>
-                </CardContent>
-              </Card>
+              </CardContent>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {promos.map(renderPromoCard)}
-          </div>
+            </div>
           )
         )}
 
@@ -458,7 +462,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {selectedPromo 
+                {selectedPromo
                   ? `${t('mapFor') || 'Map for'} ${selectedPromo.name}`
                   : t('showMap') || 'Show Map'}
               </DialogTitle>

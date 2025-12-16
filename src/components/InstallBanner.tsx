@@ -18,17 +18,23 @@ export default function InstallBanner() {
 
   useEffect(() => {
     // Check if already installed (standalone mode)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                        (window.navigator as any).standalone === true;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true;
     if (isStandalone) return;
 
     // Check if user dismissed the banner before
-    const dismissed = localStorage.getItem('installBannerDismissed');
-    if (dismissed) {
-      // Check if dismissed more than 7 days ago
-      const dismissedDate = new Date(dismissed);
-      const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceDismissed < 7) return;
+    if (typeof window !== 'undefined') {
+      try {
+        const dismissed = localStorage.getItem('installBannerDismissed');
+        if (dismissed) {
+          // Check if dismissed more than 7 days ago
+          const dismissedDate = new Date(dismissed);
+          const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
+          if (daysSinceDismissed < 7) return;
+        }
+      } catch (error) {
+        console.error('Error accessing localStorage:', error);
+      }
     }
 
     // Detect platform
@@ -62,7 +68,13 @@ export default function InstallBanner() {
 
   const handleDismiss = () => {
     setIsVisible(false);
-    localStorage.setItem('installBannerDismissed', new Date().toISOString());
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('installBannerDismissed', new Date().toISOString());
+      } catch (error) {
+        console.error('Error setting localStorage:', error);
+      }
+    }
   };
 
   const handleInstall = async () => {
@@ -72,7 +84,13 @@ export default function InstallBanner() {
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
         setIsVisible(false);
-        localStorage.setItem('installBannerDismissed', new Date().toISOString());
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('installBannerDismissed', new Date().toISOString());
+          } catch (error) {
+            console.error('Error setting localStorage:', error);
+          }
+        }
       }
       setDeferredPrompt(null);
     } else if (isIOS) {

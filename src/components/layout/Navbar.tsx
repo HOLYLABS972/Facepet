@@ -19,7 +19,7 @@ import {
   Gift,
   MapPin
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
@@ -55,6 +55,7 @@ const Navbar = () => {
   const [isMounted, setIsMounted] = useState(false);
   const locale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -275,27 +276,52 @@ const Navbar = () => {
                   </DropdownMenu>
                 </>
               ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <Menu className="h-5 w-5" />
+                <>
+                  {/* Desktop: Show navigation buttons directly (no burger menu) */}
+                  <div className="hidden md:flex items-center gap-2">
+                    <Button
+                      variant={pathname?.includes('/contact') ? 'outline' : 'ghost'}
+                      size="sm"
+                      onClick={() => router.push('/contact')}
+                      className={pathname?.includes('/contact') ? 'border-primary text-primary' : ''}
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      {t('contact') || 'Contact'}
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
-                    <DropdownMenuItem asChild>
-                      <Link href="/contact" className="flex items-center">
-                        <Mail className="mr-2 h-4 w-4" />
-                        <span>{t('contact')}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/auth" className="flex items-center">
-                        <LogIn className="mr-2 h-4 w-4" />
-                        <span>{t('signIn')}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    <Button
+                      variant={pathname?.includes('/auth') ? 'outline' : 'ghost'}
+                      size="sm"
+                      onClick={() => router.push('/auth')}
+                      className={pathname?.includes('/auth') ? 'border-primary text-primary' : ''}
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      {t('signIn')}
+                    </Button>
+                  </div>
+
+                  {/* Mobile: Show burger menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0 md:hidden">
+                        <Menu className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
+                      <DropdownMenuItem asChild>
+                        <Link href="/contact" className="flex items-center">
+                          <Mail className="mr-2 h-4 w-4" />
+                          <span>{t('contact')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/auth" className="flex items-center">
+                          <LogIn className="mr-2 h-4 w-4" />
+                          <span>{t('signIn')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               )}
               {/* Store Button - Outlined Orange (Always visible) */}
               {storeUrl && (

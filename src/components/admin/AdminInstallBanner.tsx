@@ -23,12 +23,18 @@ export default function AdminInstallBanner() {
         if (isStandalone) return;
 
         // Check if user dismissed the banner before
-        const dismissed = localStorage.getItem('adminInstallBannerDismissed');
-        if (dismissed) {
-            // Check if dismissed more than 7 days ago
-            const dismissedDate = new Date(dismissed);
-            const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
-            if (daysSinceDismissed < 7) return;
+        if (typeof window !== 'undefined') {
+            try {
+                const dismissed = localStorage.getItem('adminInstallBannerDismissed');
+                if (dismissed) {
+                    // Check if dismissed more than 7 days ago
+                    const dismissedDate = new Date(dismissed);
+                    const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
+                    if (daysSinceDismissed < 7) return;
+                }
+            } catch (error) {
+                console.error('Error accessing localStorage:', error);
+            }
         }
 
         // Detect platform
@@ -62,7 +68,13 @@ export default function AdminInstallBanner() {
 
     const handleDismiss = () => {
         setIsVisible(false);
-        localStorage.setItem('adminInstallBannerDismissed', new Date().toISOString());
+        if (typeof window !== 'undefined') {
+            try {
+                localStorage.setItem('adminInstallBannerDismissed', new Date().toISOString());
+            } catch (error) {
+                console.error('Error setting localStorage:', error);
+            }
+        }
     };
 
     const handleInstall = async () => {
@@ -72,7 +84,13 @@ export default function AdminInstallBanner() {
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
                 setIsVisible(false);
-                localStorage.setItem('adminInstallBannerDismissed', new Date().toISOString());
+                if (typeof window !== 'undefined') {
+                    try {
+                        localStorage.setItem('adminInstallBannerDismissed', new Date().toISOString());
+                    } catch (error) {
+                        console.error('Error setting localStorage:', error);
+                    }
+                }
             }
             setDeferredPrompt(null);
         }

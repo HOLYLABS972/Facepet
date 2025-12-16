@@ -17,22 +17,41 @@ export default function CookieConsent({ onAccept, onReject }: CookieConsentProps
 
   useEffect(() => {
     // Check if user has already made a choice
-    const hasConsent = localStorage.getItem('cookieConsent');
-    if (!hasConsent) {
-      setShowConsent(true);
+    if (typeof window !== 'undefined') {
+      try {
+        const hasConsent = localStorage.getItem('cookieConsent');
+        if (!hasConsent) {
+          setShowConsent(true);
+        }
+      } catch (error) {
+        console.error('Error accessing localStorage:', error);
+        setShowConsent(true);
+      }
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('cookieConsent', 'accepted');
-    localStorage.setItem('acceptCookies', 'true');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('cookieConsent', 'accepted');
+        localStorage.setItem('acceptCookies', 'true');
+      } catch (error) {
+        console.error('Error setting localStorage:', error);
+      }
+    }
     setShowConsent(false);
     onAccept();
   };
 
   const handleReject = () => {
-    localStorage.setItem('cookieConsent', 'rejected');
-    localStorage.setItem('acceptCookies', 'false');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('cookieConsent', 'rejected');
+        localStorage.setItem('acceptCookies', 'false');
+      } catch (error) {
+        console.error('Error setting localStorage:', error);
+      }
+    }
     setShowConsent(false);
     onReject();
   };
@@ -51,7 +70,7 @@ export default function CookieConsent({ onAccept, onReject }: CookieConsentProps
                 <Cookie className="w-5 h-5 text-orange-600" />
               </div>
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {t('title')}
@@ -59,7 +78,7 @@ export default function CookieConsent({ onAccept, onReject }: CookieConsentProps
               <p className="text-gray-600 mb-4 text-sm">
                 {t('description')}
               </p>
-              
+
               <div className="flex gap-3">
                 <Button
                   onClick={handleAccept}
@@ -68,7 +87,7 @@ export default function CookieConsent({ onAccept, onReject }: CookieConsentProps
                   <Check className="w-4 h-4 mr-2" />
                   {t('acceptAll')}
                 </Button>
-                
+
                 <Button
                   onClick={handleReject}
                   variant="outline"

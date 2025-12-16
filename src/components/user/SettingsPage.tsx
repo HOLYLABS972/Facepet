@@ -31,7 +31,7 @@ export default function SettingsPage() {
   const [savingCookies, setSavingCookies] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showDeletionVerification, setShowDeletionVerification] = useState(false);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     fullName: '',
@@ -66,18 +66,18 @@ export default function SettingsPage() {
         try {
           // Try to get user data from Firestore first
           const userResult = await getUserFromFirestore(user.uid);
-          
+
           if (userResult.success && userResult.user) {
             // Use Firestore data if available - prioritize Firestore over Firebase Auth
             console.log('Loading user data from Firestore:');
             console.log('- Firebase Auth user.displayName:', user.displayName);
             console.log('- Firestore userResult.user.displayName:', userResult.user.displayName);
             console.log('- Firestore userResult.user:', userResult.user);
-            
+
             // Prioritize Firestore displayName over Firebase Auth displayName
             const fullName = userResult.user.displayName || user.displayName || '';
             console.log('- Final fullName being set (prioritizing Firestore):', fullName);
-            
+
             setFormData(prev => ({
               ...prev,
               fullName: fullName,
@@ -90,12 +90,20 @@ export default function SettingsPage() {
             }));
           } else {
             // Fallback to localStorage and Firebase Auth data
+            let acceptCookies = false;
+            if (typeof window !== 'undefined') {
+              try {
+                acceptCookies = localStorage.getItem('acceptCookies') === 'true';
+              } catch (error) {
+                console.error('Error accessing localStorage:', error);
+              }
+            }
             setFormData(prev => ({
               ...prev,
               fullName: user.displayName || '',
               address: '',
               profileImageURL: user.photoURL || '',
-              acceptCookies: localStorage.getItem('acceptCookies') === 'true',
+              acceptCookies,
               language: locale, // Always use current locale
               freeCouponPrice: false
             }));
@@ -103,12 +111,20 @@ export default function SettingsPage() {
         } catch (error) {
           console.error('Error loading user data:', error);
           // Fallback to basic data
+          let acceptCookies = false;
+          if (typeof window !== 'undefined') {
+            try {
+              acceptCookies = localStorage.getItem('acceptCookies') === 'true';
+            } catch (storageError) {
+              console.error('Error accessing localStorage:', storageError);
+            }
+          }
           setFormData(prev => ({
             ...prev,
             fullName: user.displayName || '',
             address: '',
             profileImageURL: user.photoURL || '',
-            acceptCookies: localStorage.getItem('acceptCookies') === 'true',
+            acceptCookies,
             language: locale, // Always use current locale
             freeCouponPrice: false
           }));
@@ -147,7 +163,7 @@ export default function SettingsPage() {
 
   const handleInputChange = (field: string, value: string | boolean) => {
     console.log(`Input change - field: "${field}", value:`, value);
-    
+
     setFormData(prev => {
       const newData = {
         ...prev,
@@ -159,9 +175,15 @@ export default function SettingsPage() {
 
     // Auto-save cookie preference immediately
     if (field === 'acceptCookies' && user) {
-      localStorage.setItem('acceptCookies', value.toString());
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('acceptCookies', value.toString());
+        } catch (error) {
+          console.error('Error setting localStorage:', error);
+        }
+      }
       setSavingCookies(true);
-      
+
       // Also save to Firestore immediately
       updateUserInFirestore(user.uid, { acceptCookies: value })
         .then(result => {
@@ -189,13 +211,13 @@ export default function SettingsPage() {
         toast.error('Please select a valid image file');
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Image size must be less than 5MB');
         return;
       }
-      
+
       // Set the file for preview
       setFormData(prev => ({
         ...prev,
@@ -216,7 +238,7 @@ export default function SettingsPage() {
       try {
         // Use the new simple upload function
         const result = await uploadProfileImage(file, user);
-        
+
         if (result.success) {
           setUploadProgress({ progress: 100, status: 'completed', downloadURL: result.downloadURL });
         } else {
@@ -228,12 +250,12 @@ export default function SettingsPage() {
             ...prev,
             profileImageURL: result.downloadURL
           }));
-          
+
           // Update user profile in Firestore
           await updateUserInFirestore(user.uid, {
             profileImage: result.downloadURL
           });
-          
+
           toast.success('Profile image uploaded successfully!');
         } else {
           toast.error(result.error || 'Failed to upload image');
@@ -256,20 +278,26 @@ export default function SettingsPage() {
       console.log('Language change requested:', newLanguage);
       console.log('Current locale:', locale);
       console.log('Current pathname:', pathname);
-      
+
       setFormData(prev => ({
         ...prev,
         language: newLanguage
       }));
-      
+
       // Save language preference
-      localStorage.setItem('preferredLanguage', newLanguage);
-      
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('preferredLanguage', newLanguage);
+        } catch (error) {
+          console.error('Error setting localStorage:', error);
+        }
+      }
+
       // Always redirect to My Pets after switching language
       const newUrl = `/${newLanguage}/pages/my-pets`;
-      
+
       console.log('New URL:', newUrl);
-      
+
       // Use window.location.replace to avoid history issues and ensure proper navigation
       window.location.replace(newUrl);
     } catch (error) {
@@ -290,9 +318,15 @@ export default function SettingsPage() {
       console.log('Full name being saved:', formData.fullName);
 
       // Save to localStorage for immediate access
-      localStorage.setItem('acceptCookies', formData.acceptCookies.toString());
-      localStorage.setItem('preferredLanguage', formData.language);
-      
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('acceptCookies', formData.acceptCookies.toString());
+          localStorage.setItem('preferredLanguage', formData.language);
+        } catch (error) {
+          console.error('Error setting localStorage:', error);
+        }
+      }
+
       // Update user profile in Firestore
       const updateData: any = {
         acceptCookies: formData.acceptCookies,
@@ -322,7 +356,7 @@ export default function SettingsPage() {
       }
 
       const userResult = await updateUserInFirestore(user.uid, updateData);
-      
+
       if (!userResult.success) {
         console.error('Failed to update user in Firestore:', userResult.error);
         if (showToast) {
@@ -342,11 +376,11 @@ export default function SettingsPage() {
             // Don't show error to user since Firestore was updated successfully
           }
         }
-        
+
         if (showToast) {
           toast.success('Profile updated successfully!');
         }
-        
+
         // Reload user data to ensure latest information is displayed
         if (user) {
           const userResult = await getUserFromFirestore(user.uid);
@@ -365,7 +399,7 @@ export default function SettingsPage() {
           }
         }
       }
-      
+
     } catch (error) {
       console.error('Error saving profile:', error);
       if (showToast) {
@@ -384,12 +418,12 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = async () => {
     if (!user) return;
-    
+
     setDeletingAccount(true);
     try {
       // Send deletion verification code
       const result = await sendDeletionVerificationCode(user.email!, user.displayName || 'User');
-      
+
       if (result.success) {
         toast.success('Verification code sent to your email');
         console.log('✅ Deletion verification code sent, showing verification page');
@@ -407,64 +441,64 @@ export default function SettingsPage() {
 
   const handleVerifiedDeletion = async () => {
     if (!user) return;
-    
+
     setDeletingAccount(true);
     try {
       // Delete user data from Firestore collections
       const { deleteDoc, doc, collection, query, where, getDocs } = await import('firebase/firestore');
       const { db } = await import('@/src/lib/firebase/config');
-      
+
       // Delete user document
       await deleteDoc(doc(db, 'users', user.uid));
-      
+
       // Delete user's pets
       const petsQuery = query(collection(db, 'pets'), where('userEmail', '==', user.email));
       const petsSnapshot = await getDocs(petsQuery);
-      
+
       for (const petDoc of petsSnapshot.docs) {
         await deleteDoc(petDoc.ref);
       }
-      
+
       // Delete user's owners
       const ownersQuery = query(collection(db, 'owners'), where('email', '==', user.email));
       const ownersSnapshot = await getDocs(ownersQuery);
-      
+
       for (const ownerDoc of ownersSnapshot.docs) {
         await deleteDoc(ownerDoc.ref);
       }
-      
+
       // Delete user's ads if any
       const adsQuery = query(collection(db, 'ads'), where('userEmail', '==', user.email));
       const adsSnapshot = await getDocs(adsQuery);
-      
+
       for (const adDoc of adsSnapshot.docs) {
         await deleteDoc(adDoc.ref);
       }
-      
+
       // Delete user's favorites if any
       const favoritesQuery = query(collection(db, 'favorites'), where('userEmail', '==', user.email));
       const favoritesSnapshot = await getDocs(favoritesQuery);
-      
+
       for (const favoriteDoc of favoritesSnapshot.docs) {
         await deleteDoc(favoriteDoc.ref);
       }
-      
+
       // Delete user's comments if any
       const commentsQuery = query(collection(db, 'comments'), where('userEmail', '==', user.email));
       const commentsSnapshot = await getDocs(commentsQuery);
-      
+
       for (const commentDoc of commentsSnapshot.docs) {
         await deleteDoc(commentDoc.ref);
       }
-      
+
       toast.success('Account data deleted successfully');
-      
+
       // Sign out user instead of deleting Firebase Auth user
       await signOut();
-      
+
       // Redirect to landing page
       window.location.href = '/';
-      
+
     } catch (error: any) {
       console.error('Error deleting account data:', error);
       toast.error('Failed to delete account data. Please try again.');
@@ -502,7 +536,7 @@ export default function SettingsPage() {
               >
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               </Button>
-              
+
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   {t('title')}
@@ -512,7 +546,7 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
-            
+
             {/* Save Button */}
             <div className="flex justify-end md:justify-start">
               <Button
@@ -600,7 +634,7 @@ export default function SettingsPage() {
                 <p className="text-sm text-gray-500 mt-1">
                   {t('imageRequirements')}
                 </p>
-                
+
                 {/* Upload Progress Bar */}
                 {uploadProgress && (
                   <div className="mt-3 space-y-2">
@@ -615,12 +649,11 @@ export default function SettingsPage() {
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          uploadProgress.status === 'completed' ? 'bg-green-500' :
-                          uploadProgress.status === 'error' ? 'bg-red-500' :
-                          'bg-primary'
-                        }`}
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${uploadProgress.status === 'completed' ? 'bg-green-500' :
+                            uploadProgress.status === 'error' ? 'bg-red-500' :
+                              'bg-primary'
+                          }`}
                         style={{ width: `${uploadProgress.progress}%` }}
                       />
                     </div>
@@ -711,9 +744,9 @@ export default function SettingsPage() {
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />
               )}
             </div>
-            
+
             <Separator />
-            
+
             <div className="flex items-center gap-3">
               <Checkbox
                 id="freeCouponPrice"
