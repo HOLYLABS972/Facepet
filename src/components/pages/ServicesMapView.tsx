@@ -77,7 +77,9 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const [markerInfoWindows, setMarkerInfoWindows] = useState<Map<string, any>>(new Map());
   const [currentInfoWindow, setCurrentInfoWindow] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<ServiceWithCoordinates | null>(null);
-  const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(initialHighlightedServiceId || null);
+  // Parse initialHighlightedServiceId - can be comma-separated for multiple businesses
+  const initialHighlightedIds = initialHighlightedServiceId ? initialHighlightedServiceId.split(',') : [];
+  const [highlightedServiceIds, setHighlightedServiceIds] = useState<string[]>(initialHighlightedIds);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -352,7 +354,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     setDrawerOpen(open);
     if (!open) {
       setSelectedService(null);
-      setHighlightedServiceId(null);
+      setHighlightedServiceIds([]);
       setShowCommentForm(false);
       setUserRating(0);
       setCommentText('');
@@ -596,7 +598,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         // Set selected service and highlight it
         setSelectedService(service);
         if (service.id) {
-          setHighlightedServiceId(service.id);
+          setHighlightedServiceIds([service.id]);
         }
 
         // Always show drawer
@@ -778,16 +780,33 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     }
   }, [services]);
 
-  // Highlight service when initialHighlightedServiceId is provided and services are loaded
+  // Highlight services when initialHighlightedServiceId is provided and services are loaded
   useEffect(() => {
     if (initialHighlightedServiceId && servicesWithCoords.length > 0 && map) {
-      const serviceToHighlight = servicesWithCoords.find(s => s.id === initialHighlightedServiceId);
-      if (serviceToHighlight && serviceToHighlight.coordinates) {
-        setHighlightedServiceId(initialHighlightedServiceId);
-        setSelectedService(serviceToHighlight);
-        // Center map on the service
-        map.setCenter(serviceToHighlight.coordinates);
-        map.setZoom(15);
+      const idsToHighlight = initialHighlightedServiceId.split(',');
+      const servicesToHighlight = servicesWithCoords.filter(s => s.id && idsToHighlight.includes(s.id));
+
+      if (servicesToHighlight.length > 0) {
+        setHighlightedServiceIds(idsToHighlight);
+
+        // If multiple services, fit bounds to show all of them
+        if (servicesToHighlight.length > 1) {
+          const bounds = new window.google.maps.LatLngBounds();
+          servicesToHighlight.forEach(service => {
+            if (service.coordinates) {
+              bounds.extend(new window.google.maps.LatLng(service.coordinates.lat, service.coordinates.lng));
+            }
+          });
+          map.fitBounds(bounds, { padding: 100 });
+        } else {
+          // Single service - center on it
+          const service = servicesToHighlight[0];
+          if (service.coordinates) {
+            setSelectedService(service);
+            map.setCenter(service.coordinates);
+            map.setZoom(15);
+          }
+        }
       }
     }
   }, [initialHighlightedServiceId, servicesWithCoords, map]);
@@ -879,7 +898,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
               key={service.id || index}
               className={cn(
                 "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
-                highlightedServiceId === service.id ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
+                highlightedServiceIds.includes(service.id || '') ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
               )}
               onClick={() => handleServiceClick(service)}
             >
@@ -997,7 +1016,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                         key={service.id || index}
                         className={cn(
                           "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
-                          highlightedServiceId === service.id ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
+                          highlightedServiceIds.includes(service.id || '') ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
                         )}
                         onClick={() => handleServiceClick(service)}
                       >

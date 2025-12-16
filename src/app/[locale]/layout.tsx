@@ -2,22 +2,11 @@ import MainLayout from '@/components/layout/MainLayout';
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
-import dynamic from 'next/dynamic';
 import { Lobster, Rubik } from 'next/font/google';
 import AppProviders from '@/components/providers/AppProviders';
 import GoogleSignupHandler from '@/components/GoogleSignupHandler';
+import AnalyticsWrapper from '@/components/AnalyticsWrapper';
 import './globals.css';
-
-// Dynamically import analytics components
-const Analytics = dynamic(
-  () => import('@vercel/analytics/react').then((mod) => mod.Analytics),
-  { ssr: true, loading: () => null }
-);
-
-const SpeedInsights = dynamic(
-  () => import('@vercel/speed-insights/next').then((mod) => mod.SpeedInsights),
-  { ssr: true, loading: () => null }
-);
 
 export const metadata: Metadata = {
   title: 'FacePet',
@@ -79,8 +68,7 @@ export default async function LocaleLayout({
             <GoogleSignupHandler />
           </NextIntlClientProvider>
         </AppProviders>
-        <Analytics />
-        <SpeedInsights />
+        <AnalyticsWrapper />
       </body>
     </html>
   );

@@ -15,7 +15,6 @@ import { markPromoAsUsed, isPromoUsed } from '@/lib/firebase/user-promos';
 import { motion } from 'framer-motion';
 import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 import QRCodeCard from '@/components/cards/QRCodeCard';
-import MapCard from '@/components/cards/MapCard';
 import {
   Dialog,
   DialogContent,
@@ -43,8 +42,6 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [couponUrl, setCouponUrl] = useState('');
-  const [showMapDialog, setShowMapDialog] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
   // Set mounted state and coupon URL only on client side to avoid hydration mismatch
   useEffect(() => {
@@ -218,8 +215,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                       key={biz.id}
                       className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => {
-                        setSelectedBusiness(biz);
-                        setShowMapDialog(true);
+                        router.push(`/${locale}/services?businessId=${biz.id}`);
                       }}
                     >
                       <CardContent className="p-4">
@@ -282,8 +278,9 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                     size="lg"
                     className="w-full mt-4"
                     onClick={() => {
-                      setSelectedBusiness(null);
-                      setShowMapDialog(true);
+                      // Navigate to services page with all business IDs
+                      const businessIds = businesses.map(b => b.id).join(',');
+                      router.push(`/${locale}/services?businessId=${businessIds}`);
                     }}
                   >
                     <MapPin className="h-4 w-4 mr-2" />
@@ -373,34 +370,6 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                 </Button>
               </div>
             </div>
-
-            {/* Map Dialog */}
-            <Dialog open={showMapDialog} onOpenChange={(open) => {
-              setShowMapDialog(open);
-              if (!open) {
-                setSelectedBusiness(null);
-              }
-            }}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
-                    {selectedBusiness
-                      ? `${t('mapFor') || 'Map for'} ${selectedBusiness.name}`
-                      : `${t('mapFor') || 'Map for'} ${coupon.name}`
-                    }
-                  </DialogTitle>
-                </DialogHeader>
-                {selectedBusiness ? (
-                  <MapCard businesses={[selectedBusiness]} />
-                ) : businesses.length > 0 ? (
-                  <MapCard businesses={businesses} />
-                ) : (
-                  <div className="p-4 text-center text-gray-500">
-                    {t('noBusinessesFound') || 'No businesses found for this coupon'}
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
 
             {/* Confirmation Dialog */}
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>

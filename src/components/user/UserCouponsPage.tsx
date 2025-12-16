@@ -14,12 +14,6 @@ import { Coupon } from '@/types/coupon';
 import { getCoupons, getContactInfo, getBusinesses, getCouponById } from '@/lib/actions/admin';
 import { Business } from '@/types/promo';
 import MapCard from '@/components/cards/MapCard';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { getUserFromFirestore } from '@/src/lib/firebase/users';
 import { addPointsToCategory, getUserPoints, deductPointsFromCategory } from '@/src/lib/firebase/points';
 import { purchaseCoupon, getActiveUserCoupons, getCouponHistory, markCouponAsUsed, UserCoupon } from '@/src/lib/firebase/user-coupons';
@@ -43,12 +37,6 @@ export default function UserCouponsPage() {
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [selectedCouponWithBusinesses, setSelectedCouponWithBusinesses] = useState<Coupon | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [showMapDialog, setShowMapDialog] = useState(false);
-  const [couponForDialog, setCouponForDialog] = useState<Coupon | null>(null);
-  const [userCouponForDialog, setUserCouponForDialog] = useState<UserCoupon | null>(null);
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
-  const [mapDialogCoupon, setMapDialogCoupon] = useState<Coupon | null>(null);
-  const [mapDialogLoading, setMapDialogLoading] = useState(false);
   const { redirectToShop } = useShopRedirect();
   
   // Fetch full coupon data when selected (to ensure we have businessIds)
@@ -123,78 +111,6 @@ export default function UserCouponsPage() {
     }
   }, [user]);
   
-  // Load coupon with businessIds when map dialog opens
-  useEffect(() => {
-    const loadCouponForMapDialog = async () => {
-      if (!showMapDialog) {
-        setMapDialogCoupon(null);
-        setMapDialogLoading(false);
-        return;
-      }
-      
-      // Get the coupon to load
-      const couponToLoad = userCouponForDialog?.coupon || selectedCouponWithBusinesses || couponForDialog;
-      
-      if (!couponToLoad) {
-        console.warn('⚠️ No coupon to load for map dialog');
-        setMapDialogLoading(false);
-        return;
-      }
-      
-      // Check if we need to fetch businessIds
-      const hasBusinessIds = couponToLoad.businessIds && Array.isArray(couponToLoad.businessIds) && couponToLoad.businessIds.length > 0;
-      const hasBusinessId = !!couponToLoad.businessId;
-      
-      console.log('🔍🔍🔍 useEffect Map Dialog - Checking coupon:', {
-        couponId: couponToLoad.id,
-        hasBusinessIds,
-        hasBusinessId,
-        businessIds: couponToLoad.businessIds
-      });
-      
-      if (hasBusinessIds || hasBusinessId) {
-        // Already have businessIds, use the coupon as-is
-        console.log('✅ Already have businessIds, using coupon directly');
-        setMapDialogCoupon(couponToLoad);
-        setMapDialogLoading(false);
-      } else {
-        // Need to fetch businessIds
-        console.log('🔄 Fetching coupon with businessIds for map dialog...');
-        setMapDialogLoading(true);
-        const result = await getCouponById(couponToLoad.id);
-        if (result.success && result.coupon) {
-          const fetchedCoupon = result.coupon as Coupon;
-          let normalizedBusinessIds: string[] = [];
-          if (fetchedCoupon.businessIds) {
-            if (Array.isArray(fetchedCoupon.businessIds)) {
-              normalizedBusinessIds = fetchedCoupon.businessIds.filter(id => id != null && id !== '');
-            } else if (typeof fetchedCoupon.businessIds === 'string') {
-              normalizedBusinessIds = [fetchedCoupon.businessIds];
-            }
-          } else if (fetchedCoupon.businessId) {
-            normalizedBusinessIds = [fetchedCoupon.businessId];
-          }
-          
-          console.log('✅ Fetched coupon for map dialog:', {
-            businessIds: normalizedBusinessIds,
-            length: normalizedBusinessIds.length
-          });
-          
-          setMapDialogCoupon({
-            ...couponToLoad,
-            businessId: fetchedCoupon.businessId,
-            businessIds: normalizedBusinessIds.length > 0 ? normalizedBusinessIds : undefined
-          });
-        } else {
-          console.warn('⚠️ Failed to fetch coupon for map dialog, using original');
-          setMapDialogCoupon(couponToLoad);
-        }
-        setMapDialogLoading(false);
-      }
-    };
-    
-    loadCouponForMapDialog();
-  }, [showMapDialog, userCouponForDialog, selectedCouponWithBusinesses, couponForDialog]);
 
   const fetchData = async () => {
     try {
@@ -901,12 +817,40 @@ export default function UserCouponsPage() {
                         variant="outline"
                         size="sm"
                         className="w-full"
-                        onClick={() => {
-                          console.log('🗺️ Opening map for user coupon:', userCoupon.id, userCoupon.coupon?.name);
-                          setUserCouponForDialog(userCoupon);
-                          setCouponForDialog(null); // Clear coupon if set
-                          setSelectedBusiness(null); // Clear selected business
-                          setShowMapDialog(true);
+                        onClick={async () => {
+                          // Get business IDs from coupon - fetch if needed
+                          let couponToUse = coupon;
+                          
+                          // If no businessIds found, fetch the coupon to get them
+                          const hasBusinessIds = couponToUse?.businessIds && Array.isArray(couponToUse.businessIds) && couponToUse.businessIds.length > 0;
+                          const hasBusinessId = !!couponToUse?.businessId;
+                          
+                          if (!hasBusinessIds && !hasBusinessId && couponToUse?.id) {
+                            // Fetch the coupon to get businessIds
+                            const result = await getCouponById(couponToUse.id);
+                            if (result.success && result.coupon) {
+                              couponToUse = result.coupon as Coupon;
+                            }
+                          }
+                          
+                          // Parse and normalize businessIds to ensure it's always an array
+                          let businessIds: string[] = [];
+                          if (couponToUse?.businessIds) {
+                            if (Array.isArray(couponToUse.businessIds)) {
+                              businessIds = couponToUse.businessIds.filter(id => id != null && id !== '');
+                            } else if (typeof couponToUse.businessIds === 'string') {
+                              businessIds = [couponToUse.businessIds];
+                            }
+                          } else if (couponToUse?.businessId) {
+                            businessIds = [couponToUse.businessId];
+                          }
+                          
+                          if (businessIds.length > 0) {
+                            const idsString = businessIds.join(',');
+                            router.push(`/${locale}/services?businessId=${idsString}`);
+                          } else {
+                            router.push(`/${locale}/services`);
+                          }
                         }}
                       >
                         <MapPin className="h-4 w-4 mr-2" />
@@ -1068,9 +1012,7 @@ export default function UserCouponsPage() {
                                 key={biz.id}
                                 className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-primary"
                                 onClick={() => {
-                                  setSelectedBusiness(biz);
-                                  setCouponForDialog(couponToUse);
-                                  setShowMapDialog(true);
+                                  router.push(`/${locale}/services?businessId=${biz.id}`);
                                 }}
                               >
                                 <CardContent className="p-3">
@@ -1103,37 +1045,39 @@ export default function UserCouponsPage() {
                             size="sm"
                             className="w-full"
                             onClick={async () => {
-                              // Ensure we have the latest coupon data with businessIds
-                              let couponToSet = couponToUse;
-                              if (!couponToUse.businessIds && !couponToUse.businessId) {
-                                console.log('🔄 Fetching coupon data before opening map dialog...');
+                              // Get business IDs from coupon - fetch if needed
+                              let couponToUse = selectedCouponWithBusinesses || selectedCoupon;
+                              
+                              // If no businessIds found, fetch the coupon to get them
+                              const hasBusinessIds = couponToUse?.businessIds && Array.isArray(couponToUse.businessIds) && couponToUse.businessIds.length > 0;
+                              const hasBusinessId = !!couponToUse?.businessId;
+                              
+                              if (!hasBusinessIds && !hasBusinessId && couponToUse?.id) {
+                                // Fetch the coupon to get businessIds
                                 const result = await getCouponById(couponToUse.id);
                                 if (result.success && result.coupon) {
-                                  const fetchedCoupon = result.coupon as Coupon;
-                                  
-                                  // Parse and normalize businessIds
-                                  let normalizedBusinessIds: string[] = [];
-                                  if (fetchedCoupon.businessIds) {
-                                    if (Array.isArray(fetchedCoupon.businessIds)) {
-                                      normalizedBusinessIds = fetchedCoupon.businessIds.filter(id => id != null && id !== '');
-                                    } else if (typeof fetchedCoupon.businessIds === 'string') {
-                                      normalizedBusinessIds = [fetchedCoupon.businessIds];
-                                    }
-                                  } else if (fetchedCoupon.businessId) {
-                                    normalizedBusinessIds = [fetchedCoupon.businessId];
-                                  }
-                                  
-                                  couponToSet = {
-                                    ...couponToUse,
-                                    businessId: fetchedCoupon.businessId,
-                                    businessIds: normalizedBusinessIds.length > 0 ? normalizedBusinessIds : undefined
-                                  };
+                                  couponToUse = result.coupon as Coupon;
                                 }
                               }
-                              setCouponForDialog(couponToSet);
-                              setSelectedBusiness(null);
-                              setUserCouponForDialog(null); // Clear user coupon if set
-                              setShowMapDialog(true);
+                              
+                              // Parse and normalize businessIds to ensure it's always an array
+                              let businessIds: string[] = [];
+                              if (couponToUse?.businessIds) {
+                                if (Array.isArray(couponToUse.businessIds)) {
+                                  businessIds = couponToUse.businessIds.filter(id => id != null && id !== '');
+                                } else if (typeof couponToUse.businessIds === 'string') {
+                                  businessIds = [couponToUse.businessIds];
+                                }
+                              } else if (couponToUse?.businessId) {
+                                businessIds = [couponToUse.businessId];
+                              }
+                              
+                              if (businessIds.length > 0) {
+                                const idsString = businessIds.join(',');
+                                router.push(`/${locale}/services?businessId=${idsString}`);
+                              } else {
+                                router.push(`/${locale}/services`);
+                              }
                             }}
                           >
                             <MapPin className="h-4 w-4 mr-2" />
@@ -1225,179 +1169,6 @@ export default function UserCouponsPage() {
           </div>
         </div>
       )}
-
-      {/* Map Dialog */}
-      <Dialog open={showMapDialog} onOpenChange={(open) => {
-        setShowMapDialog(open);
-        if (!open) {
-          setSelectedBusiness(null);
-          // Don't clear couponForDialog/userCouponForDialog here - they might be needed for re-opening
-        }
-      }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {(() => {
-                if (selectedBusiness) {
-                  return `${t('mapFor')} ${selectedBusiness.name}`;
-                }
-                const couponName = userCouponForDialog?.coupon.name || couponForDialog?.name;
-                return couponName ? `${t('mapFor')} ${couponName}` : t('showMap');
-              })()}
-            </DialogTitle>
-          </DialogHeader>
-          {(() => {
-            // Debug: Log what we have
-            console.log('🔍 Map Dialog - State Debug:', {
-              hasUserCouponForDialog: !!userCouponForDialog,
-              hasCouponForDialog: !!couponForDialog,
-              hasSelectedBusiness: !!selectedBusiness,
-              userCouponCoupon: userCouponForDialog?.coupon,
-              couponForDialog: couponForDialog,
-              totalBusinesses: businesses.length
-            });
-            
-            // Use mapDialogCoupon if available (it's loaded when dialog opens)
-            // Otherwise fall back to selectedCouponWithBusinesses, userCouponForDialog, or couponForDialog
-            const coupon = mapDialogCoupon || userCouponForDialog?.coupon || selectedCouponWithBusinesses || couponForDialog;
-            
-            if (mapDialogLoading) {
-              return (
-                <div className="p-4 text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className="text-gray-500">Loading map data...</p>
-                </div>
-              );
-            }
-            
-            console.log('🔍🔍🔍 MAP DIALOG - Coupon source check:', {
-              hasUserCouponForDialog: !!userCouponForDialog,
-              hasSelectedCouponWithBusinesses: !!selectedCouponWithBusinesses,
-              hasCouponForDialog: !!couponForDialog,
-              usingSelectedCouponWithBusinesses: !!selectedCouponWithBusinesses && !userCouponForDialog,
-              couponId: coupon?.id,
-              couponName: coupon?.name
-            });
-            
-            if (!coupon) {
-              console.warn('⚠️⚠️⚠️ MAP DIALOG - No coupon found in dialog state!');
-              console.warn('State:', {
-                userCouponForDialog,
-                selectedCouponWithBusinesses,
-                couponForDialog
-              });
-              return (
-                <div className="p-4 text-center text-gray-500">
-                  <p className="mb-2">{t('noBusinessesFound') || 'No coupon selected'}</p>
-                  <p className="text-sm text-gray-400">
-                    Please try clicking the map button again.
-                  </p>
-                </div>
-              );
-            }
-            
-            // If a specific business is selected, show only that business
-            if (selectedBusiness) {
-              console.log('📍 Showing map for selected business:', selectedBusiness.name);
-              return <MapCard businesses={[selectedBusiness]} />;
-            }
-            
-            // Otherwise, show all businesses associated with this coupon
-            // Parse and normalize businessIds to ensure it's always an array
-            let couponBusinessIds: string[] = [];
-            if (coupon.businessIds) {
-              // Ensure it's an array (could be undefined, null, or already an array)
-              if (Array.isArray(coupon.businessIds)) {
-                couponBusinessIds = coupon.businessIds.filter(id => id != null && id !== '');
-              } else if (typeof coupon.businessIds === 'string') {
-                // Handle case where it might be a string (shouldn't happen, but just in case)
-                couponBusinessIds = [coupon.businessIds];
-              }
-            } else if (coupon.businessId) {
-              // Legacy format: single businessId
-              couponBusinessIds = [coupon.businessId];
-            }
-            
-            console.log('🔍🔍🔍 MAP DIALOG - Parsed businessIds:', {
-              couponId: coupon.id,
-              couponName: coupon.name,
-              rawBusinessIds: coupon.businessIds,
-              rawBusinessId: coupon.businessId,
-              parsedBusinessIds: couponBusinessIds,
-              parsedLength: couponBusinessIds.length,
-              businessIdsType: typeof coupon.businessIds,
-              businessIdsIsArray: Array.isArray(coupon.businessIds),
-              allCouponKeys: Object.keys(coupon)
-            });
-            
-            // If no businessIds found, try to fetch the coupon again
-            if (couponBusinessIds.length === 0) {
-              console.log('⚠️⚠️⚠️ MAP DIALOG - No businessIds found after parsing!');
-              console.log('⚠️⚠️⚠️ Full coupon object:', JSON.stringify(coupon, null, 2));
-            }
-            
-            console.log('🔍🔍🔍 MAP DIALOG - Before filtering businesses:', {
-              couponId: coupon.id,
-              couponName: coupon.name,
-              couponBusinessIds,
-              couponBusinessIdsLength: couponBusinessIds.length,
-              totalBusinesses: businesses.length,
-              allBusinessIds: businesses.map(b => b.id)
-            });
-            
-            const couponBusinesses = businesses.filter(b => couponBusinessIds.includes(b.id));
-            // Filter businesses to only include those with addresses for the map
-            const couponBusinessesWithAddress = couponBusinesses.filter(b => b.contactInfo?.address);
-            
-            console.log('🔍🔍🔍 MAP DIALOG - After filtering businesses:', {
-              couponId: coupon.id,
-              couponName: coupon.name,
-              couponBusinessIds,
-              totalBusinesses: businesses.length,
-              allBusinessIds: businesses.map(b => b.id),
-              filteredBusinesses: couponBusinesses.length,
-              businessesWithAddress: couponBusinessesWithAddress.length,
-              businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
-            });
-            
-            // Show businesses even if they don't have addresses - just show them in the list
-            // Only filter by address for the map display
-            if (couponBusinesses.length === 0) {
-              // If we have businessIds but no matching businesses, there's a data mismatch
-              if (couponBusinessIds.length > 0) {
-                return (
-                  <div className="p-4 text-center">
-                    <p className="text-gray-500 mb-4">
-                      {t('noBusinessesFound') || 'No businesses found for this coupon'}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      Business IDs: {couponBusinessIds.join(', ')}. Found {businesses.length} total businesses in database.
-                      <br />
-                      The business IDs might not match any existing businesses.
-                    </p>
-                  </div>
-                );
-              }
-              
-              // No businessIds at all
-              return (
-                <div className="p-4 text-center">
-                  <p className="text-gray-500 mb-4">
-                    {t('noBusinessesFound') || 'No businesses found for this coupon'}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    This coupon has no businesses assigned.
-                  </p>
-                </div>
-              );
-            }
-            
-            // Show the map - if no businesses with addresses, show empty map but don't show error
-            // The businesses list above already shows all businesses
-            return <MapCard businesses={couponBusinessesWithAddress.length > 0 ? couponBusinessesWithAddress : couponBusinesses} />;
-          })()}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -100,9 +100,13 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
 
   // Filter services based on businessId, search, tags, and favorites
   const filteredServices = services.filter((service) => {
-    // Business ID filter - if businessId is provided, only show that business
-    if (businessId && service.id !== businessId) {
-      return false;
+    // Business ID filter - if businessId is provided, only show matching businesses
+    // Support comma-separated business IDs for multiple businesses
+    if (businessId) {
+      const businessIds = businessId.split(',').map(id => id.trim());
+      if (!businessIds.includes(service.id)) {
+        return false;
+      }
     }
 
     // Search filter

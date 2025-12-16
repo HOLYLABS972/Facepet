@@ -13,13 +13,6 @@ import { Business } from '@/types/promo';
 import toast from 'react-hot-toast';
 import { useShopRedirect } from '@/hooks/use-shop-redirect';
 import QRCodeCard from '@/components/cards/QRCodeCard';
-import MapCard from '@/components/cards/MapCard';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 
 
 interface VoucherViewPageClientProps {
@@ -44,8 +37,6 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
   const [shopUrl, setShopUrl] = useState<string>('');
   const [voucherUrl, setVoucherUrl] = useState<string>('');
   const [isMounted, setIsMounted] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
-  const [showMapDialog, setShowMapDialog] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -60,7 +51,7 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
       const { getContactInfo } = await import('@/lib/actions/admin');
       const info = await getContactInfo();
       if (info?.storeUrl) {
-          setShopUrl(info.storeUrl);
+        setShopUrl(info.storeUrl);
       }
     };
     fetchContactData();
@@ -69,7 +60,7 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
 
   const handleUse = () => {
     const couponCode = coupon.description; // The coupon code is stored in description
-    
+
     // Copy the code first
     if (couponCode) {
       navigator.clipboard.writeText(couponCode).then(() => {
@@ -78,13 +69,13 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
         toast.error(t('failedToCopy') || 'Failed to copy code');
       });
     }
-    
+
     // Then redirect to shop with the coupon code
     if (!shopUrl) {
       toast.error('Shop URL is not configured. Please contact support.');
       return;
     }
-    
+
     redirectToShop(shopUrl, couponCode, undefined, true);
   };
 
@@ -168,12 +159,12 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
                 </h2>
                 <div className="space-y-4">
                   {businesses.map((biz) => (
-                    <Card 
-                      key={biz.id} 
+                    <Card
+                      key={biz.id}
                       className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => {
-                        setSelectedBusiness(biz);
-                        setShowMapDialog(true);
+                        // Navigate to services page with this business highlighted
+                        router.push(`/${locale}/services?businessId=${biz.id}`);
                       }}
                     >
                       <CardContent className="p-4">
@@ -202,7 +193,7 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
                               {biz.contactInfo?.phone && (
                                 <div className="flex items-center gap-2">
                                   <Phone className="w-4 h-4 flex-shrink-0" />
-                                  <a 
+                                  <a
                                     href={`tel:${biz.contactInfo.phone}`}
                                     className="hover:text-primary transition-colors"
                                   >
@@ -213,7 +204,7 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
                               {biz.contactInfo?.email && (
                                 <div className="flex items-center gap-2">
                                   <Mail className="w-4 h-4 flex-shrink-0" />
-                                  <a 
+                                  <a
                                     href={`mailto:${biz.contactInfo.email}`}
                                     className="hover:text-primary transition-colors"
                                   >
@@ -234,8 +225,9 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
                     size="lg"
                     className="w-full mt-4"
                     onClick={() => {
-                      setSelectedBusiness(null);
-                      setShowMapDialog(true);
+                      // Navigate to services page with all business IDs
+                      const businessIds = businesses.map(b => b.id).join(',');
+                      router.push(`/${locale}/services?businessId=${businessIds}`);
                     }}
                   >
                     <MapPin className="h-4 w-4 mr-2" />
@@ -253,8 +245,8 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
 
             {/* QR Code Card */}
             <div className="mb-8">
-              <QRCodeCard 
-                url={voucherUrl} 
+              <QRCodeCard
+                url={voucherUrl}
                 description={t('qrCodeDescription') || 'Scan this QR code to view this voucher'}
               />
             </div>
@@ -283,33 +275,6 @@ export default function VoucherViewPageClient({ userCoupon, businesses = [] }: V
             </div>
           </CardContent>
         </Card>
-
-        {/* Map Dialog */}
-        <Dialog open={showMapDialog} onOpenChange={(open) => {
-          setShowMapDialog(open);
-          if (!open) {
-            setSelectedBusiness(null);
-          }
-        }}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedBusiness 
-                  ? `${t('mapFor') || 'Map for'} ${selectedBusiness.name}`
-                  : t('showMap') || 'Show Map'}
-              </DialogTitle>
-            </DialogHeader>
-            {selectedBusiness ? (
-              <MapCard businesses={[selectedBusiness]} />
-            ) : businesses.length > 0 ? (
-              <MapCard businesses={businesses} />
-            ) : (
-              <div className="p-4 text-center text-gray-500">
-                {t('noBusinessesFound') || 'No businesses found for this voucher'}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

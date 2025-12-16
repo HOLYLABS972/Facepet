@@ -37,8 +37,6 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   const [usedPromos, setUsedPromos] = useState<UserPromo[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('available');
-  const [showMapDialog, setShowMapDialog] = useState(false);
-  const [selectedPromo, setSelectedPromo] = useState<Promo | null>(null);
 
   // Function to load used promos
   const loadUsedPromos = useCallback(async () => {
@@ -105,8 +103,15 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
 
 
   const handleShowMap = (promo: Promo) => {
-    setSelectedPromo(promo);
-    setShowMapDialog(true);
+    const promoBusinesses = getPromoBusinesses(promo);
+    if (promoBusinesses.length > 0) {
+      // Pass all business IDs as comma-separated query parameter
+      const businessIds = promoBusinesses.map(b => b.id).join(',');
+      router.push(`/${locale}/services?businessId=${businessIds}`);
+    } else {
+      // If no businesses, just go to services page
+      router.push(`/${locale}/services`);
+    }
   };
 
   const getPromoBusinesses = (promo: Promo): Business[] => {
@@ -456,22 +461,6 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             </div>
           )
         )}
-
-        {/* Map Dialog */}
-        <Dialog open={showMapDialog} onOpenChange={setShowMapDialog}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedPromo
-                  ? `${t('mapFor') || 'Map for'} ${selectedPromo.name}`
-                  : t('showMap') || 'Show Map'}
-              </DialogTitle>
-            </DialogHeader>
-            {selectedPromo && (
-              <MapCard businesses={getPromoBusinesses(selectedPromo)} />
-            )}
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
