@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Phone, Star, Send, Heart, HeartOff, Ticket, X } from 'lucide-react';
+import { MapPin, Phone, Star, Send, Heart, Ticket, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   Drawer,
@@ -1364,7 +1364,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       ) : isFavorited ? (
                         <Heart size={20} className="fill-current" />
                       ) : (
-                        <HeartOff size={20} />
+                        <Heart size={20} />
                       )}
                     </Button>
                     <Separator
@@ -1648,7 +1648,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                         ) : isFavorited ? (
                           <Heart size={24} className="fill-current" />
                         ) : (
-                          <HeartOff size={24} />
+                          <Heart size={24} />
                         )}
                       </Button>
                       <Separator

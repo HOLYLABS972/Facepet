@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Star, Send, Heart, HeartOff, Ticket } from 'lucide-react';
+import { MapPin, Phone, Star, Send, Heart, Ticket } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
@@ -503,7 +503,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                   ) : isFavorited ? (
                     <Heart size={20} className="fill-current" />
                   ) : (
-                    <HeartOff size={20} />
+                    <Heart size={20} />
                   )}
                 </Button>
                 <Separator
