@@ -595,25 +595,22 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         if (currentInfoWindow) {
           currentInfoWindow.close();
         }
-        
-        // Navigate directly to coupons page for this business
+        // Set selected service and highlight it
+        setSelectedService(service);
         if (service.id) {
-          router.push(`/${locale}/promos?businessId=${service.id}`);
-        } else {
-          // If no ID, fall back to showing details
-          setSelectedService(service);
-          if (service.id) {
-            setHighlightedServiceIds([service.id]);
-          }
-          setDrawerOpen(true);
-          // Load comments when service is selected
-          if (service.id) {
-            loadComments(service.id);
-          }
-          // Check if favorited
-          if (user && service.id) {
-            checkIfFavorited(service.id);
-          }
+          setHighlightedServiceIds([service.id]);
+        }
+
+        // Always show drawer
+        setDrawerOpen(true);
+
+        // Load comments when service is selected
+        if (service.id) {
+          loadComments(service.id);
+        }
+        // Check if favorited
+        if (user && service.id) {
+          checkIfFavorited(service.id);
         }
       });
 
