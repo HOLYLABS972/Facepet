@@ -603,7 +603,7 @@ export default function UserCouponsPage() {
                     )}
                   </div>
                 </CardContent>
-                <CardFooter className="pt-4 mt-auto">
+                <CardFooter className="pt-4 mt-auto flex flex-col gap-2">
                   <Button 
                     onClick={() => handlePurchaseCoupon(coupon)}
                     disabled={!freeCouponPrice && userPoints < coupon.points}
@@ -615,6 +615,49 @@ export default function UserCouponsPage() {
                       ? t('getFree')
                       : (userPoints < coupon.points ? t('insufficientPoints') : t('purchase'))
                     }
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={async () => {
+                      // Get business IDs from coupon - fetch if needed
+                      let couponToUse = coupon;
+                      
+                      // If no businessIds found, fetch the coupon to get them
+                      const hasBusinessIds = couponToUse?.businessIds && Array.isArray(couponToUse.businessIds) && couponToUse.businessIds.length > 0;
+                      const hasBusinessId = !!couponToUse?.businessId;
+                      
+                      if (!hasBusinessIds && !hasBusinessId && couponToUse?.id) {
+                        // Fetch the coupon to get businessIds
+                        const result = await getCouponById(couponToUse.id);
+                        if (result.success && result.coupon) {
+                          couponToUse = result.coupon as Coupon;
+                        }
+                      }
+                      
+                      // Parse and normalize businessIds to ensure it's always an array
+                      let businessIds: string[] = [];
+                      if (couponToUse?.businessIds) {
+                        if (Array.isArray(couponToUse.businessIds)) {
+                          businessIds = couponToUse.businessIds.filter(id => id != null && id !== '');
+                        } else if (typeof couponToUse.businessIds === 'string') {
+                          businessIds = [couponToUse.businessIds];
+                        }
+                      } else if (couponToUse?.businessId) {
+                        businessIds = [couponToUse.businessId];
+                      }
+                      
+                      if (businessIds.length > 0) {
+                        const idsString = businessIds.join(',');
+                        router.push(`/${locale}/services?businessId=${idsString}`);
+                      } else {
+                        router.push(`/${locale}/services`);
+                      }
+                    }}
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {t('showMap')}
                   </Button>
                 </CardFooter>
               </Card>

@@ -42,13 +42,13 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
   return (
     <main className="flex min-h-dvh flex-col m-0 p-0">
       <DirectionProvider dir={direction}>
-        <Navbar />
-        <div className="flex min-h-dvh flex-col pt-16" id="main-content">
+        {!isAdminRoute && <Navbar />}
+        <div className={`flex min-h-dvh flex-col ${!isAdminRoute ? 'pt-16' : ''}`} id="main-content">
           <Toaster />
           {!isAdminRoute && <AdDisplayManager />}
           {children}
         </div>
-        {showBottomNav && <BottomNavigation />}
+        {showBottomNav && !isAdminRoute && <BottomNavigation />}
       </DirectionProvider>
     </main>
   );
