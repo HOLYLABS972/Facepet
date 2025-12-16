@@ -277,9 +277,9 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
               marker.addListener('click', () => {
                 if (!isMountedRef.current) return;
                 
-                // Navigate directly to business page in coupons and vouchers
+                // Navigate directly to services page with business ID
                 if (businessItem.id) {
-                  router.push(`/promos?businessId=${businessItem.id}`);
+                  router.push(`/services?businessId=${businessItem.id}`);
                 }
               });
 

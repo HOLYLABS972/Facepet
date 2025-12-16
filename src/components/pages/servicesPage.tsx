@@ -32,6 +32,7 @@ interface Ad {
 
 interface ServicesPageProps {
   ads: Ad[];
+  businessId?: string;
 }
 
 
@@ -52,7 +53,7 @@ const convertAdToService = (ad: Ad & { imageUrl?: string }) => {
   };
 };
 
-const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
+const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
   const t = useTranslations('pages.ServicesPage');
   const locale = useLocale();
   const { user } = useAuth();
@@ -97,8 +98,13 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
     loadData();
   }, [user]);
 
-  // Filter services based on search, tags, and favorites
+  // Filter services based on businessId, search, tags, and favorites
   const filteredServices = services.filter((service) => {
+    // Business ID filter - if businessId is provided, only show that business
+    if (businessId && service.id !== businessId) {
+      return false;
+    }
+
     // Search filter
     const matchesSearch = service.name.toLowerCase().includes(search.toLowerCase()) ||
       service.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
@@ -139,6 +145,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads }) => {
       <div className="w-full h-full">
         <ServicesMapView
           services={filteredServices}
+          initialHighlightedServiceId={businessId}
           headerContent={
             <div className="space-y-4">
               {/* Title and Filter Chips on Same Row */}

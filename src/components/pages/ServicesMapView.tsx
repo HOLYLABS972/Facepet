@@ -39,6 +39,7 @@ interface ServicesMapViewProps {
   services: Service[];
   headerContent?: React.ReactNode;
   mapFloatingControls?: React.ReactNode;
+  initialHighlightedServiceId?: string;
 }
 
 declare global {
@@ -53,7 +54,7 @@ interface ServiceWithCoordinates extends Service {
   distance?: number;
 }
 
-const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerContent, mapFloatingControls }) => {
+const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerContent, mapFloatingControls, initialHighlightedServiceId }) => {
   const t = useTranslations('pages.ServicesPage');
   const router = useRouter();
   const locale = useLocale();
@@ -76,7 +77,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const [markerInfoWindows, setMarkerInfoWindows] = useState<Map<string, any>>(new Map());
   const [currentInfoWindow, setCurrentInfoWindow] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<ServiceWithCoordinates | null>(null);
-  const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
+  const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(initialHighlightedServiceId || null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -776,6 +777,20 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       geocodeAllServices(map);
     }
   }, [services]);
+
+  // Highlight service when initialHighlightedServiceId is provided and services are loaded
+  useEffect(() => {
+    if (initialHighlightedServiceId && servicesWithCoords.length > 0 && map) {
+      const serviceToHighlight = servicesWithCoords.find(s => s.id === initialHighlightedServiceId);
+      if (serviceToHighlight && serviceToHighlight.coordinates) {
+        setHighlightedServiceId(initialHighlightedServiceId);
+        setSelectedService(serviceToHighlight);
+        // Center map on the service
+        map.setCenter(serviceToHighlight.coordinates);
+        map.setZoom(15);
+      }
+    }
+  }, [initialHighlightedServiceId, servicesWithCoords, map]);
 
   // Geocode all services
   const geocodeAllServices = async (targetMap?: any) => {
