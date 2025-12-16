@@ -34,76 +34,8 @@ export default function UserCouponsPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [shopUrl, setShopUrl] = useState<string>('');
   const [freeCouponPrice, setFreeCouponPrice] = useState<boolean>(false);
-  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
-  const [selectedCouponWithBusinesses, setSelectedCouponWithBusinesses] = useState<Coupon | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const { redirectToShop } = useShopRedirect();
-  
-  // Fetch full coupon data when selected (to ensure we have businessIds)
-  useEffect(() => {
-    const fetchSelectedCouponData = async () => {
-      if (!selectedCoupon) {
-        setSelectedCouponWithBusinesses(null);
-        return;
-      }
-      
-      // Always check if businessIds exist, even if they might be empty
-      const hasBusinessIds = selectedCoupon.businessIds && Array.isArray(selectedCoupon.businessIds) && selectedCoupon.businessIds.length > 0;
-      const hasBusinessId = !!selectedCoupon.businessId;
-      
-      console.log('🔍🔍🔍 useEffect - Checking selected coupon:', {
-        id: selectedCoupon.id,
-        hasBusinessIds,
-        hasBusinessId,
-        businessIds: selectedCoupon.businessIds,
-        businessId: selectedCoupon.businessId
-      });
-      
-      // If no businessIds found, fetch the coupon again
-      if (!hasBusinessIds && !hasBusinessId) {
-        console.log('🔄 Fetching full coupon data for:', selectedCoupon.id);
-        const result = await getCouponById(selectedCoupon.id);
-        if (result.success && result.coupon) {
-          const fetchedCoupon = result.coupon as Coupon;
-          console.log('✅ Fetched coupon with businessIds:', {
-            hasBusinessId: !!fetchedCoupon.businessId,
-            hasBusinessIds: !!fetchedCoupon.businessIds,
-            businessId: fetchedCoupon.businessId,
-            businessIds: fetchedCoupon.businessIds
-          });
-          // Parse and normalize businessIds from fetched coupon
-          let normalizedBusinessIds: string[] = [];
-          if (fetchedCoupon.businessIds) {
-            if (Array.isArray(fetchedCoupon.businessIds)) {
-              normalizedBusinessIds = fetchedCoupon.businessIds.filter(id => id != null && id !== '');
-            } else if (typeof fetchedCoupon.businessIds === 'string') {
-              normalizedBusinessIds = [fetchedCoupon.businessIds];
-            }
-          } else if (fetchedCoupon.businessId) {
-            normalizedBusinessIds = [fetchedCoupon.businessId];
-          }
-          
-          console.log('🔍🔍🔍 useEffect - Normalized businessIds:', normalizedBusinessIds);
-          
-          // Merge the businessIds into the selected coupon
-          setSelectedCouponWithBusinesses({
-            ...selectedCoupon,
-            businessId: fetchedCoupon.businessId,
-            businessIds: normalizedBusinessIds.length > 0 ? normalizedBusinessIds : undefined
-          });
-        } else {
-          console.warn('⚠️ Failed to fetch coupon, using original');
-          setSelectedCouponWithBusinesses(selectedCoupon);
-        }
-      } else {
-        // BusinessIds already exist, just use the selected coupon
-        console.log('✅ BusinessIds already exist, using selected coupon');
-        setSelectedCouponWithBusinesses(selectedCoupon);
-      }
-    };
-    
-    fetchSelectedCouponData();
-  }, [selectedCoupon]);
 
   useEffect(() => {
     if (user) {
@@ -440,8 +372,7 @@ export default function UserCouponsPage() {
       // Refresh all data
       await fetchData();
 
-      // Clear selected coupon and switch to "History" tab to show the purchased voucher
-      setSelectedCoupon(null);
+      // Switch to "History" tab to show the purchased voucher
       setActiveTab('history');
     } catch (error) {
       console.error('Error purchasing coupon:', error);
@@ -583,7 +514,6 @@ export default function UserCouponsPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(value) => {
         setActiveTab(value);
-        setSelectedCoupon(null); // Clear selection when switching tabs
       }} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2 mb-8 lg:mb-10 h-12 lg:h-14 bg-gray-100/50 p-1 rounded-xl">
           <TabsTrigger 
@@ -613,24 +543,11 @@ export default function UserCouponsPage() {
             <p className="text-lg lg:text-xl text-gray-500 font-medium">{t('noCoupons')}</p>
           </div>
         ) : (
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${activeTab === 'available' && selectedCoupon ? 'xl:grid-cols-2 2xl:grid-cols-3' : 'xl:grid-cols-3 2xl:grid-cols-4'} gap-6 lg:gap-8 pb-24`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8 pb-24">
             {coupons.map((coupon) => (
               <Card 
                 key={coupon.id} 
-                onClick={() => {
-                  console.log('🔍🔍🔍 CLICK - Setting selected coupon:', {
-                    id: coupon.id,
-                    name: coupon.name,
-                    businessIds: coupon.businessIds,
-                    businessIdsLength: coupon.businessIds?.length,
-                    businessIdsIsArray: Array.isArray(coupon.businessIds),
-                    allKeys: Object.keys(coupon)
-                  });
-                  setSelectedCoupon(coupon);
-                }}
-                className={`relative group hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden bg-white cursor-pointer ${
-                  selectedCoupon?.id === coupon.id ? 'border-primary ring-2 ring-primary/20' : 'hover:border-primary/20'
-                }`}
+                className="relative group hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden bg-white hover:border-primary/20 flex flex-col"
               >
                 {coupon.imageUrl && (
                   <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
@@ -686,6 +603,20 @@ export default function UserCouponsPage() {
                     )}
                   </div>
                 </CardContent>
+                <CardFooter className="pt-4 mt-auto">
+                  <Button 
+                    onClick={() => handlePurchaseCoupon(coupon)}
+                    disabled={!freeCouponPrice && userPoints < coupon.points}
+                    className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    size="lg"
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                    {freeCouponPrice 
+                      ? t('getFree')
+                      : (userPoints < coupon.points ? t('insufficientPoints') : t('purchase'))
+                    }
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
             </div>
@@ -859,310 +790,6 @@ export default function UserCouponsPage() {
         </TabsContent>
       </Tabs>
       </div>
-
-      {/* Sidebar for Selected Coupon - Desktop Only */}
-      {activeTab === 'available' && selectedCoupon && (
-        <>
-          {/* Backdrop Overlay */}
-          <div 
-            className="hidden lg:block fixed inset-0 bg-black/50 z-40 animate-fade-in"
-            onClick={() => setSelectedCoupon(null)}
-          />
-          {/* Sidebar */}
-          <div className="hidden lg:block fixed top-0 right-0 h-full w-96 max-w-[90vw] z-50 shadow-2xl animate-slide-in-right">
-            <Card className="h-full border-l-2 border-r-0 border-t-0 border-b-0 shadow-2xl bg-white rounded-none flex flex-col overflow-y-auto">
-              <CardHeader className="pb-4 border-b sticky top-0 bg-white z-10">
-                <div className="flex items-start justify-between gap-3">
-                  <CardTitle className="text-xl font-bold text-gray-900 leading-tight flex-1">
-                    {selectedCoupon.name}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSelectedCoupon(null)}
-                    className="h-8 w-8 flex-shrink-0 hover:bg-gray-100 rounded-full"
-                  >
-                    <span className="sr-only">Close</span>
-                    ×
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-6 space-y-6 flex-1">
-                {selectedCoupon.imageUrl && (
-                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg">
-                    <img 
-                      src={selectedCoupon.imageUrl} 
-                      alt={selectedCoupon.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                
-                <div className="space-y-4">
-                  <div className={`flex items-center justify-between p-4 rounded-lg ${selectedCoupon.price === 0 ? 'bg-green-50' : 'bg-amber-50'}`}>
-                    <span className="text-sm font-medium text-gray-600">{t('pointsRequired')}</span>
-                    {selectedCoupon.price === 0 ? (
-                      <Badge className="bg-green-500 text-white hover:bg-green-600 px-3 py-1">
-                        <span className="font-bold">{t('free')}</span>
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className={`flex items-center gap-1.5 bg-white px-3 py-1 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
-                        <Coins className="h-4 w-4" />
-                        <span className="font-semibold">{freeCouponPrice ? '0' : selectedCoupon.points}</span>
-                      </Badge>
-                    )}
-                  </div>
-                  {freeCouponPrice && (
-                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                      <span className="text-sm font-medium text-gray-600">{t('price')}</span>
-                      <Badge variant="outline" className="flex items-center gap-1.5 bg-white border-green-200 text-green-700 px-3 py-1">
-                        <span className="font-semibold">{t('free')}</span>
-                      </Badge>
-                    </div>
-                  )}
-                  {selectedCoupon.description && (
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-600">{selectedCoupon.description}</p>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
-                    <Calendar className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">
-                      {t('validUntil')}: {formatDate(selectedCoupon.validTo)}
-                    </span>
-                  </div>
-                  
-                  {/* Businesses that accept this coupon */}
-                  {(() => {
-                    // Use the coupon with businesses data if available, otherwise fall back to selectedCoupon
-                    const couponToUse = selectedCouponWithBusinesses || selectedCoupon;
-                    
-                    // Get business IDs from coupon - support both old and new format
-                    // Parse and normalize businessIds to ensure it's always an array
-                    let couponBusinessIds: string[] = [];
-                    if (couponToUse.businessIds) {
-                      // Ensure it's an array (could be undefined, null, or already an array)
-                      if (Array.isArray(couponToUse.businessIds)) {
-                        couponBusinessIds = couponToUse.businessIds.filter(id => id != null && id !== '');
-                      } else if (typeof couponToUse.businessIds === 'string') {
-                        // Handle case where it might be a string (shouldn't happen, but just in case)
-                        couponBusinessIds = [couponToUse.businessIds];
-                      }
-                    } else if (couponToUse.businessId) {
-                      // Legacy format: single businessId
-                      couponBusinessIds = [couponToUse.businessId];
-                    }
-                    
-                    // Debug: Log the coupon structure
-                    console.log('🔍🔍🔍 SIDEBAR - Selected Coupon Debug:', {
-                      couponId: couponToUse.id,
-                      couponName: couponToUse.name,
-                      hasBusinessId: !!couponToUse.businessId,
-                      hasBusinessIds: !!couponToUse.businessIds,
-                      businessId: couponToUse.businessId,
-                      businessIds: couponToUse.businessIds,
-                      businessIdsType: typeof couponToUse.businessIds,
-                      businessIdsIsArray: Array.isArray(couponToUse.businessIds),
-                      couponBusinessIds: couponBusinessIds,
-                      couponBusinessIdsLength: couponBusinessIds.length,
-                      usingFetchedData: !!selectedCouponWithBusinesses,
-                      allCouponKeys: Object.keys(couponToUse),
-                      selectedCouponFromState: selectedCoupon,
-                      selectedCouponWithBusinessesFromState: selectedCouponWithBusinesses
-                    });
-                    
-                    // Filter businesses that match the coupon's business IDs
-                    const couponBusinesses = businesses.filter(b => {
-                      const matches = couponBusinessIds.includes(b.id);
-                      if (!matches && couponBusinessIds.length > 0) {
-                        console.log(`⚠️ Business ${b.id} (${b.name}) not in coupon businessIds:`, couponBusinessIds);
-                      }
-                      return matches;
-                    });
-                    
-                    // Filter businesses to only include those with addresses for the map
-                    const couponBusinessesWithAddress = couponBusinesses.filter(b => b.contactInfo?.address);
-                    
-                    console.log('🔍 Sidebar - Businesses Debug:', {
-                      couponId: couponToUse.id,
-                      couponName: couponToUse.name,
-                      couponBusinessIds,
-                      totalBusinesses: businesses.length,
-                      allBusinessIds: businesses.map(b => b.id),
-                      filteredBusinesses: couponBusinesses.length,
-                      businessesWithAddress: couponBusinessesWithAddress.length,
-                      businesses: couponBusinesses.map(b => ({ id: b.id, name: b.name, hasAddress: !!b.contactInfo?.address }))
-                    });
-                    
-                    if (couponBusinesses.length > 0) {
-                      return (
-                        <div className="space-y-3">
-                          <h3 className="text-sm font-semibold text-gray-700">
-                            {t('acceptedAt')} ({couponBusinesses.length})
-                          </h3>
-                          <div className="space-y-2">
-                            {couponBusinesses.map((biz) => (
-                              <Card 
-                                key={biz.id}
-                                className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-primary"
-                                onClick={() => {
-                                  router.push(`/${locale}/services?businessId=${biz.id}`);
-                                }}
-                              >
-                                <CardContent className="p-3">
-                                  <div className="flex items-start gap-3">
-                                    {biz.imageUrl && (
-                                      <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                                        <img
-                                          src={biz.imageUrl}
-                                          alt={biz.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      </div>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <h4 className="font-semibold text-sm mb-1">{biz.name}</h4>
-                                      {biz.contactInfo?.address && (
-                                        <div className="flex items-start gap-1.5 text-xs text-gray-600">
-                                          <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                                          <span className="line-clamp-1">{biz.contactInfo.address}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                            onClick={async () => {
-                              // Get business IDs from coupon - fetch if needed
-                              let couponToUse = selectedCouponWithBusinesses || selectedCoupon;
-                              
-                              // If no businessIds found, fetch the coupon to get them
-                              const hasBusinessIds = couponToUse?.businessIds && Array.isArray(couponToUse.businessIds) && couponToUse.businessIds.length > 0;
-                              const hasBusinessId = !!couponToUse?.businessId;
-                              
-                              if (!hasBusinessIds && !hasBusinessId && couponToUse?.id) {
-                                // Fetch the coupon to get businessIds
-                                const result = await getCouponById(couponToUse.id);
-                                if (result.success && result.coupon) {
-                                  couponToUse = result.coupon as Coupon;
-                                }
-                              }
-                                  
-                              // Parse and normalize businessIds to ensure it's always an array
-                              let businessIds: string[] = [];
-                              if (couponToUse?.businessIds) {
-                                if (Array.isArray(couponToUse.businessIds)) {
-                                  businessIds = couponToUse.businessIds.filter(id => id != null && id !== '');
-                                } else if (typeof couponToUse.businessIds === 'string') {
-                                  businessIds = [couponToUse.businessIds];
-                                    }
-                              } else if (couponToUse?.businessId) {
-                                businessIds = [couponToUse.businessId];
-                                  }
-                                  
-                              if (businessIds.length > 0) {
-                                const idsString = businessIds.join(',');
-                                router.push(`/${locale}/services?businessId=${idsString}`);
-                              } else {
-                                router.push(`/${locale}/services`);
-                              }
-                            }}
-                          >
-                            <MapPin className="h-4 w-4 mr-2" />
-                            {t('showMap')}
-                          </Button>
-                          
-                          {/* Map directly in sidebar - only show if there are businesses with addresses */}
-                          {couponBusinessesWithAddress.length > 0 ? (
-                            <div className="mt-4">
-                              <MapCard 
-                                key={`sidebar-map-${selectedCoupon.id}-${couponBusinessesWithAddress.length}`}
-                                businesses={couponBusinessesWithAddress}
-                                title={t('businessLocations') || 'Business Locations'}
-                              />
-                            </div>
-                          ) : (
-                            <div className="mt-4 p-4 bg-gray-50 rounded-lg text-center">
-                              <p className="text-sm text-gray-500">
-                                {t('noBusinessesFound') || 'No businesses with addresses found for this coupon'}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
-                </div>
-              </CardContent>
-              <CardFooter className="pt-6 border-t sticky bottom-0 bg-white">
-                <Button 
-                  onClick={() => {
-                    handlePurchaseCoupon(selectedCoupon);
-                    setSelectedCoupon(null);
-                  }}
-                  disabled={!freeCouponPrice && userPoints < selectedCoupon.points}
-                  className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  size="lg"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  {freeCouponPrice 
-                    ? t('getFree')
-                    : (userPoints < selectedCoupon.points ? t('insufficientPoints') : t('purchase'))
-                  }
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </>
-      )}
-
-      {/* Fixed Bottom Bar for Selected Coupon - Mobile Only */}
-      {activeTab === 'available' && selectedCoupon && (
-        <div className="lg:hidden fixed bottom-16 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-[90] p-4 md:bottom-0">
-          <div className="container mx-auto max-w-7xl">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-gray-900 truncate">{selectedCoupon.name}</h3>
-                <div className="flex items-center gap-4 mt-1">
-                  <Badge variant="outline" className={`flex items-center gap-1.5 bg-white px-3 py-1 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
-                    <Coins className="h-4 w-4" />
-                    <span className="font-semibold">{freeCouponPrice ? '0' : selectedCoupon.points} {t('pointsRequired')}</span>
-                  </Badge>
-                  {freeCouponPrice && (
-                    <Badge variant="outline" className="flex items-center gap-1.5 bg-white border-green-200 text-green-700 px-3 py-1">
-                      <span className="font-semibold">{t('free')}</span>
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <Button 
-                onClick={() => {
-                  if (selectedCoupon) {
-                  handlePurchaseCoupon(selectedCoupon);
-                  setSelectedCoupon(null);
-                  }
-                }}
-                disabled={!freeCouponPrice && selectedCoupon && userPoints < selectedCoupon.points}
-                className="flex items-center justify-center gap-2 h-12 px-6 text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                size="lg"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {freeCouponPrice 
-                  ? t('getFree')
-                  : (selectedCoupon && userPoints < selectedCoupon.points ? t('insufficientPoints') : t('purchase'))
-                }
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
