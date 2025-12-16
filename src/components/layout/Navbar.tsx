@@ -273,17 +273,6 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {/* Store Button - Outlined Orange */}
-                  {storeUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.location.href = storeUrl}
-                      className="border-orange-500 text-orange-500 text-xs sm:text-sm"
-                    >
-                      חנות צ'אפיז
-                    </Button>
-                  )}
                 </>
               ) : (
                 <DropdownMenu>
@@ -293,20 +282,6 @@ const Navbar = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
-                    {storeUrl && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <button
-                            onClick={() => window.location.href = storeUrl}
-                            className="flex items-center w-full"
-                          >
-                            <ShoppingBag className="mr-2 h-4 w-4" />
-                            <span>{t('store')}</span>
-                          </button>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
                     <DropdownMenuItem asChild>
                       <Link href="/contact" className="flex items-center">
                         <Mail className="mr-2 h-4 w-4" />
@@ -321,6 +296,17 @@ const Navbar = () => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+              {/* Store Button - Outlined Orange (Always visible) */}
+              {storeUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = storeUrl}
+                  className="border-orange-500 text-orange-500 text-xs sm:text-sm"
+                >
+                  חנות צ'אפיז
+                </Button>
               )}
             </div>
           </div>
