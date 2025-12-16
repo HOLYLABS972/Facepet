@@ -10,6 +10,12 @@ export default function BottomNavigation() {
   const t = useTranslations('components.Navbar');
   const { user } = useAuth();
 
+  // Don't show bottom navigation on admin routes
+  const isAdminRoute = pathname?.startsWith('/admin');
+  if (isAdminRoute) {
+    return null;
+  }
+
   // Navigation items for logged-in users
   const loggedInNavItems = [
     {
@@ -47,7 +53,7 @@ export default function BottomNavigation() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t-2 border-gray-300 shadow-lg md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-[9999] bg-white border-t-2 border-gray-300 shadow-lg md:hidden"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}
     >
       <nav className="flex items-center justify-around px-1 pt-2 pb-1">
