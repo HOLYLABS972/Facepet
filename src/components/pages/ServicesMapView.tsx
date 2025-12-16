@@ -1309,7 +1309,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                      className="hover:bg-primary/10 hover:text-primary focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.address || selectedService.location) {
                           const address = selectedService.address || selectedService.location;
@@ -1330,7 +1330,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                      className="hover:bg-primary/10 hover:text-primary focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
                           window.open(`tel:${selectedService.phone}`, '_self');
@@ -1374,7 +1374,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                      className="hover:bg-primary/10 hover:text-primary focus:bg-primary transition-colors focus:text-white focus:outline-none"
                       onClick={() => {
                         if (selectedService.id) {
                           router.push(`/${locale}/promos?businessId=${selectedService.id}`);
