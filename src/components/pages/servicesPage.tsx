@@ -1,11 +1,13 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { FilterChips, FilterChip } from '../ui/filter-chips';
 import { TagsFilter } from '../ui/tags-filter';
+import { Button } from '../ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserFavorites, getAllAdTags } from '@/lib/firebase/favorites';
 import { SERVICE_TAGS_TRANSLATIONS } from '@/lib/constants/hebrew-service-tags';
@@ -56,6 +58,7 @@ const convertAdToService = (ad: Ad & { imageUrl?: string }) => {
 const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
   const t = useTranslations('pages.ServicesPage');
   const locale = useLocale();
+  const router = useRouter();
   const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -105,7 +108,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
     if (businessId) {
       const businessIds = businessId.split(',').map(id => id.trim());
       if (!businessIds.includes(service.id)) {
-        return false;
+      return false;
       }
     }
 
@@ -154,7 +157,20 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
             <div className="space-y-4">
               {/* Title and Filter Chips on Same Row */}
               <div className="mb-4 flex flex-row items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold">{t('title')}</h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold">{t('title')}</h1>
+                  {businessId && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/${locale}/services`)}
+                      className="flex items-center gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      {t('removeFilter') || 'Remove Filter'}
+                    </Button>
+                  )}
+                </div>
                 <FilterChips
                   chips={filterChips}
                   onChipClick={handleChipClick}

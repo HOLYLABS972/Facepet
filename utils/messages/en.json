@@ -895,6 +895,7 @@
       "title": "Services And Professionals",
       "searchPlaceholder": "Search Services And Professionals...",
       "noResults": "No Services And Professionals found.",
+      "removeFilter": "Remove Filter",
       "filters": {
         "all": "All",
         "favorites": "Favorites"
@@ -958,7 +959,7 @@
       "noHistoryDescription": "You haven't used any coupons yet.",
       "usedOn": "Used on",
       "showAllCoupons": "Show All Coupons",
-      "showQRCode": "QR Code",
+      "showQRCode": "Promos",
       "business": "Business",
       "businesses": "Businesses",
       "confirmUse": "Confirm Use Coupon",
@@ -1474,6 +1475,7 @@
       "couponCode": "Voucher Code",
       "goToStore": "Go to Store",
       "view": "View",
+      "showQR": "Redeem Coupon",
       "useCoupon": "Use Voucher",
       "codeCopied": "Voucher code copied to clipboard!",
       "failedToCopy": "Failed to copy code",

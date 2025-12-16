@@ -38,35 +38,12 @@ export default function BottomNavigation() {
     },
   ];
 
-  // Navigation items for non-logged-in users
-  const publicNavItems = [
-    {
-      href: '/services',
-      icon: MapPin,
-      label: t('services') || 'Services',
-      isActive: pathname?.startsWith('/services'),
-    },
-    {
-      href: '/promos',
-      icon: Gift,
-      label: t('allPromos') || 'Promos',
-      isActive: pathname?.startsWith('/promos'),
-    },
-    {
-      href: '/contact',
-      icon: Mail,
-      label: t('contact') || 'Contact',
-      isActive: pathname?.startsWith('/contact'),
-    },
-    {
-      href: '/auth',
-      icon: LogIn,
-      label: t('signIn') || 'Sign In',
-      isActive: pathname?.startsWith('/auth'),
-    },
-  ];
+  // Don't show bottom navigation for non-logged-in users
+  if (!user) {
+    return null;
+  }
 
-  const navItems = user ? loggedInNavItems : publicNavItems;
+  const navItems = loggedInNavItems;
 
   return (
     <div

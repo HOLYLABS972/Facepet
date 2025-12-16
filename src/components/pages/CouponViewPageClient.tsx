@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, CheckCircle2, Share2, Trophy, Info, MapPin, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Share2, Trophy, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Promo, Business } from '@/types/promo';
@@ -137,7 +137,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 pb-24 md:pb-8 max-w-4xl">
         {/* Back Button */}
         <Button
           variant="ghost"
@@ -202,93 +202,6 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
                 </div>
               )}
             </div>
-
-            {/* Businesses that accept this coupon */}
-            {businesses.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">
-                  {t('acceptedAt') || 'Accepted at'} ({businesses.length})
-                </h2>
-                <div className="space-y-4">
-                  {businesses.map((biz) => (
-                    <Card
-                      key={biz.id}
-                      className="border-l-4 border-l-primary cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => {
-                        router.push(`/${locale}/services?businessId=${biz.id}`);
-                      }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-4">
-                          {biz.imageUrl && (
-                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                              <img
-                                src={biz.imageUrl}
-                                alt={biz.name}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-lg mb-2">{biz.name}</h3>
-                            {biz.description && (
-                              <p className="text-sm text-gray-600 mb-3">{biz.description}</p>
-                            )}
-                            <div className="space-y-1 text-sm text-gray-600">
-                              {biz.contactInfo?.address && (
-                                <div className="flex items-start gap-2">
-                                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                  <span>{biz.contactInfo.address}</span>
-                                </div>
-                              )}
-                              {biz.contactInfo?.phone && (
-                                <div className="flex items-center gap-2">
-                                  <Phone className="w-4 h-4 flex-shrink-0" />
-                                  <a
-                                    href={`tel:${biz.contactInfo.phone}`}
-                                    className="hover:text-primary transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    {biz.contactInfo.phone}
-                                  </a>
-                                </div>
-                              )}
-                              {biz.contactInfo?.email && (
-                                <div className="flex items-center gap-2">
-                                  <Mail className="w-4 h-4 flex-shrink-0" />
-                                  <a
-                                    href={`mailto:${biz.contactInfo.email}`}
-                                    className="hover:text-primary transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    {biz.contactInfo.email}
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                {businesses.length > 0 && (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full mt-4"
-                    onClick={() => {
-                      // Navigate to services page with all business IDs
-                      const businessIds = businesses.map(b => b.id).join(',');
-                      router.push(`/${locale}/services?businessId=${businessIds}`);
-                    }}
-                  >
-                    <MapPin className="h-4 w-4 mr-2" />
-                    {t('showMap') || 'Show Map'}
-                  </Button>
-                )}
-              </div>
-            )}
 
             {/* QR Code Card */}
             <div className="mb-8">

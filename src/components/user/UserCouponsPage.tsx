@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, Wallet, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye, MapPin } from 'lucide-react';
+import { Coins, Wallet, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye, MapPin, QrCode } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Coupon } from '@/types/coupon';
 import { getCoupons, getContactInfo, getBusinesses, getCouponById } from '@/lib/actions/admin';
@@ -523,7 +523,7 @@ export default function UserCouponsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-24 md:pb-12 max-w-7xl">
         {/* Header */}
         <div className="mb-8 lg:mb-12 text-center lg:text-left">
           <h1 className="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
@@ -795,12 +795,6 @@ export default function UserCouponsPage() {
                             {coupon.price === 0 ? t('free') : formatPrice(coupon.price)}
                           </span>
                         </div>
-                        {userCoupon.usedAt && (
-                          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-500">{t('usedOn') || 'Used on'}</span>
-                            <span className="text-sm text-gray-600">{formatDate(userCoupon.usedAt)}</span>
-                          </div>
-                        )}
                       </div>
                     </CardContent>
                     <CardFooter className="pt-4 flex flex-col gap-2 mt-auto">
@@ -810,8 +804,8 @@ export default function UserCouponsPage() {
                         onClick={() => router.push(`/${locale}/vouchers/${userCoupon.id}`)}
                         className="w-full flex items-center justify-center gap-2"
                       >
-                        <Eye className="h-5 w-5" />
-                        {t('view') || 'View'}
+                        <QrCode className="h-5 w-5" />
+                        {t('showQR') || 'Show QR'}
                       </Button>
                       <Button
                         variant="outline"
@@ -1059,7 +1053,7 @@ export default function UserCouponsPage() {
                                   couponToUse = result.coupon as Coupon;
                                 }
                               }
-                              
+                                  
                               // Parse and normalize businessIds to ensure it's always an array
                               let businessIds: string[] = [];
                               if (couponToUse?.businessIds) {
@@ -1067,11 +1061,11 @@ export default function UserCouponsPage() {
                                   businessIds = couponToUse.businessIds.filter(id => id != null && id !== '');
                                 } else if (typeof couponToUse.businessIds === 'string') {
                                   businessIds = [couponToUse.businessIds];
-                                }
+                                    }
                               } else if (couponToUse?.businessId) {
                                 businessIds = [couponToUse.businessId];
-                              }
-                              
+                                  }
+                                  
                               if (businessIds.length > 0) {
                                 const idsString = businessIds.join(',');
                                 router.push(`/${locale}/services?businessId=${idsString}`);

@@ -321,7 +321,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 pb-24 md:pb-8 max-w-6xl">
         {/* Header */}
         <div className="mb-6">
           {business && (

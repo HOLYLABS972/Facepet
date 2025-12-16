@@ -191,9 +191,9 @@ const Navbar = () => {
                 <Image
                   src="/assets/Facepet.png"
                   alt="Facepet"
-                  width={120}
-                  height={40}
-                  className="h-8 w-auto object-contain"
+                  width={180}
+                  height={60}
+                  className="h-12 w-auto object-contain"
                   priority
                 />
               </div>
@@ -281,11 +281,43 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  {/* Store Button - Outlined Orange (Always visible for logged in users) */}
+                  {storeUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.href = storeUrl}
+                      className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 text-xs sm:text-sm"
+                    >
+                      <ShoppingBag className="h-4 w-4 mr-2" />
+                      חנות צ'אפיז
+                    </Button>
+                  )}
                 </>
               ) : (
                 <>
-                  {/* Desktop: Show navigation buttons directly (no burger menu) */}
+                  {/* Desktop: Group Login, Store, Contact on the right */}
                   <div className="hidden md:flex items-center gap-2">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => router.push('/auth')}
+                      className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      {t('signIn')}
+                    </Button>
+                    {storeUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.location.href = storeUrl}
+                        className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 text-xs sm:text-sm"
+                      >
+                        <ShoppingBag className="h-4 w-4 mr-2" />
+                        חנות צ'אפיז
+                      </Button>
+                    )}
                     <Button
                       variant={pathname?.includes('/contact') ? 'outline' : 'ghost'}
                       size="sm"
@@ -294,15 +326,6 @@ const Navbar = () => {
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       {t('contact') || 'Contact'}
-                    </Button>
-                    <Button
-                      variant={pathname?.includes('/auth') ? 'outline' : 'ghost'}
-                      size="sm"
-                      onClick={() => router.push('/auth')}
-                      className={pathname?.includes('/auth') ? 'border-primary text-primary' : ''}
-                    >
-                      <LogIn className="h-4 w-4 mr-2" />
-                      {t('signIn')}
                     </Button>
                   </div>
 
@@ -320,6 +343,12 @@ const Navbar = () => {
                           <span>{t('contact')}</span>
                         </Link>
                       </DropdownMenuItem>
+                      {storeUrl && (
+                        <DropdownMenuItem onClick={() => window.location.href = storeUrl}>
+                          <ShoppingBag className="mr-2 h-4 w-4" />
+                          <span>חנות צ'אפיז</span>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem asChild>
                         <Link href="/auth" className="flex items-center">
                           <LogIn className="mr-2 h-4 w-4" />
@@ -329,17 +358,6 @@ const Navbar = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
-              )}
-              {/* Store Button - Outlined Orange (Always visible) */}
-              {storeUrl && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.href = storeUrl}
-                  className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 text-xs sm:text-sm"
-                >
-                  חנות צ'אפיז
-                </Button>
               )}
             </div>
           </div>
