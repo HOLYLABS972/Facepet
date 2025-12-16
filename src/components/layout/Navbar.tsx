@@ -22,6 +22,7 @@ import {
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useNotifications } from '@/src/contexts/NotificationsContext';
@@ -187,9 +188,14 @@ const Navbar = () => {
               <div
                 className="flex cursor-pointer items-center"
               >
-                <span className="text-primary font-['Lobster'] text-2xl">
-                  Facepet
-                </span>
+                <Image
+                  src="/assets/Facepet.png"
+                  alt="Facepet"
+                  width={120}
+                  height={40}
+                  className="h-8 w-auto object-contain"
+                  priority
+                />
               </div>
             </Link>
 

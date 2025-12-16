@@ -113,9 +113,16 @@ const AuthPage = () => {
             />
           </div>
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-['Lobster'] text-primary">
-              FacePet
-            </h1>
+            <div className="flex justify-center">
+              <Image
+                src="/assets/Facepet.png"
+                alt="FacePet"
+                width={200}
+                height={80}
+                className="h-16 w-auto object-contain"
+                priority
+              />
+            </div>
             <p className="text-xl text-gray-600 max-w-md">
               {t('tagline')}
             </p>

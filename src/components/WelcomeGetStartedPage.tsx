@@ -7,6 +7,7 @@ import { usePetId } from '@/src/hooks/use-pet-id';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { Suspense, useEffect } from 'react';
 import AdHeader from './get-started/AdHeader';
 import Footer from './layout/Footer';
@@ -51,9 +52,16 @@ export default function WelcomeGetStartedPage() {
       <AdHeader />
       {/* Main Content */}
       <div className="mt-36 px-7">
-        <h1 className="text-primary text-center font-['Lobster'] text-[50px] tracking-wide">
-          {t('brand')}
-        </h1>
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/assets/Facepet.png"
+            alt="FacePet"
+            width={250}
+            height={100}
+            className="h-16 w-auto object-contain"
+            priority
+          />
+        </div>
 
         <div className="text-center text-2xl">
           <p className="text-gray-500">{t('upperTitle')}</p>
