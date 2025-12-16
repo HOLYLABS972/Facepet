@@ -861,24 +861,37 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
   // Handle service click from list
   const handleServiceClick = (service: ServiceWithCoordinates) => {
+    console.log('handleServiceClick called', { service: service.name, id: service.id });
+    
+    // Close previous info window if any
+    if (currentInfoWindow) {
+      currentInfoWindow.close();
+    }
+    
     // Center map on service if coordinates exist
     if (service.coordinates && map) {
       map.setCenter(service.coordinates);
       map.setZoom(15);
     }
     
-    // Set selected service and open drawer
+    // Set selected service and highlight it (matching marker click behavior)
     setSelectedService(service);
     if (service.id) {
-      setHighlightedServiceId(service.id);
-      loadComments(service.id);
-      if (user) {
-        checkIfFavorited(service.id);
-      }
+      setHighlightedServiceIds([service.id]);
     }
 
-    // Always show drawer/sidebar
+    // Always show drawer/sidebar - do this immediately
+    console.log('Setting drawerOpen to true');
     setDrawerOpen(true);
+
+    // Load comments when service is selected
+    if (service.id) {
+      loadComments(service.id);
+    }
+    // Check if favorited
+    if (user && service.id) {
+      checkIfFavorited(service.id);
+    }
   };
 
 
@@ -898,7 +911,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                 "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
                 highlightedServiceIds.includes(service.id || '') ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
               )}
-              onClick={() => handleServiceClick(service)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleServiceClick(service);
+              }}
             >
               <div className="flex gap-3">
                 <div className="w-20 h-20 flex-shrink-0 bg-gray-100 flex items-center justify-center">
@@ -1016,7 +1033,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                           "bg-white rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md",
                           highlightedServiceIds.includes(service.id || '') ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
                         )}
-                        onClick={() => handleServiceClick(service)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleServiceClick(service);
+                        }}
                       >
                         <div className="flex gap-3">
                           <div className="w-20 h-20 flex-shrink-0 bg-gray-100 flex items-center justify-center">

@@ -186,13 +186,12 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
                       tags={availableTags}
                       selectedTags={selectedTags}
                       onTagsChange={setSelectedTags}
-                      placeholder={t('tagsFilter.placeholder')}
-                      clearAllText={t('tagsFilter.clearAll')}
-                      searchTagsPlaceholder={t('tagsFilter.searchTags')}
-                      tagsSelectedText={t('tagsFilter.tagsSelected')}
-                      tagsSelectedPluralText={t('tagsFilter.tagsSelectedPlural')}
-                      selectedText={t('tagsFilter.selected')}
-                      noTagsFoundText={t('tagsFilter.noTagsFound')}
+                      placeholder="סנן לפי תגיות..."
+                      clearAllText="נקה הכל"
+                      searchTagsPlaceholder="חפש תגיות..."
+                      tagsSelectedText="{count} tag selected"
+                      tagsSelectedPluralText="{count} tags selected"
+                      noTagsFoundText="לא נמצאו תגיות."
                       className="w-full"
                       translateTag={translateTag}
                     />

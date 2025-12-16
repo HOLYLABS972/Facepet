@@ -34,10 +34,10 @@ interface TagsFilterProps {
   translateTag?: (tag: string) => string; // Function to translate tags for display
 }
 
-export function TagsFilter({ 
-  tags, 
-  selectedTags, 
-  onTagsChange, 
+export function TagsFilter({
+  tags,
+  selectedTags,
+  onTagsChange,
   placeholder = "Filter by tags...",
   clearAllText = "Clear all",
   searchTagsPlaceholder = "Search tags...",
@@ -82,12 +82,7 @@ export function TagsFilter({
             aria-expanded={open}
             className="w-full justify-between"
           >
-            {selectedTags.length > 0 
-              ? (selectedTags.length === 1 
-                  ? tagsSelectedText.replace('{count}', selectedTags.length.toString())
-                  : tagsSelectedPluralText.replace('{count}', selectedTags.length.toString()))
-              : placeholder
-            }
+            {placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -124,11 +119,6 @@ export function TagsFilter({
                       />
                       {getTagDisplay(tag)}
                     </div>
-                    {selectedTags.includes(tag) && (
-                      <Badge variant="secondary" className="ml-2">
-                        {selectedText}
-                      </Badge>
-                    )}
                   </CommandItem>
                 ))}
               </CommandGroup>
