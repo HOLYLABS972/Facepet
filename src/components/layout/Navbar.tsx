@@ -273,6 +273,17 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  {/* Store Button - Outlined Orange */}
+                  {storeUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.href = storeUrl}
+                      className="border-orange-500 text-orange-500 text-xs sm:text-sm"
+                    >
+                      חנות צ'אפיז
+                    </Button>
+                  )}
                 </>
               ) : (
                 <DropdownMenu>
