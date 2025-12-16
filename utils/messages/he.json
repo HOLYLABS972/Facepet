@@ -894,7 +894,12 @@
       },
       "tagsFilter": {
         "placeholder": "סנן לפי תגיות...",
-        "clearAll": "נקה הכל"
+        "clearAll": "נקה הכל",
+        "searchTags": "חפש תגיות...",
+        "tagsSelected": "תגית {count} נבחרה",
+        "tagsSelectedPlural": "{count} תגיות נבחרו",
+        "selected": "נבחר",
+        "noTagsFound": "לא נמצאו תגיות."
       },
       "map": {
         "listView": "רשימה",

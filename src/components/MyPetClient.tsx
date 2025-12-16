@@ -232,7 +232,7 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto pb-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto pb-24 md:pb-8">
           {filteredPets.map((pet) => (
             <MyPetCard
               key={pet.id}

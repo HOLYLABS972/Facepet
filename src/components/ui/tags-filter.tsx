@@ -25,6 +25,11 @@ interface TagsFilterProps {
   onTagsChange: (tags: string[]) => void;
   placeholder?: string;
   clearAllText?: string;
+  searchTagsPlaceholder?: string;
+  tagsSelectedText?: string;
+  tagsSelectedPluralText?: string;
+  selectedText?: string;
+  noTagsFoundText?: string;
   className?: string;
   translateTag?: (tag: string) => string; // Function to translate tags for display
 }
@@ -35,6 +40,11 @@ export function TagsFilter({
   onTagsChange, 
   placeholder = "Filter by tags...",
   clearAllText = "Clear all",
+  searchTagsPlaceholder = "Search tags...",
+  tagsSelectedText = "{count} tag selected",
+  tagsSelectedPluralText = "{count} tags selected",
+  selectedText = "Selected",
+  noTagsFoundText = "No tags found.",
   className,
   translateTag
 }: TagsFilterProps) {
@@ -63,34 +73,6 @@ export function TagsFilter({
 
   return (
     <div className={cn('space-y-2', className)}>
-      {/* Selected tags display */}
-      {selectedTags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="flex items-center gap-1 pr-1"
-            >
-              {getTagDisplay(tag)}
-              <X
-                size={14}
-                className="cursor-pointer hover:text-destructive"
-                onClick={() => handleRemoveTag(tag)}
-              />
-            </Badge>
-          ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearAllTags}
-            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-          >
-            {clearAllText}
-          </Button>
-        </div>
-      )}
-
       {/* Tags dropdown */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -101,7 +83,9 @@ export function TagsFilter({
             className="w-full justify-between"
           >
             {selectedTags.length > 0 
-              ? `${selectedTags.length} tag${selectedTags.length === 1 ? '' : 's'} selected`
+              ? (selectedTags.length === 1 
+                  ? tagsSelectedText.replace('{count}', selectedTags.length.toString())
+                  : tagsSelectedPluralText.replace('{count}', selectedTags.length.toString()))
               : placeholder
             }
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -109,9 +93,20 @@ export function TagsFilter({
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start" side="bottom" sideOffset={4} avoidCollisions={false}>
           <Command>
-            <CommandInput placeholder="Search tags..." />
+            <CommandInput placeholder={searchTagsPlaceholder} />
             <CommandList>
-              <CommandEmpty>No tags found.</CommandEmpty>
+              <CommandEmpty>{noTagsFoundText}</CommandEmpty>
+              {selectedTags.length > 0 && (
+                <CommandGroup>
+                  <CommandItem
+                    onSelect={clearAllTags}
+                    className="flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    {clearAllText}
+                  </CommandItem>
+                </CommandGroup>
+              )}
               <CommandGroup>
                 {tags.map((tag) => (
                   <CommandItem
@@ -131,7 +126,7 @@ export function TagsFilter({
                     </div>
                     {selectedTags.includes(tag) && (
                       <Badge variant="secondary" className="ml-2">
-                        Selected
+                        {selectedText}
                       </Badge>
                     )}
                   </CommandItem>

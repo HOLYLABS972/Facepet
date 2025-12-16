@@ -902,7 +902,12 @@
       },
       "tagsFilter": {
         "placeholder": "Filter by tags...",
-        "clearAll": "Clear all"
+        "clearAll": "Clear all",
+        "searchTags": "Search tags...",
+        "tagsSelected": "{count} tag selected",
+        "tagsSelectedPlural": "{count} tags selected",
+        "selected": "Selected",
+        "noTagsFound": "No tags found."
       },
       "map": {
         "listView": "List",

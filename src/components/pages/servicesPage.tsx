@@ -108,7 +108,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
     if (businessId) {
       const businessIds = businessId.split(',').map(id => id.trim());
       if (!businessIds.includes(service.id)) {
-      return false;
+        return false;
       }
     }
 
@@ -188,6 +188,11 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
                       onTagsChange={setSelectedTags}
                       placeholder={t('tagsFilter.placeholder')}
                       clearAllText={t('tagsFilter.clearAll')}
+                      searchTagsPlaceholder={t('tagsFilter.searchTags')}
+                      tagsSelectedText={t('tagsFilter.tagsSelected')}
+                      tagsSelectedPluralText={t('tagsFilter.tagsSelectedPlural')}
+                      selectedText={t('tagsFilter.selected')}
+                      noTagsFoundText={t('tagsFilter.noTagsFound')}
                       className="w-full"
                       translateTag={translateTag}
                     />
@@ -207,21 +212,6 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
                     className="w-full rounded-lg p-2 ltr:pl-10 rtl:pr-10 border-none focus-visible:ring-0"
                   />
                 </div>
-              </div>
-
-              {/* Mobile Only: No Results Message (Desktop shows in side panel) */}
-              <div className="md:hidden">
-                {filteredServices.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">{t('noResults')}</p>
-                    {ads.length === 0 && (
-                      <p className="text-sm text-gray-400 mt-2">No active services available at the moment.</p>
-                    )}
-                    {filterType === 'favorites' && favoriteAdIds.length === 0 && (
-                      <p className="text-sm text-gray-400 mt-2">You haven't added any services to favorites yet.</p>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           }

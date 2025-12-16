@@ -861,21 +861,24 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
   // Handle service click from list
   const handleServiceClick = (service: ServiceWithCoordinates) => {
+    // Center map on service if coordinates exist
     if (service.coordinates && map) {
       map.setCenter(service.coordinates);
       map.setZoom(15);
-      setSelectedService(service);
-      if (service.id) {
-        setHighlightedServiceId(service.id);
-        loadComments(service.id);
-        if (user) {
-          checkIfFavorited(service.id);
-        }
-      }
-
-      // Always show drawer
-      setDrawerOpen(true);
     }
+    
+    // Set selected service and open drawer
+    setSelectedService(service);
+    if (service.id) {
+      setHighlightedServiceId(service.id);
+      loadComments(service.id);
+      if (user) {
+        checkIfFavorited(service.id);
+      }
+    }
+
+    // Always show drawer/sidebar
+    setDrawerOpen(true);
   };
 
 
