@@ -157,20 +157,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
             <div className="space-y-4">
               {/* Title and Filter Chips on Same Row */}
               <div className="mb-4 flex flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold">{t('title')}</h1>
-                  {businessId && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push(`/${locale}/services`)}
-                      className="flex items-center gap-2"
-                    >
-                      <X className="h-4 w-4" />
-                      {t('removeFilter') || 'Remove Filter'}
-                    </Button>
-                  )}
-                </div>
+                <h1 className="text-2xl font-bold">{t('title')}</h1>
                 <FilterChips
                   chips={filterChips}
                   onChipClick={handleChipClick}
@@ -212,6 +199,21 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
                   />
                 </div>
               </div>
+
+              {/* Remove Filter Button - New Row */}
+              {businessId && (
+                <div className="flex justify-start">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push(`/${locale}/services`)}
+                    className="flex items-center gap-2 border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600"
+                  >
+                    <X className="h-4 w-4" />
+                    {t('removeFilter') || 'Remove Filter'}
+                  </Button>
+                </div>
+              )}
             </div>
           }
         />

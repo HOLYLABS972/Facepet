@@ -182,9 +182,9 @@ const Navbar = () => {
         )}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-          <div className="flex h-16 items-center justify-between rtl:flex-row-reverse">
+          <div className="flex h-14 sm:h-16 items-center justify-between rtl:flex-row-reverse flex-nowrap">
             {/* Brand / Logo */}
-            <Link href="/">
+            <Link href="/" className="flex-shrink-0">
               <div
                 className="flex cursor-pointer items-center"
               >
@@ -193,14 +193,14 @@ const Navbar = () => {
                   alt="Chapiz"
                   width={180}
                   height={60}
-                  className="h-12 w-auto object-contain"
+                  className="h-8 sm:h-10 w-auto object-contain"
                   priority
                 />
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="flex items-center gap-4 relative">
+            <div className="flex items-center gap-2 sm:gap-4 relative flex-shrink-0">
               {loading ? (
                 // Show loading state during authentication check
                 <div className="h-8 w-8" />
@@ -209,8 +209,8 @@ const Navbar = () => {
                   {/* User Dropdown Menu - Using Burger Icon */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <Menu className="h-5 w-5" />
+                      <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0">
+                        <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end">
@@ -287,24 +287,24 @@ const Navbar = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => window.location.href = storeUrl}
-                      className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 text-xs sm:text-sm"
+                      className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3"
                     >
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      חנות צ'אפיז
+                      <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="hidden md:inline">חנות צ'אפיז</span>
                     </Button>
                   )}
                 </>
               ) : (
                 <>
                   {/* Desktop: Group Login, Store, Contact on the right */}
-                  <div className="hidden md:flex items-center gap-2">
+                  <div className="hidden md:flex items-center gap-2 flex-shrink-0">
                     <Button
                       variant="default"
                       size="sm"
                       onClick={() => router.push('/auth')}
-                      className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500"
+                      className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500 flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3"
                     >
-                      <LogIn className="h-4 w-4 mr-2" />
+                      <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t('signIn')}
                     </Button>
                     {storeUrl && (
@@ -312,19 +312,19 @@ const Navbar = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => window.location.href = storeUrl}
-                        className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 text-xs sm:text-sm"
+                        className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3"
                       >
-                        <ShoppingBag className="h-4 w-4 mr-2" />
-                        חנות צ'אפיז
+                        <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden md:inline">חנות צ'אפיז</span>
                       </Button>
                     )}
                     <Button
                       variant={pathname?.includes('/contact') ? 'outline' : 'ghost'}
                       size="sm"
                       onClick={() => router.push('/contact')}
-                      className={pathname?.includes('/contact') ? 'border-primary text-primary' : ''}
+                      className={`${pathname?.includes('/contact') ? 'border-primary text-primary' : ''} flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3`}
                     >
-                      <Mail className="h-4 w-4 mr-2" />
+                      <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t('contact') || 'Contact'}
                     </Button>
                   </div>
@@ -332,8 +332,8 @@ const Navbar = () => {
                   {/* Mobile: Show burger menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0 md:hidden">
-                        <Menu className="h-5 w-5" />
+                      <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0 md:hidden">
+                        <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>

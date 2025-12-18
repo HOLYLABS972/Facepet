@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Tag, CheckCircle2, History, MapPin, QrCode } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Tag, CheckCircle2, History, MapPin, QrCode, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Promo, Business } from '@/types/promo';
@@ -155,6 +155,15 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
               </svg>
             </div>
           </div>
+          {/* Date Overlay */}
+          {promo.endDate && (
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm px-3 py-2">
+              <div className="flex items-center gap-1.5 text-white text-sm font-medium">
+                <Calendar className="h-4 w-4" />
+                <span>{t('endDate') || 'End'}: {new Date(promo.endDate).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-GB')}</span>
+              </div>
+            </div>
+          )}
         </div>
       ) : promo.imageUrl && (
         <div className="relative w-full h-48">
@@ -163,6 +172,15 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             alt={promo.name}
             className="w-full h-full object-cover"
           />
+          {/* Date Overlay */}
+          {promo.endDate && (
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm px-3 py-2">
+              <div className="flex items-center gap-1.5 text-white text-sm font-medium">
+                <Calendar className="h-4 w-4" />
+                <span>{t('endDate') || 'End'}: {new Date(promo.endDate).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-GB')}</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
       <CardContent className="p-6 flex flex-col h-full">
@@ -185,16 +203,6 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           {promo.description && (
             <p className="text-gray-600 mb-4 line-clamp-3">{promo.description}</p>
           )}
-          {(promo.startDate || promo.endDate) && (
-            <div className="text-sm text-gray-500 mb-4">
-              {promo.startDate && (
-                <p>{t('startDate') || 'Start'}: {new Date(promo.startDate).toLocaleDateString('en-GB')}</p>
-              )}
-              {promo.endDate && (
-                <p>{t('endDate') || 'End'}: {new Date(promo.endDate).toLocaleDateString('en-GB')}</p>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Action Buttons */}
@@ -203,20 +211,20 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             variant="outline"
             size="sm"
             onClick={() => handleViewQR(promo)}
-            className="flex-1"
+            className="flex-1 flex items-center justify-center gap-2"
           >
-            <QrCode className="w-4 h-4 mr-2" />
-            {t('showQRCode') || 'QR Code'}
+            <QrCode className="w-4 h-4" />
+            <span>{t('showQRCode') || 'QR Code'}</span>
           </Button>
           {getPromoBusinesses(promo).length > 0 && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleShowMap(promo)}
-              className="flex-1"
+              className="flex-1 flex items-center justify-center gap-2"
             >
-              <MapPin className="w-4 h-4 mr-2" />
-              {t('showMap') || 'Map'}
+              <MapPin className="w-4 h-4" />
+              <span>{t('showMap') || 'Map'}</span>
             </Button>
           )}
         </div>
@@ -296,20 +304,20 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             variant="outline"
             size="sm"
             onClick={() => handleViewQR(userPromo.promo)}
-            className="flex-1"
+            className="flex-1 flex items-center justify-center gap-2"
           >
-            <QrCode className="w-4 h-4 mr-2" />
-            {t('showQRCode') || 'QR Code'}
+            <QrCode className="w-4 h-4" />
+            <span>{t('showQRCode') || 'QR Code'}</span>
           </Button>
           {getPromoBusinesses(userPromo.promo).length > 0 && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleShowMap(userPromo.promo)}
-              className="flex-1"
+              className="flex-1 flex items-center justify-center gap-2"
             >
-              <MapPin className="w-4 h-4 mr-2" />
-              {t('showMap') || 'Map'}
+              <MapPin className="w-4 h-4" />
+              <span>{t('showMap') || 'Map'}</span>
             </Button>
           )}
         </div>

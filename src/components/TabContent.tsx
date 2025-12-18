@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { TabName } from './AnimatedTabs';
 import toast from 'react-hot-toast';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 const variants = {
   initial: (direction: number) => ({
@@ -46,21 +46,23 @@ interface TabContentProps {
 const renderDetails = (
   details: { label: string; value: string; link?: string }[],
   petId?: string,
-  onDeletePet?: (petId: string) => void
+  onDeletePet?: (petId: string) => void,
+  locale?: string
 ) => {
   const filtered = details.filter((d) => d.value.trim() !== '');
   if (filtered.length === 0) return null;
+  const isRTL = locale === 'he';
   
   return (
     <Card className="mx-auto mt-4 w-[325px] border-none bg-transparent shadow-none">
       <CardContent className="p-0">
-        <div className="space-y-0.5">
+        <div className="space-y-0.5" dir={isRTL ? 'rtl' : 'ltr'}>
           {filtered.map((detail, index) => (
-            <div key={index} className="flex min-h-[22px] items-start">
-              <span className="w-[76px] text-lg font-light text-gray-400">
+            <div key={index} className={`flex min-h-[22px] items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <span className={`w-[76px] text-lg font-light text-gray-400 flex-shrink-0 ${isRTL ? 'text-right' : 'text-right'}`}>
                 {detail.label}
               </span>
-              <span className="max-w-56 text-lg font-medium text-black">
+              <span className={`flex-1 text-lg font-medium text-black break-words ${isRTL ? 'text-right mr-2' : 'text-left ml-2'}`}>
                 {detail.link ? (
                   <a href={detail.link} className="underline">
                     {detail.value}
@@ -124,13 +126,14 @@ const TabContent = ({
   petId,
   onDeletePet
 }: TabContentProps) => {
+  const locale = useLocale();
   let content = null;
   if (activeTab === 'pet') {
-    content = renderDetails(petInfo, petId, onDeletePet);
+    content = renderDetails(petInfo, petId, onDeletePet, locale);
   } else if (activeTab === 'owner') {
-    content = renderDetails(ownerInfo);
+    content = renderDetails(ownerInfo, undefined, undefined, locale);
   } else if (activeTab === 'vet') {
-    content = renderDetails(vetInfo);
+    content = renderDetails(vetInfo, undefined, undefined, locale);
   }
 
   // Track if the component has mounted.

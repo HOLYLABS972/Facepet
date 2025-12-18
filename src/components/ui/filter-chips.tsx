@@ -22,13 +22,14 @@ export function FilterChips({ chips, onChipClick, className }: FilterChipsProps)
       {chips.map((chip) => (
         <Badge
           key={chip.id}
-          variant={chip.active ? 'default' : 'outline'}
+          variant="outline"
           className={cn(
             'cursor-pointer transition-all duration-200 hover:scale-105',
             chip.active 
-              ? 'bg-primary text-primary-foreground shadow-md' 
-              : 'hover:bg-primary/10 hover:text-primary'
+              ? 'bg-orange-500 text-white border-orange-500 shadow-md hover:bg-orange-600 [&]:bg-orange-500 [&]:text-white [&]:border-orange-500' 
+              : 'hover:bg-orange-50 hover:text-orange-500 border-gray-300'
           )}
+          style={chip.active ? { backgroundColor: '#f97316', color: '#ffffff', borderColor: '#f97316' } : undefined}
           onClick={() => onChipClick(chip.id)}
         >
           {chip.label}
