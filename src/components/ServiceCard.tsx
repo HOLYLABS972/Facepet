@@ -491,8 +491,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                   size="icon"
                   className={`transition-colors focus:outline-none ${
                     isFavorited 
-                      ? 'text-red-500 hover:text-red-600 focus:text-red-600' 
-                      : 'hover:text-red-500 focus:text-red-500'
+                      ? 'text-orange-500 hover:text-orange-600 focus:text-orange-600' 
+                      : 'hover:text-orange-500 focus:text-orange-500'
                   }`}
                   onClick={handleToggleFavorite}
                   disabled={isTogglingFavorite}

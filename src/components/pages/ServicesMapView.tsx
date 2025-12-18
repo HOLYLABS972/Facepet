@@ -1333,7 +1333,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="transition-colors hover:text-red-500 focus:text-red-500 focus:outline-none"
+                      className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                       onClick={() => {
                         if (selectedService.address || selectedService.location) {
                           const address = selectedService.address || selectedService.location;
@@ -1354,7 +1354,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="transition-colors hover:text-red-500 focus:text-red-500 focus:outline-none"
+                      className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                       onClick={() => {
                         if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
                           window.open(`tel:${selectedService.phone}`, '_self');
@@ -1376,8 +1376,8 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       className={cn(
                         'transition-colors focus:outline-none',
                         isFavorited
-                          ? 'text-red-500 hover:text-red-600 focus:text-red-600'
-                          : 'hover:text-red-500 focus:text-red-500'
+                          ? 'text-orange-500 hover:text-orange-600 focus:text-orange-600'
+                          : 'hover:text-orange-500 focus:text-orange-500'
                       )}
                       onClick={handleToggleFavorite}
                       disabled={isTogglingFavorite}
@@ -1398,7 +1398,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="transition-colors hover:text-red-500 focus:text-red-500 focus:outline-none"
+                      className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                       onClick={() => {
                         if (selectedService.id) {
                           router.push(`/${locale}/promos?businessId=${selectedService.id}`);
@@ -1617,7 +1617,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       <Button
                         variant="ghost"
                         size="lg"
-                        className="transition-colors hover:text-red-500 focus:text-red-500 focus:outline-none"
+                        className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                         onClick={() => {
                           if (selectedService.address || selectedService.location) {
                             const address = selectedService.address || selectedService.location;
@@ -1638,7 +1638,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       <Button
                         variant="ghost"
                         size="lg"
-                        className="transition-colors hover:text-red-500 focus:text-red-500 focus:outline-none"
+                        className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                         onClick={() => {
                           if (selectedService.phone && selectedService.phone.trim() !== '' && selectedService.phone !== 'undefined' && selectedService.phone !== 'null') {
                             window.open(`tel:${selectedService.phone}`, '_self');
@@ -1660,8 +1660,8 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                         className={cn(
                           'transition-colors focus:outline-none',
                           isFavorited
-                            ? 'text-red-500 hover:text-red-600 focus:text-red-600'
-                            : 'hover:text-red-500 focus:text-red-500'
+                            ? 'text-orange-500 hover:text-orange-600 focus:text-orange-600'
+                            : 'hover:text-orange-500 focus:text-orange-500'
                         )}
                         onClick={handleToggleFavorite}
                         disabled={isTogglingFavorite}
@@ -1682,7 +1682,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       <Button
                         variant="ghost"
                         size="lg"
-                        className="transition-colors hover:text-red-500 focus:text-red-500 focus:outline-none"
+                        className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                         onClick={() => {
                           if (selectedService.id) {
                             router.push(`/${locale}/promos?businessId=${selectedService.id}`);

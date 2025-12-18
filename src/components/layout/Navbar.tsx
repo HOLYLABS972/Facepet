@@ -157,7 +157,7 @@ const Navbar = () => {
         <nav
           className={cn(
             'fixed top-0 left-0 right-0 z-50',
-            'bg-background'
+            'bg-gray-50'
           )}
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
@@ -178,7 +178,7 @@ const Navbar = () => {
       <nav
         className={cn(
           'fixed top-0 left-0 right-0 z-50',
-          'bg-background'
+          'bg-gray-50'
         )}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
@@ -275,7 +275,7 @@ const Navbar = () => {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                      <DropdownMenuItem onClick={handleLogout} className="text-orange-600">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>{t('signOut')}</span>
                       </DropdownMenuItem>
