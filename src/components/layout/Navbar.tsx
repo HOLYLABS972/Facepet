@@ -304,9 +304,9 @@ const Navbar = () => {
                       variant="default"
                       size="sm"
                       onClick={() => router.push('/auth')}
-                      className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500 flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3"
+                      className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500 flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2"
                     >
-                      <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       {t('signIn')}
                     </Button>
                     <Button
