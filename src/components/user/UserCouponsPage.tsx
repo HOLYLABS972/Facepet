@@ -626,8 +626,8 @@ export default function UserCouponsPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="w-full"
+                    size="lg"
+                    className="w-full h-12 flex items-center justify-center gap-2"
                     onClick={async () => {
                       // Get business IDs from coupon - fetch if needed
                       let couponToUse = coupon;
@@ -664,7 +664,7 @@ export default function UserCouponsPage() {
                       }
                     }}
                   >
-                    <MapPin className="h-4 w-4 mr-2" />
+                    <MapPin className="h-5 w-5" />
                     {t('showMap')}
                   </Button>
                 </CardFooter>
@@ -788,15 +788,15 @@ export default function UserCouponsPage() {
                         variant="outline"
                         size="lg"
                         onClick={() => router.push(`/${locale}/vouchers/${userCoupon.id}`)}
-                        className="w-full flex items-center justify-center gap-2"
+                        className="w-full h-12 flex items-center justify-center gap-2"
                       >
                         <QrCode className="h-5 w-5" />
                         {t('showQR') || 'Show QR'}
                       </Button>
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="w-full"
+                        size="lg"
+                        className="w-full h-12 flex items-center justify-center gap-2"
                         onClick={async () => {
                           // Get business IDs from coupon - fetch if needed
                           let couponToUse = coupon;
@@ -833,7 +833,7 @@ export default function UserCouponsPage() {
                           }
                         }}
                       >
-                        <MapPin className="h-4 w-4 mr-2" />
+                        <MapPin className="h-5 w-5" />
                         {t('showMap')}
                       </Button>
                     </CardFooter>

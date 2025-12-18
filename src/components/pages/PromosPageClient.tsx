@@ -364,7 +364,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
                   {business ? business.name : (t('allPromos') || 'All Promos')}
                 </h1>
                 <p className="text-gray-600">
-                  {business ? (t('title') || 'Promos & Vouchers') : (t('allPromosDescription') || 'Browse all available promos')}
+                  {business ? (t('title') || 'Promos') : (t('allPromosDescription') || 'Browse all available promos')}
                 </p>
               </div>
             </div>

@@ -933,7 +933,7 @@
       "call": "Call"
     },
     "PromosPage": {
-      "title": "Promos & Vouchers",
+      "title": "Promos",
       "back": "Back",
       "noPromos": "No Promos Available",
       "noPromosDescription": "This business doesn't have any active promos at the moment.",
