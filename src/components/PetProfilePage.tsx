@@ -364,7 +364,7 @@ export default function PetProfilePage({
               showVetTab={availableTabs.includes('vet')}
             />
           </div>
-          <div className="to-background flex h-full w-full grow rounded-t-3xl bg-linear-to-b from-white">
+          <div className="to-background flex h-full w-full grow rounded-t-3xl bg-linear-to-b from-white px-6 flex items-center justify-center">
             <TabContent
               activeTab={activeTab}
               lockedDirection={lockedDirection}

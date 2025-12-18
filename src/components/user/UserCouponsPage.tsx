@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Coins, Wallet, Calendar, ShoppingCart, History, Share2, Copy, Check, Tag, Eye, MapPin, QrCode, X } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Coupon } from '@/types/coupon';
@@ -37,7 +38,17 @@ export default function UserCouponsPage() {
   const [freeCouponPrice, setFreeCouponPrice] = useState<boolean>(false);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedCouponImage, setSelectedCouponImage] = useState<{ imageUrl: string; name: string; description?: string; coupon?: Coupon; userCoupon?: UserCoupon } | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
   const { redirectToShop } = useShopRedirect();
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -455,7 +466,7 @@ export default function UserCouponsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-24 md:pb-12 max-w-7xl">
         {/* Header */}
         <div className="mb-8 lg:mb-12 text-center lg:text-left">
@@ -485,28 +496,6 @@ export default function UserCouponsPage() {
                     </div>
                     <p className="text-base text-gray-600">{t('pointsDescription')}</p>
                   </div>
-                </div>
-                
-                {/* Call to Action */}
-                <div className="border-t pt-6 bg-gradient-to-r from-green-50/50 to-transparent rounded-lg p-4 -mx-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-                    <div>
-                      <p className="text-base font-semibold text-gray-900 mb-1">{t('shareAndEarn')}</p>
-                      <p className="text-sm text-gray-600">{t('shareDescription')}</p>
-                    </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 text-sm px-3 py-1.5">
-                      +20 {t('points')}
-                    </Badge>
-                  </div>
-                  <Button
-                    onClick={handleShare}
-                    variant="default"
-                    size="lg"
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
-                  >
-                    <Share2 className="h-5 w-5" />
-                    {t('shareButton')}
-                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -549,17 +538,26 @@ export default function UserCouponsPage() {
             {coupons.map((coupon) => (
               <Card 
                 key={coupon.id} 
-                className="relative group hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden bg-white hover:border-primary/20 flex flex-col cursor-pointer"
-                onClick={() => coupon.imageUrl && setSelectedCouponImage({ imageUrl: coupon.imageUrl, name: coupon.name, description: coupon.description, coupon })}
+                className="relative group hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden bg-white hover:border-primary/20 flex flex-col"
               >
                 {coupon.imageUrl && (
                   <div 
-                    className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200"
+                    className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedCouponImage({ imageUrl: coupon.imageUrl, name: coupon.name, description: coupon.description, coupon });
+                    }}
                   >
                     <img 
                       src={coupon.imageUrl} 
                       alt={coupon.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedCouponImage({ imageUrl: coupon.imageUrl, name: coupon.name, description: coupon.description, coupon });
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     {/* Date Overlay */}
@@ -572,15 +570,29 @@ export default function UserCouponsPage() {
                   </div>
                 )}
                 <CardHeader className={coupon.imageUrl ? "pb-3" : ""}>
-                  <div className="flex items-start justify-between gap-3">
-                    <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight flex-1">
-                      {coupon.name}
-                    </CardTitle>
-                    {!coupon.imageUrl && (
+                  {!coupon.imageUrl && (
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight flex-1">
+                        {coupon.name}
+                      </CardTitle>
                       <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex-shrink-0">
                         <Wallet className="w-full h-full p-3 text-primary/40" />
                       </div>
-                    )}
+                    </div>
+                  )}
+                  {/* One-row summary info */}
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className="font-semibold text-gray-900 truncate">{coupon.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      {coupon.price !== 0 && (
+                        <Badge variant="outline" className={`flex items-center gap-1 px-2 py-0.5 text-xs ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
+                          <Coins className="h-3 w-3" />
+                          <span>{freeCouponPrice ? '0' : coupon.points}</span>
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   {coupon.description && (
                     <p className="text-sm text-gray-600 mt-2 line-clamp-2">{coupon.description}</p>
@@ -702,12 +714,11 @@ export default function UserCouponsPage() {
                 return (
                   <Card 
                     key={userCoupon.id} 
-                    className={`relative group hover:shadow-xl transition-all duration-300 border-2 overflow-hidden flex flex-col cursor-pointer ${
+                    className={`relative group hover:shadow-xl transition-all duration-300 border-2 overflow-hidden flex flex-col ${
                       isActive && !isExpired 
                         ? 'border-green-200 hover:border-green-300 bg-gradient-to-br from-white to-green-50/30 opacity-100' 
                         : 'opacity-75 hover:opacity-90 border-gray-200 bg-gradient-to-br from-gray-50 to-white'
                     }`}
-                    onClick={() => coupon.imageUrl && setSelectedCouponImage({ imageUrl: coupon.imageUrl, name: coupon.name, description: coupon.description, userCoupon })}
                   >
                     <div className="absolute top-4 right-4 z-10" onClick={(e) => e.stopPropagation()}>
                       <Badge 
@@ -719,9 +730,14 @@ export default function UserCouponsPage() {
                     </div>
                     {coupon.imageUrl && (
                       <div 
-                        className={`relative h-48 overflow-hidden bg-gradient-to-br ${
+                        className={`relative h-48 overflow-hidden bg-gradient-to-br cursor-pointer ${
                           isActive && !isExpired ? 'from-green-100 to-green-200' : 'from-gray-100 to-gray-200'
                         }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedCouponImage({ imageUrl: coupon.imageUrl, name: coupon.name, description: coupon.description, userCoupon });
+                        }}
                       >
                         <img 
                           src={coupon.imageUrl} 
@@ -729,6 +745,11 @@ export default function UserCouponsPage() {
                           className={`w-full h-full object-cover transition-transform duration-300 ${
                             isActive && !isExpired ? 'group-hover:scale-110' : 'grayscale'
                           }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedCouponImage({ imageUrl: coupon.imageUrl, name: coupon.name, description: coupon.description, userCoupon });
+                          }}
                         />
                         <div className={`absolute inset-0 bg-gradient-to-t ${
                           isActive && !isExpired ? 'from-black/20' : 'from-black/30'
@@ -743,13 +764,13 @@ export default function UserCouponsPage() {
                       </div>
                     )}
                     <CardHeader className={coupon.imageUrl ? "pb-3" : "pt-6"}>
-                      <div className="flex items-start justify-between gap-3">
-                        <CardTitle className={`text-xl lg:text-2xl font-bold leading-tight flex-1 ${
-                          isActive && !isExpired ? 'text-gray-900' : 'text-gray-600'
-                        }`}>
-                          {coupon.name}
-                        </CardTitle>
-                        {!coupon.imageUrl && (
+                      {!coupon.imageUrl && (
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <CardTitle className={`text-xl lg:text-2xl font-bold leading-tight flex-1 ${
+                            isActive && !isExpired ? 'text-gray-900' : 'text-gray-600'
+                          }`}>
+                            {coupon.name}
+                          </CardTitle>
                           <div className={`w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br flex-shrink-0 ${
                             isActive && !isExpired 
                               ? 'from-green-100 to-green-200' 
@@ -759,8 +780,25 @@ export default function UserCouponsPage() {
                               isActive && !isExpired ? 'text-green-600' : 'text-gray-400'
                             }`} />
                           </div>
-                        )}
+                        </div>
+                      )}
+                      {/* One-row summary info */}
+                      <div className="flex items-center justify-between gap-2 text-sm">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className={`font-semibold truncate ${
+                            isActive && !isExpired ? 'text-gray-900' : 'text-gray-600'
+                          }`}>
+                            {coupon.name}
+                          </span>
+                        </div>
                       </div>
+                      {coupon.description && (
+                        <p className={`text-sm mt-2 line-clamp-2 ${
+                          isActive && !isExpired ? 'text-gray-600' : 'text-gray-500'
+                        }`}>
+                          {coupon.description}
+                        </p>
+                      )}
                     </CardHeader>
                     <CardContent className="space-y-4 flex-1 flex flex-col" onClick={(e) => e.stopPropagation()}>
                       <div className="space-y-4 flex-1">
@@ -846,41 +884,70 @@ export default function UserCouponsPage() {
         </Tabs>
       </div>
 
-      {/* Full Screen Image Modal */}
-      <Dialog open={!!selectedCouponImage} onOpenChange={(open) => !open && setSelectedCouponImage(null)}>
-        <DialogContent className="max-w-[100vw] max-h-[100vh] w-screen h-screen p-0 bg-black border-none m-0 rounded-none">
-          {selectedCouponImage && (
-            <>
-              <DialogTitle className="sr-only">{selectedCouponImage.name}</DialogTitle>
-              <div className="relative w-full h-full flex items-center justify-center">
-              <img 
-                src={selectedCouponImage.imageUrl} 
-                alt={selectedCouponImage.name}
-                className="max-w-full max-h-full object-contain"
-              />
-              {/* Top Overlay with Name, Description, Date, and Button */}
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-6 md:p-8 z-40">
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white">{selectedCouponImage.name}</h2>
+      {/* Responsive Modal: Dialog on Desktop, Drawer on Mobile */}
+      {isDesktop ? (
+        <Dialog open={!!selectedCouponImage} onOpenChange={(open) => !open && setSelectedCouponImage(null)}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            {selectedCouponImage && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold">{selectedCouponImage.name}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {/* Image */}
+                  {selectedCouponImage.imageUrl && (
+                    <div className="rounded-lg overflow-hidden bg-gray-100">
+                      <img 
+                        src={selectedCouponImage.imageUrl} 
+                        alt={selectedCouponImage.name}
+                        className="w-full h-auto object-contain max-h-[400px] mx-auto"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Description */}
                   {selectedCouponImage.description && (
-                    <p className="text-sm md:text-base text-white/90">{selectedCouponImage.description}</p>
+                    <div>
+                      <p className="text-base text-gray-700">{selectedCouponImage.description}</p>
+                    </div>
                   )}
+                  
                   {/* Date */}
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">
+                      {t('validUntil')}: {
+                        selectedCouponImage.coupon 
+                          ? formatDate(selectedCouponImage.coupon.validTo)
+                          : selectedCouponImage.userCoupon?.coupon
+                          ? formatDate(selectedCouponImage.userCoupon.coupon.validTo)
+                          : ''
+                      }
+                    </span>
+                  </div>
+                  
+                  {/* Points/Price Info */}
                   {selectedCouponImage.coupon && (
-                    <div className="flex items-center gap-1.5 text-white/90 text-sm">
-                      <Calendar className="h-4 w-4" />
-                      <span>{t('validUntil')}: {formatDate(selectedCouponImage.coupon.validTo)}</span>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-600">{t('pointsRequired')}</span>
+                        {selectedCouponImage.coupon.price === 0 ? (
+                          <Badge className="bg-green-500 text-white">
+                            {t('free')}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className={`flex items-center gap-1.5 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
+                            <Coins className="h-4 w-4" />
+                            <span>{freeCouponPrice ? '0' : selectedCouponImage.coupon.points}</span>
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   )}
-                  {selectedCouponImage.userCoupon && selectedCouponImage.userCoupon.coupon && (
-                    <div className="flex items-center gap-1.5 text-white/90 text-sm">
-                      <Calendar className="h-4 w-4" />
-                      <span>{t('validUntil')}: {formatDate(selectedCouponImage.userCoupon.coupon.validTo)}</span>
-                    </div>
-                  )}
-                  {/* Buy/Show QR Button */}
-                  {selectedCouponImage.coupon && (
-                    <div className="mt-2">
+                  
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    {selectedCouponImage.coupon && (
                       <Button
                         onClick={() => {
                           if (selectedCouponImage.coupon) {
@@ -889,10 +956,10 @@ export default function UserCouponsPage() {
                           }
                         }}
                         disabled={!freeCouponPrice && selectedCouponImage.coupon && userPoints < selectedCouponImage.coupon.points}
-                        className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 px-4 py-2"
-                        size="sm"
+                        className="flex-1 bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 h-12"
+                        size="lg"
                       >
-                        <ShoppingCart className="h-4 w-4" />
+                        <ShoppingCart className="h-5 w-5" />
                         <span className="font-semibold">
                           {freeCouponPrice 
                             ? t('getFree') 
@@ -902,40 +969,143 @@ export default function UserCouponsPage() {
                           }
                         </span>
                       </Button>
-                    </div>
-                  )}
-                  {selectedCouponImage.userCoupon && (
-                    <div className="mt-2">
+                    )}
+                    {selectedCouponImage.userCoupon && (
                       <Button
                         variant="outline"
                         onClick={() => {
                           router.push(`/${locale}/vouchers/${selectedCouponImage.userCoupon!.id}`);
                           setSelectedCouponImage(null);
                         }}
-                        className="bg-white/90 hover:bg-white text-gray-900 shadow-lg hover:shadow-xl transition-all border-2 border-white flex items-center gap-2 px-4 py-2"
-                        size="sm"
+                        className="flex-1 border-2 flex items-center justify-center gap-2 h-12"
+                        size="lg"
                       >
-                        <QrCode className="h-4 w-4" />
+                        <QrCode className="h-5 w-5" />
                         <span className="font-semibold">{t('showQR') || 'Show QR'}</span>
                       </Button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Drawer open={!!selectedCouponImage} onOpenChange={(open) => !open && setSelectedCouponImage(null)}>
+          <DrawerContent className="max-h-[85vh]">
+            {selectedCouponImage && (
+              <>
+                <DrawerHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <DrawerTitle className="text-2xl font-bold">{selectedCouponImage.name}</DrawerTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSelectedCouponImage(null)}
+                      className="h-8 w-8"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </DrawerHeader>
+                <div className="px-4 pb-6 overflow-y-auto">
+                  {/* Image */}
+                  {selectedCouponImage.imageUrl && (
+                    <div className="mb-4 rounded-lg overflow-hidden bg-gray-100">
+                      <img 
+                        src={selectedCouponImage.imageUrl} 
+                        alt={selectedCouponImage.name}
+                        className="w-full h-auto object-contain"
+                      />
                     </div>
                   )}
+                  
+                  {/* Description */}
+                  {selectedCouponImage.description && (
+                    <div className="mb-4">
+                      <p className="text-base text-gray-700">{selectedCouponImage.description}</p>
+                    </div>
+                  )}
+                  
+                  {/* Date */}
+                  <div className="mb-4 flex items-center gap-2 text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">
+                      {t('validUntil')}: {
+                        selectedCouponImage.coupon 
+                          ? formatDate(selectedCouponImage.coupon.validTo)
+                          : selectedCouponImage.userCoupon?.coupon
+                          ? formatDate(selectedCouponImage.userCoupon.coupon.validTo)
+                          : ''
+                      }
+                    </span>
+                  </div>
+                  
+                  {/* Points/Price Info */}
+                  {selectedCouponImage.coupon && (
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-600">{t('pointsRequired')}</span>
+                        {selectedCouponImage.coupon.price === 0 ? (
+                          <Badge className="bg-green-500 text-white">
+                            {t('free')}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className={`flex items-center gap-1.5 ${freeCouponPrice ? 'border-green-200 text-green-700' : 'border-amber-200 text-amber-700'}`}>
+                            <Coins className="h-4 w-4" />
+                            <span>{freeCouponPrice ? '0' : selectedCouponImage.coupon.points}</span>
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-3 mt-6">
+                    {selectedCouponImage.coupon && (
+                      <Button
+                        onClick={() => {
+                          if (selectedCouponImage.coupon) {
+                            handlePurchaseCoupon(selectedCouponImage.coupon);
+                            setSelectedCouponImage(null);
+                          }
+                        }}
+                        disabled={!freeCouponPrice && selectedCouponImage.coupon && userPoints < selectedCouponImage.coupon.points}
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 h-12"
+                        size="lg"
+                      >
+                        <ShoppingCart className="h-5 w-5" />
+                        <span className="font-semibold">
+                          {freeCouponPrice 
+                            ? t('getFree') 
+                            : (selectedCouponImage.coupon && userPoints < selectedCouponImage.coupon.points 
+                              ? t('insufficientPoints') 
+                              : t('purchase'))
+                          }
+                        </span>
+                      </Button>
+                    )}
+                    {selectedCouponImage.userCoupon && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          router.push(`/${locale}/vouchers/${selectedCouponImage.userCoupon!.id}`);
+                          setSelectedCouponImage(null);
+                        }}
+                        className="w-full border-2 flex items-center justify-center gap-2 h-12"
+                        size="lg"
+                      >
+                        <QrCode className="h-5 w-5" />
+                        <span className="font-semibold">{t('showQR') || 'Show QR'}</span>
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {/* Close Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-4 left-4 bg-black/50 hover:bg-black/70 text-white z-50"
-                onClick={() => setSelectedCouponImage(null)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+              </>
+            )}
+          </DrawerContent>
+        </Drawer>
+      )}
     </div>
   );
 }

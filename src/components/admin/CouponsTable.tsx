@@ -216,14 +216,13 @@ export default function CouponsTable() {
               <TableHead>{t('couponsManagement.image')}</TableHead>
               <TableHead>{t('couponsManagement.validPeriod')}</TableHead>
               <TableHead>{t('couponsManagement.status')}</TableHead>
-              <TableHead>{t('couponsManagement.createdAt')}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {coupons.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                   {t('couponsManagement.noCoupons')}
                 </TableCell>
               </TableRow>
@@ -232,9 +231,6 @@ export default function CouponsTable() {
                 <TableRow key={coupon.id}>
                   <TableCell className="font-medium">
                     {coupon.name}
-                    {coupon.id === 'IvmgfeBPfGRXLIQ5ce0Q' && (
-                      <span className="ml-2 text-xs text-red-600">(No businesses assigned)</span>
-                    )}
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {coupon.description}
@@ -279,9 +275,6 @@ export default function CouponsTable() {
                     <Badge variant={coupon.isActive ? 'default' : 'secondary'}>
                       {coupon.isActive ? 'Active' : 'Inactive'}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    {formatDate(coupon.createdAt)}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
