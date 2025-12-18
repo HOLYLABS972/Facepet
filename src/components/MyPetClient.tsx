@@ -190,7 +190,7 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
   };
 
   return (
-    <div>
+    <div className="mx-auto max-w-7xl w-full px-4 md:px-6">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
@@ -233,7 +233,7 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
         </div>
       ) : (
         <div className="flex justify-center pb-24 md:pb-8">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl w-full">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 w-full">
             {filteredPets.map((pet) => (
               <MyPetCard
                 key={pet.id}

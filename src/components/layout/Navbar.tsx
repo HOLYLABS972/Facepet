@@ -157,11 +157,11 @@ const Navbar = () => {
         <nav
           className={cn(
             'fixed top-0 left-0 right-0 z-50',
-            'bg-gray-50'
+            'bg-white'
           )}
         >
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-            <div className="flex h-16 items-center justify-between rtl:flex-row-reverse">
+        <div className="mx-auto max-w-7xl w-full px-4 md:px-6 relative">
+          <div className="flex h-16 items-center justify-between rtl:flex-row-reverse">
               <div className="h-8 w-8" />
             </div>
           </div>
@@ -178,10 +178,10 @@ const Navbar = () => {
       <nav
         className={cn(
           'fixed top-0 left-0 right-0 z-50',
-          'bg-gray-50'
+          'bg-white'
         )}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+        <div className="mx-auto max-w-7xl w-full px-4 md:px-6 relative">
           <div className="flex h-14 sm:h-16 items-center justify-between rtl:flex-row-reverse flex-nowrap">
             {/* Brand / Logo */}
             <Link href="/" className="flex-shrink-0">
@@ -282,21 +282,23 @@ const Navbar = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   {/* Store Button - Outlined Orange (Always visible for logged in users) */}
-                  {storeUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.location.href = storeUrl}
-                      className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3"
-                    >
-                      <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span>חנות צ'אפיז</span>
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (storeUrl) {
+                        window.location.href = storeUrl;
+                      }
+                    }}
+                    className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3"
+                  >
+                    <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    <span>חנות צ'אפיז</span>
+                  </Button>
                 </>
               ) : (
                 <>
-                  {/* Desktop: Group Login, Store, Contact on the right */}
+                  {/* Desktop: Group Login, Contact on the right */}
                   <div className="hidden md:flex items-center gap-2 flex-shrink-0">
                     <Button
                       variant="default"
@@ -307,17 +309,6 @@ const Navbar = () => {
                       <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t('signIn')}
                     </Button>
-                    {storeUrl && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.location.href = storeUrl}
-                        className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3"
-                      >
-                        <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                        <span>חנות צ'אפיז</span>
-                      </Button>
-                    )}
                     <Button
                       variant={pathname?.includes('/contact') ? 'outline' : 'ghost'}
                       size="sm"
@@ -343,12 +334,14 @@ const Navbar = () => {
                           <span>{t('contact')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      {storeUrl && (
-                        <DropdownMenuItem onClick={() => window.location.href = storeUrl}>
-                          <ShoppingBag className="mr-2 h-4 w-4" />
-                          <span>חנות צ'אפיז</span>
-                        </DropdownMenuItem>
-                      )}
+                      <DropdownMenuItem onClick={() => {
+                        if (storeUrl) {
+                          window.location.href = storeUrl;
+                        }
+                      }}>
+                        <ShoppingBag className="mr-2 h-4 w-4" />
+                        <span>חנות צ'אפיז</span>
+                      </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/auth" className="flex items-center">
                           <LogIn className="mr-2 h-4 w-4" />
@@ -357,6 +350,20 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  {/* Store Button - Outlined Orange (Always visible for not logged in users) */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (storeUrl) {
+                        window.location.href = storeUrl;
+                      }
+                    }}
+                    className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 flex-shrink-0"
+                  >
+                    <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0" />
+                    <span>חנות צ'אפיז</span>
+                  </Button>
                 </>
               )}
             </div>

@@ -17,7 +17,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <AuthGuard>
       <Navbar />
-      <div className={`flex grow flex-col ${isMyPetsPage ? 'pt-8 px-4' : isCouponsPage ? 'pt-8 px-4' : 'pt-20 p-4'}`}>{children}</div>
+      <div className={`flex grow flex-col ${isMyPetsPage ? 'pt-8' : isCouponsPage ? 'pt-8 px-4' : 'pt-20 p-4'}`}>{children}</div>
     </AuthGuard>
   );
 };
