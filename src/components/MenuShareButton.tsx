@@ -85,7 +85,7 @@ const MenuShareMenu = () => {
         <FacebookShareButton
           url={shareUrl}
           title={t('text')}
-          hashtag="#facepet"
+          hashtag="#chapiz"
         >
           <div
             onClick={() => setMenuOpen(false)}

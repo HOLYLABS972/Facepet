@@ -44,7 +44,7 @@ export default function CookiesPage() {
             transition={{ delay: 0.1 }}
             className="text-xl opacity-90 max-w-2xl mx-auto"
           >
-            Learn about how we use cookies and similar technologies on FacePet
+            Learn about how we use cookies and similar technologies on Chapiz
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -73,7 +73,7 @@ export default function CookiesPage() {
               <p className="text-gray-600 leading-relaxed">
                 Cookies are small text files that are placed on your device when you visit a website. 
                 They are widely used to make websites work more efficiently and provide information to 
-                the website owners. FacePet uses cookies to enhance your experience and provide 
+                the website owners. Chapiz uses cookies to enhance your experience and provide 
                 personalized services.
               </p>
             </section>

@@ -60,7 +60,7 @@
         "dog": "כלב",
         "other": "אחר"
       },
-      "welcome": "ברוכים הבאים ל-Facepet!",
+      "welcome": "ברוכים הבאים ל-Chapiz!",
       "login": "התחברות",
       "breed": {
         "title": "{pet} גזעים",
@@ -164,8 +164,8 @@
         }
       },
       "downloadApp": {
-        "title": "הורד את אפליקציית FacePet",
-        "description": "כדי לצפות בפרופיל של {petName} וליצור קשר עם הבעלים, הורד את אפליקציית FacePet:",
+        "title": "הורד את אפליקציית Chapiz",
+        "description": "כדי לצפות בפרופיל של {petName} וליצור קשר עם הבעלים, הורד את אפליקציית Chapiz:",
         "button": "הורד אפליקציה"
       }
     }
@@ -854,7 +854,7 @@
       "noPetsYet": "עדיין אין חיות",
       "addFirstPet": "התחילו בהוספת חיית המחמד הראשונה שלכם כדי לשמור עליה ולחבר אותה!",
       "scanToAddPet": "סרוק תג NFC כדי להוסיף את חיית המחמד הראשונה שלך!",
-      "managePetsDescription": "נהלו את החיות שלכם ושמרו עליהן בטוחות עם FacePet",
+      "managePetsDescription": "נהלו את החיות שלכם ושמרו עליהן בטוחות עם Chapiz",
       "welcomeBack": "ברוכים השבים!",
       "loadingPets": "טוען חיות...",
       "notifications": "התראות",
@@ -1244,8 +1244,8 @@
       "brand": "פייספט",
       "welcomeBack": "ברוכים השבים!",
       "createAccount": "צרו את החשבון שלכם",
-      "signInToAccount": "התחברו לחשבון FacePet שלכם",
-      "joinFacePet": "הצטרפו ל-FacePet והגנו על החיות שלכם",
+      "signInToAccount": "התחברו לחשבון Chapiz שלכם",
+      "joinFacePet": "הצטרפו ל-Chapiz והגנו על החיות שלכם",
       "tagline": "שומרי חיות מחמד קטנים לשקט נפשי גדול. שמרו על החיות שלכם בטוחות ומחוברות.",
       "fullName": "שם מלא",
       "fullNamePlaceholder": "הזינו את השם המלא שלכם",
@@ -1317,7 +1317,7 @@
     "ContactPage": {
       "title": "צרו קשר",
       "heroTitle": "בואו נתחבר",
-      "heroDescription": "יש לכם שאלות על FacePet? אנחנו כאן לעזור! שלחו לנו הודעה ונחזור אליכם בהקדם האפשרי.",
+      "heroDescription": "יש לכם שאלות על Chapiz? אנחנו כאן לעזור! שלחו לנו הודעה ונחזור אליכם בהקדם האפשרי.",
       "formTitle": "שלחו לנו הודעה",
       "formDescription": "מלאו את הטופס למטה ונחזור אליכם תוך 24 שעות.",
       "form": {
@@ -1346,8 +1346,8 @@
       },
       "faq": {
         "title": "שאלות נפוצות",
-        "question1": "איך FacePet עובד?",
-        "answer1": "FacePet משתמש בטכנולוגיית NFC לאחסון מידע על חיית המחמד שלכם על שבב שניתן לסריקה בכל סמארטפון.",
+        "question1": "איך Chapiz עובד?",
+        "answer1": "Chapiz משתמש בטכנולוגיית NFC לאחסון מידע על חיית המחמד שלכם על שבב שניתן לסריקה בכל סמארטפון.",
         "question2": "האם הנתונים של חיית המחמד שלי בטוחים?",
         "answer2": "כן, אנחנו משתמשים בהצפנה ברמה תעשייתית ובקרות פרטיות להגנה על המידע של חיית המחמד שלכם.",
         "question3": "מה קורה אם חיית המחמד שלי הולכת לאיבוד?",
@@ -1361,7 +1361,7 @@
     },
     "TermsPage": {
       "title": "תנאי שימוש",
-      "heroDescription": "אנא קראו את התנאים האלה בעיון לפני השימוש בשירותי FacePet.",
+      "heroDescription": "אנא קראו את התנאים האלה בעיון לפני השימוש בשירותי Chapiz.",
       "lastUpdated": "עודכן לאחרונה"
     },
     "Admin": {
@@ -1493,7 +1493,7 @@
       "couponMarkedAsUsed": "הקופון סומן כמשומש והועבר להיסטוריה",
       "failedToMarkAsUsed": "נכשל בסימון הקופון כמשומש",
       "points": "נקודות",
-      "shareText": "בדקו את FacePet! הצטרפו אליי וקבלו עסקאות מדהימות על שירותי חיות מחמד: {url}",
+      "shareText": "בדקו את Chapiz! הצטרפו אליי וקבלו עסקאות מדהימות על שירותי חיות מחמד: {url}",
       "back": "חזור",
       "validFrom": "תקף מ",
       "qrCodeDescription": "סרקו את קוד ה-QR הזה כדי לצפות בקופון",
@@ -1529,12 +1529,12 @@
     },
     "ShareButton": {
       "title": "Share Your Pet!",
-      "text": "בדוק את אפליקציית FacePet לחיות!",
+      "text": "בדוק את אפליקציית Chapiz לחיות!",
       "linkCopied": "הלינק הועתק בהצלחה!"
     },
     "InviteFriendsCard": {
-      "shareTitle": "הצטרף ל-FacePet",
-      "shareText": "בדוק את אפליקציית FacePet לחיות!",
+      "shareTitle": "הצטרף ל-Chapiz",
+      "shareText": "בדוק את אפליקציית Chapiz לחיות!",
       "serviceTags": "תגי שירות (לחץ להוספה):",
       "selectedTags": "תגים נבחרים:",
       "linkCopied": "הלינק הועתק ללוח!",

@@ -71,7 +71,7 @@ export default function TermsPage() {
             <section>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h3>
               <p className="text-gray-600 leading-relaxed">
-                Welcome to FacePet! These Terms of Service ("Terms") govern your use of our pet identification 
+                Welcome to Chapiz! These Terms of Service ("Terms") govern your use of our pet identification 
                 and safety platform. By accessing or using our services, you agree to be bound by these Terms.
               </p>
             </section>
@@ -89,7 +89,7 @@ export default function TermsPage() {
             <section>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">3. Description of Service</h3>
               <p className="text-gray-600 leading-relaxed mb-4">
-                FacePet provides NFC-based pet identification services that allow pet owners to:
+                Chapiz provides NFC-based pet identification services that allow pet owners to:
               </p>
               <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">
                 <li>Create digital profiles for their pets</li>
@@ -165,7 +165,7 @@ export default function TermsPage() {
             <section>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">7. Intellectual Property</h3>
               <p className="text-gray-600 leading-relaxed">
-                The FacePet platform, including its design, functionality, and content, is protected by 
+                The Chapiz platform, including its design, functionality, and content, is protected by 
                 intellectual property laws. You may not copy, modify, or distribute our proprietary 
                 materials without written permission.
               </p>
@@ -175,7 +175,7 @@ export default function TermsPage() {
             <section>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">8. Limitation of Liability</h3>
               <p className="text-gray-600 leading-relaxed">
-                FacePet provides its services "as is" without warranties of any kind. We are not liable 
+                Chapiz provides its services "as is" without warranties of any kind. We are not liable 
                 for any indirect, incidental, or consequential damages arising from your use of our services.
               </p>
             </section>

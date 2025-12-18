@@ -276,7 +276,7 @@ export default function UserCouponsPage() {
     const shareUrl = window.location.origin;
     const shareText = t('shareText', { url: shareUrl });
     const shareData = {
-      title: 'FacePet',
+      title: 'Chapiz',
       text: shareText,
       url: shareUrl
     };

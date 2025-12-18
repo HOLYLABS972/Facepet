@@ -1,7 +1,7 @@
 import { Button, Section, Text } from '@react-email/components';
 import EmailLayout from './email-layout';
 
-interface FacepetWelcomeEmailProps {
+interface ChapizWelcomeEmailProps {
   userFirstname: string;
 }
 
@@ -14,20 +14,20 @@ export const FacepetWelcomeEmail = ({
 }: FacepetWelcomeEmailProps) => (
   <EmailLayout userFirstname={userFirstname}>
     <Text>
-      Welcome to Facepet, the sales intelligence platform that helps you uncover
+      Welcome to Chapiz, the pet safety platform that helps you keep your pets safe
       qualified leads and close deals faster.
     </Text>
     <Section style={btnContainer}>
-      <Button style={button} href="https://facepet.site">
+      <Button style={button} href="https://facepet.club">
         Get started
       </Button>
     </Section>
   </EmailLayout>
 );
 
-FacepetWelcomeEmail.PreviewProps = {
+ChapizWelcomeEmail.PreviewProps = {
   userFirstname: 'Alan'
-} as FacepetWelcomeEmailProps;
+} as ChapizWelcomeEmailProps;
 
 export default FacepetWelcomeEmail;
 

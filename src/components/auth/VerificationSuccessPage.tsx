@@ -30,7 +30,7 @@ const VerificationSuccessPage = () => {
             </h1>
             <p className="text-gray-600">
               {t('subtitle', { 
-                default: 'Congratulations! Your email address has been successfully verified. You now have full access to all Facepet features.' 
+                default: 'Congratulations! Your email address has been successfully verified. You now have full access to all Chapiz features.' 
               })}
             </p>
           </div>
@@ -54,7 +54,7 @@ const VerificationSuccessPage = () => {
 
           <div className="text-xs text-gray-500">
             {t('welcomeMessage', { 
-              default: 'Welcome to Facepet! Your pet\'s safety is our priority.' 
+              default: 'Welcome to Chapiz! Your pet\'s safety is our priority.' 
             })}
           </div>
         </CardContent>

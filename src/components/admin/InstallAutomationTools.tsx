@@ -136,15 +136,15 @@ window.addEventListener('beforeinstallprompt', (e) => {
 <meta name="theme-color" content="#007AFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="FacePet">
+<meta name="apple-mobile-web-app-title" content="Chapiz">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-chrome-192x192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/android-chrome-512x512.png">`;
 
   // Manifest.json template
   const manifestTemplate = `{
-  "name": "FacePet",
-  "short_name": "FacePet",
+  "name": "Chapiz",
+  "short_name": "Chapiz",
   "description": "Tiny pet guardians for big peace of mind.",
   "start_url": "${currentUrl}/",
   "display": "standalone",

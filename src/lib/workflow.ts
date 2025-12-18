@@ -18,8 +18,8 @@ export const sendEmail = async ({
       provider: resend({ token: process.env.RESEND_TOKEN! })
     },
     body: {
-      // from: 'Facepet <noreply@facepet.club>',
-      from: 'Facepet <onboarding@resend.dev>',
+      // from: 'Chapiz <noreply@facepet.club>',
+      from: 'Chapiz <onboarding@resend.dev>',
       to: [email],
       subject,
       html: message

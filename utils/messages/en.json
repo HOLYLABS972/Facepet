@@ -60,7 +60,7 @@
         "dog": "Dog",
         "other": "Other"
       },
-      "welcome": "Welcome to Facepet!",
+      "welcome": "Welcome to Chapiz!",
       "login": "Login",
       "breed": {
         "title": "{pet} Breeds",
@@ -164,14 +164,14 @@
         }
       },
       "downloadApp": {
-        "title": "Download FacePet App",
-        "description": "To view {petName}'s profile and connect with the owner, download the FacePet app:",
+        "title": "Download Chapiz App",
+        "description": "To view {petName}'s profile and connect with the owner, download the Chapiz app:",
         "button": "Download App"
       }
     }
   },
   "Admin": {
-    "brand": "FacePet",
+    "brand": "Chapiz",
     "dashboard": "Admin Dashboard",
     "welcome": "Welcome to the Admin Dashboard",
     "loading": "Loading...",
@@ -862,7 +862,7 @@
       "noPetsYet": "No pets yet",
       "addFirstPet": "Start by adding your first pet to keep them safe and connected!",
       "scanToAddPet": "Scan an NFC tag to add your first pet!",
-      "managePetsDescription": "Manage your pets and keep them safe with FacePet",
+      "managePetsDescription": "Manage your pets and keep them safe with Chapiz",
       "welcomeBack": "Welcome back!",
       "loadingPets": "Loading pets...",
       "notifications": "Notifications",
@@ -1194,7 +1194,7 @@
       "signOutLink": "Sign Out",
       "signInText": "Already have an account?",
       "signInLink": "Sign In",
-      "brand": "FacePet",
+      "brand": "Chapiz",
       "menuButton": "Open main menu",
       "loading": "Loading..."
     },
@@ -1240,11 +1240,11 @@
       }
     },
     "AuthPage": {
-      "brand": "FacePet",
+      "brand": "Chapiz",
       "welcomeBack": "Welcome back!",
       "createAccount": "Create your account",
-      "signInToAccount": "Sign in to your FacePet account",
-      "joinFacePet": "Join FacePet and protect your pets",
+      "signInToAccount": "Sign in to your Chapiz account",
+      "joinFacePet": "Join Chapiz and protect your pets",
       "tagline": "Tiny pet guardians for big peace of mind. Keep your pets safe and connected.",
       "fullName": "Full Name",
       "fullNamePlaceholder": "Enter your full name",
@@ -1316,7 +1316,7 @@
     "ContactPage": {
       "title": "Contact Us",
       "heroTitle": "Get in Touch",
-      "heroDescription": "Have questions about FacePet? We're here to help! Send us a message and we'll get back to you as soon as possible.",
+      "heroDescription": "Have questions about Chapiz? We're here to help! Send us a message and we'll get back to you as soon as possible.",
       "formTitle": "Send us a Message",
       "formDescription": "Fill out the form below and we'll get back to you within 24 hours.",
       "form": {
@@ -1345,8 +1345,8 @@
       },
       "faq": {
         "title": "Frequently Asked Questions",
-        "question1": "How does FacePet work?",
-        "answer1": "FacePet uses NFC technology to store your pet's information on a chip that can be scanned by any smartphone.",
+        "question1": "How does Chapiz work?",
+        "answer1": "Chapiz uses NFC technology to store your pet's information on a chip that can be scanned by any smartphone.",
         "question2": "Is my pet's data secure?",
         "answer2": "Yes, we use industry-standard encryption and privacy controls to protect your pet's information.",
         "question3": "What if my pet gets lost?",
@@ -1360,7 +1360,7 @@
     },
     "TermsPage": {
       "title": "Terms of Service",
-      "heroDescription": "Please read these terms carefully before using FacePet services.",
+      "heroDescription": "Please read these terms carefully before using Chapiz services.",
       "lastUpdated": "Last updated"
     },
     "Admin": {
@@ -1426,7 +1426,7 @@
       "signIn": "Sign In",
       "signUp": "Sign Up",
       "adminPanel": "Admin Panel",
-      "store": "Store Facepet",
+      "store": "Store Chapiz",
       "coupons": "Vouchers",
       "allPromos": "Coupons",
       "bottomNav": {
@@ -1492,7 +1492,7 @@
       "couponMarkedAsUsed": "Voucher marked as used and moved to history",
       "failedToMarkAsUsed": "Failed to mark voucher as used",
       "points": "points",
-      "shareText": "Check out FacePet! Join me and get amazing deals on pet services: {url}",
+      "shareText": "Check out Chapiz! Join me and get amazing deals on pet services: {url}",
       "back": "Back",
       "validFrom": "Valid from",
       "qrCodeDescription": "Scan this QR code to view this voucher",
@@ -1528,12 +1528,12 @@
     },
     "ShareButton": {
       "title": "שתף את חיית המחמד שלך!",
-      "text": "Check out FacePet app for pets!",
+      "text": "Check out Chapiz app for pets!",
       "linkCopied": "Link copied successfully!"
     },
     "InviteFriendsCard": {
-      "shareTitle": "Join FacePet",
-      "shareText": "Check out FacePet app for pets!",
+      "shareTitle": "Join Chapiz",
+      "shareText": "Check out Chapiz app for pets!",
       "serviceTags": "Service Tags (Click to add):",
       "selectedTags": "Selected Tags:",
       "linkCopied": "Link copied to clipboard!",

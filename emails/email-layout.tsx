@@ -29,7 +29,7 @@ export const EmailLayout = ({ userFirstname, children }: EmailLayoutProps) => (
           src={`${baseUrl}/assets/Facepet-logo.png`}
           width="221"
           height="86"
-          alt="Facepet"
+          alt="Chapiz"
           style={logo}
         />
         <Text style={paragraph}>Hi {userFirstname},</Text>
@@ -37,7 +37,7 @@ export const EmailLayout = ({ userFirstname, children }: EmailLayoutProps) => (
         <Text style={paragraph}>
           Best,
           <br />
-          The Facepet team
+          The Chapiz team
         </Text>
         <Hr style={hr} />
         <Text style={footer}>Tel Aviv, Israel</Text>

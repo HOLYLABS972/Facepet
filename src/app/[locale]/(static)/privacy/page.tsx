@@ -71,7 +71,7 @@ export default function PrivacyPage() {
             <section>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h3>
               <p className="text-gray-600 leading-relaxed">
-                At FacePet, we are committed to protecting your privacy and the privacy of your pet's information. 
+                At Chapiz, we are committed to protecting your privacy and the privacy of your pet's information. 
                 This Privacy Policy explains how we collect, use, disclose, and safeguard your information when 
                 you use our pet identification platform.
               </p>

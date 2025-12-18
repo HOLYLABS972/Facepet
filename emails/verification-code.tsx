@@ -13,7 +13,7 @@ const VerificationEmailContent = ({
       <Section>
         <Heading style={h1}>Verify your email address</Heading>
         <Text>
-          Thanks for starting the new Facepet account creation process. We want
+          Thanks for starting the new Chapiz account creation process. We want
           to make sure it's really you. Please enter the following verification
           code when prompted. If you don&apos;t want to create an account, you
           can ignore this message.
@@ -36,7 +36,7 @@ const VerificationEmailContent = ({
             • If you didn't request this verification, please ignore this email
           </Text>
           <Text style={securityText}>
-            • Facepet will never ask you to disclose your password, credit card,
+            • Chapiz will never ask you to disclose your password, credit card,
             or banking information via email
           </Text>
         </Section>

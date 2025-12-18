@@ -190,7 +190,7 @@ const Navbar = () => {
               >
                 <Image
                   src="/assets/Facepet.png"
-                  alt="Facepet"
+                  alt="Chapiz"
                   width={180}
                   height={60}
                   className="h-12 w-auto object-contain"

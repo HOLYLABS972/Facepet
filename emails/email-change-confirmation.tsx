@@ -16,7 +16,7 @@ const EmailChangeConfirmation = ({
         <Heading style={h1}>Confirm your new email address</Heading>
         <Text>
           We received a request to change the email address associated with your
-          Facepet account to this email address.
+          Chapiz account to this email address.
         </Text>
         <Text>
           To confirm this change and complete the process, please click the

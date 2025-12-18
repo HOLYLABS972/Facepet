@@ -7,7 +7,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_TOKEN);
 
 // Email configuration
-const EMAIL_FROM = 'Facepet <noreply@noreply.facepet.club>';
+const EMAIL_FROM = 'Chapiz <noreply@noreply.facepet.club>';
 
 export interface EmailOptions {
   to: string | string[];
@@ -100,7 +100,7 @@ export async function sendVerificationEmail(
 
   return sendEmail({
     to: email,
-    subject: 'Verify your email address - Facepet',
+    subject: 'Verify your email address - Chapiz',
     react: VerificationEmailContent({
       userFirstname,
       verificationCode: code
@@ -124,7 +124,7 @@ export async function sendPasswordResetEmail(
 
   return sendEmail({
     to: email,
-    subject: 'Reset your password - Facepet',
+    subject: 'Reset your password - Chapiz',
     react: PasswordResetEmailContent({
       userFirstname,
       resetUrl
@@ -149,7 +149,7 @@ export async function sendEmailChangeConfirmation(
 
   return sendEmail({
     to: newEmail,
-    subject: 'Confirm your new email address - Facepet',
+    subject: 'Confirm your new email address - Chapiz',
     react: EmailChangeConfirmationContent({
       userFirstname,
       confirmUrl
@@ -171,7 +171,7 @@ export async function sendPasswordChangeNotification(
 
   return sendEmail({
     to: email,
-    subject: 'Your password has been changed - Facepet',
+    subject: 'Your password has been changed - Chapiz',
     react: PasswordChangeNotificationContent({
       userFirstname
     })

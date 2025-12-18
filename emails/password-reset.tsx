@@ -15,7 +15,7 @@ const PasswordResetEmail = ({
       <Section>
         <Heading style={h1}>Reset your password</Heading>
         <Text>
-          We received a request to reset your password for your Facepet account.
+          We received a request to reset your password for your Chapiz account.
           If you didn't make this request, you can safely ignore this email.
         </Text>
         <Text>
@@ -46,7 +46,7 @@ const PasswordResetEmail = ({
             • Never share this link with anyone
           </Text>
           <Text style={securityText}>
-            • Facepet will never ask you to disclose your password via email
+            • Chapiz will never ask you to disclose your password via email
           </Text>
         </Section>
       </Section>

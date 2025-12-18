@@ -348,7 +348,7 @@ export async function createActionNotification(
 function getActionTitle(actionType: Notification['actionType']): string {
   switch (actionType) {
     case 'registration':
-      return '🎉 Welcome to FacePet!';
+      return '🎉 Welcome to Chapiz!';
     case 'phone_setup':
       return '📱 Phone Verified!';
     case 'add_pet':
@@ -365,13 +365,13 @@ function getActionTitle(actionType: Notification['actionType']): string {
 function getActionMessage(actionType: Notification['actionType'], points: number): string {
   switch (actionType) {
     case 'registration':
-      return `Welcome to FacePet! Thanks for joining our community with 10 points.`;
+      return `Welcome to Chapiz! Thanks for joining our community with 10 points.`;
     case 'phone_setup':
       return `Great! You verified your phone number with 10 points.`;
     case 'add_pet':
       return `Awesome! You added a pet to your profile with 10 points.`;
     case 'share':
-      return `Thanks for sharing FacePet with 10 points!`;
+      return `Thanks for sharing Chapiz with 10 points!`;
     // case 'prize_claim':
     //   return `Congratulations! You claimed your prize with 10 points.`;
     default:

@@ -106,7 +106,7 @@ const AuthPage = () => {
           <div className="relative w-80 h-80">
             <Image
               src="/pets/bear.png"
-              alt="FacePet Logo"
+              alt="Chapiz Logo"
               fill
               className="object-contain"
               priority
@@ -116,7 +116,7 @@ const AuthPage = () => {
             <div className="flex justify-center">
               <Image
                 src="/assets/Facepet.png"
-                alt="FacePet"
+                alt="Chapiz"
                 width={200}
                 height={80}
                 className="h-16 w-auto object-contain"

@@ -9,7 +9,7 @@ import AnalyticsWrapper from '@/components/AnalyticsWrapper';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'FacePet',
+  title: 'Chapiz',
   description: 'Tiny pet guardians for big peace of mind.',
   icons: {
     icon: [
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   manifest: '/icons/site.webmanifest',
   appleWebApp: {
-    title: 'Facepet',
+    title: 'Chapiz',
     statusBarStyle: 'default'
   },
   // For meta tags that are not directly supported (like Microsoft's navbutton color),

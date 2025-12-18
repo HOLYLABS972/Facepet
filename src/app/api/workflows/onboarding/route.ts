@@ -1,4 +1,4 @@
-import FacepetWelcomeEmail from '@/emails/welcome';
+import ChapizWelcomeEmail from '@/emails/welcome';
 import { sendEmail } from '@/src/lib/workflow';
 import { getUserDetailsByEmail } from '@/utils/database/queries/users';
 import { serve } from '@upstash/workflow/nextjs';
@@ -39,8 +39,8 @@ export const { POST } = serve<InitialData>(async (context) => {
   await context.run('new-signup', async () => {
     await sendEmail({
       email,
-      subject: 'Welcome to Facepet!',
-      message: FacepetWelcomeEmail({ userFirstname: fullName })
+      subject: 'Welcome to Chapiz!',
+      message: ChapizWelcomeEmail({ userFirstname: fullName })
     });
   });
 

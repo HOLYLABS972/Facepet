@@ -55,7 +55,7 @@ export default function WelcomeGetStartedPage() {
         <div className="flex justify-center mb-4">
           <Image
             src="/assets/Facepet.png"
-            alt="FacePet"
+            alt="Chapiz"
             width={250}
             height={100}
             className="h-16 w-auto object-contain"

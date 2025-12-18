@@ -15,7 +15,7 @@ const PasswordChangeNotification = ({
       <Section>
         <Heading style={h1}>Your password has been changed</Heading>
         <Text>
-          This email confirms that the password for your Facepet account has
+          This email confirms that the password for your Chapiz account has
           been successfully changed.
         </Text>
         <Text>
@@ -23,7 +23,7 @@ const PasswordChangeNotification = ({
         </Text>
         <Text>
           If you made this change, no further action is required. Your account
-          is secure and you can continue using Facepet with your new password.
+          is secure and you can continue using Chapiz with your new password.
         </Text>
         <Hr />
         <Section style={alertSection}>
@@ -55,7 +55,7 @@ const PasswordChangeNotification = ({
             <strong>Security Tips:</strong>
           </Text>
           <Text style={securityText}>
-            • Use a strong, unique password for your Facepet account
+            • Use a strong, unique password for your Chapiz account
           </Text>
           <Text style={securityText}>
             • Never share your password with anyone
