@@ -9,9 +9,9 @@ const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : '';
 
-export const FacepetWelcomeEmail = ({
+export const ChapizWelcomeEmail = ({
   userFirstname
-}: FacepetWelcomeEmailProps) => (
+}: ChapizWelcomeEmailProps) => (
   <EmailLayout userFirstname={userFirstname}>
     <Text>
       Welcome to Chapiz, the pet safety platform that helps you keep your pets safe
@@ -29,7 +29,7 @@ ChapizWelcomeEmail.PreviewProps = {
   userFirstname: 'Alan'
 } as ChapizWelcomeEmailProps;
 
-export default FacepetWelcomeEmail;
+export default ChapizWelcomeEmail;
 
 const primaryColor = '#FF5722'; // Customize your accent color
 
