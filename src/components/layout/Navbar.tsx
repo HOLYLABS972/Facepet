@@ -290,7 +290,7 @@ const Navbar = () => {
                       className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span className="hidden md:inline">חנות צ'אפיז</span>
+                      <span>חנות צ'אפיז</span>
                     </Button>
                   )}
                 </>
@@ -315,7 +315,7 @@ const Navbar = () => {
                         className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3"
                       >
                         <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                        <span className="hidden md:inline">חנות צ'אפיז</span>
+                        <span>חנות צ'אפיז</span>
                       </Button>
                     )}
                     <Button
