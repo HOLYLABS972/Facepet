@@ -263,3 +263,12 @@
 [dir="rtl"] .phone-input .PhoneInputCountrySelect select {
   text-align: right !important;
 }
+
+/* RTL desktop text alignment for pet details */
+@media (min-width: 768px) {
+  .rtl-desktop-right {
+    text-align: right !important;
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
+  }
+}

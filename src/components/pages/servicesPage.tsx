@@ -157,7 +157,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
             <div className="space-y-4">
               {/* Title and Filter Chips on Same Row */}
               <div className="mb-4 flex flex-row items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold">{t('title')}</h1>
+                  <h1 className="text-2xl font-bold">{t('title')}</h1>
                 <FilterChips
                   chips={filterChips}
                   onChipClick={handleChipClick}

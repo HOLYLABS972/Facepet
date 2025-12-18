@@ -56,23 +56,29 @@ const renderDetails = (
   return (
     <Card className="mx-auto mt-4 w-[325px] border-none bg-transparent shadow-none">
       <CardContent className="p-0">
-        <div className="space-y-0.5" dir={isRTL ? 'rtl' : 'ltr'}>
-          {filtered.map((detail, index) => (
-            <div key={index} className={`flex min-h-[22px] items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <span className={`w-[76px] text-lg font-light text-gray-400 flex-shrink-0 ${isRTL ? 'text-right' : 'text-right'}`}>
-                {detail.label}
-              </span>
-              <span className={`flex-1 text-lg font-medium text-black break-words ${isRTL ? 'text-right mr-2' : 'text-left ml-2'}`}>
-                {detail.link ? (
-                  <a href={detail.link} className="underline">
-                    {detail.value}
-                  </a>
-                ) : (
-                  detail.value
-                )}
-              </span>
-            </div>
-          ))}
+        <div className="space-y-0.5">
+          {filtered.map((detail, index) => {
+            const valueClassName = isRTL 
+              ? 'flex-1 text-lg font-medium text-black break-words text-left ml-2 rtl-desktop-right'
+              : 'flex-1 text-lg font-medium text-black break-words text-left ml-2';
+            
+            return (
+              <div key={index} className="flex min-h-[22px] items-start">
+                <span className="w-[76px] text-lg font-light text-gray-400 flex-shrink-0 text-right">
+                  {detail.label}
+                </span>
+                <span className={valueClassName}>
+                  {detail.link ? (
+                    <a href={detail.link} className="underline">
+                      {detail.value}
+                    </a>
+                  ) : (
+                    detail.value
+                  )}
+                </span>
+              </div>
+            );
+          })}
         </div>
         
         {/* Delete Pet Button - only show on pet tab */}
@@ -143,7 +149,7 @@ const TabContent = ({
   }, []);
 
   return (
-    <div className="relative flex w-full justify-center overflow-hidden">
+    <div className="w-full overflow-hidden">
       <motion.div
         key={activeTab}
         custom={lockedDirection}

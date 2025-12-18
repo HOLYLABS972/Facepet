@@ -201,7 +201,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             return null;
           })()}
           {promo.description && (
-            <p className="text-gray-600 mb-4 line-clamp-3">{promo.description}</p>
+            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{promo.description}</p>
           )}
         </div>
 
@@ -290,7 +290,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             return null;
           })()}
           {userPromo.promo.description && (
-            <p className="text-gray-600 mb-4 line-clamp-3">{userPromo.promo.description}</p>
+            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{userPromo.promo.description}</p>
           )}
           {userPromo.usedAt && (
             <p className="text-xs text-gray-500 mb-4">
