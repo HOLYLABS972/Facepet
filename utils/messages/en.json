@@ -239,7 +239,13 @@
       "weight": "Weight",
       "weightPlaceholder": "e.g., 5kg",
       "createAd": "Create Ad",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "mediaType": "Media Type",
+      "image": "Image",
+      "video": "Video",
+      "youtube": "YouTube",
+      "youtubeUrl": "YouTube URL",
+      "youtubeUrlHelp": "Enter a YouTube video URL"
       }
     },
     "adsManagement": {
@@ -454,7 +460,8 @@
       "delete": "Delete",
       "confirmDelete": "Are you sure you want to delete the voucher \"{name}\"?",
       "activate": "Activate",
-      "deactivate": "Deactivate"
+      "deactivate": "Deactivate",
+      "preview": "Preview"
     },
     "promoManagement": {
       "title": "Promo Management",
@@ -644,7 +651,13 @@
       "updateAd": "Update Ad",
       "deleteAd": "Delete Ad",
       "noTags": "No tags",
-      "moreTags": "more"
+      "moreTags": "more",
+      "mediaType": "Media Type",
+      "image": "Image",
+      "video": "Video",
+      "youtube": "YouTube",
+      "youtubeUrl": "YouTube URL",
+      "youtubeUrlHelp": "Enter a YouTube video URL"
     },
     "forms": {
       "addUser": {
@@ -1533,7 +1546,9 @@
       "use": "Use",
       "showMap": "Show Map",
       "mapFor": "Map for",
-      "noBusinessLocation": "No business location available for this coupon"
+      "noBusinessLocation": "No business location available for this coupon",
+      "shareShopTitle": "Check out our shop!",
+      "shareShopText": "Check out our shop with this special link!"
     },
     "Footer": {
       "usefulLinks": "Useful Links",

@@ -6,6 +6,7 @@ import { usePetId } from '@/hooks/use-pet-id';
 import { fetchRandomAd } from '@/lib/actions/ads-server';
 import AdFullPage from './get-started/AdFullPage';
 import { usePathname } from 'next/navigation';
+import { getYouTubeVideoId } from '@/lib/utils/youtube';
 
 export default function AdDisplayManager() {
   const pathname = usePathname();
@@ -97,11 +98,16 @@ export default function AdDisplayManager() {
 
   // Show ad if we have an ad with content
   if (showAd && ad && ad.content) {
+    // Detect if content is a YouTube URL
+    const isYouTube = ad.content.includes('youtube.com') || ad.content.includes('youtu.be') || getYouTubeVideoId(ad.content) !== null;
+    const adType = isYouTube ? 'youtube' : (ad.type || 'image');
+    
     return (
       <AdFullPage
-        type={ad.type || 'image'}
+        type={adType}
         time={ad.duration || 5}
         content={ad.content}
+        youtubeUrl={isYouTube ? ad.content : undefined}
         onClose={handleAdClose}
       />
     );

@@ -24,6 +24,12 @@ import { getCoupons, updateCoupon, deleteCoupon, getBusinesses } from '@/lib/act
 import { useRouter } from 'next/navigation';
 import EditCouponDialog from './EditCouponDialog';
 import { Business } from '@/types/promo';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function CouponsTable() {
   const t = useTranslations('Admin');
@@ -34,6 +40,7 @@ export default function CouponsTable() {
   const [error, setError] = useState<string | null>(null);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [previewCoupon, setPreviewCoupon] = useState<Coupon | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -252,7 +259,10 @@ export default function CouponsTable() {
                   </TableCell>
                   <TableCell>
                     {coupon.imageUrl ? (
-                      <div className="w-10 h-10 rounded-md overflow-hidden">
+                      <div 
+                        className="w-10 h-10 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => setPreviewCoupon(coupon)}
+                      >
                         <img 
                           src={coupon.imageUrl} 
                           alt={coupon.name}
@@ -284,6 +294,12 @@ export default function CouponsTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {coupon.imageUrl && (
+                          <DropdownMenuItem onClick={() => setPreviewCoupon(coupon)}>
+                            <Eye className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                            {t('couponsManagement.preview') || 'Preview'}
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => handleEdit(coupon)}>
                           <Edit className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
                           {t('couponsManagement.edit')}
@@ -319,6 +335,78 @@ export default function CouponsTable() {
           onSuccess={handleEditSuccess}
         />
       )}
+
+      {/* Preview Dialog */}
+      <Dialog open={!!previewCoupon} onOpenChange={(open) => !open && setPreviewCoupon(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {previewCoupon && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">{previewCoupon.name}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {/* Image */}
+                {previewCoupon.imageUrl && (
+                  <div className="rounded-lg overflow-hidden bg-gray-100">
+                    <img 
+                      src={previewCoupon.imageUrl} 
+                      alt={previewCoupon.name}
+                      className="w-full h-auto object-contain max-h-[400px] mx-auto"
+                    />
+                  </div>
+                )}
+                
+                {/* Description */}
+                {previewCoupon.description && (
+                  <div>
+                    <p className="text-base text-gray-700">{previewCoupon.description}</p>
+                  </div>
+                )}
+                
+                {/* Details */}
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-semibold text-gray-600">{t('couponsManagement.price')}: </span>
+                    <span>{formatPrice(previewCoupon.price)}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-600">{t('couponsManagement.points')}: </span>
+                    <span>{previewCoupon.points} pts</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-600">{t('couponsManagement.validFrom')}: </span>
+                    <span>{formatDate(previewCoupon.validFrom)}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-600">{t('couponsManagement.validTo')}: </span>
+                    <span>{formatDate(previewCoupon.validTo)}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-600">{t('couponsManagement.status')}: </span>
+                    <Badge variant={previewCoupon.isActive ? 'default' : 'secondary'}>
+                      {previewCoupon.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Businesses */}
+                {getBusinessNames(previewCoupon).length > 0 && (
+                  <div>
+                    <span className="font-semibold text-gray-600 block mb-2">{t('couponsManagement.business')}:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {getBusinessNames(previewCoupon).map((businessName, index) => (
+                        <Badge key={index} variant="outline">
+                          {businessName}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

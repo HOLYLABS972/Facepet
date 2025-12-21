@@ -2,6 +2,7 @@
 
 import MediaUpload from '@/components/admin/MediaUpload';
 import { Button } from '@/components/ui/button';
+import { getYouTubeEmbedUrl, getYouTubeVideoId } from '@/lib/utils/youtube';
 import {
   Dialog,
   DialogContent,
@@ -58,10 +59,22 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
   const [ageRanges, setAgeRanges] = useState<Array<{ value: string; label: string }>>([]);
   const [weightRanges, setWeightRanges] = useState<Array<{ value: string; label: string }>>([]);
 
+  // Detect if content is a YouTube URL
+  const isYouTubeUrl = (url: string) => {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be') || getYouTubeVideoId(url) !== null;
+  };
+
+  const [mediaType, setMediaType] = useState<'image' | 'video' | 'youtube'>(() => {
+    if (isYouTubeUrl(ad.content)) return 'youtube';
+    return ad.type === 'video' ? 'video' : 'image';
+  });
+
   const [formData, setFormData] = useState({
     title: ad.title,
-    content: ad.content,
-    type: 'image' as AdType, // Always set to image
+    content: isYouTubeUrl(ad.content) ? '' : ad.content,
+    youtubeUrl: isYouTubeUrl(ad.content) ? ad.content : '',
+    type: ad.type,
     startDate: ad.startDate
       ? new Date(ad.startDate).toISOString().split('T')[0]
       : '',
@@ -96,10 +109,13 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
 
   useEffect(() => {
     if (isEditOpen && ad) {
+      const isYouTube = isYouTubeUrl(ad.content);
+      setMediaType(isYouTube ? 'youtube' : (ad.type === 'video' ? 'video' : 'image'));
       setFormData({
         title: ad.title,
-        content: ad.content,
-        type: 'image' as AdType,
+        content: isYouTube ? '' : ad.content,
+        youtubeUrl: isYouTube ? ad.content : '',
+        type: ad.type,
         startDate: ad.startDate
           ? new Date(ad.startDate).toISOString().split('T')[0]
           : '',
@@ -165,10 +181,26 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
     setError(null);
 
     try {
+      // Determine ad type and content based on media type
+      let adType: 'image' | 'video' = 'image';
+      let adContent = formData.content;
+      
+      if (mediaType === 'youtube') {
+        // For YouTube, store the YouTube URL in content and set type to video
+        adType = 'video';
+        adContent = formData.youtubeUrl || '';
+      } else if (mediaType === 'video') {
+        adType = 'video';
+        adContent = formData.content;
+      } else {
+        adType = 'image';
+        adContent = formData.content;
+      }
+
       await updateAd(ad.id, {
         title: formData.title,
-        content: formData.content,
-        type: 'image' as AdType, // Always set to image
+        content: adContent,
+        type: adType,
         status: 'active' as AdStatus, // Always set to active
         startDate: null,
         endDate: null,
@@ -257,10 +289,13 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
         onOpenChange={(open) => {
           if (!open) {
             // Reset form data when closing
+            const isYouTube = isYouTubeUrl(ad.content);
+            setMediaType(isYouTube ? 'youtube' : (ad.type === 'video' ? 'video' : 'image'));
             setFormData({
               title: ad.title,
-              content: ad.content,
-              type: 'image' as AdType, // Always set to image
+              content: isYouTube ? '' : ad.content,
+              youtubeUrl: isYouTube ? ad.content : '',
+              type: ad.type,
               startDate: ad.startDate
                 ? new Date(ad.startDate).toISOString().split('T')[0]
                 : '',
@@ -272,11 +307,11 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
               description: ad.description || '',
               tags: ad.tags || [],
               area: ad.area || '',
-              city: ad.city || '',
+              city: ad.city || [],
               petType: ad.petType || '',
               breed: ad.breed || '',
-              ageRange: ad.ageRange || '',
-              weight: ad.weight || ''
+              ageRange: ad.ageRange || [],
+              weight: ad.weight || []
             });
             setError(null);
           }
@@ -490,15 +525,82 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">{t('adActions.content')}</Label>
-              <MediaUpload
-                type={formData.type}
-                value={formData.content}
-                onChange={(filePath) => {
-                  setFormData((prev) => ({ ...prev, content: filePath }));
-                }}
-              />
+              <Label>{t('adActions.mediaType') || 'Media Type'}</Label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="image"
+                    checked={mediaType === 'image'}
+                    onChange={(e) => setMediaType(e.target.value as 'image' | 'video' | 'youtube')}
+                    className="cursor-pointer"
+                  />
+                  <span>{t('adActions.image') || 'Image'}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="video"
+                    checked={mediaType === 'video'}
+                    onChange={(e) => setMediaType(e.target.value as 'image' | 'video' | 'youtube')}
+                    className="cursor-pointer"
+                  />
+                  <span>{t('adActions.video') || 'Video'}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="youtube"
+                    checked={mediaType === 'youtube'}
+                    onChange={(e) => setMediaType(e.target.value as 'image' | 'video' | 'youtube')}
+                    className="cursor-pointer"
+                  />
+                  <span>{t('adActions.youtube') || 'YouTube'}</span>
+                </label>
+              </div>
             </div>
+
+            {mediaType === 'youtube' ? (
+              <div className="space-y-2">
+                <Label htmlFor="youtubeUrl">{t('adActions.youtubeUrl') || 'YouTube URL'}</Label>
+                <Input
+                  id="youtubeUrl"
+                  name="youtubeUrl"
+                  value={formData.youtubeUrl}
+                  onChange={handleChange}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  type="url"
+                  required
+                />
+                <p className="text-sm text-gray-500">
+                  {t('adActions.youtubeUrlHelp') || 'Enter a YouTube video URL'}
+                </p>
+                {formData.youtubeUrl && getYouTubeEmbedUrl(formData.youtubeUrl) && (
+                  <div className="mt-4 rounded-md overflow-hidden border">
+                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                      <iframe
+                        className="absolute top-0 left-0 w-full h-full"
+                        src={getYouTubeEmbedUrl(formData.youtubeUrl) || ''}
+                        title="YouTube video preview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="content">{t('adActions.content')}</Label>
+                <MediaUpload
+                  type={mediaType}
+                  value={formData.content}
+                  onChange={(filePath) => {
+                    setFormData((prev) => ({ ...prev, content: filePath }));
+                  }}
+                />
+              </div>
+            )}
 
 
 

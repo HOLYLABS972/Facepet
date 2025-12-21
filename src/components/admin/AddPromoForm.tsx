@@ -20,18 +20,15 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { Business } from '@/types/promo';
-import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 export default function AddPromoForm() {
   const t = useTranslations('Admin');
   const commonT = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
-  const [mediaType, setMediaType] = useState<'image' | 'youtube'>('image');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     imageUrl: '',
-    youtubeUrl: '',
     businessIds: [] as string[],
     startDate: '',
     endDate: ''
@@ -97,8 +94,7 @@ export default function AddPromoForm() {
       const result = await createPromo({
         name: formData.name,
         description: formData.description,
-        imageUrl: mediaType === 'image' ? formData.imageUrl : '',
-        youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
+        imageUrl: formData.imageUrl,
         businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined
@@ -113,12 +109,10 @@ export default function AddPromoForm() {
         name: '',
         description: '',
         imageUrl: '',
-        youtubeUrl: '',
         businessIds: [],
         startDate: '',
         endDate: ''
       });
-      setMediaType('image');
       setIsOpen(false);
 
       // Refresh the page to show the new promo
@@ -176,73 +170,16 @@ export default function AddPromoForm() {
           </div>
 
           <div className="space-y-2">
-            <Label>{t('promoManagement.mediaTypeLabel')}</Label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="image"
-                  checked={mediaType === 'image'}
-                  onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
-                  className="cursor-pointer"
-                />
-                <span>{t('promoManagement.mediaTypes.image')}</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="youtube"
-                  checked={mediaType === 'youtube'}
-                  onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
-                  className="cursor-pointer"
-                />
-                <span>{t('promoManagement.mediaTypes.youtube')}</span>
-              </label>
-            </div>
+            <Label htmlFor="imageUrl">{t('promoManagement.image')}</Label>
+            <MediaUpload
+              type="image"
+              value={formData.imageUrl}
+              onChange={(filePath) => {
+                setFormData((prev) => ({ ...prev, imageUrl: filePath }));
+              }}
+              className="w-1/5"
+            />
           </div>
-
-          {mediaType === 'image' ? (
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">{t('promoManagement.image')}</Label>
-              <MediaUpload
-                type="image"
-                value={formData.imageUrl}
-                onChange={(filePath) => {
-                  setFormData((prev) => ({ ...prev, imageUrl: filePath }));
-                }}
-                className="w-1/5"
-              />
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Label htmlFor="youtubeUrl">{t('promoManagement.youtubeUrlLabel')}</Label>
-              <Input
-                id="youtubeUrl"
-                name="youtubeUrl"
-                value={formData.youtubeUrl}
-                onChange={handleChange}
-                placeholder={t('promoManagement.youtubeUrlPlaceholder')}
-                type="url"
-                required={mediaType === 'youtube'}
-              />
-              <p className="text-sm text-gray-500">
-                {t('promoManagement.youtubeUrlHelp')}
-              </p>
-              {formData.youtubeUrl && getYouTubeEmbedUrl(formData.youtubeUrl) && (
-                <div className="mt-4 rounded-md overflow-hidden border w-1/5">
-                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                    <iframe
-                      className="absolute top-0 left-0 w-full h-full"
-                      src={getYouTubeEmbedUrl(formData.youtubeUrl) || ''}
-                      title={t('promoManagement.youtubePreviewTitle')}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="space-y-2">
             <Label>{t('promoManagement.business') || 'Businesses (Optional)'}</Label>

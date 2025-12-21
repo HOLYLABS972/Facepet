@@ -22,15 +22,18 @@ import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
 import { getPetTypesForDropdown, getBreedsForDropdown, getAreasForDropdown, getCitiesForDropdown, getAgeRangesForDropdown, getWeightRangesForDropdown } from '@/lib/firebase/dropdown-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SimpleMultiselect } from '@/components/ui/simple-multiselect';
+import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 export default function AddAdForm() {
   const t = useTranslations('Admin');
   const tCommon = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const locale = useLocale() as 'en' | 'he';
+  const [mediaType, setMediaType] = useState<'image' | 'video' | 'youtube'>('image');
   const [formData, setFormData] = useState({
     title: '',
     content: '',
+    youtubeUrl: '',
     phone: '',
     location: '',
     description: '',
@@ -137,10 +140,26 @@ export default function AddAdForm() {
     setError(null);
 
     try {
+      // Determine ad type and content based on media type
+      let adType: 'image' | 'video' = 'image';
+      let adContent = formData.content;
+      
+      if (mediaType === 'youtube') {
+        // For YouTube, store the YouTube URL in content and set type to video
+        adType = 'video';
+        adContent = formData.youtubeUrl || '';
+      } else if (mediaType === 'video') {
+        adType = 'video';
+        adContent = formData.content;
+      } else {
+        adType = 'image';
+        adContent = formData.content;
+      }
+
       await createAd({
         title: formData.title,
-        type: 'image', // Default to image
-        content: formData.content,
+        type: adType,
+        content: adContent,
         duration: 5, // Default duration
         status: 'active', // Default to active
         startDate: null,
@@ -162,6 +181,7 @@ export default function AddAdForm() {
       setFormData({
         title: '',
         content: '',
+        youtubeUrl: '',
         phone: '',
         location: '',
         description: '',
@@ -173,6 +193,7 @@ export default function AddAdForm() {
         ageRange: [],
         weight: []
       });
+      setMediaType('image');
       setIsOpen(false);
 
       // Refresh the page to show the new ad
@@ -220,15 +241,82 @@ export default function AddAdForm() {
 
 
           <div className="space-y-2">
-            <Label htmlFor="content">{t('forms.addAd.content')}</Label>
-            <MediaUpload
-              type="image"
-              value={formData.content}
-              onChange={(filePath) => {
-                setFormData((prev) => ({ ...prev, content: filePath }));
-              }}
-            />
+            <Label>{t('forms.addAd.mediaType') || 'Media Type'}</Label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="image"
+                  checked={mediaType === 'image'}
+                  onChange={(e) => setMediaType(e.target.value as 'image' | 'video' | 'youtube')}
+                  className="cursor-pointer"
+                />
+                <span>{t('forms.addAd.image') || 'Image'}</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="video"
+                  checked={mediaType === 'video'}
+                  onChange={(e) => setMediaType(e.target.value as 'image' | 'video' | 'youtube')}
+                  className="cursor-pointer"
+                />
+                <span>{t('forms.addAd.video') || 'Video'}</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="youtube"
+                  checked={mediaType === 'youtube'}
+                  onChange={(e) => setMediaType(e.target.value as 'image' | 'video' | 'youtube')}
+                  className="cursor-pointer"
+                />
+                <span>{t('forms.addAd.youtube') || 'YouTube'}</span>
+              </label>
+            </div>
           </div>
+
+          {mediaType === 'youtube' ? (
+            <div className="space-y-2">
+              <Label htmlFor="youtubeUrl">{t('forms.addAd.youtubeUrl') || 'YouTube URL'}</Label>
+              <Input
+                id="youtubeUrl"
+                name="youtubeUrl"
+                value={formData.youtubeUrl}
+                onChange={handleChange}
+                placeholder="https://www.youtube.com/watch?v=..."
+                type="url"
+                required
+              />
+              <p className="text-sm text-gray-500">
+                {t('forms.addAd.youtubeUrlHelp') || 'Enter a YouTube video URL'}
+              </p>
+              {formData.youtubeUrl && getYouTubeEmbedUrl(formData.youtubeUrl) && (
+                <div className="mt-4 rounded-md overflow-hidden border">
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      className="absolute top-0 left-0 w-full h-full"
+                      src={getYouTubeEmbedUrl(formData.youtubeUrl) || ''}
+                      title="YouTube video preview"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="content">{t('forms.addAd.content')}</Label>
+              <MediaUpload
+                type={mediaType}
+                value={formData.content}
+                onChange={(filePath) => {
+                  setFormData((prev) => ({ ...prev, content: filePath }));
+                }}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="description">{t('forms.addAd.description')}</Label>

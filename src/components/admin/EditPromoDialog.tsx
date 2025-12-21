@@ -18,7 +18,6 @@ import { updatePromo, getBusinesses } from '@/lib/actions/admin';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { Business, Promo } from '@/types/promo';
-import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 
 interface EditPromoDialogProps {
   promo: Promo;
@@ -29,12 +28,10 @@ interface EditPromoDialogProps {
 
 export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: EditPromoDialogProps) {
   const t = useTranslations('Admin');
-  const [mediaType, setMediaType] = useState<'image' | 'youtube'>('image');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     imageUrl: '',
-    youtubeUrl: '',
     businessIds: [] as string[],
     startDate: '',
     endDate: ''
@@ -48,19 +45,12 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
     if (isOpen) {
       fetchData();
       if (promo) {
-        // Determine media type based on what's available
-        const hasYoutube = !!promo.youtubeUrl;
-        const hasImage = !!promo.imageUrl;
-        const initialMediaType = hasYoutube ? 'youtube' : 'image';
-        
-        setMediaType(initialMediaType);
         // Support both old businessId and new businessIds format
         const businessIds = promo.businessIds || (promo.businessId ? [promo.businessId] : []);
         setFormData({
           name: promo.name || '',
           description: promo.description || '',
           imageUrl: promo.imageUrl || '',
-          youtubeUrl: promo.youtubeUrl || '',
           businessIds: businessIds,
           startDate: promo.startDate ? new Date(promo.startDate).toISOString().split('T')[0] : '',
           endDate: promo.endDate ? new Date(promo.endDate).toISOString().split('T')[0] : ''
@@ -117,8 +107,7 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
       const result = await updatePromo(promo.id, {
         name: formData.name,
         description: formData.description,
-        imageUrl: mediaType === 'image' ? formData.imageUrl : '',
-        youtubeUrl: mediaType === 'youtube' ? formData.youtubeUrl : '',
+        imageUrl: formData.imageUrl,
         businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined
@@ -178,33 +167,6 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
           </div>
 
           <div className="space-y-2">
-            <Label>Media Type</Label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="image"
-                  checked={mediaType === 'image'}
-                  onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
-                  className="cursor-pointer"
-                />
-                <span>Image</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="youtube"
-                  checked={mediaType === 'youtube'}
-                  onChange={(e) => setMediaType(e.target.value as 'image' | 'youtube')}
-                  className="cursor-pointer"
-                />
-                <span>YouTube Video</span>
-              </label>
-            </div>
-          </div>
-
-          {mediaType === 'image' ? (
-          <div className="space-y-2">
             <Label htmlFor="imageUrl">{t('promoManagement.image')}</Label>
             <MediaUpload
               type="image"
@@ -215,36 +177,6 @@ export default function EditPromoDialog({ promo, isOpen, onClose, onSuccess }: E
               className="w-1/5"
             />
           </div>
-          ) : (
-            <div className="space-y-2">
-              <Label htmlFor="youtubeUrl">YouTube URL</Label>
-              <Input
-                id="youtubeUrl"
-                name="youtubeUrl"
-                value={formData.youtubeUrl}
-                onChange={handleChange}
-                placeholder="https://www.youtube.com/watch?v=..."
-                type="url"
-                required={mediaType === 'youtube'}
-              />
-              <p className="text-sm text-gray-500">
-                Enter a YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)
-              </p>
-              {formData.youtubeUrl && getYouTubeEmbedUrl(formData.youtubeUrl) && (
-                <div className="mt-4 rounded-md overflow-hidden border w-1/5">
-                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                    <iframe
-                      className="absolute top-0 left-0 w-full h-full"
-                      src={getYouTubeEmbedUrl(formData.youtubeUrl) || ''}
-                      title="YouTube video preview"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="space-y-2">
             <Label>{t('promoManagement.business') || 'Businesses (Optional)'}</Label>

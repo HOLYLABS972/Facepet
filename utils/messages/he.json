@@ -510,7 +510,8 @@
       "delete": "מחק",
       "confirmDelete": "האם אתה בטוח שברצונך למחוק את השובר \"{name}\"?",
       "activate": "הפעל",
-      "deactivate": "השבת"
+      "deactivate": "השבת",
+      "preview": "תצוגה מקדימה"
     },
     "promoManagement": {
       "title": "ניהול קידומים",
@@ -700,7 +701,13 @@
       "updateAd": "עדכן פרסומת",
       "deleteAd": "מחק פרסומת",
       "noTags": "אין תגיות",
-      "moreTags": "עוד"
+      "moreTags": "עוד",
+      "mediaType": "סוג מדיה",
+      "image": "תמונה",
+      "video": "וידאו",
+      "youtube": "יוטיוב",
+      "youtubeUrl": "כתובת יוטיוב",
+      "youtubeUrlHelp": "הזן כתובת וידאו יוטיוב"
     },
     "forms": {
       "addUser": {
@@ -740,7 +747,13 @@
         "weight": "משקל",
         "weightPlaceholder": "למשל, 5 ק\"ג",
         "createAd": "צור פרסומת",
-        "creating": "יוצר..."
+        "creating": "יוצר...",
+        "mediaType": "סוג מדיה",
+        "image": "תמונה",
+        "video": "וידאו",
+        "youtube": "יוטיוב",
+        "youtubeUrl": "כתובת יוטיוב",
+        "youtubeUrlHelp": "הזן כתובת וידאו יוטיוב"
       }
     },
     "roles": {
@@ -1536,7 +1549,9 @@
       "use": "השתמש",
       "showMap": "איפה ניתן לממש?",
       "mapFor": "מפה עבור",
-      "noBusinessLocation": "אין מיקום עסק זמין עבור שובר זה"
+      "noBusinessLocation": "אין מיקום עסק זמין עבור שובר זה",
+      "shareShopTitle": "בדקו את החנות שלנו!",
+      "shareShopText": "בדקו את החנות שלנו עם הקישור המיוחד הזה!"
     },
     "Footer": {
       "usefulLinks": "קישורים שימושיים",

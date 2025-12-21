@@ -39,7 +39,7 @@ export default function UserCouponsPage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedCouponImage, setSelectedCouponImage] = useState<{ imageUrl: string; name: string; description?: string; coupon?: Coupon; userCoupon?: UserCoupon } | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
-  const { redirectToShop } = useShopRedirect();
+  const { redirectToShop, getShopUrl } = useShopRedirect();
 
   useEffect(() => {
     const checkDesktop = () => {
@@ -286,54 +286,43 @@ export default function UserCouponsPage() {
       return;
     }
 
-    const shareUrl = window.location.origin;
-    const shareText = t('shareText', { url: shareUrl });
+    if (!shopUrl) {
+      toast.error('Shop URL is not configured');
+      return;
+    }
+
+    // Generate shop URL with userid, coupon, and callback
+    // Using a default coupon code 'sale990' as shown in the example
+    // You may want to make this configurable or use a different default
+    const generatedShopUrl = getShopUrl(shopUrl, 'sale990');
+    
+    if (!generatedShopUrl) {
+      toast.error('Failed to generate shop URL');
+      return;
+    }
+
     const shareData = {
-      title: 'Chapiz',
-      text: shareText,
-      url: shareUrl
+      title: t('shareShopTitle') || 'Check out our shop!',
+      text: t('shareShopText') || 'Check out our shop with this special link!',
+      url: generatedShopUrl
     };
 
     try {
-      let shared = false;
-      
-      if (navigator.canShare && navigator.canShare(shareData)) {
+      if (navigator.share && navigator.canShare(shareData)) {
         await navigator.share(shareData);
-        shared = true;
-        toast.success(t('sharedSuccessfully'));
+        toast.success(t('sharedSuccessfully') || 'Shared successfully!');
       } else {
         // Fallback: copy to clipboard
-        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-        shared = true;
-        toast.success(t('linkCopied'));
+        await navigator.clipboard.writeText(generatedShopUrl);
+        toast.success(t('linkCopied') || 'Link copied to clipboard!');
       }
-
-      // Award 20 points for sharing
-      if (shared) {
-        console.log('Awarding 20 points for sharing...');
-        const result = await addPointsToCategory(
-          user as User,
-          'share',
-          20,
-          'Shared the app from coupons page'
-        );
-        
-        if (result.success) {
-          console.log('✅ Points awarded successfully');
-          // Refresh user points
-          const pointsResult = await getUserPoints(user);
-          if (pointsResult.success && pointsResult.points) {
-            setUserPoints(pointsResult.points.totalPoints || 0);
-          }
-        } else {
-          console.error('Failed to award points:', result.error);
-        }
-      }
+      // Note: Points will be awarded when someone actually uses the callback URL,
+      // not when the link is shared. This is handled by the shop callback API endpoint.
     } catch (err) {
       console.error('Failed to share:', err);
       // Only show error if it's not a user cancellation
       if ((err as any).name !== 'AbortError') {
-        toast.error(t('failedToShare'));
+        toast.error(t('failedToShare') || 'Failed to share');
       }
     }
   };
@@ -470,10 +459,23 @@ export default function UserCouponsPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-24 md:pb-12 max-w-7xl">
         {/* Header */}
         <div className="mb-8 lg:mb-12 text-right">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            {t('title')}
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl ml-auto">{t('description')}</p>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex-1">
+              <h1 className="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {t('title')}
+              </h1>
+              <p className="text-lg text-gray-600 max-w-2xl ml-auto">{t('description')}</p>
+            </div>
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              size="lg"
+              className="flex items-center gap-2 flex-shrink-0"
+            >
+              <Share2 className="h-5 w-5" />
+              {t('share') || 'Share'}
+            </Button>
+          </div>
         </div>
 
         {/* User Points Section */}

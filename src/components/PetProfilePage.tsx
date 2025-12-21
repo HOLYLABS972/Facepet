@@ -18,6 +18,7 @@ import { getGenders } from '@/src/lib/hardcoded-data';
 import { breedsData } from '@/src/lib/data/comprehensive-breeds';
 import AdFullPage from './get-started/AdFullPage';
 import { usePetId } from '@/hooks/use-pet-id';
+import { getYouTubeVideoId } from '@/lib/utils/youtube';
 
 const computeAge = (birthDate: string) => {
   const birth = new Date(birthDate);
@@ -313,9 +314,18 @@ export default function PetProfilePage({
   if (showPromo && promo && promo.content) {
     return (
       <AdFullPage
-        type={promo.type || 'image'}
+        type={
+          (promo.content && (promo.content.includes('youtube.com') || promo.content.includes('youtu.be') || getYouTubeVideoId(promo.content) !== null))
+            ? 'youtube'
+            : (promo.type || 'image')
+        }
         time={promo.duration || 5}
         content={promo.content}
+        youtubeUrl={
+          (promo.content && (promo.content.includes('youtube.com') || promo.content.includes('youtu.be') || getYouTubeVideoId(promo.content) !== null))
+            ? promo.content
+            : undefined
+        }
         onClose={handlePromoClose}
       />
     );
