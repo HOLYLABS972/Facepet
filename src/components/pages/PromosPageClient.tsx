@@ -96,8 +96,8 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
 
   const handleViewQR = (promo: Promo) => {
     const url = business
-      ? `/${locale}/promos/${promo.id}?businessId=${business.id}`
-      : `/${locale}/promos/${promo.id}`;
+      ? `/${locale}/coupons/${promo.id}?businessId=${business.id}`
+      : `/${locale}/coupons/${promo.id}`;
     router.push(url);
   };
 
@@ -371,7 +371,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
             {business && (
               <Button
                 variant="outline"
-                onClick={() => router.push(`/${locale}/promos`)}
+                onClick={() => router.push(`/${locale}/coupons`)}
                 className="flex items-center gap-2"
               >
                 <Tag className="w-4 h-4" />

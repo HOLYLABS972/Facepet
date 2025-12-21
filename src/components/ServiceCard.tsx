@@ -53,6 +53,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const router = useRouter();
   const locale = useLocale();
   const [open, setOpen] = useState(false);
+  const [activeSnapPoint, setActiveSnapPoint] = useState<number | string | null>(1);
 
   // Function to translate tags for display
   const translateTag = (tag: string): string => {
@@ -123,6 +124,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
   const handleOpen = () => {
     setOpen(true);
+    setActiveSnapPoint(1);
   };
 
   const handleClose = () => {
@@ -263,11 +265,20 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
       {/* Drawer with service details */}
       <Drawer 
         open={open} 
-        onOpenChange={setOpen}
-        snapPoints={[1]}
-        activeSnapPoint={1}
-        dismissible={true}
-        closeThreshold={0.9}
+        onOpenChange={(isOpen) => {
+          if (!isOpen && open) {
+            // Instead of closing, snap to minimum 20%
+            setActiveSnapPoint(0.2);
+            // Keep drawer open
+            setOpen(true);
+            return;
+          }
+          setOpen(isOpen);
+        }}
+        snapPoints={[0.2, 1]}
+        activeSnapPoint={activeSnapPoint}
+        setActiveSnapPoint={setActiveSnapPoint}
+        dismissible={false}
       >
         <DrawerContent className="flex h-screen flex-col rounded-none mt-0 sm:rounded-t-[10px] sm:max-h-[90dvh] sm:max-w-[425px] sm:h-auto sm:mt-24">
           {/* Scrollable content */}
@@ -517,7 +528,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                   className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                   onClick={() => {
                     if (service.id) {
-                      router.push(`/${locale}/promos?businessId=${service.id}`);
+                      router.push(`/${locale}/coupons?businessId=${service.id}`);
                     } else {
                       toast.error('Business ID not available');
                     }

@@ -888,6 +888,7 @@
       "searchPlaceholder": "חפש שירותים ואנשי מקצוע...",
       "noResults": "לא נמצאו שירותים ואנשי מקצוע.",
       "removeFilter": "הסר מסנן",
+      "filterByProfession": "סינון לפי מקצוע",
       "filters": {
         "all": "הכל",
         "favorites": "מועדפים"

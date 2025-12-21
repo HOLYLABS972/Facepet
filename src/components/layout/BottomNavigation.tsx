@@ -25,16 +25,16 @@ export default function BottomNavigation() {
       isActive: pathname?.startsWith('/pages/my-pets'),
     },
     {
-      href: '/promos',
+      href: '/coupons',
       icon: Ticket,
-      label: t('bottomNav.giftsAndVouchers') || t('allPromos'),
-      isActive: pathname?.startsWith('/promos'),
+      label: t('bottomNav.myCoupons') || t('allPromos'),
+      isActive: pathname?.startsWith('/coupons'),
     },
     {
-      href: '/coupons',
+      href: '/vouchers',
       icon: Gift,
-      label: t('bottomNav.myCoupons') || t('coupons'),
-      isActive: pathname?.startsWith('/coupons') || pathname?.startsWith('/vouchers'),
+      label: t('bottomNav.giftsAndVouchers') || t('coupons'),
+      isActive: pathname?.startsWith('/vouchers'),
     },
     {
       href: '/services',

@@ -1,5 +1,6 @@
 import UserCouponsPage from '@/components/user/UserCouponsPage';
 
-export default function CouponsPage() {
+export default function VouchersPage() {
   return <UserCouponsPage />;
 }
+

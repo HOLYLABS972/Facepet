@@ -234,15 +234,15 @@ const Navbar = () => {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/promos" className="flex items-center">
+                          <Link href="/coupons" className="flex items-center">
                             <Ticket className="mr-2 h-4 w-4" />
-                            <span>{t('bottomNav.giftsAndVouchers') || t('allPromos')}</span>
+                            <span>{t('bottomNav.myCoupons') || t('allPromos')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/coupons" className="flex items-center">
+                          <Link href="/vouchers" className="flex items-center">
                             <Gift className="mr-2 h-4 w-4" />
-                            <span>{t('bottomNav.myCoupons') || t('coupons')}</span>
+                            <span>{t('bottomNav.giftsAndVouchers') || t('coupons')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>

@@ -47,7 +47,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
   useEffect(() => {
     setIsMounted(true);
     if (typeof window !== 'undefined') {
-      const url = `${window.location.origin}/${locale}/promos/${coupon.id}${business ? `?businessId=${business.id}` : ''}`;
+      const url = `${window.location.origin}/${locale}/coupons/${coupon.id}${business ? `?businessId=${business.id}` : ''}`;
       setCouponUrl(url);
     }
   }, [locale, coupon.id, business]);
@@ -95,7 +95,7 @@ export default function CouponViewPageClient({ coupon, business, businesses = []
         setTimeout(() => {
           setShowSuccessAnimation(false);
           // Redirect back to coupons list
-          router.push(`/${locale}/promos${business ? `?businessId=${business.id}` : ''}`);
+          router.push(`/${locale}/coupons${business ? `?businessId=${business.id}` : ''}`);
         }, 2000);
       } else {
         toast.error(result.error || 'Failed to mark coupon as used');

@@ -896,6 +896,7 @@
       "searchPlaceholder": "Search Services And Professionals...",
       "noResults": "No Services And Professionals found.",
       "removeFilter": "Remove Filter",
+      "filterByProfession": "Filter by Profession",
       "filters": {
         "all": "All",
         "favorites": "Favorites"

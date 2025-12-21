@@ -81,6 +81,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const initialHighlightedIds = initialHighlightedServiceId ? initialHighlightedServiceId.split(',') : [];
   const [highlightedServiceIds, setHighlightedServiceIds] = useState<string[]>(initialHighlightedIds);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeSnapPoint, setActiveSnapPoint] = useState<number | string | null>(1);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [commentText, setCommentText] = useState('');
@@ -349,15 +350,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     }
   };
 
-  // Handle drawer close
+  // Handle drawer close - but keep at least 20% visible
   const handleDrawerClose = (open: boolean) => {
-    setDrawerOpen(open);
     if (!open) {
-      setSelectedService(null);
-      setHighlightedServiceIds([]);
-      setShowCommentForm(false);
-      setUserRating(0);
-      setCommentText('');
+      // Instead of closing, snap to minimum 20%
+      setActiveSnapPoint(0.2);
+      // Keep drawer open
+      setDrawerOpen(true);
+    } else {
+      setDrawerOpen(open);
     }
   };
 
@@ -601,8 +602,9 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
           setHighlightedServiceIds([service.id]);
         }
 
-        // Always show drawer
+        // Always show drawer at full height
         setDrawerOpen(true);
+        setActiveSnapPoint(1);
 
         // Load comments when service is selected
         if (service.id) {
@@ -1009,7 +1011,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
           <Drawer
             open={true}
             modal={false}
-            snapPoints={[0.15, 0.4, 1]}
+            snapPoints={[0.2, 0.4, 1]}
             activeSnapPoint={0.4}
             fadeFromIndex={0}
             shouldScaleBackground={false}
@@ -1401,7 +1403,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                       onClick={() => {
                         if (selectedService.id) {
-                          router.push(`/${locale}/promos?businessId=${selectedService.id}`);
+                          router.push(`/${locale}/coupons?businessId=${selectedService.id}`);
                         } else {
                           toast.error('Business ID not available');
                         }
@@ -1418,12 +1420,24 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
             /* Mobile Fullscreen Modal */
             <Drawer
               open={drawerOpen}
-              onOpenChange={handleDrawerClose}
-              snapPoints={[1]}
-              activeSnapPoint={1}
-              dismissible={true}
+              onOpenChange={(open) => {
+                // Prevent full closure - keep at least 20% visible
+                if (!open && drawerOpen) {
+                  // Instead of closing, snap to minimum 20%
+                  setActiveSnapPoint(0.2);
+                  // Keep drawer open
+                  setDrawerOpen(true);
+                  return;
+                }
+                if (open) {
+                  setDrawerOpen(true);
+                }
+              }}
+              snapPoints={[0.2, 1]}
+              activeSnapPoint={activeSnapPoint}
+              setActiveSnapPoint={setActiveSnapPoint}
+              dismissible={false}
               modal={true} // Modal to focus comfortably
-              closeThreshold={0.9}
             >
               <DrawerContent className="h-screen mt-0 rounded-none">
                 <DrawerHeader>
@@ -1432,7 +1446,10 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDrawerClose(false)}
+                      onClick={() => {
+                        // Instead of closing, snap to 20% minimum
+                        setActiveSnapPoint(0.2);
+                      }}
                       className="h-8 w-8"
                     >
                       <X className="h-4 w-4" />
@@ -1685,7 +1702,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                         className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                         onClick={() => {
                           if (selectedService.id) {
-                            router.push(`/${locale}/promos?businessId=${selectedService.id}`);
+                            router.push(`/${locale}/coupons?businessId=${selectedService.id}`);
                           } else {
                             toast.error('Business ID not available');
                           }

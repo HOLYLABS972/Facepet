@@ -32,7 +32,7 @@ export default function UserCouponsPage() {
   const [couponHistory, setCouponHistory] = useState<UserCoupon[]>([]); // All purchased coupons (active + inactive)
   const [userPoints, setUserPoints] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('available');
+  const [activeTab, setActiveTab] = useState('shop');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [shopUrl, setShopUrl] = useState<string>('');
   const [freeCouponPrice, setFreeCouponPrice] = useState<boolean>(false);
@@ -385,8 +385,8 @@ export default function UserCouponsPage() {
       // Refresh all data
       await fetchData();
 
-      // Switch to "History" tab to show the purchased voucher
-      setActiveTab('history');
+      // Switch to "My Coupons" tab to show the purchased voucher
+      setActiveTab('myCoupons');
     } catch (error) {
       console.error('Error purchasing coupon:', error);
       toast.error(t('failedToPurchase'));
@@ -428,8 +428,8 @@ export default function UserCouponsPage() {
           setCouponHistory(allCoupons);
         }
       }
-      // Switch to history tab
-      setActiveTab('history');
+      // Switch to my coupons tab
+      setActiveTab('myCoupons');
     } else {
       toast.error(t('failedToMarkAsUsed') || 'Failed to mark coupon as used');
     }
@@ -508,23 +508,23 @@ export default function UserCouponsPage() {
       }} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2 mb-8 lg:mb-10 h-12 lg:h-14 bg-gray-100/50 p-1 rounded-xl">
           <TabsTrigger 
-            value="available" 
+            value="shop" 
             className="flex items-center gap-2 text-sm lg:text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md transition-all rounded-lg"
           >
-            <Tag className="h-4 w-4 lg:h-5 lg:w-5" />
-            {t('available') || 'Available'}
+            <ShoppingCart className="h-4 w-4 lg:h-5 lg:w-5" />
+            {t('shop') || 'Shop'}
           </TabsTrigger>
           <TabsTrigger 
-            value="history" 
+            value="myCoupons" 
             className="flex items-center gap-2 text-sm lg:text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md transition-all rounded-lg"
           >
-            <History className="h-4 w-4 lg:h-5 lg:w-5" />
-            {t('history')}
+            <Wallet className="h-4 w-4 lg:h-5 lg:w-5" />
+            {t('myCoupons') || 'My Coupons'}
           </TabsTrigger>
         </TabsList>
 
-        {/* Available Tab */}
-        <TabsContent value="available" className="space-y-6">
+        {/* Shop Tab */}
+        <TabsContent value="shop" className="space-y-6">
           <h2 className="text-3xl lg:text-4xl font-bold mb-6 lg:mb-8 text-gray-900">{t('availableCoupons')}</h2>
         {coupons.length === 0 ? (
           <div className="text-center py-16 lg:py-24 bg-white rounded-2xl border-2 border-dashed border-gray-200">
@@ -686,9 +686,9 @@ export default function UserCouponsPage() {
           )}
         </TabsContent>
 
-        {/* History Tab */}
-        <TabsContent value="history" className="space-y-6">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6 lg:mb-8 text-gray-900">{t('couponHistory')}</h2>
+        {/* My Coupons Tab */}
+        <TabsContent value="myCoupons" className="space-y-6">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 lg:mb-8 text-gray-900">{t('myCoupons')}</h2>
           {couponHistory.length === 0 ? (
             <div className="text-center py-16 lg:py-24 bg-white rounded-2xl border-2 border-dashed border-gray-200">
               <div className="inline-flex p-4 rounded-full bg-gray-100 mb-4">

@@ -14,11 +14,15 @@ interface FilterChipsProps {
   chips: FilterChip[];
   onChipClick: (chipId: string) => void;
   className?: string;
+  label?: string;
 }
 
-export function FilterChips({ chips, onChipClick, className }: FilterChipsProps) {
+export function FilterChips({ chips, onChipClick, className, label }: FilterChipsProps) {
   return (
-    <div className={cn('flex flex-wrap gap-2', className)}>
+    <div className={cn('flex flex-wrap items-center gap-2', className)}>
+      {label && (
+        <span className="text-sm font-medium text-gray-700">{label}</span>
+      )}
       {chips.map((chip) => (
         <Badge
           key={chip.id}

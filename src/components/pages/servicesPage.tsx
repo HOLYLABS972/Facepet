@@ -173,7 +173,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
                       tags={availableTags}
                       selectedTags={selectedTags}
                       onTagsChange={setSelectedTags}
-                      placeholder="סנן לפי תגיות..."
+                      placeholder={t('filterByProfession')}
                       clearAllText="נקה הכל"
                       searchTagsPlaceholder="חפש תגיות..."
                       tagsSelectedText="{count} tag selected"

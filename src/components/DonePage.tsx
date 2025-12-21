@@ -231,7 +231,7 @@ export default function DonePage({ name, imageUrl }: DonePageProps) {
   console.log('DonePage props:', { name, imageUrl });
 
   const handleBackToMyPets = () => {
-    router.push(`/${locale}/promos`);
+    router.push(`/${locale}/coupons`);
   };
 
   return (

@@ -17,14 +17,14 @@ export default async function VoucherViewPage({ params }: VoucherViewPageProps) 
   const { voucherId } = resolvedParams;
   
   if (!voucherId) {
-    redirect('/coupons');
+    redirect('/vouchers');
   }
 
   // Get user coupon (voucher)
   const result = await getUserCouponById(voucherId);
   
   if (!result.success || !result.userCoupon) {
-    redirect('/coupons');
+    redirect('/vouchers');
   }
 
   return (
