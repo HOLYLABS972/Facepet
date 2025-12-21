@@ -13,8 +13,9 @@ export const metadata: Metadata = {
   description: 'Tiny pet guardians for big peace of mind.',
   icons: {
     icon: [
-      { url: '/icons/favicon-96x96.png', type: 'image/png', sizes: '96x96' },
-      { url: '/icons/favicon.svg', type: 'image/svg+xml' }
+      { url: '/icons/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icons/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/icons/favicon-96x96.png', type: 'image/png', sizes: '96x96' }
     ],
     shortcut: '/icons/favicon.ico',
     apple: { url: '/icons/apple-touch-icon.png', sizes: '180x180' }

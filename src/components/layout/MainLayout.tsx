@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import AdDisplayManager from '@/components/AdDisplayManager';
 import Navbar from './Navbar';
 import BottomNavigation from './BottomNavigation';
+import InstallBanner from '@/components/InstallBanner';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -43,6 +44,7 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
     <main className="flex min-h-dvh flex-col m-0 p-0">
       <DirectionProvider dir={direction}>
         {!isAdminRoute && <Navbar />}
+        {!isAdminRoute && <InstallBanner />}
         <div className={`flex min-h-dvh flex-col ${!isAdminRoute ? 'pt-16' : ''}`} id="main-content">
           <Toaster />
           {!isAdminRoute && <AdDisplayManager />}

@@ -2,15 +2,13 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Settings, Mail, Ticket, UserPlus } from 'lucide-react';
+import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Settings, Mail, Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getUserRole, type UserRole } from '@/lib/utils/admin';
-import AdminInstallBanner from './AdminInstallBanner';
 import AdminTopNav from './AdminTopNav';
 import AdminBottomNav from './AdminBottomNav';
-import InstallBanner from '@/components/InstallBanner';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -170,15 +168,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {t('navigation.manageUsers')}
               </Link>
             </li>
-            <li>
-              <Link
-                href={`/${locale}/auth`}
-                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
-              >
-                <UserPlus className="h-6 w-6" />
-                {t('navigation.addUser')}
-              </Link>
-            </li>
           </ul>
         </nav>
 
@@ -189,18 +178,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </div>
 
-      {/* Desktop Install Banner - Positioned to account for sidebar */}
-      <div className="hidden md:block fixed top-0 left-64 right-0 z-40">
-        <InstallBanner />
-      </div>
-
       {/* Main content */}
       <div className="bg-background flex-1 w-full">
-        {/* Mobile: Add top padding for fixed top nav (banner will add its own space) */}
-        <AdminInstallBanner />
-
-
-        {/* Content - Add padding top for banner on desktop */}
+        {/* Content */}
         <div className='flex-1'>
           {children}
         </div>
