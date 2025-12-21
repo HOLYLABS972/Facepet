@@ -581,7 +581,7 @@ export default function SettingsPage() {
           <CardContent>
             <div className="flex items-center gap-6">
               <div className="relative">
-                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center overflow-hidden">
                   {formData.profileImage ? (
                     <img
                       src={URL.createObjectURL(formData.profileImage)}
@@ -602,7 +602,7 @@ export default function SettingsPage() {
                     />
                   ) : (
                     <div className="flex items-center justify-center w-full h-full">
-                      <span className="text-gray-500 text-sm font-medium">Profile</span>
+                      <User className="h-12 w-12 text-white" />
                     </div>
                   )}
                 </div>

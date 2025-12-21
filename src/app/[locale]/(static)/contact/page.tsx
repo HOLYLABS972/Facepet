@@ -222,6 +222,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={handleInputChange}
                         placeholder={t('form.phonePlaceholder')}
+                        className="rtl:text-right"
                       />
                     </div>
 
@@ -281,7 +282,7 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">{t('contactInfo.title')}</h3>
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4 justify-center">
+                  <div className="flex items-center gap-4 justify-center flex-row rtl:flex-row-reverse">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Mail className="h-6 w-6 text-orange-500" />
                     </div>
@@ -292,7 +293,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 justify-center">
+                  <div className="flex items-center gap-4 justify-center flex-row rtl:flex-row-reverse">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Phone className="h-6 w-6 text-orange-500" />
                     </div>
@@ -303,7 +304,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 justify-center">
+                  <div className="flex items-center gap-4 justify-center flex-row rtl:flex-row-reverse">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <MapPin className="h-6 w-6 text-orange-500" />
                     </div>

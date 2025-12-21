@@ -945,8 +945,8 @@
       "using": "Using...",
       "used": "Used",
       "promoUsed": "Coupon Used!",
-      "gotPrize": "I got a prize!",
-      "couponUsedSuccess": "Coupon used successfully!",
+      "gotPrize": "Coupon Used",
+      "couponUsedSuccess": "Your coupon was used successfully",
       "viewCoupon": "View Coupon",
       "qrCodeDescription": "Scan this QR code to view this coupon",
       "businessLocations": "Business Locations",
@@ -1330,7 +1330,7 @@
         "subject": "Subject",
         "subjectPlaceholder": "What's this about?",
         "message": "Message",
-        "messagePlaceholder": "Tell us more about your question or concern...",
+        "messagePlaceholder": "Here you can write the referral details",
         "sendButton": "Send Message",
         "sending": "Sending...",
         "successMessage": "Message sent successfully! We'll get back to you soon."
@@ -1349,7 +1349,7 @@
         "question1": "How does Chapiz work?",
         "answer1": "Chapiz uses NFC technology to store your pet's information on a chip that can be scanned by any smartphone.",
         "question2": "Is my pet's data secure?",
-        "answer2": "Yes, we use industry-standard encryption and privacy controls to protect your pet's information.",
+        "answer2": "Yes, we use encryption and privacy controls to protect your pet's information.",
         "question3": "What if my pet gets lost?",
         "answer3": "Anyone who finds your pet can scan the NFC chip to access your contact information and help reunite you."
       }
