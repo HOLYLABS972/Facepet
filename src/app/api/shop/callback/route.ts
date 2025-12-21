@@ -3,15 +3,17 @@ import { z } from 'zod';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, getDocs, updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { markCouponAsUsed } from '@/lib/firebase/user-coupons';
+import { addPointsToUserByUid } from '@/lib/firebase/points-server';
 
 // Validation schema for shop callback
 const shopCallbackSchema = z.object({
   userid: z.string().min(1, 'User ID is required'),
-  coupon: z.string().min(1, 'Coupon code is required'), // Coupon code is required
+  coupon: z.string().optional(), // Coupon code is optional now
   status: z.enum(['success', 'failed', 'pending']).optional(),
   orderId: z.string().optional(),
   message: z.string().optional(),
   token: z.string().optional(), // Unique callback token for tracking
+  points: z.number().optional(), // Optional points to credit (defaults to 20)
   // Allow additional fields from the shop
 }).passthrough();
 
@@ -243,6 +245,7 @@ export async function GET(request: NextRequest) {
       orderId: searchParams.get('orderId'),
       message: searchParams.get('message'),
       token: searchParams.get('token'), // Unique callback token
+      points: searchParams.get('points') ? parseInt(searchParams.get('points')!) : 20, // Default 20 points
     };
 
     // Validate required fields
@@ -263,52 +266,46 @@ export async function GET(request: NextRequest) {
       status: callbackData.status,
       orderId: callbackData.orderId,
       token: callbackData.token,
+      points: callbackData.points,
       timestamp: new Date().toISOString(),
       fullData: callbackData
     });
 
-    // Validate coupon code is provided
-    if (!callbackData.coupon) {
+    // Check if this callback token has already been processed (idempotency)
+    // Use userid as token if no token provided
+    const trackingToken = callbackData.token || `shop_visit_${callbackData.userid}`;
+    const processedCheck = await checkIfTokenProcessed(trackingToken);
+    if (processedCheck) {
+      console.log('Callback token already processed:', trackingToken);
       return new NextResponse(
-        generateErrorPage('Coupon code is required'),
+        generateSuccessPage('הנקודות כבר נזקפו בעבר!', 'Points already credited!'),
         { 
-          status: 400,
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
         }
       );
     }
 
-    // Check if this callback token has already been processed (idempotency)
-    if (callbackData.token) {
-      const processedCheck = await checkIfTokenProcessed(callbackData.token);
-      if (processedCheck) {
-        console.log('Callback token already processed:', callbackData.token);
-        return new NextResponse(
-          generateSuccessPage('הקופון כבר נרשם בעבר!', 'Coupon already credited!'),
-          { 
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
-          }
-        );
-      }
-    }
-
-    // Mark coupon as used and move to history
-    const couponResult = await markCouponAsUsedByCode(
-      callbackData.userid!,
-      callbackData.coupon,
-      callbackData.token || undefined,
+    // Credit points to user (default 20 points for shop visit)
+    const pointsResult = await addPointsToUserByUid(
+      callbackData.userid,
+      'share', // Using 'share' category for shop visits
+      callbackData.points,
+      `Shop visit reward - ${callbackData.points} points`,
       {
-        status: callbackData.status || undefined,
-        orderId: callbackData.orderId || undefined,
-        message: callbackData.message || undefined
+        source: 'shop_callback',
+        orderId: callbackData.orderId,
+        coupon: callbackData.coupon,
+        status: callbackData.status,
+        token: trackingToken,
+        timestamp: new Date().toISOString()
       }
     );
 
-    if (!couponResult.success) {
-      console.error('Failed to mark coupon as used:', couponResult.error);
+    if (!pointsResult.success) {
+      console.error('Failed to credit points:', pointsResult.error);
       return new NextResponse(
-        generateErrorPage(couponResult.error || 'Failed to process coupon'),
+        generateErrorPage(pointsResult.error || 'Failed to credit points'),
         { 
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
@@ -316,8 +313,29 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // If coupon code is provided, also mark it as used
+    if (callbackData.coupon) {
+      const couponResult = await markCouponAsUsedByCode(
+        callbackData.userid!,
+        callbackData.coupon,
+        trackingToken,
+        {
+          status: callbackData.status || undefined,
+          orderId: callbackData.orderId || undefined,
+          message: callbackData.message || undefined
+        }
+      );
+      
+      if (!couponResult.success) {
+        console.warn('Failed to mark coupon as used (points already credited):', couponResult.error);
+      }
+    }
+
     return new NextResponse(
-      generateSuccessPage('הקופון נזקף בהצלחה! 🎉', 'Successfully credited! 🎉'),
+      generateSuccessPage(
+        `${callbackData.points} נקודות נזקפו בהצלחה! 🎉`, 
+        `Successfully credited ${callbackData.points} points! 🎉`
+      ),
       { 
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
