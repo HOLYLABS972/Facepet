@@ -3,16 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useClickTracker } from '@/hooks/useClickTracker';
 import { usePetId } from '@/hooks/use-pet-id';
-import { fetchRandomPromo } from '@/lib/actions/promo-server';
+import { fetchRandomAd } from '@/lib/actions/ads-server';
 import AdFullPage from './get-started/AdFullPage';
-import { Promo } from '@/types/promo';
 import { usePathname } from 'next/navigation';
 
 export default function AdDisplayManager() {
   const pathname = usePathname();
   const { shouldShowAd, resetAdFlag } = useClickTracker();
   const { petId } = usePetId();
-  const [promo, setPromo] = useState<Promo | null>(null);
+  const [ad, setAd] = useState<any | null>(null);
   const [showAd, setShowAd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,14 +45,14 @@ export default function AdDisplayManager() {
 
       // Only show ads if pet details exist (petId is set in localStorage or state)
       if (shouldShowAd && hasPetId && !showAd && !isLoading) {
-        console.log('[AdDisplayManager] Fetching promo...');
+        console.log('[AdDisplayManager] Fetching ad...');
         setIsLoading(true);
         try {
-          const randomPromo = await fetchRandomPromo();
-          console.log('[AdDisplayManager] Fetched promo:', randomPromo);
+          const randomAd = await fetchRandomAd();
+          console.log('[AdDisplayManager] Fetched ad:', randomAd);
 
-          if (randomPromo && (randomPromo.imageUrl || randomPromo.youtubeUrl)) {
-            setPromo(randomPromo);
+          if (randomAd && randomAd.content) {
+            setAd(randomAd);
             setShowAd(true);
             console.log('[AdDisplayManager] Ad will be displayed');
             // Reset click count when ad is successfully shown
@@ -64,12 +63,12 @@ export default function AdDisplayManager() {
               console.error('[AdDisplayManager] Error resetting click count:', error);
             }
           } else {
-            console.log('[AdDisplayManager] No promo available or no media');
-            // No promo available, reset the flag but keep the count (user will see ad next time)
+            console.log('[AdDisplayManager] No ad available or no content');
+            // No ad available, reset the flag but keep the count (user will see ad next time)
             resetAdFlag();
           }
         } catch (error) {
-          console.error('[AdDisplayManager] Error fetching promo:', error);
+          console.error('[AdDisplayManager] Error fetching ad:', error);
           resetAdFlag();
         } finally {
           setIsLoading(false);
@@ -85,7 +84,7 @@ export default function AdDisplayManager() {
 
   const handleAdClose = () => {
     setShowAd(false);
-    setPromo(null);
+    setAd(null);
     resetAdFlag();
     // Reset click count after ad is closed
     try {
@@ -96,14 +95,13 @@ export default function AdDisplayManager() {
     }
   };
 
-  // Show ad if we have a promo with media
-  if (showAd && promo && (promo.imageUrl || promo.youtubeUrl)) {
+  // Show ad if we have an ad with content
+  if (showAd && ad && ad.content) {
     return (
       <AdFullPage
-        type={promo.youtubeUrl ? 'youtube' : 'image'}
-        time={5}
-        content={promo.imageUrl || ''}
-        youtubeUrl={promo.youtubeUrl}
+        type={ad.type || 'image'}
+        time={ad.duration || 5}
+        content={ad.content}
         onClose={handleAdClose}
       />
     );

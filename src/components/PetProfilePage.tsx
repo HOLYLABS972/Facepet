@@ -17,7 +17,6 @@ import { getBreedNameFromId, convertBreedSlugToName } from '@/src/lib/firebase/b
 import { getGenders } from '@/src/lib/hardcoded-data';
 import { breedsData } from '@/src/lib/data/comprehensive-breeds';
 import AdFullPage from './get-started/AdFullPage';
-import { fetchRandomPromo } from '@/lib/actions/promo-server';
 import { usePetId } from '@/hooks/use-pet-id';
 
 const computeAge = (birthDate: string) => {
@@ -66,7 +65,7 @@ export default function PetProfilePage({
   
   // Load and show ad when pet profile page loads (mandatory ad - only once)
   useEffect(() => {
-    const loadPromo = async () => {
+    const loadAd = async () => {
       // Only show ad if pet exists and we haven't shown an ad yet on this page load
       const hasPet = localStoragePetId || pet?.id;
       
@@ -74,18 +73,19 @@ export default function PetProfilePage({
         setIsLoadingPromo(true);
         try {
           console.log('[PetProfilePage] Loading mandatory ad for pet profile page');
-          const randomPromo = await fetchRandomPromo();
-          if (randomPromo && (randomPromo.imageUrl || randomPromo.youtubeUrl)) {
-            setPromo(randomPromo);
+          const { fetchRandomAd } = await import('@/lib/actions/ads-server');
+          const randomAd = await fetchRandomAd();
+          if (randomAd && randomAd.content) {
+            setPromo(randomAd);
             setShowPromo(true);
             adShownRef.current = true; // Mark that ad has been shown
             console.log('[PetProfilePage] Ad loaded and will be displayed');
           } else {
-            console.log('[PetProfilePage] No promo available');
-            adShownRef.current = true; // Mark as shown even if no promo (prevent retry)
+            console.log('[PetProfilePage] No ad available');
+            adShownRef.current = true; // Mark as shown even if no ad (prevent retry)
           }
         } catch (error) {
-          console.error('[PetProfilePage] Error loading promo:', error);
+          console.error('[PetProfilePage] Error loading ad:', error);
           adShownRef.current = true; // Mark as shown even on error (prevent retry)
         } finally {
           setIsLoadingPromo(false);
@@ -93,7 +93,7 @@ export default function PetProfilePage({
       }
     };
 
-    loadPromo();
+    loadAd();
   }, [localStoragePetId, pet?.id]); // Removed showPromo, isLoadingPromo, promo from dependencies
 
   const handlePromoClose = () => {
@@ -309,14 +309,13 @@ export default function PetProfilePage({
     }
   };
 
-  // Show ad if promo is loaded (mandatory ad on pet profile page)
-  if (showPromo && promo && (promo.imageUrl || promo.youtubeUrl)) {
+  // Show ad if ad is loaded (mandatory ad on pet profile page)
+  if (showPromo && promo && promo.content) {
     return (
       <AdFullPage
-        type={promo.youtubeUrl ? 'youtube' : 'image'}
-        time={5}
-        content={promo.imageUrl || ''}
-        youtubeUrl={promo.youtubeUrl}
+        type={promo.type || 'image'}
+        time={promo.duration || 5}
+        content={promo.content}
         onClose={handlePromoClose}
       />
     );

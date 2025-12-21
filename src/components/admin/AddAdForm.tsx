@@ -21,6 +21,7 @@ import { useState, useEffect } from 'react';
 import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
 import { getPetTypesForDropdown, getBreedsForDropdown, getAreasForDropdown, getCitiesForDropdown, getAgeRangesForDropdown, getWeightRangesForDropdown } from '@/lib/firebase/dropdown-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SimpleMultiselect } from '@/components/ui/simple-multiselect';
 
 export default function AddAdForm() {
   const t = useTranslations('Admin');
@@ -35,11 +36,11 @@ export default function AddAdForm() {
     description: '',
     tags: [] as string[],
     area: '',
-    city: '',
+    city: [] as string[],
     petType: '',
     breed: '',
-    ageRange: '',
-    weight: ''
+    ageRange: [] as string[],
+    weight: [] as string[]
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -166,11 +167,11 @@ export default function AddAdForm() {
         description: '',
         tags: [],
         area: '',
-        city: '',
+        city: [],
         petType: '',
         breed: '',
-        ageRange: '',
-        weight: ''
+        ageRange: [],
+        weight: []
       });
       setIsOpen(false);
 
@@ -286,20 +287,14 @@ export default function AddAdForm() {
 
             <div className="space-y-2">
               <Label htmlFor="city">{t('forms.addAd.city')}</Label>
-              <Select value={formData.city} onValueChange={(value) => {
-                setFormData((prev) => ({ ...prev, city: value }));
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('forms.addAd.cityPlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city.value} value={city.value}>
-                      {city.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SimpleMultiselect
+                options={cities}
+                selectedValues={formData.city}
+                onSelectionChange={(values) => {
+                  setFormData((prev) => ({ ...prev, city: values }));
+                }}
+                placeholder={t('forms.addAd.cityPlaceholder')}
+              />
             </div>
           </div>
 
@@ -348,38 +343,26 @@ export default function AddAdForm() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="ageRange">{t('forms.addAd.ageRange')}</Label>
-              <Select value={formData.ageRange} onValueChange={(value) => {
-                setFormData((prev) => ({ ...prev, ageRange: value }));
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('forms.addAd.ageRangePlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {ageRanges.map((ageRange) => (
-                    <SelectItem key={ageRange.value} value={ageRange.value}>
-                      {ageRange.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SimpleMultiselect
+                options={ageRanges}
+                selectedValues={formData.ageRange}
+                onSelectionChange={(values) => {
+                  setFormData((prev) => ({ ...prev, ageRange: values }));
+                }}
+                placeholder={t('forms.addAd.ageRangePlaceholder')}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="weight">{t('forms.addAd.weight')}</Label>
-              <Select value={formData.weight} onValueChange={(value) => {
-                setFormData((prev) => ({ ...prev, weight: value }));
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('forms.addAd.weightPlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {weightRanges.map((weightRange) => (
-                    <SelectItem key={weightRange.value} value={weightRange.value}>
-                      {weightRange.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SimpleMultiselect
+                options={weightRanges}
+                selectedValues={formData.weight}
+                onSelectionChange={(values) => {
+                  setFormData((prev) => ({ ...prev, weight: values }));
+                }}
+                placeholder={t('forms.addAd.weightPlaceholder')}
+              />
             </div>
           </div>
 

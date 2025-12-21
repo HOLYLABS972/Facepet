@@ -520,11 +520,11 @@ export interface Ad {
   
   // Pet-specific fields
   area?: string; // אזור
-  city?: string; // עיר
+  city?: string[]; // עיר
   petType?: string; // סוג החייה
   breed?: string; // גזע
-  ageRange?: string; // טווח גילאים
-  weight?: string; // משקל
+  ageRange?: string[]; // טווח גילאים
+  weight?: string[]; // משקל
 }
 
 /**
@@ -667,11 +667,11 @@ export async function getAdById(adId: string) {
       
       // Pet-specific fields
       area: adData.area || '',
-      city: adData.city || '',
+      city: adData.city || [],
       petType: adData.petType || '',
       breed: adData.breed || '',
-      ageRange: adData.ageRange || '',
-      weight: adData.weight || ''
+      ageRange: adData.ageRange || [],
+      weight: adData.weight || []
     };
   } catch (error) {
     console.error('Error getting ad by ID:', error);
@@ -717,11 +717,11 @@ export async function createAd({
   description?: string;
   tags?: string[];
   area?: string;
-  city?: string;
+  city?: string[];
   petType?: string;
   breed?: string;
-  ageRange?: string;
-  weight?: string;
+  ageRange?: string[];
+  weight?: string[];
 }) {
   try {
     const currentDate = new Date();
@@ -743,11 +743,11 @@ export async function createAd({
       description: description || '',
       tags: tags || [],
       area: area || '',
-      city: city || '',
+      city: city || [],
       petType: petType || '',
       breed: breed || '',
-      ageRange: ageRange || '',
-      weight: weight || '',
+      ageRange: ageRange || [],
+      weight: weight || [],
       reviews: [],
       averageRating: 0,
       totalReviews: 0
@@ -798,11 +798,11 @@ export async function updateAd(
     description?: string;
     tags?: string[];
     area?: string;
-    city?: string;
+    city?: string[];
     petType?: string;
     breed?: string;
-    ageRange?: string;
-    weight?: string;
+    ageRange?: string[];
+    weight?: string[];
   }
 ) {
   try {

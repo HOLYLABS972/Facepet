@@ -34,6 +34,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
 import { getPetTypesForDropdown, getBreedsForDropdown, getAreasForDropdown, getCitiesForDropdown, getAgeRangesForDropdown, getWeightRangesForDropdown } from '@/lib/firebase/dropdown-data';
+import { SimpleMultiselect } from '@/components/ui/simple-multiselect';
 
 interface AdActionsProps {
   ad: Ad;
@@ -70,11 +71,11 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
     description: ad.description || '',
     tags: ad.tags || [],
     area: ad.area || '',
-    city: ad.city || '',
+    city: ad.city || [],
     petType: ad.petType || '',
     breed: ad.breed || '',
-    ageRange: ad.ageRange || '',
-    weight: ad.weight || ''
+    ageRange: ad.ageRange || [],
+    weight: ad.weight || []
   });
 
   const router = useRouter();
@@ -108,11 +109,11 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
         description: ad.description || '',
         tags: ad.tags || [],
         area: ad.area || '',
-        city: ad.city || '',
+        city: ad.city || [],
         petType: ad.petType || '',
         breed: ad.breed || '',
-        ageRange: ad.ageRange || '',
-        weight: ad.weight || ''
+        ageRange: ad.ageRange || [],
+        weight: ad.weight || []
       });
     }
   }, [isEditOpen, ad]);
@@ -424,38 +425,26 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="ageRange">{t('adActions.ageRange')}</Label>
-                <Select value={formData.ageRange} onValueChange={(value) => {
-                  setFormData((prev) => ({ ...prev, ageRange: value }));
-                }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('adActions.ageRangePlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ageRanges.map((ageRange) => (
-                      <SelectItem key={ageRange.value} value={ageRange.value}>
-                        {ageRange.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SimpleMultiselect
+                  options={ageRanges}
+                  selectedValues={formData.ageRange}
+                  onSelectionChange={(values) => {
+                    setFormData((prev) => ({ ...prev, ageRange: values }));
+                  }}
+                  placeholder={t('adActions.ageRangePlaceholder')}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="weight">{t('adActions.weight')}</Label>
-                <Select value={formData.weight} onValueChange={(value) => {
-                  setFormData((prev) => ({ ...prev, weight: value }));
-                }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('adActions.weightPlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {weightRanges.map((weightRange) => (
-                      <SelectItem key={weightRange.value} value={weightRange.value}>
-                        {weightRange.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SimpleMultiselect
+                  options={weightRanges}
+                  selectedValues={formData.weight}
+                  onSelectionChange={(values) => {
+                    setFormData((prev) => ({ ...prev, weight: values }));
+                  }}
+                  placeholder={t('adActions.weightPlaceholder')}
+                />
               </div>
             </div>
 
