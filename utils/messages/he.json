@@ -184,12 +184,14 @@
     "navigation": {
       "dashboard": "לוח בקרה",
       "manageAds": "נהל פרסומות",
-      "manageComments": "נהל תגובות",
+      "manageComments": "נהל ביקורות",
       "contactSubmissions": "פניות קשר",
       "settings": "הגדרות",
       "manageUsers": "נהל משתמשים",
       "addUser": "הוסף משתמש",
-      "manageCoupons": "נהל מתנות וקופונים"
+      "manageCoupons": "נהל שוברים",
+      "managePromos": "נהל קופונים",
+      "manageBusinesses": "נהל עסקים"
     },
     "stats": {
       "totalAds": "סה\"כ פרסומות",
@@ -219,6 +221,7 @@
         "cancel": "ביטול"
       },
       "tabs": {
+        "advertisements": "פרסומות",
         "promo": "קופון",
         "filters": "מסננים",
         "businesses": "עסקים"
@@ -282,7 +285,7 @@
     "commentsManagement": "ניהול תגובות",
     "manageCommentsDescription": "נהל ובדוק תגובות משתמשים בפלטפורמה.",
     "commentsManagementPage": {
-      "title": "נהל תגובות",
+      "title": "נהל ביקורות",
       "description": "סקור ונהל תגובות וביקורות משתמשים",
       "searchPlaceholder": "חפש לפי תוכן, שם משתמש או אימייל...",
       "filters": {
@@ -306,14 +309,14 @@
     },
     "commentActions": {
       "actions": "פעולות",
-      "delete": "מחק תגובה",
-      "deleteComment": "מחק תגובה",
-      "deleteTitle": "מחק תגובה",
-      "deleteMessage": "האם אתה בטוח שברצונך למחוק את התגובה הזו? פעולה זו לא ניתנת לביטול.",
-      "comment": "תגובה:",
+      "delete": "מחק ביקורת",
+      "deleteComment": "מחק ביקורת",
+      "deleteTitle": "מחק ביקורת",
+      "deleteMessage": "האם אתה בטוח שברצונך למחוק את הביקורת הזו? פעולה זו לא ניתנת לביטול.",
+      "comment": "ביקורת:",
       "cancel": "ביטול",
       "deleting": "מוחק...",
-      "deleteCommentButton": "מחק תגובה"
+      "deleteCommentButton": "מחק ביקורת"
     },
     "contactManagement": "פניות קשר",
     "manageContactDescription": "צפה והגב לפניות מטופסי הקשר.",
@@ -481,13 +484,13 @@
       }
     },
     "couponsManagement": {
-      "title": "ניהול מתנות וקופונים",
-      "description": "צור, ערוך ונהל מתנות וקופונים ללקוחות שלך.",
-      "addNewCoupon": "הוסף מתנה/קופון חדש",
-      "name": "שם המתנה/קופון",
-      "namePlaceholder": "הזן שם מתנה/קופון",
+      "title": "ניהול שוברים",
+      "description": "צור, ערוך ונהל שוברים ללקוחות שלך.",
+      "addNewCoupon": "הוסף שובר חדש",
+      "name": "שם השובר",
+      "namePlaceholder": "הזן שם שובר",
       "description": "תיאור",
-      "descriptionPlaceholder": "הזן תיאור מתנה/קופון",
+      "descriptionPlaceholder": "הזן תיאור שובר",
       "price": "מחיר",
       "pricePlaceholder": "0.00",
       "points": "נקודות",
@@ -500,12 +503,12 @@
       "createdAt": "נוצר ב",
       "business": "עסק",
       "businessPlaceholder": "בחר עסק (אופציונלי)",
-      "noBusiness": "ללא עסק (מתנה/קופון כללי)",
-      "noCoupons": "לא נמצאו מתנות וקופונים.",
-      "createCoupon": "צור מתנה/קופון",
+      "noBusiness": "ללא עסק (שובר כללי)",
+      "noCoupons": "לא נמצאו שוברים.",
+      "createCoupon": "צור שובר",
       "edit": "ערוך",
       "delete": "מחק",
-      "confirmDelete": "האם אתה בטוח שברצונך למחוק את המתנה/קופון \"{name}\"?",
+      "confirmDelete": "האם אתה בטוח שברצונך למחוק את השובר \"{name}\"?",
       "activate": "הפעל",
       "deactivate": "השבת"
     },
@@ -681,6 +684,18 @@
       "descriptionPlaceholder": "הזן תיאור שירות...",
       "phonePlaceholder": "+972-XX-XXX-XXXX",
       "locationPlaceholder": "עיר, מדינה",
+      "area": "אזור",
+      "areaPlaceholder": "הזן אזור",
+      "city": "עיר",
+      "cityPlaceholder": "הזן עיר",
+      "petType": "סוג החייה",
+      "petTypePlaceholder": "בחר סוג החייה",
+      "breed": "גזע",
+      "breedPlaceholder": "בחר גזע",
+      "ageRange": "טווח גילאים",
+      "ageRangePlaceholder": "למשל, 1-3 שנים",
+      "weight": "משקל",
+      "weightPlaceholder": "למשל, 5 ק\"ג",
       "updating": "מעדכן...",
       "updateAd": "עדכן פרסומת",
       "deleteAd": "מחק פרסומת",
@@ -712,6 +727,18 @@
         "phonePlaceholder": "+972-XX-XXX-XXXX",
         "location": "מיקום",
         "locationPlaceholder": "עיר, מדינה",
+        "area": "אזור",
+        "areaPlaceholder": "הזן אזור",
+        "city": "עיר",
+        "cityPlaceholder": "הזן עיר",
+        "petType": "סוג החייה",
+        "petTypePlaceholder": "בחר סוג החייה",
+        "breed": "גזע",
+        "breedPlaceholder": "בחר גזע",
+        "ageRange": "טווח גילאים",
+        "ageRangePlaceholder": "למשל, 1-3 שנים",
+        "weight": "משקל",
+        "weightPlaceholder": "למשל, 5 ק\"ג",
         "createAd": "צור פרסומת",
         "creating": "יוצר..."
       }
@@ -768,9 +795,9 @@
         "enterRating": "הזן דירוג (1-5)"
       },
       "editCoupon": {
-        "title": "ערוך מתנה/קופון",
+        "title": "ערוך שובר",
         "cancel": "ביטול",
-        "update": "עדכן מתנה/קופון",
+        "update": "עדכן שובר",
         "updating": "מעדכן..."
       },
       "editPromo": {
@@ -809,6 +836,8 @@
     "save": "שמור",
     "saving": "שומר...",
     "creating": "יוצר...",
+    "serviceTags": "תגי שירות (לחץ להוספה):",
+    "selectedTags": "תגיות נבחרות:",
     "add": "הוסף",
     "update": "עדכן",
     "select": "בחר והזז"

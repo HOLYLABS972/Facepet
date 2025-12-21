@@ -184,12 +184,14 @@
     "navigation": {
       "dashboard": "Dashboard",
       "manageAds": "Manage Ads",
-      "manageComments": "Manage Comments",
+      "manageComments": "Manage Reviews",
       "contactSubmissions": "Contact Submissions",
       "settings": "Settings",
       "manageUsers": "Manage Users",
       "addUser": "Add User",
-      "manageCoupons": "Manage Vouchers"
+      "manageCoupons": "Manage Vouchers",
+      "managePromos": "Manage Coupons",
+      "manageBusinesses": "Manage Businesses"
     },
     "stats": {
       "totalAds": "Total Ads",
@@ -221,11 +223,23 @@
         "description": "Description",
         "descriptionPlaceholder": "Enter service description...",
         "phoneNumber": "Phone Number",
-        "phonePlaceholder": "+972-XX-XXX-XXXX",
-        "location": "Location",
-        "locationPlaceholder": "City, Country",
-        "createAd": "Create Ad",
-        "creating": "Creating..."
+      "phonePlaceholder": "+972-XX-XXX-XXXX",
+      "location": "Location",
+      "locationPlaceholder": "City, Country",
+      "area": "Area",
+      "areaPlaceholder": "Enter area",
+      "city": "City",
+      "cityPlaceholder": "Enter city",
+      "petType": "Pet Type",
+      "petTypePlaceholder": "Select pet type",
+      "breed": "Breed",
+      "breedPlaceholder": "Select breed",
+      "ageRange": "Age Range",
+      "ageRangePlaceholder": "e.g., 1-3 years",
+      "weight": "Weight",
+      "weightPlaceholder": "e.g., 5kg",
+      "createAd": "Create Ad",
+      "creating": "Creating..."
       }
     },
     "adsManagement": {
@@ -239,6 +253,7 @@
         "cancel": "Cancel"
       },
       "tabs": {
+        "advertisements": "Advertisements",
         "promo": "Promo",
         "filters": "Filters",
         "businesses": "Businesses"
@@ -273,7 +288,7 @@
     "commentsManagement": "Comments Management",
     "manageCommentsDescription": "Moderate and manage user comments across the platform.",
     "commentsManagementPage": {
-      "title": "Manage Comments",
+      "title": "Manage Reviews",
       "description": "Review and manage user comments and reviews",
       "searchPlaceholder": "Search by content, user name, or email...",
       "filters": {
@@ -297,14 +312,14 @@
     },
     "commentActions": {
       "actions": "Actions",
-      "delete": "Delete Comment",
-      "deleteComment": "Delete Comment",
-      "deleteTitle": "Delete Comment",
-      "deleteMessage": "Are you sure you want to delete this comment? This action cannot be undone.",
-      "comment": "Comment:",
+      "delete": "Delete Review",
+      "deleteComment": "Delete Review",
+      "deleteTitle": "Delete Review",
+      "deleteMessage": "Are you sure you want to delete this review? This action cannot be undone.",
+      "comment": "Review:",
       "cancel": "Cancel",
       "deleting": "Deleting...",
-      "deleteCommentButton": "Delete Comment"
+      "deleteCommentButton": "Delete Review"
     },
     "contactManagement": "Contact Submissions",
     "manageContactDescription": "View and respond to contact form submissions.",
@@ -613,6 +628,18 @@
       "descriptionPlaceholder": "Enter service description...",
       "phonePlaceholder": "+972-XX-XXX-XXXX",
       "locationPlaceholder": "City, Country",
+      "area": "Area",
+      "areaPlaceholder": "Enter area",
+      "city": "City",
+      "cityPlaceholder": "Enter city",
+      "petType": "Pet Type",
+      "petTypePlaceholder": "Select pet type",
+      "breed": "Breed",
+      "breedPlaceholder": "Select breed",
+      "ageRange": "Age Range",
+      "ageRangePlaceholder": "e.g., 1-3 years",
+      "weight": "Weight",
+      "weightPlaceholder": "e.g., 5kg",
       "updating": "Updating...",
       "updateAd": "Update Ad",
       "deleteAd": "Delete Ad",
@@ -810,7 +837,9 @@
     "creating": "Creating...",
     "add": "Add",
     "update": "Update",
-    "select": "Select & Move"
+    "select": "Select & Move",
+    "serviceTags": "Service Tags (Click to add):",
+    "selectedTags": "Selected Tags:"
   },
   "pages": {
     "WelcomePage": {

@@ -27,32 +27,35 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { AdStatus, AdType, deleteAd, updateAd } from '@/lib/actions/admin';
+import { AdStatus, AdType, deleteAd, updateAd, Ad } from '@/lib/actions/admin';
 import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { useState, useEffect } from 'react';
 import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
+import { getPetTypesForDropdown, getBreedsForDropdown, getAreasForDropdown, getCitiesForDropdown, getAgeRangesForDropdown, getWeightRangesForDropdown } from '@/lib/firebase/dropdown-data';
 
-interface Ad {
-  id: string;
-  title: string;
-  type: AdType;
-  content: string;
-  duration: number;
-  status: AdStatus;
-  startDate?: Date | null;
-  endDate?: Date | null;
+interface AdActionsProps {
+  ad: Ad;
+  onDelete?: () => void;
+  onUpdate?: () => void;
 }
 
-export default function AdActions({ ad }: { ad: Ad }) {
+export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
   const t = useTranslations('Admin');
   const tCommon = useTranslations('common');
+  const locale = useLocale() as 'en' | 'he';
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [petTypes, setPetTypes] = useState<Array<{ value: string; label: string }>>([]);
+  const [breeds, setBreeds] = useState<Array<{ value: string; label: string }>>([]);
+  const [areas, setAreas] = useState<Array<{ value: string; label: string }>>([]);
+  const [cities, setCities] = useState<Array<{ value: string; label: string }>>([]);
+  const [ageRanges, setAgeRanges] = useState<Array<{ value: string; label: string }>>([]);
+  const [weightRanges, setWeightRanges] = useState<Array<{ value: string; label: string }>>([]);
 
   const [formData, setFormData] = useState({
     title: ad.title,
@@ -65,10 +68,64 @@ export default function AdActions({ ad }: { ad: Ad }) {
     phone: ad.phone || '',
     location: ad.location || '',
     description: ad.description || '',
-    tags: ad.tags || []
+    tags: ad.tags || [],
+    area: ad.area || '',
+    city: ad.city || '',
+    petType: ad.petType || '',
+    breed: ad.breed || '',
+    ageRange: ad.ageRange || '',
+    weight: ad.weight || ''
   });
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (isEditOpen) {
+      loadPetTypes();
+    }
+  }, [isEditOpen]);
+
+  useEffect(() => {
+    if (formData.petType) {
+      loadBreeds(formData.petType);
+    } else {
+      setBreeds([]);
+    }
+  }, [formData.petType]);
+
+  useEffect(() => {
+    if (isEditOpen && ad) {
+      setFormData({
+        title: ad.title,
+        content: ad.content,
+        type: 'image' as AdType,
+        startDate: ad.startDate
+          ? new Date(ad.startDate).toISOString().split('T')[0]
+          : '',
+        endDate: ad.endDate ? new Date(ad.endDate).toISOString().split('T')[0] : '',
+        phone: ad.phone || '',
+        location: ad.location || '',
+        description: ad.description || '',
+        tags: ad.tags || [],
+        area: ad.area || '',
+        city: ad.city || '',
+        petType: ad.petType || '',
+        breed: ad.breed || '',
+        ageRange: ad.ageRange || '',
+        weight: ad.weight || ''
+      });
+    }
+  }, [isEditOpen, ad]);
+
+  const loadPetTypes = async () => {
+    const types = await getPetTypesForDropdown(locale);
+    setPetTypes(types);
+  };
+
+  const loadBreeds = async (petType: string) => {
+    const breedList = await getBreedsForDropdown(petType, locale);
+    setBreeds(breedList);
+  };
 
 
   const handleChange = (
@@ -117,11 +174,21 @@ export default function AdActions({ ad }: { ad: Ad }) {
         phone: formData.phone,
         location: formData.location,
         description: formData.description,
-        tags: formData.tags
+        tags: formData.tags,
+        area: formData.area,
+        city: formData.city,
+        petType: formData.petType,
+        breed: formData.breed,
+        ageRange: formData.ageRange,
+        weight: formData.weight
       });
 
       setIsEditOpen(false);
-      router.refresh();
+      if (onUpdate) {
+        onUpdate();
+      } else {
+        router.refresh();
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to update advertisement');
       console.error(err);
@@ -140,9 +207,17 @@ export default function AdActions({ ad }: { ad: Ad }) {
     setError(null);
 
     try {
-      await deleteAd(ad.id);
-      setIsDeleting(false);
-      router.refresh();
+      const result = await deleteAd(ad.id);
+      if (result.success) {
+        setIsDeleting(false);
+        if (onDelete) {
+          onDelete();
+        } else {
+          router.refresh();
+        }
+      } else {
+        setError(result.error || 'Failed to delete advertisement');
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to delete advertisement');
       console.error(err);
@@ -194,7 +269,13 @@ export default function AdActions({ ad }: { ad: Ad }) {
               phone: ad.phone || '',
               location: ad.location || '',
               description: ad.description || '',
-              tags: ad.tags || []
+              tags: ad.tags || [],
+              area: ad.area || '',
+              city: ad.city || '',
+              petType: ad.petType || '',
+              breed: ad.breed || '',
+              ageRange: ad.ageRange || '',
+              weight: ad.weight || ''
             });
             setError(null);
           }
@@ -257,6 +338,124 @@ export default function AdActions({ ad }: { ad: Ad }) {
                   onChange={handleChange}
                   placeholder={t('adActions.locationPlaceholder')}
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="area">{t('adActions.area')}</Label>
+                <Select value={formData.area} onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, area: value }));
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('adActions.areaPlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areas.map((area) => (
+                      <SelectItem key={area.value} value={area.value}>
+                        {area.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="city">{t('adActions.city')}</Label>
+                <Select value={formData.city} onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, city: value }));
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('adActions.cityPlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cities.map((city) => (
+                      <SelectItem key={city.value} value={city.value}>
+                        {city.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="petType">{t('adActions.petType')}</Label>
+                <Select value={formData.petType} onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, petType: value, breed: '' }));
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('adActions.petTypePlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {petTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="breed">{t('adActions.breed')}</Label>
+                <Select 
+                  value={formData.breed} 
+                  onValueChange={(value) => {
+                    setFormData((prev) => ({ ...prev, breed: value }));
+                  }}
+                  disabled={!formData.petType}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('adActions.breedPlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {breeds.map((breed) => (
+                      <SelectItem key={breed.value} value={breed.value}>
+                        {breed.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="ageRange">{t('adActions.ageRange')}</Label>
+                <Select value={formData.ageRange} onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, ageRange: value }));
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('adActions.ageRangePlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ageRanges.map((ageRange) => (
+                      <SelectItem key={ageRange.value} value={ageRange.value}>
+                        {ageRange.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="weight">{t('adActions.weight')}</Label>
+                <Select value={formData.weight} onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, weight: value }));
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('adActions.weightPlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {weightRanges.map((weightRange) => (
+                      <SelectItem key={weightRange.value} value={weightRange.value}>
+                        {weightRange.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

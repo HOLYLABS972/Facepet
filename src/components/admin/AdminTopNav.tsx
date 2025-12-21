@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, X, MessageSquare, Mail, Ticket, LayoutDashboard, AppWindow, Users, Settings } from 'lucide-react';
+import { Menu, X, MessageSquare, Mail, Ticket, LayoutDashboard, AppWindow, Users, Settings, Megaphone, Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -49,8 +49,18 @@ export default function AdminTopNav({ userEmail, userRole, locale }: AdminTopNav
         },
         {
             href: `/${locale}/admin/coupons`,
+            icon: Megaphone,
+            label: t('navigation.managePromos'),
+        },
+        {
+            href: `/${locale}/admin/vouchers`,
             icon: Ticket,
             label: t('navigation.manageCoupons'),
+        },
+        {
+            href: `/${locale}/admin/businesses`,
+            icon: Building2,
+            label: t('navigation.manageBusinesses'),
         },
     ];
 

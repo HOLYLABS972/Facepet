@@ -1,7 +1,8 @@
 'use client';
 
-import CouponsPage from '@/components/admin/CouponsPage';
+import PromosPage from '@/components/admin/PromosPage';
 
 export default function AdminCouponsPage() {
-  return <CouponsPage />;
+  return <PromosPage />;
 }
+

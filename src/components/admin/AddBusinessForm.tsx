@@ -14,12 +14,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-import { createBusiness, getFilters } from '@/lib/actions/admin';
+import { createBusiness } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { HEBREW_SERVICE_TAGS } from '@/src/lib/constants/hebrew-service-tags';
-import { Filter } from '@/types/promo';
 import {
   Select,
   SelectContent,
@@ -41,35 +40,12 @@ export default function AddBusinessForm() {
       address: ''
     },
     tags: [] as string[],
-    filterIds: [] as string[],
     rating: ''
   });
-  const [filters, setFilters] = useState<Filter[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchFilters();
-    }
-  }, [isOpen]);
-
-  const fetchFilters = async () => {
-    setLoading(true);
-    try {
-      const filtersResult = await getFilters();
-      if (filtersResult.success && filtersResult.filters) {
-        setFilters(filtersResult.filters);
-      }
-    } catch (err) {
-      console.error('Error fetching filters:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -116,13 +92,6 @@ export default function AddBusinessForm() {
     }));
   };
 
-  const handleFilterChange = (selectedIds: string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      filterIds: selectedIds
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -137,7 +106,6 @@ export default function AddBusinessForm() {
         imageUrl: formData.imageUrl && formData.imageUrl.trim() !== '' ? formData.imageUrl : '',
         contactInfo: formData.contactInfo,
         tags: formData.tags,
-        filterIds: formData.filterIds && formData.filterIds.length > 0 ? formData.filterIds : undefined,
         rating: formData.rating ? Number(formData.rating) : undefined
       }, 'admin'); // TODO: Get actual user ID
 
@@ -158,7 +126,6 @@ export default function AddBusinessForm() {
           address: ''
         },
         tags: [],
-        filterIds: [],
         rating: ''
       });
       setIsOpen(false);
@@ -319,32 +286,6 @@ export default function AddBusinessForm() {
                 rows={2}
                 required
               />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>{t('businessManagement.filters') || 'Filters'}</Label>
-            <div className="space-y-2">
-              {filters.filter(f => f.isActive).map((filter) => (
-                <label key={filter.id} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.filterIds.includes(filter.id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        handleFilterChange([...formData.filterIds, filter.id]);
-                      } else {
-                        handleFilterChange(formData.filterIds.filter(id => id !== filter.id));
-                      }
-                    }}
-                    className="cursor-pointer"
-                  />
-                  <span>{filter.name}</span>
-                </label>
-              ))}
-              {filters.filter(f => f.isActive).length === 0 && (
-                <p className="text-sm text-gray-500">{t('businessManagement.noFiltersAvailable') || 'No filters available'}</p>
-              )}
             </div>
           </div>
 

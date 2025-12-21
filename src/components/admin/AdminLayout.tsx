@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Settings, Mail, Ticket } from 'lucide-react';
+import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Settings, Mail, Ticket, Megaphone, Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -125,6 +125,33 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </li>
             <li>
               <Link
+                href={`/${locale}/admin/coupons`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Megaphone className="h-6 w-6" />
+                {t('navigation.managePromos')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/admin/vouchers`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Ticket className="h-6 w-6" />
+                {t('navigation.manageCoupons')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/admin/businesses`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <Building2 className="h-6 w-6" />
+                {t('navigation.manageBusinesses')}
+              </Link>
+            </li>
+            <li>
+              <Link
                 href={`/${locale}/admin/comments`}
                 className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
               >
@@ -148,15 +175,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Settings className="h-6 w-6" />
                 {t('navigation.settings')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={`/${locale}/admin/coupons`}
-                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
-              >
-                <Ticket className="h-6 w-6" />
-                {t('navigation.manageCoupons')}
               </Link>
             </li>
             <li>

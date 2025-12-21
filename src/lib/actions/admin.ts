@@ -517,6 +517,14 @@ export interface Ad {
   reviews?: ServiceReview[];
   averageRating?: number;
   totalReviews?: number;
+  
+  // Pet-specific fields
+  area?: string; // אזור
+  city?: string; // עיר
+  petType?: string; // סוג החייה
+  breed?: string; // גזע
+  ageRange?: string; // טווח גילאים
+  weight?: string; // משקל
 }
 
 /**
@@ -649,7 +657,21 @@ export async function getAdById(adId: string) {
       createdAt: adData.createdAt?.toDate() || new Date(),
       updatedAt: adData.updatedAt?.toDate() || new Date(),
       createdBy: adData.createdBy || null,
-      pets: adData.pets || []
+      pets: adData.pets || [],
+      
+      // Service-specific fields
+      phone: adData.phone || '',
+      location: adData.location || '',
+      description: adData.description || '',
+      tags: adData.tags || [],
+      
+      // Pet-specific fields
+      area: adData.area || '',
+      city: adData.city || '',
+      petType: adData.petType || '',
+      breed: adData.breed || '',
+      ageRange: adData.ageRange || '',
+      weight: adData.weight || ''
     };
   } catch (error) {
     console.error('Error getting ad by ID:', error);
@@ -673,7 +695,13 @@ export async function createAd({
   phone,
   location,
   description,
-  tags
+  tags,
+  area,
+  city,
+  petType,
+  breed,
+  ageRange,
+  weight
 }: {
   title: string;
   type: AdType;
@@ -688,6 +716,12 @@ export async function createAd({
   location?: string;
   description?: string;
   tags?: string[];
+  area?: string;
+  city?: string;
+  petType?: string;
+  breed?: string;
+  ageRange?: string;
+  weight?: string;
 }) {
   try {
     const currentDate = new Date();
@@ -708,6 +742,12 @@ export async function createAd({
       location: location || '',
       description: description || '',
       tags: tags || [],
+      area: area || '',
+      city: city || '',
+      petType: petType || '',
+      breed: breed || '',
+      ageRange: ageRange || '',
+      weight: weight || '',
       reviews: [],
       averageRating: 0,
       totalReviews: 0
@@ -737,7 +777,13 @@ export async function updateAd(
     phone,
     location,
     description,
-    tags
+    tags,
+    area,
+    city,
+    petType,
+    breed,
+    ageRange,
+    weight
   }: {
     title?: string;
     type?: AdType;
@@ -751,6 +797,12 @@ export async function updateAd(
     location?: string;
     description?: string;
     tags?: string[];
+    area?: string;
+    city?: string;
+    petType?: string;
+    breed?: string;
+    ageRange?: string;
+    weight?: string;
   }
 ) {
   try {
@@ -770,6 +822,12 @@ export async function updateAd(
     if (location !== undefined) updateValues.location = location;
     if (description !== undefined) updateValues.description = description;
     if (tags !== undefined) updateValues.tags = tags;
+    if (area !== undefined) updateValues.area = area;
+    if (city !== undefined) updateValues.city = city;
+    if (petType !== undefined) updateValues.petType = petType;
+    if (breed !== undefined) updateValues.breed = breed;
+    if (ageRange !== undefined) updateValues.ageRange = ageRange;
+    if (weight !== undefined) updateValues.weight = weight;
 
     await updateDoc(doc(db, 'advertisements', adId), updateValues);
 
