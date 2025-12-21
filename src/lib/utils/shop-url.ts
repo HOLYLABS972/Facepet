@@ -26,10 +26,8 @@ export function generateShopUrl(
   callbackUrl?: string,
   uniqueCallback: boolean = false
 ): string {
-  // Get the base URL for the callback (default to current origin)
-  const baseUrl = typeof window !== 'undefined' 
-    ? window.location.origin 
-    : process.env.NEXT_PUBLIC_APP_URL || '';
+  // Use facepet.club as the base URL for callbacks
+  const baseUrl = 'https://facepet.club';
 
   // Generate unique callback URL if requested
   let finalCallbackUrl: string;
@@ -72,10 +70,8 @@ export function generateShopUrlWithParams(
   },
   uniqueCallback: boolean = false
 ): string {
-  // Get the base URL for the callback (default to current origin)
-  const baseUrl = typeof window !== 'undefined' 
-    ? window.location.origin 
-    : process.env.NEXT_PUBLIC_APP_URL || '';
+  // Use facepet.club as the base URL for callbacks
+  const baseUrl = 'https://facepet.club';
 
   // Ensure shopUrl doesn't end with a slash
   const cleanShopUrl = shopUrl.replace(/\/$/, '');
@@ -123,9 +119,8 @@ export function generateShopUrlWithUniqueCallback(
   coupon: string,
   customToken?: string
 ): { shopUrl: string; callbackToken: string; callbackUrl: string } {
-  const baseUrl = typeof window !== 'undefined' 
-    ? window.location.origin 
-    : process.env.NEXT_PUBLIC_APP_URL || '';
+  // Use facepet.club as the base URL for callbacks
+  const baseUrl = 'https://facepet.club';
 
   const token = customToken || generateCallbackToken();
   const callbackUrl = `${baseUrl}/api/shop/callback?token=${token}`;
