@@ -105,6 +105,11 @@ export default function InstallBannerPreview({ initialData }: InstallBannerPrevi
                       {t('iosInstructionsPart1')} <Share className="inline h-3 w-3 mx-1" /> {t('iosInstructionsPart2')}
                     </p>
                   )}
+                  {isAndroid && !deferredPrompt && (
+                    <p className="text-xs mt-1 opacity-90">
+                      פתח תפריט ⋮ ובחר &quot;הוסף למסך הבית&quot;
+                    </p>
+                  )}
                   {isDesktop && !deferredPrompt && (
                     <p className="text-xs mt-1 opacity-90">
                       {t('desktopInstructions')}
@@ -112,7 +117,8 @@ export default function InstallBannerPreview({ initialData }: InstallBannerPrevi
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {deferredPrompt && (isAndroid || isDesktop) && (
+                  {/* Only show install button when native prompt is available */}
+                  {deferredPrompt && (
                     <Button
                       onClick={handleInstall}
                       size="sm"

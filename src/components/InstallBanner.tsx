@@ -9,7 +9,6 @@ export default function InstallBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -27,7 +26,6 @@ export default function InstallBanner() {
     
     setIsIOS(/iPhone|iPad|iPod/i.test(userAgent));
     setIsAndroid(/Android/i.test(userAgent));
-    setIsDesktop(false);
 
     // Check if user dismissed the banner before
     if (typeof window !== 'undefined') {
@@ -121,16 +119,33 @@ export default function InstallBanner() {
               הקש על <Share className="inline h-3 w-3 mx-1" /> ואז &quot;הוסף למסך הבית&quot;
             </p>
           )}
+          {isAndroid && !deferredPrompt && (
+            <p className="text-xs mt-1 opacity-90">
+              פתח תפריט ⋮ ובחר &quot;הוסף למסך הבית&quot;
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Only show install button on Android when native prompt is available */}
+          {deferredPrompt && (
+            <Button
+              onClick={handleInstall}
+              size="sm"
+              variant="secondary"
+              className="bg-white text-primary hover:bg-gray-100"
+            >
+              <Download className="h-4 w-4 mr-1" />
+              הורד
+            </Button>
+          )}
+          {/* Always show dismiss button */}
           <Button
-            onClick={handleInstall}
+            onClick={handleDismiss}
             size="sm"
-            variant="secondary"
-            className="bg-white text-primary hover:bg-gray-100"
+            variant="ghost"
+            className="text-white hover:bg-white/20"
           >
-            <Download className="h-4 w-4 mr-1" />
-            הורד
+            ✕
           </Button>
         </div>
       </div>
