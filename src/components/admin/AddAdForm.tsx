@@ -306,16 +306,16 @@ export default function AddAdForm() {
               )}
             </div>
           ) : (
-            <div className="space-y-2">
-              <Label htmlFor="content">{t('forms.addAd.content')}</Label>
-              <MediaUpload
+          <div className="space-y-2">
+            <Label htmlFor="content">{t('forms.addAd.content')}</Label>
+            <MediaUpload
                 type={mediaType}
-                value={formData.content}
-                onChange={(filePath) => {
-                  setFormData((prev) => ({ ...prev, content: filePath }));
-                }}
-              />
-            </div>
+              value={formData.content}
+              onChange={(filePath) => {
+                setFormData((prev) => ({ ...prev, content: filePath }));
+              }}
+            />
+          </div>
           )}
 
           <div className="space-y-2">

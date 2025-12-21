@@ -21,20 +21,20 @@ export default function AdsPage({ searchParams }: AdsPageProps) {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 rtl:md:flex-row-reverse">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 rtl:md:flex-row-reverse">
           <AddAdForm />
-          <div>
+            <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               {t('adsManagement.title')}
             </h1>
-            <p className="text-gray-600 mt-2 text-sm md:text-base">
+              <p className="text-gray-600 mt-2 text-sm md:text-base">
               {t('adsManagement.description')}
-            </p>
+              </p>
           </div>
-        </div>
-        
+          </div>
+          
         <AdsTable />
-      </div>
+          </div>
     </div>
   );
 }

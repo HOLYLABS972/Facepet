@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/firebase/config';
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp, deleteField } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp, deleteField, Timestamp } from 'firebase/firestore';
 import { hash } from 'bcryptjs';
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
 import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData, CreateFilterData, UpdateFilterData } from '@/types/promo';
@@ -2213,13 +2213,31 @@ export async function deleteFilter(id: string) {
  */
 export async function createPromo(promoData: CreatePromoData, createdBy: string) {
   try {
-    const docRef = await addDoc(collection(db, 'promos'), {
+    // Convert Date objects to Timestamps for Firestore
+    const dataToSave: any = {
       ...promoData,
       isActive: true,
       createdBy,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    });
+    };
+    
+    // Convert startDate and endDate to Timestamps if they exist
+    if (promoData.startDate && promoData.startDate instanceof Date) {
+      dataToSave.startDate = Timestamp.fromDate(promoData.startDate);
+    } else {
+      // Remove undefined dates from dataToSave
+      delete dataToSave.startDate;
+    }
+    
+    if (promoData.endDate && promoData.endDate instanceof Date) {
+      dataToSave.endDate = Timestamp.fromDate(promoData.endDate);
+    } else {
+      // Remove undefined dates from dataToSave
+      delete dataToSave.endDate;
+    }
+    
+    const docRef = await addDoc(collection(db, 'promos'), dataToSave);
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error creating promo:', error);
@@ -2235,14 +2253,33 @@ export async function getPromos() {
     const q = query(collection(db, 'promos'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     
-    const promos = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-      startDate: doc.data().startDate?.toDate() || undefined,
-      endDate: doc.data().endDate?.toDate() || undefined
-    }));
+    const promos = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      
+      // Helper function to safely convert dates
+      const convertDate = (dateValue: any): Date | undefined => {
+        if (!dateValue) return undefined;
+        if (dateValue instanceof Date) return dateValue;
+        if (dateValue?.toDate && typeof dateValue.toDate === 'function') {
+          return dateValue.toDate();
+        }
+        if (typeof dateValue === 'string' || typeof dateValue === 'number') {
+          return new Date(dateValue);
+        }
+        return undefined;
+      };
+      
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: convertDate(data.createdAt) || new Date(),
+        updatedAt: convertDate(data.updatedAt) || new Date(),
+        startDate: convertDate(data.startDate),
+        endDate: convertDate(data.endDate),
+        // Ensure isActive defaults to true if not set
+        isActive: data.isActive !== undefined ? data.isActive : true
+      };
+    });
     
     return { success: true, promos };
   } catch (error) {

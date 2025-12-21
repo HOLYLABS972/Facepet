@@ -220,7 +220,7 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
       if (onUpdate) {
         onUpdate();
       } else {
-        router.refresh();
+      router.refresh();
       }
     } catch (err: any) {
       setError(err.message || 'Failed to update advertisement');
@@ -242,11 +242,11 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
     try {
       const result = await deleteAd(ad.id);
       if (result.success) {
-        setIsDeleting(false);
+      setIsDeleting(false);
         if (onDelete) {
           onDelete();
         } else {
-          router.refresh();
+      router.refresh();
         }
       } else {
         setError(result.error || 'Failed to delete advertisement');
@@ -590,16 +590,16 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
                 )}
               </div>
             ) : (
-              <div className="space-y-2">
-                <Label htmlFor="content">{t('adActions.content')}</Label>
-                <MediaUpload
+            <div className="space-y-2">
+              <Label htmlFor="content">{t('adActions.content')}</Label>
+              <MediaUpload
                   type={mediaType}
-                  value={formData.content}
-                  onChange={(filePath) => {
-                    setFormData((prev) => ({ ...prev, content: filePath }));
-                  }}
-                />
-              </div>
+                value={formData.content}
+                onChange={(filePath) => {
+                  setFormData((prev) => ({ ...prev, content: filePath }));
+                }}
+              />
+            </div>
             )}
 
 

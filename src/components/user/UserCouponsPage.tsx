@@ -461,10 +461,10 @@ export default function UserCouponsPage() {
         <div className="mb-8 lg:mb-12 text-right">
           <div className="flex items-start justify-between gap-4 mb-3">
             <div className="flex-1">
-              <h1 className="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                {t('title')}
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl ml-auto">{t('description')}</p>
+          <h1 className="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            {t('title')}
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl ml-auto">{t('description')}</p>
             </div>
             <Button
               onClick={handleShare}

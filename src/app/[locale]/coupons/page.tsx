@@ -1,6 +1,5 @@
 import PromosPageClient from '@/components/pages/PromosPageClient';
 import { getPromos, getBusinesses } from '@/lib/actions/admin';
-import Navbar from '@/components/layout/Navbar';
 import { Promo, Business } from '@/types/promo';
 
 interface CouponsPageProps {
@@ -28,6 +27,10 @@ const page = async ({ searchParams }: CouponsPageProps) => {
   // Get promos and businesses, defaulting to empty arrays on error
   let promos: Promo[] = promosResult.success ? promosResult.promos : [];
   const businesses: Business[] = businessesResult.success ? businessesResult.businesses : [];
+  
+  // Debug: Log all promos before filtering
+  console.log('All promos fetched:', promos.length);
+  console.log('Promos data:', promos.map(p => ({ id: p.id, name: p.name, isActive: p.isActive, startDate: p.startDate, endDate: p.endDate, imageUrl: p.imageUrl })));
 
   // Filter promos by businessId if provided
   let business: Business | null = null;
@@ -46,45 +49,21 @@ const page = async ({ searchParams }: CouponsPageProps) => {
     });
   }
 
-  // Filter for active promos only
-  const now = new Date();
+  // Filter for active promos only (be lenient - only exclude if explicitly set to false)
   promos = promos.filter(promo => {
-    // Only exclude if explicitly set to false
-    if (promo.isActive === false) {
-      return false;
-    }
-    
-    // Check date range if both dates are provided
-    if (promo.startDate && promo.endDate) {
-      if (now < promo.startDate || now > promo.endDate) {
-        return false;
-      }
-    } else if (promo.startDate && !promo.endDate) {
-      // If only start date, check if it has started
-      if (now < promo.startDate) {
-        return false;
-      }
-    } else if (!promo.startDate && promo.endDate) {
-      // If only end date, check if it hasn't ended
-      if (now > promo.endDate) {
-        return false;
-      }
-    }
-    
-    return true;
+    // Only exclude if explicitly set to false (default to true if undefined)
+    return promo.isActive !== false;
   });
+  
+  // Debug logging
+  console.log(`Promos after filtering (isActive check only): ${promos.length}`);
 
   return (
-    <>
-      <Navbar />
-      <div className="flex grow flex-col">
-        <PromosPageClient 
-          promos={promos} 
-          business={business}
-          businesses={businesses}
-        />
-      </div>
-    </>
+    <PromosPageClient 
+      promos={promos} 
+      business={business}
+      businesses={businesses}
+    />
   );
 };
 

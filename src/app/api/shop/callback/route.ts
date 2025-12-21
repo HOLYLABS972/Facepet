@@ -229,6 +229,7 @@ export async function POST(request: NextRequest) {
 /**
  * GET endpoint to receive callback from shop (if shop prefers GET)
  * Some shops may use GET requests with query parameters
+ * Returns an HTML page for user-facing redirects
  */
 export async function GET(request: NextRequest) {
   try {
@@ -246,14 +247,11 @@ export async function GET(request: NextRequest) {
 
     // Validate required fields
     if (!callbackData.userid) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: 'User ID is required' 
-        },
+      return new NextResponse(
+        generateErrorPage('User ID is required'),
         { 
           status: 400,
-          headers: corsHeaders
+          headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
         }
       );
     }
@@ -271,14 +269,11 @@ export async function GET(request: NextRequest) {
 
     // Validate coupon code is provided
     if (!callbackData.coupon) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Coupon code is required' 
-        },
+      return new NextResponse(
+        generateErrorPage('Coupon code is required'),
         { 
           status: 400,
-          headers: corsHeaders
+          headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
         }
       );
     }
@@ -288,16 +283,11 @@ export async function GET(request: NextRequest) {
       const processedCheck = await checkIfTokenProcessed(callbackData.token);
       if (processedCheck) {
         console.log('Callback token already processed:', callbackData.token);
-        return NextResponse.json(
-          { 
-            success: true, 
-            message: 'Callback already processed',
-            couponMarkedAsUsed: false,
-            receivedAt: new Date().toISOString()
-          },
+        return new NextResponse(
+          generateSuccessPage('הקופון כבר נרשם בעבר!', 'Coupon already credited!'),
           { 
             status: 200,
-            headers: corsHeaders
+            headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
           }
         );
       }
@@ -317,45 +307,208 @@ export async function GET(request: NextRequest) {
 
     if (!couponResult.success) {
       console.error('Failed to mark coupon as used:', couponResult.error);
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: couponResult.error || 'Failed to process coupon',
-          receivedAt: new Date().toISOString()
-        },
+      return new NextResponse(
+        generateErrorPage(couponResult.error || 'Failed to process coupon'),
         { 
           status: 400,
-          headers: corsHeaders
+          headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
         }
       );
     }
 
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Coupon marked as used successfully',
-        couponMarkedAsUsed: true,
-        userCouponId: couponResult.userCouponId,
-        receivedAt: new Date().toISOString()
-      },
+    return new NextResponse(
+      generateSuccessPage('הקופון נזקף בהצלחה! 🎉', 'Successfully credited! 🎉'),
       { 
         status: 200,
-        headers: corsHeaders
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
       }
     );
   } catch (error) {
     console.error('Shop callback error (GET):', error);
     
-    return NextResponse.json(
-      { 
-        success: false, 
-        message: 'Internal server error' 
-      },
+    return new NextResponse(
+      generateErrorPage('Internal server error'),
       { 
         status: 500,
-        headers: corsHeaders
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }
       }
     );
   }
+}
+
+/**
+ * Generate a success HTML page with auto-redirect
+ */
+function generateSuccessPage(hebrewMessage: string, englishMessage: string): string {
+  return `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>הצלחה - Facepet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.5s ease-out;
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .success-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: bounce 1s ease infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    h1 {
+      font-size: 32px;
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    p {
+      font-size: 18px;
+      color: #718096;
+      margin-bottom: 30px;
+    }
+    .redirect-text {
+      font-size: 14px;
+      color: #a0aec0;
+    }
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="success-icon">✅</div>
+    <h1>${hebrewMessage}</h1>
+    <p>${englishMessage}</p>
+    <p class="redirect-text">מיד תועברו חזרה לאפליקציה...</p>
+    <p class="redirect-text">Redirecting back to the app...</p>
+  </div>
+  <script>
+    // Redirect after 3 seconds
+    setTimeout(() => {
+      window.location.href = 'https://facepet.club/he/coupons';
+    }, 3000);
+  </script>
+</body>
+</html>`;
+}
+
+/**
+ * Generate an error HTML page
+ */
+function generateErrorPage(errorMessage: string): string {
+  return `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>שגיאה - Facepet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .error-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 32px;
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    p {
+      font-size: 18px;
+      color: #718096;
+      margin-bottom: 30px;
+    }
+    .error-message {
+      font-size: 14px;
+      color: #e53e3e;
+      background: #fed7d7;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .redirect-text {
+      font-size: 14px;
+      color: #a0aec0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-icon">❌</div>
+    <h1>אופס! משהו השתבש</h1>
+    <p>Oops! Something went wrong</p>
+    <div class="error-message">${errorMessage}</div>
+    <p class="redirect-text">מיד תועברו חזרה לאפליקציה...</p>
+    <p class="redirect-text">Redirecting back to the app...</p>
+  </div>
+  <script>
+    // Redirect after 5 seconds
+    setTimeout(() => {
+      window.location.href = 'https://facepet.club/he/coupons';
+    }, 5000);
+  </script>
+</body>
+</html>`;
 }
 
