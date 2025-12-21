@@ -279,35 +279,35 @@ export default function ContactPage() {
               className="space-y-8"
             >
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('contactInfo.title')}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">{t('contactInfo.title')}</h3>
                 <div className="space-y-6">
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-4 justify-center">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Mail className="h-6 w-6 text-orange-500" />
                     </div>
-                    <div>
+                    <div className="text-center">
                       <h4 className="font-semibold text-gray-900">{t('contactInfo.email')}</h4>
                       <p className="text-gray-600">{isLoadingContactInfo ? 'Loading...' : contactInfo.email}</p>
                       <p className="text-sm text-gray-500">{t('contactInfo.emailResponse')}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-4 justify-center">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Phone className="h-6 w-6 text-orange-500" />
                     </div>
-                    <div>
+                    <div className="text-center">
                       <h4 className="font-semibold text-gray-900">{t('contactInfo.phone')}</h4>
                       <p className="text-gray-600">{isLoadingContactInfo ? 'Loading...' : contactInfo.phone}</p>
                       <p className="text-sm text-gray-500">{t('contactInfo.phoneHours')}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-4 justify-center">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <MapPin className="h-6 w-6 text-orange-500" />
                     </div>
-                    <div>
+                    <div className="text-center">
                       <h4 className="font-semibold text-gray-900">{t('contactInfo.address')}</h4>
                       <p className="text-gray-600">
                         {isLoadingContactInfo ? 'Loading...' : contactInfo.address.split('\n').map((line, index) => (
@@ -323,8 +323,8 @@ export default function ContactPage() {
                   {/* Social Media Links */}
                   {(contactInfo.facebook || contactInfo.instagram || contactInfo.whatsapp) && (
                     <div className="space-y-4">
-                      <h4 className="font-semibold text-gray-900">{t('contactInfo.followUs')}</h4>
-                      <div className="flex flex-wrap gap-4">
+                      <h4 className="font-semibold text-gray-900 text-center">{t('contactInfo.followUs')}</h4>
+                      <div className="flex flex-wrap gap-4 justify-center">
                         {contactInfo.facebook && (
                           <a 
                             href={contactInfo.facebook} 

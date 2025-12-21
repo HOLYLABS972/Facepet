@@ -235,13 +235,13 @@ const Navbar = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href="/promos" className="flex items-center">
-                            <Gift className="mr-2 h-4 w-4" />
+                            <Ticket className="mr-2 h-4 w-4" />
                             <span>{t('bottomNav.giftsAndVouchers') || t('allPromos')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href="/coupons" className="flex items-center">
-                            <Ticket className="mr-2 h-4 w-4" />
+                            <Gift className="mr-2 h-4 w-4" />
                             <span>{t('bottomNav.myCoupons') || t('coupons')}</span>
                           </Link>
                         </DropdownMenuItem>
@@ -275,13 +275,13 @@ const Navbar = () => {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} className="text-orange-600">
+                      <DropdownMenuItem onClick={handleLogout} className="text-primary">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>{t('signOut')}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {/* Store Button - Outlined Orange (Always visible for logged in users) */}
+                  {/* Store Button - Outlined Primary (Always visible for logged in users) */}
                     <Button
                       variant="outline"
                       size="sm"
@@ -290,7 +290,7 @@ const Navbar = () => {
                         window.location.href = storeUrl;
                       }
                     }}
-                      className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2"
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     <span className="text-center">חנות צ'אפיז</span>
@@ -298,22 +298,36 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  {/* Desktop: Group Login, Contact on the right */}
+                  {/* Desktop: Group Login, Store, Contact on the right */}
                   <div className="hidden md:flex items-center gap-2 flex-shrink-0">
                     <Button
                       variant="default"
                       size="sm"
                       onClick={() => router.push('/auth')}
-                      className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500 flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2"
+                      className="bg-primary hover:bg-primary hover:opacity-70 text-white border-primary flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2 transition-opacity"
                     >
                       <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       {t('signIn')}
+                    </Button>
+                    {/* Store Button - Outlined Primary (Always visible for not logged in users) */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (storeUrl) {
+                          window.location.href = storeUrl;
+                        }
+                      }}
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
+                    >
+                      <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <span className="text-center">חנות צ'אפיז</span>
                     </Button>
                     <Button
                       variant={pathname?.includes('/contact') ? 'outline' : 'ghost'}
                       size="sm"
                       onClick={() => router.push('/contact')}
-                      className={`${pathname?.includes('/contact') ? 'border-primary text-primary' : ''} flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3`}
+                      className={`${pathname?.includes('/contact') ? 'border-primary text-primary hover:bg-primary/10' : 'hover:bg-gray-100 hover:text-primary'} flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 transition-colors`}
                     >
                       <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t('contact') || 'Contact'}
@@ -350,20 +364,6 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {/* Store Button - Outlined Orange (Always visible for not logged in users) */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      if (storeUrl) {
-                        window.location.href = storeUrl;
-                      }
-                    }}
-                    className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-600 flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 flex-shrink-0 gap-1.5 sm:gap-2"
-                  >
-                    <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="text-center">חנות צ'אפיז</span>
-                  </Button>
                 </>
               )}
             </div>

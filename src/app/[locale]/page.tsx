@@ -7,7 +7,8 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 // Pet images - using public paths for Next.js Image component
 const petImages = {
@@ -29,7 +30,7 @@ const petCharacters = [
     isMiddle: true,
     src: petImages.pig,
     alt: 'pig',
-    size: 167,
+    size: 160,
     top: 120,
     right: -20,
     degrees: -13.722
@@ -41,7 +42,7 @@ const petCharacters = [
     isMiddle: false,
     src: petImages.bunny,
     alt: 'bunny',
-    size: 163,
+    size: 160,
     top: 1,
     right: -61,
     degrees: -11.96
@@ -53,7 +54,7 @@ const petCharacters = [
     isMiddle: false,
     src: petImages.dino,
     alt: 'dino',
-    size: 198,
+    size: 160,
     top: 10,
     right: 50,
     degrees: 2.283
@@ -65,7 +66,7 @@ const petCharacters = [
     isMiddle: false,
     src: petImages.duck,
     alt: 'duck',
-    size: 185,
+    size: 160,
     top: 150,
     right: -60,
     degrees: 8.077
@@ -77,7 +78,7 @@ const petCharacters = [
     isMiddle: false,
     src: petImages.penguin,
     alt: 'penguin',
-    size: 152,
+    size: 160,
     top: 180,
     right: 80,
     degrees: 22.271
@@ -89,7 +90,7 @@ const petCharacters = [
     isMiddle: true,
     src: petImages.bear,
     alt: 'bear',
-    size: 143,
+    size: 160,
     top: 100,
     right: 0,
     degrees: 5.941
@@ -148,38 +149,38 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
   return (
     <>
       {/* Main Welcome Content */}
-      <section className="relative mt-16 px-4 sm:px-7 pt-8 pb-0 min-h-[600px] overflow-visible max-w-7xl mx-auto">
-        {/* Pet Icons Around Text - using existing petCharacters */}
-        {petCharacters
-          .filter(pet => pet.id !== 4 && pet.id !== 5) // Remove duck (4) and penguin (5)
-          .map((pet, index) => (
+      <section className="relative mt-16 px-4 sm:px-7 pt-32 pb-0 min-h-[600px] overflow-visible w-full">
+        <div className="relative max-w-7xl mx-auto">
+          {/* Pet Icons Around Text - all 6 pets in horizontal oval */}
+          {petCharacters.map((pet, index) => (
             <AnimatedPetAroundText key={pet.id} pet={pet} index={index} />
           ))}
 
-        <div className="relative z-10">
-          <div className="text-center text-3xl lg:text-4xl pt-4 mt-[100px]">
-            <p className="text-gray-500">{t('upperTitle')}</p>
-            <p className="text-black">{t('lowerTitle')}</p>
-          </div>
+          <div className="relative z-10">
+            <div className="text-center text-3xl lg:text-4xl pt-4 mt-[100px]">
+              <p className="text-gray-500">{t('upperTitle')}</p>
+              <p className="text-black">{t('lowerTitle')}</p>
+            </div>
 
-          {/* Mobile Get Started Button */}
-          <div className="mt-8 flex justify-center sm:hidden">
-            <Button
-              onClick={() => router.push('/auth')}
-              className="h-[48px] w-auto px-8 bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg flex items-center justify-center"
-            >
-              {t('buttonLabel')}
-            </Button>
-          </div>
+            {/* Mobile Get Started Button */}
+            <div className="mt-8 flex justify-center sm:hidden">
+              <Button
+                onClick={() => router.push('/auth')}
+                className="h-[48px] w-auto px-8 bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg flex items-center justify-center"
+              >
+                {t('buttonLabel')}
+              </Button>
+            </div>
 
-          {/* Desktop Get Started Button */}
-          <div className="mt-8 hidden w-full items-center justify-center sm:flex">
-            <Button
-              onClick={() => router.push('/auth')}
-              className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
-            >
-              {t('buttonLabel')}
-            </Button>
+            {/* Desktop Get Started Button */}
+            <div className="mt-8 hidden w-full items-center justify-center sm:flex">
+              <Button
+                onClick={() => router.push('/auth')}
+                className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
+              >
+                {t('buttonLabel')}
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -216,125 +217,114 @@ type AnimatedPetProps = {
   index: number;
 };
 
-// Component for pets around text section
-const AnimatedPetAroundText = ({ pet }: AnimatedPetProps) => {
+// Component for pets around text section - arranged in horizontal oval
+const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   const [isFalling, setIsFalling] = useState(false);
   const [hasFallen, setHasFallen] = useState(false);
   
-  // Position pets on left and right sides, distributed top to bottom
-  const isLeftSide = !pet.isRight;
-  
-  // Distribute pets vertically with more space: 4 at top (2 on each side), 2 below
-  // Left side: bunny (top-1), bear (top-2), duck (bottom)
-  // Right side: dino (top-1), pig (top-2), penguin (bottom)
-  let verticalPosition = pet.top;
-  let horizontalOffset = 0;
-  
-  // Adjust vertical positions - 2 at top, 4 in middle layer
-  // Equal spacing between all pets to prevent touching
-  // Spacing: 180px between each layer
-  const topLayer = -40;
-  const middleTopLayer = topLayer + 180; // 140px
-  const middleBottomLayer = middleTopLayer + 180; // 320px
-  
-  if (isLeftSide) {
-    if (pet.id === 2) {
-      verticalPosition = topLayer; // bunny - top
-      horizontalOffset = 0;
-    } else if (pet.id === 4) {
-      verticalPosition = middleTopLayer; // duck - middle-top
-      horizontalOffset = -20;
-    } else if (pet.id === 6) {
-      verticalPosition = middleBottomLayer; // bear - middle-bottom
-      horizontalOffset = 30;
+  // Detect mobile - initialize correctly to avoid flash
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640;
     }
-  } else {
-    if (pet.id === 3) {
-      verticalPosition = topLayer; // dino - top
-      horizontalOffset = 0;
-    } else if (pet.id === 5) {
-      verticalPosition = middleTopLayer; // penguin - middle-top
-      horizontalOffset = 20;
-    } else if (pet.id === 1) {
-      verticalPosition = middleBottomLayer; // pig - middle-bottom
-      horizontalOffset = -30;
-    }
-  }
+    return false;
+  });
+  
+  // Update on resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm breakpoint
+    };
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Calculate floor position (bottom of section)
-  const floorPosition = 500; // Position at bottom of section
+  const floorPosition = 500;
   
-  // Create dynamic flying paths with collapse/repulsion effect
-  // Different animation controls for middle pets (they're far from center)
-  const isMiddlePet = verticalPosition === middleTopLayer;
-  const baseMovement = isMiddlePet ? 25 : 12; // Larger movement for middle pets
-  const repulsionDistance = isMiddlePet ? 120 : 25; // Much larger horizontal movement for middle pets
+  // Random positions for mobile - use pet.id as seed for consistent randomness
+  const getRandomPosition = (seed: number) => {
+    // Simple seeded random using pet.id so positions stay consistent
+    const random1 = Math.sin(seed * 12.9898) * 43758.5453;
+    const random2 = Math.sin(seed * 78.233) * 43758.5453;
+    
+    const rand1 = random1 - Math.floor(random1);
+    const rand2 = random2 - Math.floor(random2);
+    
+    // Random positions - keep within mobile screen bounds
+    // Account for pet size (80px = 40px radius) to avoid cutoff
+    const x = (rand1 * 240) - 120; // Range: -120 to 120 (fits within ~375px mobile width)
+    const y = (rand2 * 280) - 200; // Range: -200 to 80 (vertical spread, mostly above)
+    
+    return { x, y };
+  };
   
-  const flyingPath = {
+  let baseX: number;
+  let baseY: number;
+  
+  if (isMobile) {
+    // Mobile: Random positioning
+    const randomPos = getRandomPosition(pet.id);
+    baseX = randomPos.x;
+    baseY = randomPos.y;
+  } else {
+    // Desktop: Oval positioning
+    const ovalWidth = 450;
+    const ovalHeight = 200;
+    const centerX = -50;
+    const centerY = -50;
+    
+    const angleStep = (2 * Math.PI) / 6;
+    const startAngle = 0;
+    const angle = startAngle + (index * angleStep);
+    
+    baseX = centerX + ovalWidth * Math.cos(angle);
+    baseY = centerY + ovalHeight * Math.sin(angle);
+  }
+  
+  // Responsive pet size
+  const responsiveSize = isMobile ? pet.size * 0.5 : pet.size; // 50% size on mobile
+  
+  // Create smooth floating animation around the oval position
+  const baseMovement = 15;
+  const floatingPath = {
     y: [
-      0, 
-      -baseMovement - (pet.id % 3) * (isMiddlePet ? 8 : 3), 
-      baseMovement + (pet.id % 2) * (isMiddlePet ? 10 : 4), 
-      -baseMovement * 0.6 + (pet.id % 4) * (isMiddlePet ? 5 : 2), 
-      baseMovement * 0.4 - (pet.id % 3) * (isMiddlePet ? 4 : 1.5),
+      0,
+      -baseMovement * 0.8 + (pet.id % 3) * 3,
+      baseMovement * 0.6 - (pet.id % 2) * 2,
+      -baseMovement * 0.4 + (pet.id % 4) * 2,
+      baseMovement * 0.3 - (pet.id % 3) * 1.5,
       0
     ],
-    x: isLeftSide 
-      ? isMiddlePet
-        ? [
-            1500, // Start from off-screen (far left)
-            800, // Move into view
-            400, // Continue moving right
-            600, // Slight left
-            500, // Settle position
-            400 // Final position in view
-          ]
-        : [
-            0, 
-            repulsionDistance + (pet.id % 2) * 4,
-            -repulsionDistance * 0.6 - (pet.id % 3) * 2, 
-            repulsionDistance * 0.8 + (pet.id % 2) * 3, 
-            -repulsionDistance * 0.4 - (pet.id % 2) * 1.5,
-            0
-          ]
-      : isMiddlePet
-        ? [
-            -1500, // Start from off-screen (far right)
-            -800, // Move into view
-            -400, // Continue moving left
-            -600, // Slight right
-            -500, // Settle position
-            -400 // Final position in view
-          ]
-        : [
-            0, 
-            -repulsionDistance - (pet.id % 2) * 4,
-            repulsionDistance * 0.6 + (pet.id % 3) * 2, 
-            -repulsionDistance * 0.8 - (pet.id % 2) * 3, 
-            repulsionDistance * 0.4 + (pet.id % 2) * 1.5,
-            0
-          ],
+    x: [
+      0,
+      baseMovement * 0.5 + (pet.id % 2) * 2,
+      -baseMovement * 0.4 - (pet.id % 3) * 1.5,
+      baseMovement * 0.3 + (pet.id % 2) * 1.5,
+      -baseMovement * 0.2 - (pet.id % 2) * 1,
+      0
+    ],
     rotate: [
-      0, 
-      -15 - (isMiddlePet ? 10 : 0) + (pet.id % 3) * 5, 
-      12 + (isMiddlePet ? 8 : 0) - (pet.id % 2) * 7, 
-      -10 - (isMiddlePet ? 5 : 0) + (pet.id % 4) * 4, 
-      8 + (isMiddlePet ? 5 : 0) - (pet.id % 3) * 3,
+      0,
+      -10 + (pet.id % 3) * 4,
+      8 - (pet.id % 2) * 5,
+      -6 + (pet.id % 4) * 3,
+      5 - (pet.id % 3) * 2,
       0
     ],
     scale: [
-      1, 
-      1.08 + (pet.id % 3) * (isMiddlePet ? 0.05 : 0.03), // More scale variation for middle pets
-      0.92 - (pet.id % 2) * (isMiddlePet ? 0.05 : 0.03), // Scale down (collapse effect)
-      1.05 + (pet.id % 2) * (isMiddlePet ? 0.04 : 0.02), 
-      0.95 - (pet.id % 3) * (isMiddlePet ? 0.04 : 0.02),
+      1,
+      1.05 + (pet.id % 3) * 0.02,
+      0.95 - (pet.id % 2) * 0.02,
+      1.03 + (pet.id % 2) * 0.015,
+      0.97 - (pet.id % 3) * 0.015,
       1
     ]
   };
   
   // Falling animation when tapped
   const fallingPath = {
-    y: floorPosition - verticalPosition, // Fall to floor
+    y: floorPosition - baseY, // Fall to floor
     x: 0,
     rotate: 360 + (pet.id % 2 === 0 ? 180 : 0), // Spin while falling
     scale: [1, 0.9, 1] // Slight bounce on impact
@@ -352,45 +342,22 @@ const AnimatedPetAroundText = ({ pet }: AnimatedPetProps) => {
     }
   };
   
-  // Calculate responsive horizontal position based on layer
-  // Middle pets: really far from text (only ones that need to be far)
-  // Bottom pets: close together
-  let distanceFromCenter = 320; // Top layer: default distance
-  
-  if (verticalPosition === middleTopLayer) {
-    // Middle-top pets (duck, penguin): really far from text - starting position more left/right
-    distanceFromCenter = 2000;
-  } else if (verticalPosition === middleBottomLayer) {
-    // Middle-bottom pets (bear, pig): close together
-    distanceFromCenter = 240;
-  }
-  
-  // For middle pets, allow them to start from outside screen
-  const horizontalPosition = isLeftSide 
-    ? (verticalPosition === middleTopLayer 
-        ? `calc(50% - ${distanceFromCenter}px)` // Middle pets: start from left off-screen
-        : `clamp(10px, calc(50% - ${distanceFromCenter}px), 20px)`) // Other pets: clamped
-    : (verticalPosition === middleTopLayer 
-        ? `calc(50% + ${distanceFromCenter}px)` // Middle pets: start from right off-screen
-        : `clamp(10px, calc(50% - ${distanceFromCenter}px), 20px)`); // Other pets: clamped
-  
   return (
     <motion.img
       src={pet.src}
       alt={pet.alt}
-      width={pet.size}
-      height={pet.size}
+      width={responsiveSize}
+      height={responsiveSize}
       className="object-cover cursor-pointer"
       style={{
         position: 'absolute',
-        top: hasFallen ? `${floorPosition}px` : `${verticalPosition}px`,
-        ...(isLeftSide
-          ? { left: horizontalPosition }
-          : { right: horizontalPosition }),
+        top: hasFallen ? `${floorPosition}px` : `calc(50% + ${baseY}px)`,
+        left: `calc(50% + ${baseX}px)`,
+        transform: 'translate(-50%, -50%)',
         willChange: 'transform',
         zIndex: 1
       }}
-      animate={hasFallen ? { y: 0, x: 0, rotate: 0, scale: 1 } : (isFalling ? fallingPath : flyingPath)}
+      animate={hasFallen ? { y: 0, x: 0, rotate: 0, scale: 1 } : (isFalling ? fallingPath : floatingPath)}
       transition={
         isFalling
           ? {
@@ -403,10 +370,10 @@ const AnimatedPetAroundText = ({ pet }: AnimatedPetProps) => {
               }
             }
           : {
-              duration: 10 + (pet.id % 4) * 2, // Vary duration between 10-16 seconds
-              ease: [0.4, 0, 0.2, 1], // Custom easing for smoother collapse effect
+              duration: 8 + (pet.id % 3) * 2, // Vary duration between 8-12 seconds
+              ease: [0.4, 0, 0.2, 1], // Smooth easing
               repeat: Infinity,
-              delay: 0.3 * pet.id, // Stagger delays more
+              delay: 0.2 * pet.id, // Stagger delays
               repeatType: 'reverse'
             }
       }

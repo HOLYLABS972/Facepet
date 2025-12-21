@@ -26,13 +26,13 @@ export default function BottomNavigation() {
     },
     {
       href: '/promos',
-      icon: Gift,
+      icon: Ticket,
       label: t('bottomNav.giftsAndVouchers') || t('allPromos'),
       isActive: pathname?.startsWith('/promos'),
     },
     {
       href: '/coupons',
-      icon: Ticket,
+      icon: Gift,
       label: t('bottomNav.myCoupons') || t('coupons'),
       isActive: pathname?.startsWith('/coupons') || pathname?.startsWith('/vouchers'),
     },

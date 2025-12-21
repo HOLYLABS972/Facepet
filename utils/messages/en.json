@@ -1187,8 +1187,8 @@
       }
     },
     "HomePage": {
-      "upperTitle": "Pet Safety, Reinvented",
-      "lowerTitle": "Protect your pet with our NFC chip.",
+      "upperTitle": "The smart tag that brings our pets home",
+      "lowerTitle": "When style and technology meet",
       "buttonLabel": "Get Started",
       "signOutText": "Already signed in?",
       "signOutLink": "Sign Out",
@@ -1245,7 +1245,7 @@
       "createAccount": "Create your account",
       "signInToAccount": "Sign in to your Chapiz account",
       "joinFacePet": "Join Chapiz and protect your pets",
-      "tagline": "Tiny pet guardians for big peace of mind. Keep your pets safe and connected.",
+      "tagline": "When style and technology meet",
       "fullName": "Full Name",
       "fullNamePlaceholder": "Enter your full name",
       "email": "Email",

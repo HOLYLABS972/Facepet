@@ -25,23 +25,30 @@ export async function purchaseCoupon(
   try {
     // Allow users to purchase the same voucher multiple times
     // Create user coupon document
+    const couponData: any = {
+      id: coupon.id,
+      name: coupon.name,
+      description: coupon.description, // This is the coupon code
+      price: coupon.price,
+      points: coupon.points,
+      imageUrl: coupon.imageUrl,
+      validFrom: coupon.validFrom instanceof Date ? Timestamp.fromDate(coupon.validFrom) : coupon.validFrom,
+      validTo: coupon.validTo instanceof Date ? Timestamp.fromDate(coupon.validTo) : coupon.validTo,
+    };
+
+    // Only include business information if it exists (Firestore doesn't allow undefined values)
+    if (coupon.businessId !== undefined && coupon.businessId !== null) {
+      couponData.businessId = coupon.businessId;
+    }
+    if (coupon.businessIds !== undefined && coupon.businessIds !== null) {
+      couponData.businessIds = coupon.businessIds;
+    }
+
     const userCouponData = {
       userId,
       couponId: coupon.id,
       couponCode: coupon.description, // Store coupon code at top level for easy querying
-      coupon: {
-        id: coupon.id,
-        name: coupon.name,
-        description: coupon.description, // This is the coupon code
-        price: coupon.price,
-        points: coupon.points,
-        imageUrl: coupon.imageUrl,
-        validFrom: coupon.validFrom instanceof Date ? Timestamp.fromDate(coupon.validFrom) : coupon.validFrom,
-        validTo: coupon.validTo instanceof Date ? Timestamp.fromDate(coupon.validTo) : coupon.validTo,
-        // Include business information
-        businessId: coupon.businessId,
-        businessIds: coupon.businessIds,
-      },
+      coupon: couponData,
       purchasedAt: Timestamp.now(),
       status: 'active' as const,
       pointsDeducted

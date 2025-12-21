@@ -816,12 +816,12 @@
   "pages": {
     "WelcomePage": {
       "upperTitle": "כל מה שחיית המחמד שלך צריכה",
-      "lowerTitle": "במקום אחד.",
-      "buttonLabel": "התחל הרשמה",
-      "signInText": "יש לך כבר משתמש?",
-      "signInLink": "התחבר",
-      "signOutText": "רוצה להחליף משתמש?",
-      "signOutLink": "התנתק"
+      "lowerTitle": "במקום אחד.",
+      "buttonLabel": "התחילו הרשמה",
+      "signInText": "יש לכם כבר משתמש?",
+      "signInLink": "התחברות",
+      "signOutText": "רוצים להחליף משתמש?",
+      "signOutLink": "התנתקות"
     },
     "TooFastPage": {
       "title": "ווף... תאט קצת!",
@@ -1229,8 +1229,8 @@
       }
     },
     "HomePage": {
-      "upperTitle": "כל מה שחיית המחמד שלך צריכה,",
-      "lowerTitle": "במקום אחד.",
+      "upperTitle": "התג החכם שמחזיר את חיות המחמד שלנו הביתה",
+      "lowerTitle": "כשסטייל וטכנולוגיה נפגשים",
       "buttonLabel": "התחילו עכשיו",
       "signOutText": "כבר מחוברים?",
       "signOutLink": "התנתקות",
@@ -1238,13 +1238,15 @@
       "signInLink": "התחברות",
       "brand": "פייספט",
       "menuButton": "פתחו את התפריט הראשי",
-      "loading": "טוען..."
+      "loading": "טוען...",
+      "allPetsTitle": "דמויות החיות שלנו",
+      "allPetsDescription": "פגשו את כל דמויות החיות החמודות שלנו"
     },
     "AuthPage": {
       "brand": "פייספט",
-      "welcomeBack": "ברוכים השבים!",
+      "welcomeBack": "ברוכים הבאים!",
       "createAccount": "צרו את החשבון שלכם",
-      "signInToAccount": "התחברו לחשבון Chapiz שלכם",
+      "signInToAccount": "התחברות לחשבון Chapiz שלך",
       "joinFacePet": "הצטרפו ל-Chapiz והגנו על החיות שלכם",
       "tagline": "כשסטייל וטכנולוגיה נפגשים",
       "fullName": "שם מלא",
@@ -1254,14 +1256,14 @@
       "password": "סיסמה",
       "passwordPlaceholder": "הזינו את הסיסמה שלכם",
       "signInButton": "התחברות",
-      "signUpButton": "צור חשבון",
-      "or": "או המשך עם אימייל",
-      "signInWithGoogle": "המשך עם Google",
+      "signUpButton": "צרו חשבון",
+      "or": "או המשיכו עם אימייל",
+      "signInWithGoogle": "המשיכו עם Google",
       "noAccount": "אין לכם חשבון?",
       "haveAccount": "כבר יש לכם חשבון?",
       "signUpLink": "הירשמו",
       "signInLink": "התחברו",
-      "forgotPassword": "שכחתם סיסמה?",
+      "forgotPassword": "שכחתי סיסמה",
       "signInSuccess": "התחברתם בהצלחה!",
       "signUpSuccess": "החשבון נוצר בהצלחה!",
       "signInSuccessGoogle": "התחברתם עם Google בהצלחה!",
@@ -1270,9 +1272,9 @@
       "verificationCodeSent": "קוד האימות נשלח! אנא בדקו את האימייל שלכם.",
       "loading": "טוען...",
       "address": "כתובת",
-      "addressPlaceholder": "הכנס את הכתובת שלך",
+      "addressPlaceholder": "הזינו את הכתובת שלכם",
       "phone": "מספר טלפון",
-      "phonePlaceholder": "הכנס את מספר הטלפון שלך"
+      "phonePlaceholder": "הזינו את מספר הטלפון שלכם"
     },
     "EmailVerification": {
       "title": "אמתו את האימייל שלכם",
@@ -1423,17 +1425,17 @@
       "profile": "פרופיל",
       "myFavorites": "המעודפים שלי",
       "services": "שירותים ואנשי מקצוע",
-      "signOut": "התנתק",
-      "signIn": "התחבר",
-      "signUp": "הירשם",
+      "signOut": "התנתקות",
+      "signIn": "התחברות",
+      "signUp": "הרשמה",
       "adminPanel": "לוח בקרה",
       "store": "חנות פייספט",
       "coupons": "השוברים שלי",
       "allPromos": "קופונים",
       "bottomNav": {
         "myPets": "החיות שלי",
-        "giftsAndVouchers": "מתנות וקופונים",
-        "myCoupons": "השוברים שלי",
+        "giftsAndVouchers": "מתנות ושוברים",
+        "myCoupons": "הקופונים שלי",
         "businessesNearby": "עסקים בסביבה"
       }
     },

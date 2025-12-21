@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Settings, Mail, Ticket } from 'lucide-react';
+import { AppWindow, LayoutDashboard, Users, Loader2, ShieldX, MessageSquare, Settings, Mail, Ticket, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -168,6 +168,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Users className="h-6 w-6" />
                 {t('navigation.manageUsers')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={`/${locale}/auth`}
+                className="flex gap-3 rounded p-2 transition hover:bg-white hover:shadow-xs"
+              >
+                <UserPlus className="h-6 w-6" />
+                {t('navigation.addUser')}
               </Link>
             </li>
           </ul>
