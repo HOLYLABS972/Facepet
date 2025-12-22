@@ -26,6 +26,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
   const t = useTranslations('pages.PromosPage');
   const router = useRouter();
   const locale = useLocale();
+  const googleMapsApiKey = 'AIzaSyAjx6NIRePitcFdZjH2kE0z-zSAy8etaUE';
   const [mapLoaded, setMapLoaded] = useState(false);
   const [map, setMap] = useState<any>(null);
   const [markers, setMarkers] = useState<any[]>([]);
@@ -42,6 +43,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
 
   // Initialize map
   useEffect(() => {
+
     // Always initialize map, even if no businesses/contact info
     if (!mapRef.current) {
       console.log('⚠️ MapCard: No mapRef.current, setting mapLoaded to true');
@@ -53,20 +55,43 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
     console.log('🗺️ MapCard: useEffect triggered, businesses:', businesses.length);
 
     const loadGoogleMaps = () => {
+      const apiKey = googleMapsApiKey;
+      const BAD_KEY = 'AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E';
+      
+      if (!apiKey) {
+        console.error('❌ Google Maps API key is not configured');
+        setMapLoaded(true);
+        return;
+      }
+
+      // Aggressively remove any scripts with the wrong key
+      const allMapsScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+      let hasBadScript = false;
+      
+      allMapsScripts.forEach((s) => {
+        const scriptSrc = (s as HTMLScriptElement).src;
+        if (scriptSrc.includes(BAD_KEY)) {
+          console.log('🗑️ Removing script with bad API key:', scriptSrc);
+          s.remove();
+          hasBadScript = true;
+        }
+      });
+
+      // If we found a bad script, clear window.google to force fresh load
+      if (hasBadScript) {
+        console.log('🧹 Clearing cached Google Maps API');
+        delete (window as any).google;
+        delete (window as any).initMapCard;
+      }
+
       if (window.google && window.google.maps) {
         initializeMap();
         return;
       }
 
-      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-      if (!apiKey) {
-        console.error('NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set');
-        setMapLoaded(true);
-        return;
-      }
-
-      const existingGlobalScript = document.querySelector('script[src*="maps.googleapis.com"]');
-      if (existingGlobalScript || (window.google && window.google.maps)) {
+      // Check if script already exists with correct key
+      const existingGlobalScript = document.querySelector('script[src*="maps.googleapis.com"]') as HTMLScriptElement;
+      if (existingGlobalScript && existingGlobalScript.src.includes(apiKey)) {
         if (window.google && window.google.maps) {
           initializeMap();
         } else {
@@ -96,8 +121,16 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
         return;
       }
 
+      // Remove any existing script with wrong key
+      if (existingGlobalScript && !existingGlobalScript.src.includes(apiKey)) {
+        console.log('🗑️ Removing existing script with wrong key');
+        existingGlobalScript.remove();
+        delete (window as any).google;
+        delete (window as any).initMapCard;
+      }
+
       const existingScript = document.querySelector('script[data-map-card]') as HTMLScriptElement;
-      if (existingScript) {
+      if (existingScript && existingScript.src.includes(apiKey)) {
         if (window.google && window.google.maps) {
           if (isMountedRef.current) {
             initializeMap();
@@ -121,6 +154,14 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
           }, 5000);
         }
         return;
+      }
+
+      // Remove any existing script with wrong key
+      if (existingScript && !existingScript.src.includes(apiKey)) {
+        console.log('🗑️ Removing existing script with wrong key');
+        existingScript.remove();
+        delete (window as any).google;
+        delete (window as any).initMapCard;
       }
 
       const script = document.createElement('script');

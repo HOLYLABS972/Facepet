@@ -54,6 +54,7 @@ const LocationAutocompleteComboSelect: React.FC<
   const [displayValue, setDisplayValue] = useState('');
   const [isReady, setIsReady] = useState(false);
   const locale = useLocale();
+  const googleMapsApiKey = 'AIzaSyAjx6NIRePitcFdZjH2kE0z-zSAy8etaUE';
 
   // Keep AutocompleteService instance
   const autocompleteServiceRef = React.useRef<any>(null);
@@ -66,6 +67,34 @@ const LocationAutocompleteComboSelect: React.FC<
   // Load Google Maps Places library in the browser
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    const apiKey = googleMapsApiKey;
+    const BAD_KEY = 'AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E';
+
+    if (!apiKey) {
+      console.warn('❌ Google Maps API key is not configured. Client-side address search disabled.');
+      return;
+    }
+
+    // Aggressively remove any scripts with the wrong key
+    const allMapsScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+    let hasBadScript = false;
+    
+    allMapsScripts.forEach((s) => {
+      const scriptSrc = (s as HTMLScriptElement).src;
+      if (scriptSrc.includes(BAD_KEY)) {
+        console.log('🗑️ Removing script with bad API key:', scriptSrc);
+        s.remove();
+        hasBadScript = true;
+      }
+    });
+
+    // If we found a bad script, clear window.google to force fresh load
+    if (hasBadScript) {
+      console.log('🧹 Clearing cached Google Maps API');
+      delete (window as any).google;
+    }
+
     if ((window as any).google?.maps?.places) {
       try {
         autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
@@ -76,14 +105,32 @@ const LocationAutocompleteComboSelect: React.FC<
       return;
     }
 
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-      console.warn('NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set. Client-side address search disabled.');
+    const existing = document.querySelector('script[data-facepet-google]') as HTMLScriptElement | null;
+    if (existing && existing.src.includes(apiKey)) {
+      // Wait a tick and try initializing
+      const init = () => {
+        if ((window as any).google?.maps?.places) {
+          try {
+            autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
+            setIsReady(true);
+          } catch (e) {
+            console.error('Failed to init AutocompleteService:', e);
+          }
+        }
+      };
+      setTimeout(init, 0);
       return;
     }
 
-    const existing = document.querySelector('script[data-facepet-google]') as HTMLScriptElement | null;
-    if (!existing) {
+    // Remove any existing script with wrong key
+    if (existing && !existing.src.includes(apiKey)) {
+      console.log('🗑️ Removing existing script with wrong key');
+      existing.remove();
+      delete (window as any).google;
+    }
+
+    // Create new script if none exists or if we removed the bad one
+    if (!document.querySelector('script[data-facepet-google]')) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=${locale}`;
       script.async = true;
@@ -99,19 +146,7 @@ const LocationAutocompleteComboSelect: React.FC<
       };
       script.onerror = () => console.error('Failed to load Google Maps script');
       document.head.appendChild(script);
-    } else {
-      // Wait a tick and try initializing
-      const init = () => {
-        if ((window as any).google?.maps?.places) {
-          try {
-            autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
-            setIsReady(true);
-          } catch (e) {
-            console.error('Failed to init AutocompleteService:', e);
-          }
-        }
-      };
-      setTimeout(init, 0);
+      console.log('✅ Loading Google Maps with key:', apiKey);
     }
   }, [locale]);
 

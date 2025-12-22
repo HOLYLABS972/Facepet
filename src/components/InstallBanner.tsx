@@ -69,7 +69,21 @@ export default function InstallBanner() {
   };
 
   const handleInstall = async () => {
-    if (deferredPrompt) {
+    if (isIOS) {
+      // For iOS: Download mobileconfig file
+      const link = document.createElement('a');
+      link.href = '/Chapiz.mobileconfig';
+      link.download = 'Chapiz.mobileconfig';
+      link.click();
+      setIsVisible(false);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('installBannerDismissed', new Date().toISOString());
+        } catch (error) {
+          console.error('Error setting localStorage:', error);
+        }
+      }
+    } else if (deferredPrompt) {
       // Android or Desktop: Use the deferred prompt
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -100,13 +114,13 @@ export default function InstallBanner() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-14 sm:top-16 left-0 right-0 z-40 bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg">
+    <div className="fixed top-14 sm:top-16 left-0 right-0 z-[45] bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg">
       <div className="container mx-auto px-4 py-3 flex items-center gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">התקינו את האפליקציה של Chapiz</p>
           {isIOS && (
             <p className="text-xs mt-1 opacity-90">
-              הקש על <Share className="inline h-3 w-3 mx-1" /> ואז &quot;הוסף למסך הבית&quot;
+              לחץ על &quot;הורד&quot; כדי להתקין את פרופיל התצורה או הקש על <Share className="inline h-3 w-3 mx-1" /> ואז &quot;הוסף למסך הבית&quot;
             </p>
           )}
           {isAndroid && !deferredPrompt && (
@@ -116,8 +130,8 @@ export default function InstallBanner() {
           )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Only show install button on Android when native prompt is available */}
-          {deferredPrompt && (
+          {/* Show install button on iOS (mobileconfig) or Android (when native prompt is available) */}
+          {(isIOS || deferredPrompt) && (
             <Button
               onClick={handleInstall}
               size="sm"

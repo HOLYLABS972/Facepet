@@ -59,6 +59,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const router = useRouter();
   const locale = useLocale();
   const mapRef = useRef<HTMLDivElement>(null);
+  const googleMapsApiKey = 'AIzaSyAjx6NIRePitcFdZjH2kE0z-zSAy8etaUE';
 
   // Function to translate tags for display
   const translateTag = (tag: string): string => {
@@ -677,29 +678,38 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
   // Load Google Maps script
   useEffect(() => {
+    const apiKey = googleMapsApiKey;
+    const BAD_KEY = 'AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E';
     let script: HTMLScriptElement | null = null;
 
     const loadGoogleMaps = () => {
-      if (window.google) {
-        initializeMap();
-        return;
+      // Aggressively remove any scripts with the wrong key
+      const allMapsScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+      let hasBadScript = false;
+      
+      allMapsScripts.forEach((s) => {
+        const scriptSrc = (s as HTMLScriptElement).src;
+        if (scriptSrc.includes(BAD_KEY)) {
+          console.log('🗑️ Removing script with bad API key:', scriptSrc);
+          s.remove();
+          hasBadScript = true;
+        }
+      });
+
+      // If we found a bad script, clear window.google to force fresh load
+      if (hasBadScript) {
+        console.log('🧹 Clearing cached Google Maps API');
+        delete (window as any).google;
+        delete (window as any).initServicesMap;
       }
 
-      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-      if (!apiKey) {
-        console.error('NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set');
-        toast.error('Google Maps API key is not configured');
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if script already exists
+      // Check if script already exists with correct key
       const existingScript = document.querySelector('script[data-services-map]') as HTMLScriptElement;
-      if (existingScript) {
+      if (existingScript && existingScript.src.includes(apiKey)) {
         if (window.google && window.google.maps) {
           initializeMap();
         } else {
-          // Wait for script to load using polling instead of event listener
+          // Wait for script to load
           const checkInterval = setInterval(() => {
             if (window.google && window.google.maps) {
               clearInterval(checkInterval);
@@ -707,12 +717,19 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
             }
           }, 100);
 
-          // Timeout after 5 seconds
           setTimeout(() => {
             clearInterval(checkInterval);
           }, 5000);
         }
         return;
+      }
+
+      // Remove any existing script with wrong key
+      if (existingScript && !existingScript.src.includes(apiKey)) {
+        console.log('🗑️ Removing existing script with wrong key');
+        existingScript.remove();
+        delete (window as any).google;
+        delete (window as any).initServicesMap;
       }
 
       script = document.createElement('script');
@@ -723,6 +740,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
       window.initServicesMap = initializeMap;
       document.head.appendChild(script);
+      console.log('✅ Loading Google Maps with key:', apiKey);
     };
 
     loadGoogleMaps();
@@ -1155,8 +1173,8 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       {selectedService && (
         <>
           {!isMobile ? (
-            /* Desktop Side Panel */
             <>
+              {/* Desktop Side Panel */}
               {/* Overlay */}
               {drawerOpen && (
                 <div

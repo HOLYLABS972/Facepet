@@ -29,6 +29,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
 }) => {
   const t = useTranslations('components.AddressMapSelector');
   const mapRef = useRef<HTMLDivElement>(null);
+  const googleMapsApiKey = 'AIzaSyAjx6NIRePitcFdZjH2kE0z-zSAy8etaUE';
   const [map, setMap] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState(initialAddress);
@@ -39,10 +40,33 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
 
   // Load Google Maps script
   useEffect(() => {
+    const apiKey = googleMapsApiKey;
+    const BAD_KEY = 'AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E';
+
     let isMounted = true;
     let checkInterval: NodeJS.Timeout | null = null;
 
     const loadGoogleMaps = () => {
+      // Aggressively remove any scripts with the wrong key
+      const allMapsScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+      let hasBadScript = false;
+      
+      allMapsScripts.forEach((s) => {
+        const scriptSrc = (s as HTMLScriptElement).src;
+        if (scriptSrc.includes(BAD_KEY)) {
+          console.log('🗑️ Removing script with bad API key:', scriptSrc);
+          s.remove();
+          hasBadScript = true;
+        }
+      });
+
+      // If we found a bad script, clear window.google to force fresh load
+      if (hasBadScript) {
+        console.log('🧹 Clearing cached Google Maps API');
+        delete (window as any).google;
+        delete (window as any).initMap;
+      }
+
       if (window.google && window.google.maps) {
         if (isMounted) {
           initializeMap();
@@ -50,9 +74,9 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
         return;
       }
 
-      // Check if script already exists
-      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-      if (existingScript) {
+      // Check if script already exists with correct key
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]') as HTMLScriptElement;
+      if (existingScript && existingScript.src.includes(apiKey)) {
         if (window.google && window.google.maps) {
           if (isMounted) {
             initializeMap();
@@ -78,15 +102,24 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
         return;
       }
 
+      // Remove any existing script with wrong key
+      if (existingScript && !existingScript.src.includes(apiKey)) {
+        console.log('🗑️ Removing existing script with wrong key');
+        existingScript.remove();
+        delete (window as any).google;
+        delete (window as any).initMap;
+      }
+
       // Only create script if it doesn't exist and Google Maps isn't loaded
       if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E&libraries=places&callback=initMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
         script.async = true;
         script.defer = true;
         
         window.initMap = initializeMap;
         document.head.appendChild(script);
+        console.log('✅ Loading Google Maps with key:', apiKey);
       }
     };
 
@@ -105,7 +138,8 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       // Only clean up the callback if it's ours
       if (window.initMap === initializeMap) {
         try {
-          delete window.initMap;
+          // Use type assertion to allow deletion of optional property
+          delete (window as any).initMap;
         } catch (e) {
           // Ignore cleanup errors
         }
