@@ -149,7 +149,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
   return (
     <>
       {/* Main Welcome Content */}
-      <section className="relative mt-16 px-4 sm:px-7 pt-32 pb-0 min-h-[600px] overflow-visible w-full">
+      <section className="relative mt-16 px-4 sm:px-7 pt-16 sm:pt-32 pb-0 min-h-[600px] overflow-visible w-full">
         <div className="relative max-w-7xl mx-auto">
           {/* Pet Icons Around Text - all 6 pets in horizontal oval */}
           {petCharacters.map((pet, index) => (
@@ -157,7 +157,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           ))}
 
           <div className="relative z-10">
-            <div className="text-center text-3xl lg:text-4xl pt-4 mt-[100px]">
+            <div className="text-center text-3xl lg:text-4xl pt-4 mt-[180px] sm:mt-[100px]">
               <p className="text-gray-500">{t('upperTitle')}</p>
               <p className="text-black">{t('lowerTitle')}</p>
             </div>
@@ -241,43 +241,34 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   
   // Calculate floor position (bottom of section)
   const floorPosition = 500;
-  
-  // Random positions for mobile - use pet.id as seed for consistent randomness
-  const getRandomPosition = (seed: number) => {
-    // Simple seeded random using pet.id so positions stay consistent
-    const random1 = Math.sin(seed * 12.9898) * 43758.5453;
-    const random2 = Math.sin(seed * 78.233) * 43758.5453;
-    
-    const rand1 = random1 - Math.floor(random1);
-    const rand2 = random2 - Math.floor(random2);
-    
-    // Random positions - keep within mobile screen bounds
-    // Account for pet size (80px = 40px radius) to avoid cutoff
-    const x = (rand1 * 240) - 120; // Range: -120 to 120 (fits within ~375px mobile width)
-    const y = (rand2 * 280) - 200; // Range: -200 to 80 (vertical spread, mostly above)
-    
-    return { x, y };
-  };
-  
+
   let baseX: number;
   let baseY: number;
-  
+
   if (isMobile) {
-    // Mobile: Random positioning
-    const randomPos = getRandomPosition(pet.id);
-    baseX = randomPos.x;
-    baseY = randomPos.y;
+    // Mobile: Circular positioning above and around the text/button
+    const circleRadius = 100; // Distance from center
+    const centerX = -15; // Shift slightly left to compensate for padding
+    const centerY = -280; // Move up significantly to be above the text
+
+    // Arrange in a circle
+    const angleStep = (2 * Math.PI) / 6; // 6 pets evenly distributed
+    const startAngle = -Math.PI / 2; // Start from top (12 o'clock position)
+    const angle = startAngle + (index * angleStep);
+
+    baseX = centerX + circleRadius * Math.cos(angle);
+    baseY = centerY + circleRadius * Math.sin(angle);
   } else {
     // Desktop: Oval positioning
     const ovalWidth = 450;
     const ovalHeight = 200;
     const centerX = -50;
     const centerY = -50;
-    
+
     const angleStep = (2 * Math.PI) / 6;
     const startAngle = 0;
     const angle = startAngle + (index * angleStep);
-    
+
     baseX = centerX + ovalWidth * Math.cos(angle);
     baseY = centerY + ovalHeight * Math.sin(angle);
   }
