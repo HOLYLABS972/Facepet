@@ -514,7 +514,7 @@
       "preview": "תצוגה מקדימה"
     },
     "promoManagement": {
-      "title": "ניהול קידומים",
+      "title": "ניהול קופונים",
       "description": "צור, ערוך ונהל קמפיינים קופוניים.",
       "addNewPromo": "הוסף קופון חדש",
       "name": "שם הקופון",
@@ -748,6 +748,7 @@
         "weightPlaceholder": "למשל, 5 ק\"ג",
         "createAd": "צור פרסומת",
         "creating": "יוצר...",
+        "createError": "נכשל ביצירת הפרסומת. אנא נסה שוב.",
         "mediaType": "סוג מדיה",
         "image": "תמונה",
         "video": "וידאו",
@@ -832,16 +833,23 @@
         "enterAudienceDescription": "הזן תיאור קהל יעד"
       }
     },
+    "uploading": "מעלה...",
     "mediaUpload": {
+      "editImage": "ערוך תמונה",
       "clickToUploadImage": "לחץ להעלאת תמונה",
       "clickToUploadVideo": "לחץ להעלאת וידאו",
       "replaceImage": "החלף תמונה",
       "replaceVideo": "החלף וידאו",
-      "uploading": "מעלה",
+      "uploading": "מעלה...",
       "fileFormats": {
         "image": "JPG, PNG או GIF עד 20MB",
         "video": "MP4, WebM או MOV עד 100MB"
       }
+    },
+    "imageEditor": {
+      "title": "ערוך תמונה",
+      "applyCrop": "החל חיתוך",
+      "clear": "נקה"
     }
   },
   "common": {
@@ -1408,26 +1416,6 @@
       "title": "תנאי שימוש",
       "heroDescription": "אנא קראו את התנאים האלה בעיון לפני השימוש בשירותי Chapiz.",
       "lastUpdated": "עודכן לאחרונה"
-    },
-    "Admin": {
-      "uploading": "מעלה...",
-      "mediaUpload": {
-        "editImage": "ערוך תמונה",
-        "replaceImage": "החלף תמונה",
-        "replaceVideo": "החלף וידאו",
-        "uploading": "מעלה...",
-        "clickToUploadImage": "לחץ להעלאת תמונה",
-        "clickToUploadVideo": "לחץ להעלאת וידאו",
-        "fileFormats": {
-          "image": "PNG, JPG עד 20MB",
-          "video": "MP4 עד 100MB"
-        }
-      },
-      "imageEditor": {
-        "title": "ערוך תמונה",
-        "applyCrop": "החל חיתוך",
-        "clear": "נקה"
-      }
     }
   },
   "errors": {
@@ -1473,6 +1461,7 @@
       "signUp": "הרשמה",
       "adminPanel": "לוח בקרה",
       "store": "חנות פייספט",
+      "chapizStore": "חנות צ'אפיז",
       "coupons": "השוברים שלי",
       "allPromos": "קופונים",
       "bottomNav": {

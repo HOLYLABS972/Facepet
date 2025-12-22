@@ -293,7 +293,7 @@ const Navbar = () => {
                       className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="text-center">חנות צ'אפיז</span>
+                    <span className="text-center">{t('chapizStore')}</span>
                     </Button>
                 </>
               ) : (
@@ -321,49 +321,59 @@ const Navbar = () => {
                       className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                      <span className="text-center">חנות צ'אפיז</span>
+                      <span className="text-center">{t('chapizStore')}</span>
                     </Button>
                     <Button
-                      variant={pathname?.includes('/contact') ? 'outline' : 'ghost'}
+                      variant="ghost"
                       size="sm"
                       onClick={() => router.push('/contact')}
-                      className={`${pathname?.includes('/contact') ? 'border-primary text-primary hover:bg-primary/10' : 'hover:bg-gray-100 hover:text-primary'} flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 transition-colors`}
+                      className="flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3"
                     >
                       <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t('contact') || 'Contact'}
                     </Button>
                   </div>
 
-                  {/* Mobile: Show burger menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0 md:hidden">
-                        <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
-                      <DropdownMenuItem asChild>
-                        <Link href="/contact" className="flex items-center">
-                          <Mail className="mr-2 h-4 w-4" />
-                          <span>{t('contact')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {
+                  {/* Mobile: Show shop button and burger menu */}
+                  <div className="md:hidden flex items-center gap-2">
+                    {/* Store Button - Outlined Primary (Visible on mobile for not logged in users) */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
                         if (storeUrl) {
                           window.location.href = storeUrl;
                         }
-                      }}>
-                          <ShoppingBag className="mr-2 h-4 w-4" />
-                          <span>חנות צ'אפיז</span>
+                      }}
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors"
+                    >
+                      <ShoppingBag className="h-3.5 w-3.5" />
+                      <span className="text-center">{t('chapizStore')}</span>
+                    </Button>
+                    
+                    {/* Burger menu */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-7 w-7 p-0">
+                          <Menu className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
+                        <DropdownMenuItem asChild>
+                          <Link href="/contact" className="flex items-center">
+                            <Mail className="mr-2 h-4 w-4" />
+                            <span>{t('contact')}</span>
+                          </Link>
                         </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/auth" className="flex items-center">
-                          <LogIn className="mr-2 h-4 w-4" />
-                          <span>{t('signIn')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuItem asChild>
+                          <Link href="/auth" className="flex items-center">
+                            <LogIn className="mr-2 h-4 w-4" />
+                            <span>{t('signIn')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </>
               )}
             </div>

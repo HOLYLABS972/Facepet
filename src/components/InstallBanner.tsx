@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Download, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 
 export default function InstallBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -101,17 +100,8 @@ export default function InstallBanner() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="fixed top-14 sm:top-16 left-0 right-0 z-40 bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg">
       <div className="container mx-auto px-4 py-3 flex items-center gap-3">
-        <div className="flex-shrink-0">
-          <Image
-            src="/icons/apple-touch-icon.png"
-            alt="Chapiz Logo"
-            width={40}
-            height={40}
-            className="rounded-lg"
-          />
-        </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">התקינו את האפליקציה של Chapiz</p>
           {isIOS && (

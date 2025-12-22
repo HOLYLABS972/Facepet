@@ -14,15 +14,13 @@ const Layout = ({ children }: LayoutProps) => {
   const t = useTranslations('components.GoBackButton');
   return (
     <div className="flex grow flex-col items-center">
-      <div className="justify-center p-10 text-center">
-        {children}
-        <Button
-          onClick={() => router.back()}
-          className="bg-primary mt-10 rounded-full font-normal hover:bg-[#ff6243]/90"
-        >
-          {t('buttonLabel')}
-        </Button>
-      </div>
+      {children}
+      <Button
+        onClick={() => router.back()}
+        className="bg-primary mt-10 rounded-full font-normal hover:bg-[#ff6243]/90"
+      >
+        {t('buttonLabel')}
+      </Button>
     </div>
   );
 };

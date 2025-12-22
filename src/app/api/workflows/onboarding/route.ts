@@ -1,6 +1,5 @@
 import ChapizWelcomeEmail from '@/emails/welcome';
 import { sendEmail } from '@/src/lib/workflow';
-import { getUserDetailsByEmail } from '@/utils/database/queries/users';
 import { serve } from '@upstash/workflow/nextjs';
 
 type UserState = 'non-active' | 'active';
@@ -15,6 +14,9 @@ const THREE_DAYS_IN_MS = 3 * ONE_DAY_IN_MS;
 const THIRTY_DAYS_IN_MS = 30 * ONE_DAY_IN_MS;
 
 const getUserState = async (email: string): Promise<UserState> => {
+  // Lazy import to avoid build-time errors
+  try {
+    const { getUserDetailsByEmail } = await import('@/utils/database/queries/users');
   const user = await getUserDetailsByEmail(email);
   if (!user) return 'non-active';
 
@@ -30,6 +32,11 @@ const getUserState = async (email: string): Promise<UserState> => {
   }
 
   return 'active';
+  } catch (error) {
+    // If database is not available, assume user is non-active
+    console.warn('Database not available, assuming user is non-active:', error);
+    return 'non-active';
+  }
 };
 
 export const { POST } = serve<InitialData>(async (context) => {

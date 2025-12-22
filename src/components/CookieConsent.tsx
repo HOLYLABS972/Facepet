@@ -61,7 +61,7 @@ export default function CookieConsent({ onAccept, onReject }: CookieConsentProps
   }
 
   return (
-    <div className="fixed top-20 left-0 right-0 z-50 p-4 md:top-24">
+    <div className="fixed bottom-[30px] left-0 right-0 z-50 p-4">
       <Card className="max-w-2xl mx-auto shadow-2xl border-0 bg-white">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">

@@ -200,7 +200,7 @@ export default function AddAdForm() {
       router.refresh();
     } catch (err: any) {
       setError(
-        err.message || 'Failed to create advertisement. Please try again.'
+        err.message || t('forms.addAd.createError')
       );
       console.error(err);
     } finally {

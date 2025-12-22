@@ -140,12 +140,12 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 pt-16">
+    <div className="flex min-h-screen flex-col bg-gray-50 overflow-x-hidden">
       <Navbar />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -165,8 +165,8 @@ export default function ContactPage() {
       </div>
 
       {/* Contact Form and Info */}
-      <div className="py-16">
-        <div className="container mx-auto px-4">
+      <div className="pt-16">
+        <div className="container mx-auto flex justify-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <motion.div
@@ -282,7 +282,7 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">{t('contactInfo.title')}</h3>
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4 justify-center flex-row rtl:flex-row-reverse">
+                  <div className="flex items-center gap-4 justify-center flex-row-reverse rtl:flex-row">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Mail className="h-6 w-6 text-orange-500" />
                     </div>
@@ -293,7 +293,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 justify-center flex-row rtl:flex-row-reverse">
+                  <div className="flex items-center gap-4 justify-center flex-row-reverse rtl:flex-row">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Phone className="h-6 w-6 text-orange-500" />
                     </div>
@@ -304,7 +304,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 justify-center flex-row rtl:flex-row-reverse">
+                  <div className="flex items-center gap-4 justify-center flex-row-reverse rtl:flex-row">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <MapPin className="h-6 w-6 text-orange-500" />
                     </div>

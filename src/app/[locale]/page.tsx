@@ -149,21 +149,72 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
   return (
     <>
       {/* Main Welcome Content */}
-      <section className="relative mt-16 px-4 sm:px-7 pt-16 sm:pt-32 pb-0 min-h-[600px] overflow-visible w-full">
+      <section className="relative px-4 sm:px-7 pb-0 min-h-[600px] overflow-visible w-full sm:-mt-[100px]">
         <div className="relative max-w-7xl mx-auto">
-          {/* Pet Icons Around Text - all 6 pets in horizontal oval */}
+          {/* Desktop: Container with text in center and pets around */}
+          <div className="hidden sm:flex relative items-center justify-center h-[calc(100vh-4rem)]">
+            {/* Desktop: Pet Icons Around Text - all 6 pets in horizontal oval */}
+            <div className="absolute inset-0 flex items-center justify-center">
           {petCharacters.map((pet, index) => (
             <AnimatedPetAroundText key={pet.id} pet={pet} index={index} />
           ))}
+            </div>
 
-          <div className="relative z-10">
-            <div className="text-center text-3xl lg:text-4xl pt-4 mt-[180px] sm:mt-[100px]">
+            {/* Text and Button in the center */}
+            <div className="relative z-10 text-center mt-[90px]">
+              <div className="text-3xl lg:text-4xl">
+                <p className="text-gray-500">{t('upperTitle')}</p>
+                <p className="text-black">{t('lowerTitle')}</p>
+              </div>
+              
+              {/* Desktop Get Started Button */}
+              <div className="mt-8 flex w-full items-center justify-center">
+                <Button
+                  onClick={() => router.push('/auth')}
+                  className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
+                >
+                  {t('buttonLabel')}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="sm:hidden relative z-10 mt-16">
+            {/* Mobile: 3 Top Pets Before Text */}
+            <div className="flex justify-center items-center gap-4 mb-8">
+              <Image
+                src={petImages.dino}
+                alt="dino"
+                width={80}
+                height={80}
+                className="object-contain"
+              />
+              <div className="relative -mt-[50px]">
+                <Image
+                  src={petImages.bunny}
+                  alt="bunny"
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                />
+              </div>
+              <Image
+                src={petImages.bear}
+                alt="bear"
+                width={80}
+                height={80}
+                className="object-contain"
+              />
+            </div>
+            
+            <div className="text-center text-3xl lg:text-4xl pt-4 mt-[30px]">
               <p className="text-gray-500">{t('upperTitle')}</p>
               <p className="text-black">{t('lowerTitle')}</p>
             </div>
 
             {/* Mobile Get Started Button */}
-            <div className="mt-8 flex justify-center sm:hidden">
+            <div className="mt-8 flex justify-center">
               <Button
                 onClick={() => router.push('/auth')}
                 className="h-[48px] w-auto px-8 bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg flex items-center justify-center"
@@ -172,16 +223,34 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
               </Button>
             </div>
 
-            {/* Desktop Get Started Button */}
-            <div className="mt-8 hidden w-full items-center justify-center sm:flex">
-              <Button
-                onClick={() => router.push('/auth')}
-                className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
-              >
-                {t('buttonLabel')}
-              </Button>
+            {/* Mobile: Pet Icons After Button - 3 pets in line (pig, duck, penguin) */}
+            <div className="flex justify-center items-center gap-4 mt-16">
+              <Image
+                src={petImages.pig}
+                alt="pig"
+                width={80}
+                height={80}
+                className="object-contain"
+              />
+              <div className="relative mt-[50px]">
+                <Image
+                  src={petImages.duck}
+                  alt="duck"
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                />
+              </div>
+              <Image
+                src={petImages.penguin}
+                alt="penguin"
+                width={80}
+                height={80}
+                className="object-contain"
+              />
             </div>
           </div>
+
         </div>
       </section>
 
@@ -240,16 +309,16 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   }, []);
   
   // Calculate floor position (bottom of section)
-  const floorPosition = 500;
+  const floorPosition = 350;
 
   let baseX: number;
   let baseY: number;
 
   if (isMobile) {
-    // Mobile: Circular positioning above and around the text/button
-    const circleRadius = 100; // Distance from center
-    const centerX = -15; // Shift slightly left to compensate for padding
-    const centerY = -280; // Move up significantly to be above the text
+    // Mobile: Circular positioning around center
+    const circleRadius = 120; // Distance from center
+    const centerX = -40; // Shift 40px left
+    const centerY = 0; // Center of the container
 
     // Arrange in a circle
     const angleStep = (2 * Math.PI) / 6; // 6 pets evenly distributed
@@ -259,11 +328,11 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     baseX = centerX + circleRadius * Math.cos(angle);
     baseY = centerY + circleRadius * Math.sin(angle);
   } else {
-    // Desktop: Oval positioning
-    const ovalWidth = 450;
-    const ovalHeight = 200;
-    const centerX = -50;
-    const centerY = -50;
+    // Desktop: Oval positioning (original perfect positioning)
+    const ovalWidth = 500;
+    const ovalHeight = 250;
+    const centerX = -40; // Shift 40px left
+    const centerY = 0; // Center of the container
 
     const angleStep = (2 * Math.PI) / 6;
     const startAngle = 0;

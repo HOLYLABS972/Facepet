@@ -82,6 +82,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const [highlightedServiceIds, setHighlightedServiceIds] = useState<string[]>(initialHighlightedIds);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeSnapPoint, setActiveSnapPoint] = useState<number | string | null>(1);
+  const [listSnapPoint, setListSnapPoint] = useState<number | string | null>(0.4);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [commentText, setCommentText] = useState('');
@@ -353,10 +354,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   // Handle drawer close - but keep at least 20% visible
   const handleDrawerClose = (open: boolean) => {
     if (!open) {
-      // Instead of closing, snap to minimum 20%
-      setActiveSnapPoint(0.2);
-      // Keep drawer open
-      setDrawerOpen(true);
+      // On desktop, close the sidebar completely
+      if (!isMobile) {
+        setDrawerOpen(false);
+        setSelectedService(null);
+      } else {
+        // On mobile, snap to minimum 20% for the list drawer
+        setActiveSnapPoint(0.2);
+        setDrawerOpen(true);
+      }
     } else {
       setDrawerOpen(open);
     }
@@ -1007,22 +1013,41 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
             <div ref={mapRef} className="w-full h-full" />
           </div>
 
-          {/* Services List Drawer (Always persistent) */}
+          {/* Services List Drawer (Always persistent - starts at 40%, can expand to 100% on tap) */}
           <Drawer
             open={true}
             modal={false}
-            snapPoints={[0.2, 0.4, 1]}
-            activeSnapPoint={0.4}
+            snapPoints={[0.4, 1]}
+            activeSnapPoint={listSnapPoint || 0.4}
+            setActiveSnapPoint={(snap) => {
+              // Update snap point when user interacts with drawer
+              if (snap !== null) {
+                setListSnapPoint(snap);
+              }
+            }}
             fadeFromIndex={0}
             shouldScaleBackground={false}
             dismissible={false}
+            onOpenChange={() => {
+              // Prevent closing - keep drawer always open
+            }}
           >
             <DrawerContent className="h-[100vh]">
               <DrawerHeader className="sr-only">
                 <DrawerTitle>Services List</DrawerTitle>
               </DrawerHeader>
               {/* Search Bar Placeholder or Title */}
-              <div className="px-4 py-2 border-b">
+              <div 
+                className="px-4 py-2 border-b cursor-pointer"
+                onClick={() => {
+                  // Toggle between 40% and 100% when header is tapped
+                  if (listSnapPoint === 0.4) {
+                    setListSnapPoint(1);
+                  } else {
+                    setListSnapPoint(0.4);
+                  }
+                }}
+              >
                 <p className="text-sm font-semibold text-gray-500 text-center">{services.length} {t('map.servicesFound')}</p>
               </div>
               <div className="flex-1 overflow-y-auto bg-gray-50 p-4 service-cards-scroll">
@@ -1421,22 +1446,24 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
             <Drawer
               open={drawerOpen}
               onOpenChange={(open) => {
-                // Prevent full closure - keep at least 20% visible
-                if (!open && drawerOpen) {
-                  // Instead of closing, snap to minimum 20%
-                  setActiveSnapPoint(0.2);
-                  // Keep drawer open
-                  setDrawerOpen(true);
-                  return;
-                }
-                if (open) {
-                  setDrawerOpen(true);
+                setDrawerOpen(open);
+                if (!open) {
+                  setSelectedService(null);
                 }
               }}
               snapPoints={[0.2, 1]}
               activeSnapPoint={activeSnapPoint}
-              setActiveSnapPoint={setActiveSnapPoint}
-              dismissible={false}
+              setActiveSnapPoint={(snap) => {
+                // Allow dragging down to close, but prevent expanding beyond 100%
+                if (snap === null || (typeof snap === 'number' && snap < 0.2)) {
+                  setActiveSnapPoint(0.2);
+                } else if (typeof snap === 'number' && snap > 1) {
+                  setActiveSnapPoint(1);
+                } else {
+                  setActiveSnapPoint(snap);
+                }
+              }}
+              dismissible={true}
               modal={true} // Modal to focus comfortably
             >
               <DrawerContent className="h-screen mt-0 rounded-none">
@@ -1447,8 +1474,8 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        // Instead of closing, snap to 20% minimum
-                        setActiveSnapPoint(0.2);
+                        setDrawerOpen(false);
+                        setSelectedService(null);
                       }}
                       className="h-8 w-8"
                     >
