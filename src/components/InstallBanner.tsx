@@ -14,14 +14,23 @@ export default function InstallBanner() {
     // Check if already installed (standalone mode)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;
-    if (isStandalone) return;
+    if (isStandalone) {
+      console.log('InstallBanner: App is in standalone mode, hiding banner');
+      return;
+    }
 
     // Detect platform
     const userAgent = navigator.userAgent;
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
+    const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(userAgent);
+    const isSmallScreen = window.innerWidth <= 768; // md breakpoint
     
-    // Only show banner on mobile devices
-    if (!isMobile) return;
+    // Show banner on mobile devices OR small screens (for testing)
+    const shouldShow = isMobileDevice || isSmallScreen;
+    
+    if (!shouldShow) {
+      console.log('InstallBanner: Not mobile device and not small screen, hiding banner');
+      return;
+    }
     
     setIsIOS(/iPhone|iPad|iPod/i.test(userAgent));
     setIsAndroid(/Android/i.test(userAgent));
@@ -34,14 +43,18 @@ export default function InstallBanner() {
           // Check if dismissed more than 7 days ago
           const dismissedDate = new Date(dismissed);
           const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
-          if (daysSinceDismissed < 7) return;
+          if (daysSinceDismissed < 7) {
+            console.log('InstallBanner: Banner was dismissed recently, hiding');
+            return;
+          }
         }
       } catch (error) {
         console.error('Error accessing localStorage:', error);
       }
     }
 
-    // Always show banner on mobile
+    // Show banner
+    console.log('InstallBanner: Showing banner');
     setIsVisible(true);
 
     // Listen for beforeinstallprompt event (Android)
@@ -52,8 +65,41 @@ export default function InstallBanner() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+    // Also listen for window resize to show/hide on small screens
+    const handleResize = () => {
+      const currentIsStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true;
+      if (currentIsStandalone) return;
+
+      const currentIsSmallScreen = window.innerWidth <= 768;
+      const currentIsMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (currentIsSmallScreen || currentIsMobileDevice) {
+        // Re-check visibility on resize
+        try {
+          const dismissed = localStorage.getItem('installBannerDismissed');
+          if (!dismissed) {
+            setIsVisible(true);
+          } else {
+            const dismissedDate = new Date(dismissed);
+            const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
+            if (daysSinceDismissed >= 7) {
+              setIsVisible(true);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking localStorage on resize:', error);
+        }
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
