@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 export default function InstallBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [isMac, setIsMac] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
@@ -33,6 +34,7 @@ export default function InstallBanner() {
     }
     
     setIsIOS(/iPhone|iPad|iPod/i.test(userAgent));
+    setIsMac(/Macintosh|Mac OS X/i.test(userAgent) && !/iPhone|iPad|iPod/i.test(userAgent));
     setIsAndroid(/Android/i.test(userAgent));
 
     // Check if user dismissed the banner before
@@ -115,20 +117,12 @@ export default function InstallBanner() {
   };
 
   const handleInstall = async () => {
-    if (isIOS) {
-      // For iOS: Download mobileconfig file
-      const link = document.createElement('a');
-      link.href = '/Chapiz.mobileconfig';
-      link.download = 'Chapiz.mobileconfig';
-      link.click();
-      setIsVisible(false);
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('installBannerDismissed', new Date().toISOString());
-        } catch (error) {
-          console.error('Error setting localStorage:', error);
-        }
-      }
+    if (isIOS || isMac) {
+      // For iOS/Mac: Download mobileconfig file via API route
+      // The API route serves it with correct MIME type: application/x-apple-aspen-config
+      window.open('/api/mobileconfig', '_blank');
+      
+      // Don't hide banner immediately
     } else if (deferredPrompt) {
       // Android or Desktop: Use the deferred prompt
       deferredPrompt.prompt();
@@ -144,6 +138,15 @@ export default function InstallBanner() {
         }
       }
       setDeferredPrompt(null);
+    } else {
+      // Fallback: Show instructions for manual installation
+      if (isAndroid) {
+        // Android: Show instructions to install PWA
+        alert('To install this app:\n1. Tap the menu button (⋮)\n2. Select "Add to Home Screen" or "Install App"');
+      } else {
+        // Desktop: Show instructions to install PWA
+        alert('To install this app:\n1. Click the install icon in your browser\'s address bar\n2. Or use the browser menu and select "Install App"');
+      }
     }
   };
 
@@ -164,30 +167,34 @@ export default function InstallBanner() {
       <div className="container mx-auto px-4 py-3 flex items-center gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">התקינו את האפליקציה של Chapiz</p>
-          {isIOS && (
+          {(isIOS || isMac) && (
             <p className="text-xs mt-1 opacity-90">
-              לחץ על &quot;הורד&quot; כדי להתקין את פרופיל התצורה או הקש על <Share className="inline h-3 w-3 mx-1" /> ואז &quot;הוסף למסך הבית&quot;
+              {isMac 
+                ? 'לחץ על "הורד" כדי להוריד את פרופיל התצורה'
+                : (
+                  <>
+                    לחץ על &quot;הורד&quot; כדי להתקין את פרופיל התצורה או הקש על <Share className="inline h-3 w-3 mx-1" /> ואז &quot;הוסף למסך הבית&quot;
+                  </>
+                )}
             </p>
           )}
-          {isAndroid && !deferredPrompt && (
+          {isAndroid && (
             <p className="text-xs mt-1 opacity-90">
-              פתח תפריט ⋮ ובחר &quot;הוסף למסך הבית&quot;
+              {deferredPrompt ? 'לחץ על &quot;התקן&quot; כדי להתקין את האפליקציה' : 'פתח תפריט ⋮ ובחר &quot;הוסף למסך הבית&quot;'}
             </p>
           )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Show install button on iOS (mobileconfig) or Android (when native prompt is available) */}
-          {(isIOS || deferredPrompt) && (
-            <Button
-              onClick={handleInstall}
-              size="sm"
-              variant="secondary"
-              className="bg-white text-primary hover:bg-gray-100"
-            >
-              <Download className="h-4 w-4 mr-1" />
-              הורד
-            </Button>
-          )}
+          {/* Always show install/download button based on OS */}
+          <Button
+            onClick={handleInstall}
+            size="sm"
+            variant="secondary"
+            className="bg-white text-primary hover:bg-gray-100"
+          >
+            <Download className="h-4 w-4 mr-1" />
+            {(isIOS || isMac) ? 'הורד' : 'התקן'}
+          </Button>
           {/* Always show dismiss button */}
           <Button
             onClick={handleDismiss}
