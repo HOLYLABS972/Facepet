@@ -2,6 +2,7 @@
 import { DataTablePagination } from '@/components/admin/DataTablePagination';
 import { LimitSelector } from '@/components/admin/LimitSelector';
 import UserActions from '@/components/admin/UserActions';
+import AddUserForm from '@/components/admin/AddUserForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,9 +16,8 @@ import {
 import { redirect } from '@/i18n/routing';
 import { getAllUsers } from '@/lib/actions/admin';
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, Search, Coins, UserPlus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Search, Coins } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
-import Link from 'next/link';
 
 export default async function UsersPage({
   searchParams
@@ -96,12 +96,7 @@ export default async function UsersPage({
     <div className="container mx-auto p-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">{t('userManagement')}</h1>
-        <Link href={`/${locale}/auth`}>
-          <Button className="flex items-center gap-2">
-            <UserPlus className="h-4 w-4" />
-            {t('navigation.addUser')}
-          </Button>
-        </Link>
+        <AddUserForm />
       </div>
 
       {/* Search and Filters */}

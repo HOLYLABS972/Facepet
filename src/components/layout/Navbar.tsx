@@ -206,110 +206,76 @@ const Navbar = () => {
                 <div className="h-8 w-8" />
               ) : user ? (
                 <>
-                  {/* User Dropdown Menu - Using Burger Icon */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0">
-                        <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end">
-                      <div className="flex items-center justify-start gap-2 p-2">
-                        <div className="flex flex-col space-y-1 leading-none">
-                          {user?.displayName && (
-                            <p className="font-medium">{user.displayName}</p>
-                          )}
-                          <p className="w-[200px] truncate text-sm text-muted-foreground">
-                            {user?.email}
-                          </p>
-                        </div>
-                      </div>
-                      <DropdownMenuSeparator />
-                      {/* Desktop Navigation Items - Hidden on mobile (mobile has bottom nav) */}
-                      <div className="hidden md:block">
-                        <DropdownMenuItem asChild>
-                          <Link href="/pages/my-pets" className="flex items-center">
-                            <PawPrint className="mr-2 h-4 w-4" />
-                            <span>{t('bottomNav.myPets') || t('myPets')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/coupons" className="flex items-center">
-                            <Ticket className="mr-2 h-4 w-4" />
-                            <span>{t('bottomNav.myCoupons') || t('allPromos')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/vouchers" className="flex items-center">
-                            <Gift className="mr-2 h-4 w-4" />
-                            <span>{t('bottomNav.giftsAndVouchers') || t('coupons')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/services" className="flex items-center">
-                            <MapPin className="mr-2 h-4 w-4" />
-                            <span>{t('bottomNav.businessesNearby') || t('services')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </div>
-                      {/* Settings and Actions */}
-                      <DropdownMenuItem asChild>
-                        <Link href="/user/settings" className="flex items-center">
-                          <CircleUserRound className="mr-2 h-4 w-4" />
-                          <span>{t('profile')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      {(userRole === 'admin' || userRole === 'super_admin') && (
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin" className="flex items-center">
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                            <span>{t('adminPanel')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem asChild>
-                        <Link href="/contact" className="flex items-center">
-                          <Mail className="mr-2 h-4 w-4" />
-                          <span>{t('contact')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} className="text-primary">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>{t('signOut')}</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  {/* Store Button - Outlined Primary (Always visible for logged in users) */}
+                  {/* Mobile: Shop button on left */}
+                  <div className="md:hidden flex items-center gap-2 flex-1 justify-start pr-12">
+                    {/* Store Button - Outlined Primary (Visible on mobile for logged in users) */}
                     <Button
                       variant="outline"
                       size="sm"
-                    onClick={() => {
-                      if (storeUrl) {
-                        window.location.href = storeUrl;
-                      }
-                    }}
-                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
+                      onClick={() => {
+                        if (storeUrl) {
+                          window.location.href = storeUrl;
+                        }
+                      }}
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors -ml-10 md:ml-0"
                     >
-                      <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="text-center">{t('chapizStore')}</span>
+                      <ShoppingBag className="h-3.5 w-3.5" />
+                      <span className="text-center">{t('chapizStore')}</span>
                     </Button>
-                </>
-              ) : (
-                <>
-                  {/* Desktop: Group Login, Store, Contact on the right */}
-                  <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => router.push('/auth')}
-                      className="bg-primary hover:bg-primary hover:opacity-70 text-white border-primary flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2 transition-opacity"
-                    >
-                      <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                      {t('signIn')}
-                    </Button>
-                    {/* Store Button - Outlined Primary (Always visible for not logged in users) */}
+                  </div>
+
+                  {/* Mobile: Burger menu - Fixed at right corner */}
+                  <div className="md:hidden fixed top-[13px] right-2 z-[70]">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full">
+                          <Menu className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
+                        <div className="flex items-center justify-start gap-2 p-2">
+                          <div className="flex flex-col space-y-1 leading-none">
+                            {user?.displayName && (
+                              <p className="font-medium">{user.displayName}</p>
+                            )}
+                            <p className="w-[200px] truncate text-sm text-muted-foreground">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </div>
+                        <DropdownMenuSeparator />
+                        {/* Settings and Actions */}
+                        <DropdownMenuItem asChild>
+                          <Link href="/user/settings" className="flex items-center">
+                            <CircleUserRound className="mr-2 h-4 w-4" />
+                            <span>{t('profile')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        {(userRole === 'admin' || userRole === 'super_admin') && (
+                          <DropdownMenuItem asChild>
+                            <Link href="/admin" className="flex items-center">
+                              <LayoutDashboard className="mr-2 h-4 w-4" />
+                              <span>{t('adminPanel')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem asChild>
+                          <Link href="/contact" className="flex items-center">
+                            <Mail className="mr-2 h-4 w-4" />
+                            <span>{t('contact')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} className="text-primary">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>{t('signOut')}</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Desktop: Store Button and Burger Menu - Grouped together with 20px spacing, fixed at right corner */}
+                  <div className="hidden md:flex flex-row items-center gap-[20px] fixed top-[13px] right-2 z-[70] pr-[135px]" dir="ltr">
                     <Button
                       variant="outline"
                       size="sm"
@@ -323,6 +289,86 @@ const Navbar = () => {
                       <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span className="text-center">{t('chapizStore')}</span>
                     </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full">
+                          <Menu className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>
+                        <div className="flex items-center justify-start gap-2 p-2">
+                          <div className="flex flex-col space-y-1 leading-none">
+                            {user?.displayName && (
+                              <p className="font-medium">{user.displayName}</p>
+                            )}
+                            <p className="w-[200px] truncate text-sm text-muted-foreground">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </div>
+                        <DropdownMenuSeparator />
+                        {/* Desktop Navigation Items - Hidden on mobile (mobile has bottom nav) */}
+                        <div className="hidden md:block">
+                          <DropdownMenuItem asChild>
+                            <Link href="/pages/my-pets" className="flex items-center">
+                              <PawPrint className="mr-2 h-4 w-4" />
+                              <span>{t('bottomNav.myPets') || t('myPets')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/coupons" className="flex items-center">
+                              <Ticket className="mr-2 h-4 w-4" />
+                              <span>{t('bottomNav.myCoupons') || t('allPromos')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/vouchers" className="flex items-center">
+                              <Gift className="mr-2 h-4 w-4" />
+                              <span>{t('bottomNav.giftsAndVouchers') || t('coupons')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/services" className="flex items-center">
+                              <MapPin className="mr-2 h-4 w-4" />
+                              <span>{t('bottomNav.businessesNearby') || t('services')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </div>
+                        {/* Settings and Actions */}
+                        <DropdownMenuItem asChild>
+                          <Link href="/user/settings" className="flex items-center">
+                            <CircleUserRound className="mr-2 h-4 w-4" />
+                            <span>{t('profile')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        {(userRole === 'admin' || userRole === 'super_admin') && (
+                          <DropdownMenuItem asChild>
+                            <Link href="/admin" className="flex items-center">
+                              <LayoutDashboard className="mr-2 h-4 w-4" />
+                              <span>{t('adminPanel')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem asChild>
+                          <Link href="/contact" className="flex items-center">
+                            <Mail className="mr-2 h-4 w-4" />
+                            <span>{t('contact')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} className="text-primary">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>{t('signOut')}</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Desktop: Contact, Store, Sign In Button - All grouped together with 20px spacing */}
+                  <div className="hidden md:flex flex-row items-center gap-5 fixed top-[13px] right-2 z-[70]" dir="ltr">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -332,11 +378,6 @@ const Navbar = () => {
                       <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t('contact') || 'Contact'}
                     </Button>
-                  </div>
-
-                  {/* Mobile: Show shop button and burger menu */}
-                  <div className="md:hidden flex items-center gap-2">
-                    {/* Store Button - Outlined Primary (Visible on mobile for not logged in users) */}
                     <Button
                       variant="outline"
                       size="sm"
@@ -345,17 +386,46 @@ const Navbar = () => {
                           window.location.href = storeUrl;
                         }
                       }}
-                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors"
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
+                    >
+                      <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <span className="text-center">{t('chapizStore')}</span>
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => router.push('/auth')}
+                      className="bg-primary hover:bg-primary hover:opacity-70 text-white border-primary flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2 transition-opacity mr-[135px]"
+                    >
+                      <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      {t('signIn')}
+                    </Button>
+                  </div>
+
+                  {/* Mobile: Show shop button on left and burger menu fixed at corner */}
+                  <div className="md:hidden flex items-center gap-2 flex-1 justify-start pr-12">
+                    {/* Store Button - Outlined Primary (Visible on mobile for not logged in users) - on left side */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (storeUrl) {
+                          window.location.href = storeUrl;
+                        }
+                      }}
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors -ml-10 md:ml-0"
                     >
                       <ShoppingBag className="h-3.5 w-3.5" />
                       <span className="text-center">{t('chapizStore')}</span>
                     </Button>
-                    
-                    {/* Burger menu */}
+                  </div>
+                  
+                  {/* Burger menu - Fixed at right corner for mobile only (always right, regardless of language) */}
+                  <div className="md:hidden fixed top-[13px] right-2 z-[70]">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-7 w-7 p-0">
-                          <Menu className="h-4 w-4" />
+                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full">
+                          <Menu className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56" align={locale === 'he' ? 'start' : 'end'}>

@@ -85,7 +85,7 @@ export default function CookieConsent({ onAccept, onReject }: CookieConsentProps
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-medium"
                 >
                   <Check className="w-4 h-4 mr-2" />
-                  {t('acceptAll')}
+                  {t('accept')}
                 </Button>
 
                 <Button
@@ -94,7 +94,7 @@ export default function CookieConsent({ onAccept, onReject }: CookieConsentProps
                   className="border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-full text-sm font-medium"
                 >
                   <RejectIcon className="w-4 h-4 mr-2" />
-                  {t('rejectAll')}
+                  {t('reject')}
                 </Button>
               </div>
             </div>

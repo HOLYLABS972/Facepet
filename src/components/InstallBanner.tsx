@@ -186,15 +186,15 @@ export default function InstallBanner() {
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Always show install/download button based on OS */}
-          <Button
-            onClick={handleInstall}
-            size="sm"
-            variant="secondary"
-            className="bg-white text-primary hover:bg-gray-100"
-          >
-            <Download className="h-4 w-4 mr-1" />
+            <Button
+              onClick={handleInstall}
+              size="sm"
+              variant="secondary"
+              className="bg-white text-primary hover:bg-gray-100"
+            >
+              <Download className="h-4 w-4 mr-1" />
             {(isIOS || isMac) ? 'הורד' : 'התקן'}
-          </Button>
+            </Button>
           {/* Always show dismiss button */}
           <Button
             onClick={handleDismiss}

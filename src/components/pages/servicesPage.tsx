@@ -167,23 +167,21 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ ads, businessId }) => {
               {/* Search Bar and Filter Row */}
               <div className="flex flex-row gap-3">
                 {/* Tags Filter */}
-                {!isLoadingTags && availableTags.length > 0 && (
-                  <div className="w-[200px] shrink-0">
-                    <TagsFilter
-                      tags={availableTags}
-                      selectedTags={selectedTags}
-                      onTagsChange={setSelectedTags}
-                      placeholder={t('filterByProfession')}
-                      clearAllText="נקה הכל"
-                      searchTagsPlaceholder="חפש תגיות..."
-                      tagsSelectedText="{count} tag selected"
-                      tagsSelectedPluralText="{count} tags selected"
-                      noTagsFoundText="לא נמצאו תגיות."
-                      className="w-full"
-                      translateTag={translateTag}
-                    />
-                  </div>
-                )}
+                <div className="w-[200px] shrink-0">
+                  <TagsFilter
+                    tags={availableTags}
+                    selectedTags={selectedTags}
+                    onTagsChange={setSelectedTags}
+                    placeholder={isLoadingTags ? t('loading') || 'Loading...' : t('filterByProfession')}
+                    clearAllText="נקה הכל"
+                    searchTagsPlaceholder="חפש תגיות..."
+                    tagsSelectedText="{count} tag selected"
+                    tagsSelectedPluralText="{count} tags selected"
+                    noTagsFoundText="לא נמצאו תגיות."
+                    className="w-full"
+                    translateTag={translateTag}
+                  />
+                </div>
 
                 {/* Search Bar */}
                 <div className="relative h-9 grow rounded-lg bg-white border border-gray-200">

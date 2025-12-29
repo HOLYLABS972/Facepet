@@ -171,7 +171,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
               <div className="mt-8 flex w-full items-center justify-center">
                 <Button
                   onClick={() => router.push('/auth')}
-                  className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-sm font-normal shadow-lg hover:opacity-70"
+                  className="bg-primary hover:bg-primary h-16 w-52 rounded-full text-lg font-normal shadow-lg hover:opacity-70"
                 >
                   {t('buttonLabel')}
                 </Button>
@@ -183,29 +183,11 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           <div className="sm:hidden relative z-10 mt-16">
             {/* Mobile: 3 Top Pets Before Text */}
             <div className="flex justify-center items-center gap-4 mb-8">
-              <Image
-                src={petImages.dino}
-                alt="dino"
-                width={80}
-                height={80}
-                className="object-contain"
-              />
+              <AnimatedPetSimple pet={petCharacters[2]} size={80} /> {/* dino */}
               <div className="relative -mt-[50px]">
-                <Image
-                  src={petImages.bunny}
-                  alt="bunny"
-                  width={80}
-                  height={80}
-                  className="object-contain"
-                />
+                <AnimatedPetSimple pet={petCharacters[1]} size={80} /> {/* bunny */}
               </div>
-              <Image
-                src={petImages.bear}
-                alt="bear"
-                width={80}
-                height={80}
-                className="object-contain"
-              />
+              <AnimatedPetSimple pet={petCharacters[5]} size={80} /> {/* bear */}
             </div>
             
             <div className="text-center text-3xl lg:text-4xl pt-4 mt-[30px]">
@@ -217,7 +199,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
             <div className="mt-8 flex justify-center">
               <Button
                 onClick={() => router.push('/auth')}
-                className="h-[48px] w-auto px-8 bg-primary hover:bg-primary hover:opacity-70 rounded-full text-sm font-normal shadow-lg flex items-center justify-center"
+                className="h-[48px] w-auto px-8 bg-primary hover:bg-primary hover:opacity-70 rounded-full text-lg font-normal shadow-lg flex items-center justify-center"
               >
                 {t('buttonLabel')}
               </Button>
@@ -225,29 +207,11 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
 
             {/* Mobile: Pet Icons After Button - 3 pets in line (pig, duck, penguin) */}
             <div className="flex justify-center items-center gap-4 mt-16">
-              <Image
-                src={petImages.pig}
-                alt="pig"
-                width={80}
-                height={80}
-                className="object-contain"
-              />
+              <AnimatedPetSimple pet={petCharacters[0]} size={80} /> {/* pig */}
               <div className="relative mt-[50px]">
-                <Image
-                  src={petImages.duck}
-                  alt="duck"
-                  width={80}
-                  height={80}
-                  className="object-contain"
-                />
+                <AnimatedPetSimple pet={petCharacters[3]} size={80} /> {/* duck */}
               </div>
-              <Image
-                src={petImages.penguin}
-                alt="penguin"
-                width={80}
-                height={80}
-                className="object-contain"
-              />
+              <AnimatedPetSimple pet={petCharacters[4]} size={80} /> {/* penguin */}
             </div>
           </div>
 
@@ -435,6 +399,60 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
               repeat: Infinity,
               delay: 0.2 * pet.id, // Stagger delays
               repeatType: 'reverse'
+            }
+      }
+      onTap={handleTap}
+      onClick={handleTap}
+    />
+  );
+};
+
+// Simple animated pet component for mobile (horizontal layout)
+const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
+  const [isFalling, setIsFalling] = useState(false);
+  const [hasFallen, setHasFallen] = useState(false);
+
+  const handleTap = () => {
+    if (!isFalling && !hasFallen) {
+      setIsFalling(true);
+      setTimeout(() => {
+        setIsFalling(false);
+        setHasFallen(true);
+      }, 1500);
+    }
+  };
+
+  return (
+    <motion.img
+      src={pet.src}
+      alt={pet.alt}
+      width={size}
+      height={size}
+      className="object-contain cursor-pointer"
+      animate={
+        hasFallen
+          ? { y: 0, rotate: 0, scale: 1 }
+          : isFalling
+          ? {
+              y: 100,
+              rotate: 360,
+              scale: [1, 0.9, 1],
+              transition: {
+                duration: 1.5,
+                ease: [0.55, 0.085, 0.68, 0.53] as any
+              }
+            }
+          : {
+              y: [0, -10, 5, -8, 0],
+              rotate: [0, -5, 5, -3, 0],
+              scale: [1, 1.05, 0.95, 1.02, 1],
+              transition: {
+                duration: 4 + (pet.id % 3) * 1.5,
+                ease: [0.4, 0, 0.2, 1] as any,
+                repeat: Infinity,
+                delay: 0.2 * pet.id,
+                repeatType: 'reverse' as const
+              }
             }
       }
       onTap={handleTap}

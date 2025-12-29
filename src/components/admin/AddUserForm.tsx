@@ -22,6 +22,7 @@ import { createUserByAdmin } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { UserPlus } from 'lucide-react';
 
 export default function AddUserForm() {
   const t = useTranslations('Admin');
@@ -54,13 +55,18 @@ export default function AddUserForm() {
     setError(null);
 
     try {
-      await createUserByAdmin(
+      const result = await createUserByAdmin(
         formData.fullName,
         formData.email,
         formData.phone,
         formData.password,
         formData.role
       );
+
+      if (!result.success) {
+        setError(result.error || t('forms.addUser.error'));
+        return;
+      }
 
       // Reset form and close
       setFormData({
@@ -74,8 +80,8 @@ export default function AddUserForm() {
 
       // Refresh the page to show the new user
       router.refresh();
-    } catch (err) {
-      setError('Failed to create user. Please try again.');
+    } catch (err: any) {
+      setError(err.message || t('forms.addUser.error'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -85,13 +91,14 @@ export default function AddUserForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
-          Add New User
+        <Button className="flex items-center gap-2">
+          <UserPlus className="h-4 w-4" />
+          {t('navigation.addUser')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
+          <DialogTitle>{t('forms.addUser.title')}</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -102,7 +109,7 @@ export default function AddUserForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="fullName">{t('forms.addUser.fullName')}</Label>
             <Input
               id="fullName"
               name="fullName"
@@ -113,7 +120,7 @@ export default function AddUserForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('forms.addUser.email')}</Label>
             <Input
               id="email"
               name="email"
@@ -125,7 +132,7 @@ export default function AddUserForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">{t('forms.addUser.phone')}</Label>
             <Input
               id="phone"
               name="phone"
@@ -136,7 +143,7 @@ export default function AddUserForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('forms.addUser.password')}</Label>
             <Input
               id="password"
               name="password"
@@ -149,7 +156,7 @@ export default function AddUserForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">{t('forms.addUser.role')}</Label>
             <Select
               name="role"
               value={formData.role}
@@ -164,9 +171,9 @@ export default function AddUserForm() {
                 <SelectValue placeholder={t('forms.addUser.selectRole')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="super_admin">Super Admin</SelectItem>
+                <SelectItem value="user">{t('usersManagement.roles.user')}</SelectItem>
+                <SelectItem value="admin">{t('usersManagement.roles.admin')}</SelectItem>
+                <SelectItem value="super_admin">{t('usersManagement.roles.super_admin')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

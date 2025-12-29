@@ -280,9 +280,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         setActiveSnapPoint={setActiveSnapPoint}
         dismissible={false}
       >
-        <DrawerContent className="flex h-screen flex-col rounded-none mt-0 sm:rounded-t-[10px] sm:max-h-[90dvh] sm:max-w-[425px] sm:h-auto sm:mt-24">
+        <DrawerContent className="flex h-[100dvh] max-h-[100dvh] flex-col rounded-none mt-0 sm:rounded-t-[10px] sm:max-h-[90dvh] sm:max-w-[425px] sm:h-auto sm:mt-24 z-[10000]">
           {/* Scrollable content */}
-          <div className="mx-4 mt-4 flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="mx-4 mt-4 flex-1 overflow-x-hidden overflow-y-auto min-h-0 pb-4">
             <DrawerHeader className="ltr:text-left rtl:text-right">
               <DrawerTitle className="text-3xl">
                 {service.name}

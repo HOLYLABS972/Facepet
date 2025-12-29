@@ -12,6 +12,7 @@ import {
   Timestamp 
 } from 'firebase/firestore';
 import { User } from 'firebase/auth';
+import { HEBREW_SERVICE_TAGS } from '@/lib/constants/hebrew-service-tags';
 
 export interface UserFavorite {
   id: string;
@@ -157,20 +158,28 @@ export async function isAdFavorited(
 
 /**
  * Get all unique tags from ads
+ * Combines predefined service tags with tags found in advertisements
  */
 export async function getAllAdTags(): Promise<string[]> {
   try {
-    const adsSnapshot = await getDocs(collection(db, 'advertisements'));
-    const allTags = new Set<string>();
+    // Start with predefined service tags
+    const allTags = new Set<string>(HEBREW_SERVICE_TAGS);
     
+    // Add tags from advertisements
+    const adsSnapshot = await getDocs(collection(db, 'advertisements'));
     adsSnapshot.docs.forEach(doc => {
       const tags = doc.data().tags || [];
-      tags.forEach((tag: string) => allTags.add(tag));
+      tags.forEach((tag: string) => {
+        if (tag && tag.trim()) {
+          allTags.add(tag.trim());
+        }
+      });
     });
     
     return Array.from(allTags).sort();
   } catch (error: any) {
     console.error('Error getting ad tags:', error);
-    return [];
+    // Return predefined tags as fallback
+    return [...HEBREW_SERVICE_TAGS].sort();
   }
 }

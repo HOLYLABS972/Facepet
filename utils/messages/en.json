@@ -624,13 +624,17 @@
     "forms": {
       "addUser": {
         "title": "Add New User",
+        "fullName": "Full Name",
         "email": "Email",
         "emailPlaceholder": "Enter email address",
+        "phone": "Phone",
         "password": "Password",
         "passwordPlaceholder": "Enter password",
         "role": "Role",
         "rolePlaceholder": "Select role",
+        "selectRole": "Select role",
         "submit": "Add User",
+        "createUser": "Create User",
         "creating": "Creating...",
         "success": "User created successfully",
         "error": "Failed to create user"
@@ -932,6 +936,7 @@
       "noResults": "No Services And Professionals found.",
       "removeFilter": "Remove Filter",
       "filterByProfession": "Filter by Profession",
+      "loading": "Loading...",
       "filters": {
         "all": "All",
         "favorites": "Favorites"
@@ -1441,6 +1446,8 @@
     "CookieConsent": {
       "title": "We use cookies to enhance your experience",
       "description": "We use cookies to improve your browsing experience, serve personalized content, and analyze our traffic. By clicking 'Accept All', you consent to our use of cookies. You can also choose to reject non-essential cookies.",
+      "accept": "Accept",
+      "reject": "Reject",
       "acceptAll": "Accept All",
       "rejectAll": "Reject All",
       "accepting": "Accepting...",

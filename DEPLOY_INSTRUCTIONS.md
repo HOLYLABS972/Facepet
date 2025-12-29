@@ -81,3 +81,4 @@ ls -la
 If you see a `.git` folder, use **Option 1** (Git pull).
 If not, use **Option 2** (rsync) or **Option 3** (SCP).
 
+
