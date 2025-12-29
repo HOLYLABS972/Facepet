@@ -250,69 +250,35 @@ type AnimatedPetProps = {
   index: number;
 };
 
-// Component for pets around text section - arranged in horizontal oval
+// Component for pets around text section - fully static (no animations)
 const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
-  const [isFalling, setIsFalling] = useState(false);
-  const [hasFallen, setHasFallen] = useState(false);
-  
-  // Detect mobile - initialize correctly to avoid flash
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 640;
-    }
-    return false;
-  });
-  
-  // Update on resize
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const checkMobile = () => {
-      if (typeof window !== 'undefined') {
-        setIsMobile(window.innerWidth < 640); // sm breakpoint
-      }
-    };
-    
-    // Set initial value
-    checkMobile();
-    
-    window.addEventListener('resize', checkMobile);
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', checkMobile);
-      }
-    };
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.innerWidth < 640);
+    }
   }, []);
 
-  // Disable complex animations on mobile to prevent crashes
-  const shouldAnimate = !isMobile;
-  
-  // Calculate floor position (bottom of section)
-  const floorPosition = 350;
-
+  // Calculate position
   let baseX: number;
   let baseY: number;
 
   if (isMobile) {
-    // Mobile: Circular positioning around center
-    const circleRadius = 120; // Distance from center
-    const centerX = -40; // Shift 40px left
-    const centerY = 0; // Center of the container
-
-    // Arrange in a circle
-    const angleStep = (2 * Math.PI) / 6; // 6 pets evenly distributed
-    const startAngle = -Math.PI / 2; // Start from top (12 o'clock position)
+    const circleRadius = 120;
+    const centerX = -40;
+    const centerY = 0;
+    const angleStep = (2 * Math.PI) / 6;
+    const startAngle = -Math.PI / 2;
     const angle = startAngle + (index * angleStep);
 
     baseX = centerX + circleRadius * Math.cos(angle);
     baseY = centerY + circleRadius * Math.sin(angle);
   } else {
-    // Desktop: Oval positioning (original perfect positioning)
     const ovalWidth = 500;
     const ovalHeight = 250;
-    const centerX = -40; // Shift 40px left
-    const centerY = 0; // Center of the container
-
+    const centerX = -40;
+    const centerY = 0;
     const angleStep = (2 * Math.PI) / 6;
     const startAngle = 0;
     const angle = startAngle + (index * angleStep);
@@ -320,183 +286,44 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     baseX = centerX + ovalWidth * Math.cos(angle);
     baseY = centerY + ovalHeight * Math.sin(angle);
   }
-  
-  // Responsive pet size
-  const responsiveSize = isMobile ? pet.size * 0.5 : pet.size; // 50% size on mobile
-  
-  // Create smooth floating animation around the oval position
-  const baseMovement = 15;
-  const floatingPath = {
-    y: [
-      0,
-      -baseMovement * 0.8 + (pet.id % 3) * 3,
-      baseMovement * 0.6 - (pet.id % 2) * 2,
-      -baseMovement * 0.4 + (pet.id % 4) * 2,
-      baseMovement * 0.3 - (pet.id % 3) * 1.5,
-      0
-    ],
-    x: [
-      0,
-      baseMovement * 0.5 + (pet.id % 2) * 2,
-      -baseMovement * 0.4 - (pet.id % 3) * 1.5,
-      baseMovement * 0.3 + (pet.id % 2) * 1.5,
-      -baseMovement * 0.2 - (pet.id % 2) * 1,
-      0
-    ],
-    rotate: [
-      0,
-      -10 + (pet.id % 3) * 4,
-      8 - (pet.id % 2) * 5,
-      -6 + (pet.id % 4) * 3,
-      5 - (pet.id % 3) * 2,
-      0
-    ],
-    scale: [
-      1,
-      1.05 + (pet.id % 3) * 0.02,
-      0.95 - (pet.id % 2) * 0.02,
-      1.03 + (pet.id % 2) * 0.015,
-      0.97 - (pet.id % 3) * 0.015,
-      1
-    ]
-  };
-  
-  // Falling animation when tapped
-  const fallingPath = {
-    y: floorPosition - baseY, // Fall to floor
-    x: 0,
-    rotate: 360 + (pet.id % 2 === 0 ? 180 : 0), // Spin while falling
-    scale: [1, 0.9, 1] // Slight bounce on impact
-  };
-  
-  const handleTap = () => {
-    if (!isFalling && !hasFallen) {
-      setIsFalling(true);
-      
-      // After falling animation completes, keep pet on floor
-      setTimeout(() => {
-        setIsFalling(false);
-        setHasFallen(true);
-      }, 2000);
-    }
-  };
-  
+
+  const responsiveSize = isMobile ? pet.size * 0.5 : pet.size;
+
+  // Static image - no animations at all
   return (
-    <motion.img
+    <img
       src={pet.src}
       alt={pet.alt}
       width={responsiveSize}
       height={responsiveSize}
-      className="object-cover cursor-pointer"
+      className="object-cover"
       style={{
         position: 'absolute',
-        top: hasFallen ? `${floorPosition}px` : `calc(50% + ${baseY}px)`,
+        top: `calc(50% + ${baseY}px)`,
         left: `calc(50% + ${baseX}px)`,
         transform: 'translate(-50%, -50%)',
-        willChange: 'transform',
         zIndex: 1
       }}
-      animate={shouldAnimate ? (hasFallen ? { y: 0, x: 0, rotate: 0, scale: 1 } : (isFalling ? fallingPath : floatingPath)) : {}}
-      transition={
-        shouldAnimate ? (isFalling
-          ? {
-              duration: 1.5,
-              ease: [0.55, 0.085, 0.68, 0.53], // Ease out for gravity effect
-              scale: {
-                duration: 0.3,
-                delay: 1.2,
-                ease: 'easeOut'
-              }
-            }
-          : {
-              duration: 8 + (pet.id % 3) * 2, // Vary duration between 8-12 seconds
-              ease: [0.4, 0, 0.2, 1], // Smooth easing
-              repeat: Infinity,
-              delay: 0.2 * pet.id, // Stagger delays
-              repeatType: 'reverse'
-            }) : {}
-      }
-      onTap={handleTap}
-      onClick={handleTap}
     />
   );
 };
 
-// Simple animated pet component for mobile (horizontal layout)
-// Simplified for mobile - minimal animations to prevent crashes
+// Simple pet component for mobile (horizontal layout)
+// Fully static on mobile for optimal performance - no animations
 const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
-  const [isFalling, setIsFalling] = useState(false);
-  const [hasFallen, setHasFallen] = useState(false);
-
-  const handleTap = () => {
-    if (!isFalling && !hasFallen) {
-      setIsFalling(true);
-      setTimeout(() => {
-        setIsFalling(false);
-        setHasFallen(true);
-      }, 1500);
-    }
-  };
-
-  // Use simple img on mobile, motion.img on desktop
-  const [isMobileDevice, setIsMobileDevice] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768;
-    }
-    return true; // Default to mobile for safety
-  });
-
-  // Simple static image for mobile to prevent crashes
-  if (isMobileDevice) {
-    return (
-      <img
-        src={pet.src}
-        alt={pet.alt}
-        width={size}
-        height={size}
-        className="object-contain cursor-pointer"
-        onClick={handleTap}
-        style={{ transition: 'transform 0.3s' }}
-      />
-    );
-  }
-
-  // Full animations for desktop
+  // Always use static image on mobile for performance
+  // Mobile version of this component is already in mobile-only section
   return (
-    <motion.img
+    <img
       src={pet.src}
       alt={pet.alt}
       width={size}
       height={size}
-      className="object-contain cursor-pointer"
-      animate={
-        hasFallen
-          ? { y: 0, rotate: 0, scale: 1 }
-          : isFalling
-          ? {
-              y: 100,
-              rotate: 360,
-              scale: [1, 0.9, 1],
-              transition: {
-                duration: 1.5,
-                ease: [0.55, 0.085, 0.68, 0.53] as any
-              }
-            }
-          : {
-              y: [0, -10, 5, -8, 0],
-              rotate: [0, -5, 5, -3, 0],
-              scale: [1, 1.05, 0.95, 1.02, 1],
-              transition: {
-                duration: 4 + (pet.id % 3) * 1.5,
-                ease: [0.4, 0, 0.2, 1] as any,
-                repeat: Infinity,
-                delay: 0.2 * pet.id,
-                repeatType: 'reverse' as const
-              }
-            }
-      }
-      onTap={handleTap}
-      onClick={handleTap}
+      className="object-contain"
+      style={{
+        transform: `rotate(${pet.degrees}deg)`,
+        transformOrigin: 'center',
+      }}
     />
   );
 };
