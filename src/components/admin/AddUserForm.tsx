@@ -18,24 +18,26 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { createUserByAdmin } from '@/lib/actions/admin';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { UserPlus } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { sendUserInvitationByAdmin } from '@/lib/firebase/admin-client';
 
 export default function AddUserForm() {
   const t = useTranslations('Admin');
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
-    password: '',
     role: 'user' as 'user' | 'admin' | 'super_admin'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -53,13 +55,13 @@ export default function AddUserForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
-      const result = await createUserByAdmin(
+      const result = await sendUserInvitationByAdmin(
         formData.fullName,
         formData.email,
         formData.phone,
-        formData.password,
         formData.role
       );
 
@@ -74,19 +76,26 @@ export default function AddUserForm() {
         fullName: '',
         email: '',
         phone: '',
-        password: '',
         role: 'user'
       });
       setIsOpen(false);
 
       // Show success message
-      console.log('✅ User created successfully:', result.userId);
+      if (result.warning) {
+        console.log('⚠️', result.warning);
+        setSuccessMessage(`Invitation email sent to admin fallback email. ${result.warning}`);
+      } else {
+        console.log('✅ Invitation email sent to:', formData.email);
+        setSuccessMessage(`Invitation email sent successfully to ${formData.email}!`);
+      }
 
-      // Refresh the page to show the new user
+      // Refresh the page
       router.refresh();
     } catch (err: any) {
-      setError(err.message || t('forms.addUser.error'));
-      console.error(err);
+      // Handle unexpected errors
+      console.error('Unexpected error in form submission:', err);
+      const errorMessage = err?.message || err?.errorInfo?.message || t('forms.addUser.error');
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,6 +117,12 @@ export default function AddUserForm() {
         {error && (
           <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
             {error}
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mb-4 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700">
+            {successMessage}
           </div>
         )}
 
@@ -143,19 +158,6 @@ export default function AddUserForm() {
               value={formData.phone}
               onChange={handleChange}
               required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">{t('forms.addUser.password')}</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              minLength={8}
             />
           </div>
 

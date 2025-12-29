@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/firebase/config';
 import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp, deleteField, Timestamp, setDoc } from 'firebase/firestore';
-import { adminAuth, adminDb } from '@/lib/firebase/admin';
+import { adminAuth, adminDb, initializationError } from '@/lib/firebase/admin';
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
 import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData, CreateFilterData, UpdateFilterData } from '@/types/promo';
 import { addPointsToUserByUid, getUserPointsByUid } from '@/lib/firebase/points-server';
@@ -424,7 +424,11 @@ export async function createUserByAdmin(
 
     // Create Firebase Authentication user
     if (!adminAuth) {
-      return { success: false, error: 'Firebase Admin Auth not initialized. Please check your Firebase Admin SDK configuration.' };
+      return { 
+        success: false, 
+        error: initializationError || 'Firebase Admin Auth not initialized. Please check your Firebase Admin SDK configuration.',
+        details: 'Make sure FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY are set in your .env.local file'
+      };
     }
 
     userRecord = await adminAuth.createUser({
