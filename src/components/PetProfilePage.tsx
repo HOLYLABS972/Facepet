@@ -384,6 +384,7 @@ export default function PetProfilePage({
           </div>
         </motion.div>
         <ShareButton />
+        <div className="pb-8"></div>
       </div>
 
       {/* Desktop View */}
@@ -443,6 +444,7 @@ export default function PetProfilePage({
             </div>
           </div>
         </div>
+        <div className="pb-8"></div>
       </div>
 
       {/* Gift popup disabled temporarily */}

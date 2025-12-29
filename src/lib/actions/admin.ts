@@ -1,8 +1,8 @@
 'use server';
 
 import { db } from '@/lib/firebase/config';
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp, deleteField, Timestamp } from 'firebase/firestore';
-import { hash } from 'bcryptjs';
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, limit as firestoreLimit, serverTimestamp, deleteField, Timestamp, setDoc } from 'firebase/firestore';
+import { adminAuth, adminDb } from '@/lib/firebase/admin';
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
 import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData, CreateFilterData, UpdateFilterData } from '@/types/promo';
 import { addPointsToUserByUid, getUserPointsByUid } from '@/lib/firebase/points-server';
@@ -389,6 +389,7 @@ export async function unrestrictUser(userId: string) {
 
 /**
  * Create a new user (for admin use)
+ * Creates both Firebase Authentication user and Firestore document
  */
 export async function createUserByAdmin(
   fullName: string,
@@ -398,23 +399,87 @@ export async function createUserByAdmin(
   role: 'user' | 'admin' | 'super_admin' = 'user'
 ) {
   try {
-    const emailLower = email.toLowerCase();
-    const hashedPassword = await hash(password, 10);
+    const emailLower = email.toLowerCase().trim();
 
-    await addDoc(collection(db, 'users'), {
-      fullName,
+    // Validate inputs
+    if (!emailLower || !password || !fullName) {
+      return { success: false, error: 'All fields are required' };
+    }
+
+    if (password.length < 8) {
+      return { success: false, error: 'Password must be at least 8 characters' };
+    }
+
+    // Check if user already exists in Firebase Auth
+    let userRecord;
+    try {
+      userRecord = await adminAuth.getUserByEmail(emailLower);
+      return { success: false, error: 'User with this email already exists' };
+    } catch (error: any) {
+      // User doesn't exist, which is what we want
+      if (error.code !== 'auth/user-not-found') {
+        throw error;
+      }
+    }
+
+    // Create Firebase Authentication user
+    if (!adminAuth) {
+      return { success: false, error: 'Firebase Admin Auth not initialized. Please check your Firebase Admin SDK configuration.' };
+    }
+
+    userRecord = await adminAuth.createUser({
       email: emailLower,
-      phone,
-      password: hashedPassword,
-      role,
-      createdAt: new Date(),
-      emailVerified: false
+      password: password,
+      displayName: fullName,
+      emailVerified: false, // Admin-created users need to verify email
+      disabled: false
     });
 
-    return { success: true };
-  } catch (error) {
+    // Create Firestore user document
+    const userData = {
+      uid: userRecord.uid,
+      email: emailLower,
+      displayName: fullName,
+      fullName: fullName,
+      phone: phone || '',
+      role: role,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      emailVerified: false,
+      acceptCookies: false,
+      language: 'en'
+    };
+
+    // Use setDoc with the UID as document ID to ensure consistency
+    await setDoc(doc(db, 'users', userRecord.uid), userData);
+
+    console.log('✅ User created successfully:', {
+      uid: userRecord.uid,
+      email: emailLower,
+      role: role
+    });
+
+    return { success: true, userId: userRecord.uid };
+  } catch (error: any) {
     console.error('Error creating user:', error);
-    return { success: false, error: 'Failed to create user' };
+    
+    // If Firestore creation fails but Auth user was created, try to clean up
+    if (error.code === 'auth/email-already-exists') {
+      return { success: false, error: 'User with this email already exists' };
+    }
+    
+    if (error.code === 'auth/invalid-email') {
+      return { success: false, error: 'Invalid email address' };
+    }
+    
+    if (error.code === 'auth/weak-password') {
+      return { success: false, error: 'Password is too weak' };
+    }
+
+    return { 
+      success: false, 
+      error: error.message || 'Failed to create user. Please try again.' 
+    };
   }
 }
 
@@ -2097,6 +2162,42 @@ export async function getBusinesses() {
   } catch (error) {
     console.error('Error fetching businesses:', error);
     return { success: false, error: 'Failed to fetch businesses' };
+  }
+}
+
+/**
+ * Get a business by ID
+ */
+export async function getBusinessById(id: string) {
+  try {
+    const businessDoc = await getDoc(doc(db, 'businesses', id));
+    
+    if (!businessDoc.exists()) {
+      return null;
+    }
+
+    const data = businessDoc.data();
+    return {
+      id: businessDoc.id,
+      name: data.name || '',
+      description: data.description || '',
+      imageUrl: data.imageUrl || '',
+      contactInfo: {
+        email: data.contactInfo?.email || '',
+        phone: data.contactInfo?.phone || '',
+        address: data.contactInfo?.address || ''
+      },
+      tags: data.tags || [],
+      filterIds: data.filterIds || [],
+      rating: data.rating || 0,
+      isActive: data.isActive || false,
+      createdAt: data.createdAt?.toDate() || new Date(),
+      updatedAt: data.updatedAt?.toDate() || new Date(),
+      createdBy: data.createdBy || ''
+    };
+  } catch (error) {
+    console.error('Error getting business by ID:', error);
+    return null;
   }
 }
 

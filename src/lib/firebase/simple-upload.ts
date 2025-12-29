@@ -2,6 +2,7 @@
 import { storage } from './config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { User } from 'firebase/auth';
+import { convertToWebPOptimized } from '@/lib/utils/image-conversion';
 
 export interface UploadResult {
   success: boolean;
@@ -19,7 +20,8 @@ export interface UploadResult {
 export async function uploadFile(
   file: File,
   user: User,
-  folder: string = 'uploads'
+  folder: string = 'uploads',
+  shouldConvertToWebP: boolean = true
 ): Promise<UploadResult> {
   try {
     console.log('🚀 Starting file upload...', {
@@ -44,9 +46,26 @@ export async function uploadFile(
       throw new Error('Firebase Storage not initialized');
     }
 
+    // Convert image to WebP if it's an image and conversion is enabled
+    let fileToUpload = file;
+    if (shouldConvertToWebP && file.type.startsWith('image/') && file.type !== 'image/webp') {
+      try {
+        console.log('🔄 Converting image to WebP...');
+        fileToUpload = await convertToWebPOptimized(file, undefined, 1920, 1920);
+        console.log('✅ Image converted to WebP', {
+          originalSize: file.size,
+          newSize: fileToUpload.size,
+          reduction: `${((1 - fileToUpload.size / file.size) * 100).toFixed(1)}%`
+        });
+      } catch (error) {
+        console.warn('⚠️ Failed to convert to WebP, using original file:', error);
+        // Continue with original file if conversion fails
+      }
+    }
+
     // Create file path
     const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name}`;
+    const fileName = `${timestamp}-${fileToUpload.name}`;
     const filePath = `${folder}/${user.uid}/${fileName}`;
     
     console.log('📁 File path:', filePath);
@@ -56,7 +75,7 @@ export async function uploadFile(
     console.log('📤 Uploading to Firebase Storage...');
 
     // Upload file
-    const snapshot = await uploadBytes(storageRef, file);
+    const snapshot = await uploadBytes(storageRef, fileToUpload);
     console.log('✅ Upload successful:', snapshot.metadata.name);
 
     // Get download URL
@@ -106,7 +125,7 @@ export async function uploadProfileImage(
     };
   }
 
-  // Check file size (5MB limit)
+  // Check file size (5MB limit for original)
   if (file.size > 5 * 1024 * 1024) {
     return {
       success: false,
@@ -114,7 +133,8 @@ export async function uploadProfileImage(
     };
   }
 
-  return uploadFile(file, user, 'profile-images');
+  // Convert to WebP with max dimensions for profile images
+  return uploadFile(file, user, 'profile-images', true);
 }
 
 /**
@@ -132,7 +152,7 @@ export async function uploadPetImage(
     };
   }
 
-  // Check file size (10MB limit)
+  // Check file size (10MB limit for original)
   if (file.size > 10 * 1024 * 1024) {
     return {
       success: false,
@@ -140,7 +160,8 @@ export async function uploadPetImage(
     };
   }
 
-  return uploadFile(file, user, 'pet-images');
+  // Convert to WebP with max dimensions for pet images
+  return uploadFile(file, user, 'pet-images', true);
 }
 
 /**

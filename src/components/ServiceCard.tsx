@@ -218,11 +218,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
     }
   };
 
+  const handleCardClick = () => {
+    if (service.id) {
+      router.push(`/${locale}/services/${service.id}`);
+    } else {
+      handleOpen();
+    }
+  };
+
   return (
     <>
       {/* Card View */}
       <div
-        onClick={handleOpen}
+        onClick={handleCardClick}
         className={cn(
           'relative cursor-pointer overflow-hidden rounded-2xl bg-white shadow-md transition hover:shadow-lg'
         )}
@@ -462,8 +470,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                   className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
                   onClick={() => {
                     if (service.address) {
-                      const encodedAddress = encodeURIComponent(service.address);
-                      window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                      const address = service.address.trim();
+                      // Try Waze app protocol first (mobile), fallback to web
+                      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                      if (isMobile) {
+                        // Try to open Waze app
+                        window.location.href = `waze://?q=${encodeURIComponent(address)}`;
+                        // Fallback to web after a short delay
+                        setTimeout(() => {
+                          window.open(`https://waze.com/ul?q=${encodeURIComponent(address)}`, '_blank');
+                        }, 500);
+                      } else {
+                        window.open(`https://waze.com/ul?q=${encodeURIComponent(address)}`, '_blank');
+                      }
                     } else {
                       alert('כתובת לא זמינה');
                     }

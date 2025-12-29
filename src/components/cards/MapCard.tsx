@@ -223,6 +223,10 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
         mapTypeControl: true,
         streetViewControl: false,
         fullscreenControl: true,
+        draggable: false,
+        scrollwheel: false,
+        disableDoubleClickZoom: true,
+        gestureHandling: 'none',
       });
 
       setMap(mapInstance);
@@ -466,6 +470,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
           <div
             ref={mapRef}
             className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
           />
           {!mapLoaded && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">

@@ -45,7 +45,7 @@ interface ServicesMapViewProps {
 declare global {
   interface Window {
     google: any;
-    initServicesMap: () => void;
+    initServicesMap?: () => void;
   }
 }
 
@@ -599,7 +599,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       });
 
       marker.addListener('click', () => {
-        // Close previous info window
+        // Navigate to service details page
+        if (service.id) {
+          router.push(`/${locale}/services/${service.id}`);
+          return;
+        }
+        
+        // Fallback: Close previous info window
         if (currentInfoWindow) {
           currentInfoWindow.close();
         }
@@ -889,7 +895,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   const handleServiceClick = (service: ServiceWithCoordinates) => {
     console.log('handleServiceClick called', { service: service.name, id: service.id });
     
-    // Close previous info window if any
+    // Navigate to service details page
+    if (service.id) {
+      router.push(`/${locale}/services/${service.id}`);
+      return;
+    }
+    
+    // Fallback: Close previous info window if any
     if (currentInfoWindow) {
       currentInfoWindow.close();
     }
@@ -1381,9 +1393,19 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                       onClick={() => {
                         if (selectedService.address || selectedService.location) {
-                          const address = selectedService.address || selectedService.location;
-                          const encodedAddress = encodeURIComponent(address);
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                          const address = (selectedService.address || selectedService.location).trim();
+                          // Try Waze app protocol first (mobile), fallback to web
+                          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                          if (isMobile) {
+                            // Try to open Waze app
+                            window.location.href = `waze://?q=${encodeURIComponent(address)}`;
+                            // Fallback to web after a short delay
+                            setTimeout(() => {
+                              window.open(`https://waze.com/ul?q=${encodeURIComponent(address)}`, '_blank');
+                            }, 500);
+                          } else {
+                            window.open(`https://waze.com/ul?q=${encodeURIComponent(address)}`, '_blank');
+                          }
                         } else {
                           toast.error('כתובת לא זמינה');
                         }
@@ -1682,9 +1704,19 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                         className="transition-colors hover:text-orange-500 focus:text-orange-500 focus:outline-none"
                         onClick={() => {
                           if (selectedService.address || selectedService.location) {
-                            const address = selectedService.address || selectedService.location;
-                            const encodedAddress = encodeURIComponent(address);
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                            const address = (selectedService.address || selectedService.location).trim();
+                            // Try Waze app protocol first (mobile), fallback to web
+                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                            if (isMobile) {
+                              // Try to open Waze app
+                              window.location.href = `waze://?q=${encodeURIComponent(address)}`;
+                              // Fallback to web after a short delay
+                              setTimeout(() => {
+                                window.open(`https://waze.com/ul?q=${encodeURIComponent(address)}`, '_blank');
+                              }, 500);
+                            } else {
+                              window.open(`https://waze.com/ul?q=${encodeURIComponent(address)}`, '_blank');
+                            }
                           } else {
                             toast.error('כתובת לא זמינה');
                           }

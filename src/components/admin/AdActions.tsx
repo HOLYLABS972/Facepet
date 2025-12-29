@@ -70,6 +70,14 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
     return ad.type === 'video' ? 'video' : 'image';
   });
 
+  // Helper function to ensure scalar value for Select components
+  const ensureString = (value: string | string[] | undefined): string => {
+    if (Array.isArray(value)) {
+      return value[0] || '';
+    }
+    return value || '';
+  };
+
   const [formData, setFormData] = useState({
     title: ad.title,
     content: isYouTubeUrl(ad.content) ? '' : ad.content,
@@ -83,10 +91,10 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
     location: ad.location || '',
     description: ad.description || '',
     tags: ad.tags || [],
-    area: ad.area || '',
+    area: ensureString(ad.area),
     city: ad.city || [],
-    petType: ad.petType || '',
-    breed: ad.breed || '',
+    petType: ensureString(ad.petType),
+    breed: ensureString(ad.breed),
     ageRange: ad.ageRange || [],
     weight: ad.weight || []
   });
@@ -124,10 +132,10 @@ export default function AdActions({ ad, onDelete, onUpdate }: AdActionsProps) {
         location: ad.location || '',
         description: ad.description || '',
         tags: ad.tags || [],
-        area: ad.area || '',
+        area: ensureString(ad.area),
         city: ad.city || [],
-        petType: ad.petType || '',
-        breed: ad.breed || '',
+        petType: ensureString(ad.petType),
+        breed: ensureString(ad.breed),
         ageRange: ad.ageRange || [],
         weight: ad.weight || []
       });

@@ -20,7 +20,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
+import QRCodeCard from '@/components/cards/QRCodeCard';
+import { Share2, Info } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface PromosPageClientProps {
   promos: Promo[];
@@ -37,6 +42,8 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   const [usedPromos, setUsedPromos] = useState<UserPromo[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('available');
+  const [selectedPromo, setSelectedPromo] = useState<Promo | null>(null);
+  const [couponUrl, setCouponUrl] = useState<string>('');
 
   // Function to load used promos
   const loadUsedPromos = useCallback(async () => {
@@ -94,11 +101,55 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
     return () => window.removeEventListener('focus', handleFocus);
   }, [user, activeTab, loadUsedPromos]);
 
+  // Update coupon URL when selected promo changes
+  useEffect(() => {
+    if (selectedPromo && typeof window !== 'undefined') {
+      const url = business
+        ? `${window.location.origin}/${locale}/coupons/${selectedPromo.id}?businessId=${business.id}`
+        : `${window.location.origin}/${locale}/coupons/${selectedPromo.id}`;
+      setCouponUrl(url);
+    }
+  }, [selectedPromo, business, locale]);
+
   const handleViewQR = (promo: Promo) => {
     const url = business
       ? `/${locale}/coupons/${promo.id}?businessId=${business.id}`
       : `/${locale}/coupons/${promo.id}`;
     router.push(url);
+  };
+
+  const handleCardClick = (promo: Promo, e?: React.MouseEvent) => {
+    // Don't open modal if clicking on buttons
+    if (e && (e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    setSelectedPromo(promo);
+  };
+
+  const handleShare = async (promo: Promo) => {
+    if (!couponUrl) return;
+    
+    const shareUrl = couponUrl;
+    const shareData = {
+      title: promo.name,
+      text: promo.description || promo.name,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        toast.success(t('shared') || 'Shared successfully!');
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success(t('linkCopied') || 'Link copied to clipboard!');
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success(t('linkCopied') || 'Link copied to clipboard!');
+      }
+    }
   };
 
 
@@ -133,7 +184,8 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   const renderPromoCard = (promo: Promo) => (
     <Card
       key={promo.id}
-      className="overflow-hidden hover:shadow-lg transition-shadow relative flex flex-col"
+      className="overflow-hidden hover:shadow-lg transition-shadow relative flex flex-col cursor-pointer"
+      onClick={(e) => handleCardClick(promo, e)}
     >
       {promo.youtubeUrl ? (
         <div className="relative w-full h-48">
@@ -206,7 +258,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
           <Button
             variant="outline"
             size="sm"
@@ -235,7 +287,8 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   const renderUsedPromoCard = (userPromo: UserPromo) => (
     <Card
       key={userPromo.id}
-      className="overflow-hidden hover:shadow-lg transition-shadow relative opacity-75 flex flex-col"
+      className="overflow-hidden hover:shadow-lg transition-shadow relative opacity-75 flex flex-col cursor-pointer"
+      onClick={(e) => handleCardClick(userPromo.promo, e)}
     >
       <div className="absolute top-2 right-2 z-10">
         <div className="bg-gray-500 text-white px-2 py-1 rounded text-xs font-medium">
@@ -299,7 +352,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           )}
         </div>
         {/* Action Buttons for used promos */}
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
           <Button
             variant="outline"
             size="sm"
@@ -470,6 +523,137 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           )
         )}
       </div>
+
+      {/* Coupon Details Modal */}
+      <Dialog open={!!selectedPromo} onOpenChange={(open) => !open && setSelectedPromo(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedPromo && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">{selectedPromo.name}</DialogTitle>
+                {selectedPromo.description && (
+                  <DialogDescription className="text-base pt-2">
+                    {selectedPromo.description}
+                  </DialogDescription>
+                )}
+              </DialogHeader>
+              <div className="space-y-6">
+                {/* Image or Video */}
+                {selectedPromo.youtubeUrl ? (
+                  <div className="relative w-full h-64 rounded-lg overflow-hidden bg-black">
+                    {getYouTubeEmbedUrl(selectedPromo.youtubeUrl) ? (
+                      <iframe
+                        src={getYouTubeEmbedUrl(selectedPromo.youtubeUrl) || ''}
+                        title={selectedPromo.name}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white">
+                        <span>Video unavailable</span>
+                      </div>
+                    )}
+                  </div>
+                ) : selectedPromo.imageUrl && (
+                  <div className="relative w-full h-64 rounded-lg overflow-hidden">
+                    <img
+                      src={selectedPromo.imageUrl}
+                      alt={selectedPromo.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Business Info */}
+                {(() => {
+                  const promoBusinesses = getPromoBusinesses(selectedPromo);
+                  if (promoBusinesses.length > 0) {
+                    return (
+                      <div className="text-sm text-gray-600">
+                        {promoBusinesses.length === 1
+                          ? promoBusinesses[0].name
+                          : `${promoBusinesses.length} ${t('businesses') || 'Businesses'}`
+                        }
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Dates */}
+                {(selectedPromo.startDate || selectedPromo.endDate) && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    <div>
+                      {selectedPromo.startDate && (
+                        <p>{t('startDate') || 'Start'}: {new Date(selectedPromo.startDate).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-GB')}</p>
+                      )}
+                      {selectedPromo.endDate && (
+                        <p>{t('endDate') || 'End'}: {new Date(selectedPromo.endDate).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-GB')}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* QR Code */}
+                {couponUrl && (
+                  <div>
+                    <QRCodeCard url={couponUrl} />
+                  </div>
+                )}
+
+                {/* Important Information */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm text-blue-900 font-medium mb-1">
+                        {t('importantInfo') || 'Important Information'}
+                      </p>
+                      <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                        <li>{t('couponUsageInfo') || 'This coupon can only be used at the shop that offers this promo'}</li>
+                        <li>{t('oneTimeUse') || 'This coupon is valid for one-time use only'}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleViewQR(selectedPromo)}
+                  className="flex-1"
+                >
+                  <QrCode className="w-4 h-4 mr-2" />
+                  {t('viewFullPage') || 'View Full Page'}
+                </Button>
+                {getPromoBusinesses(selectedPromo).length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedPromo(null);
+                      handleShowMap(selectedPromo);
+                    }}
+                    className="flex-1"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    {t('showMap') || 'Map'}
+                  </Button>
+                )}
+                <Button
+                  variant="default"
+                  onClick={() => handleShare(selectedPromo)}
+                  className="flex-1"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  {t('share') || 'Share'}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

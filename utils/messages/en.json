@@ -932,7 +932,7 @@
     },
     "ServicesPage": {
       "title": "Services And Professionals",
-      "searchPlaceholder": "Search Services And Professionals...",
+      "searchPlaceholder": "Search Services",
       "noResults": "No Services And Professionals found.",
       "removeFilter": "Remove Filter",
       "filterByProfession": "Filter by Profession",
@@ -1017,7 +1017,8 @@
       "oneTimeUse": "This coupon is valid for one-time use only",
       "showMap": "Show Map",
       "mapFor": "Map for",
-      "acceptedAt": "Accepted at"
+      "acceptedAt": "Accepted at",
+      "viewFullPage": "View Full Page"
     },
 
     "SignUpPage": {

@@ -937,7 +937,7 @@
     },
     "ServicesPage": {
       "title": "שירותים ואנשי מקצוע",
-      "searchPlaceholder": "חפש שירותים ואנשי מקצוע...",
+      "searchPlaceholder": "חפש שירותים",
       "noResults": "לא נמצאו שירותים ואנשי מקצוע.",
       "removeFilter": "הסר מסנן",
       "filterByProfession": "סינון לפי מקצוע",
@@ -1022,7 +1022,8 @@
       "oneTimeUse": "קופון זה תקף לשימוש חד-פעמי בלבד",
       "showMap": "איפה ניתן לממש?",
       "mapFor": "מפה עבור",
-      "acceptedAt": "תקף ב"
+      "acceptedAt": "תקף ב",
+      "viewFullPage": "צפה בדף המלא"
     },
 
     "ConfirmationPage": {
@@ -1419,6 +1420,26 @@
       "title": "תנאי שימוש",
       "heroDescription": "אנא קראו את התנאים האלה בעיון לפני השימוש בשירותי Chapiz.",
       "lastUpdated": "עודכן לאחרונה"
+    },
+    "Admin": {
+      "uploading": "מעלה",
+      "mediaUpload": {
+        "editImage": "ערוך תמונה",
+        "replaceImage": "החלף תמונה",
+        "replaceVideo": "החלף וידאו",
+        "uploading": "מעלה...",
+        "clickToUploadImage": "לחץ להעלאת תמונה",
+        "clickToUploadVideo": "לחץ להעלאת וידאו",
+        "fileFormats": {
+          "image": "PNG, JPG עד 20MB",
+          "video": "MP4 עד 100MB"
+        }
+      },
+      "imageEditor": {
+        "title": "ערוך תמונה",
+        "applyCrop": "החל חיתוך",
+        "clear": "נקה"
+      }
     }
   },
   "errors": {
@@ -1473,7 +1494,7 @@
         "myPets": "החיות שלי",
         "giftsAndVouchers": "מתנות ושוברים",
         "myCoupons": "הקופונים שלי",
-        "businessesNearby": "עסקים בסביבה"
+        "businessesNearby": "חיפוש עסקים"
       }
     },
     "UserCoupons": {

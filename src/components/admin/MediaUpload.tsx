@@ -10,6 +10,7 @@ import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
 import ImageEditor from './ImageEditor';
+import { convertToWebPOptimized } from '@/lib/utils/image-conversion';
 
 interface MediaUploadProps {
   type: 'image' | 'video';
@@ -63,16 +64,33 @@ export default function MediaUpload({
     setProgress(0);
 
     try {
+      // Convert image to WebP if it's an image
+      let fileToUpload = file;
+      if (type === 'image' && file.type.startsWith('image/') && file.type !== 'image/webp') {
+        try {
+          console.log('🔄 Converting image to WebP...');
+          fileToUpload = await convertToWebPOptimized(file, undefined, 1920, 1920);
+          console.log('✅ Image converted to WebP', {
+            originalSize: file.size,
+            newSize: fileToUpload.size,
+            reduction: `${((1 - fileToUpload.size / file.size) * 100).toFixed(1)}%`
+          });
+        } catch (error) {
+          console.warn('⚠️ Failed to convert to WebP, using original file:', error);
+          // Continue with original file if conversion fails
+        }
+      }
+
       // Create a unique filename
       const timestamp = Date.now();
-      const fileExtension = file.name.split('.').pop();
+      const fileExtension = fileToUpload.name.split('.').pop();
       const fileName = `${type}_${timestamp}.${fileExtension}`;
       
       // Create storage reference
       const storageRef = ref(storage, `advertisements/${type}s/${fileName}`);
       
       // Upload file with progress tracking
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      const uploadTask = uploadBytesResumable(storageRef, fileToUpload);
 
       uploadTask.on(
         'state_changed',
@@ -272,10 +290,10 @@ export default function MediaUpload({
               const response = await fetch(editedDataUrl);
               const blob = await response.blob();
               
-              // Create a file from blob
+              // Create a file from blob (will be converted to WebP in uploadFile)
               const file = new File([blob], 'edited-image.png', { type: 'image/png' });
               
-              // Upload the edited image
+              // Upload the edited image (will be converted to WebP)
               await uploadFile(file);
               setEditedImageUrl(null);
               setIsEditorOpen(false);

@@ -26,8 +26,8 @@ export function generateShopUrl(
   callbackUrl?: string,
   uniqueCallback: boolean = false
 ): string {
-  // Use facepet.club as the base URL for callbacks
-  const baseUrl = 'https://facepet.club';
+  // Use tag.chapiz.co.il as the base URL for callbacks
+  const baseUrl = 'https://tag.chapiz.co.il';
 
   // Generate unique callback URL if requested
   let finalCallbackUrl: string;
@@ -35,9 +35,9 @@ export function generateShopUrl(
     finalCallbackUrl = callbackUrl;
   } else if (uniqueCallback) {
     const token = generateCallbackToken();
-    finalCallbackUrl = `${baseUrl}/api/shop/callback?token=${token}`;
+    finalCallbackUrl = `${baseUrl}/?token=${token}`;
   } else {
-    finalCallbackUrl = `${baseUrl}/api/shop/callback`;
+    finalCallbackUrl = `${baseUrl}/`;
   }
 
   // Ensure shopUrl doesn't end with a slash
@@ -70,8 +70,8 @@ export function generateShopUrlWithParams(
   },
   uniqueCallback: boolean = false
 ): string {
-  // Use facepet.club as the base URL for callbacks
-  const baseUrl = 'https://facepet.club';
+  // Use tag.chapiz.co.il as the base URL for callbacks
+  const baseUrl = 'https://tag.chapiz.co.il';
 
   // Ensure shopUrl doesn't end with a slash
   const cleanShopUrl = shopUrl.replace(/\/$/, '');
@@ -88,9 +88,9 @@ export function generateShopUrlWithParams(
     url.searchParams.set('callback', params.callback);
   } else if (uniqueCallback) {
     const token = generateCallbackToken();
-    url.searchParams.set('callback', `${baseUrl}/api/shop/callback?token=${token}`);
+    url.searchParams.set('callback', `${baseUrl}/?token=${token}`);
   } else {
-    url.searchParams.set('callback', `${baseUrl}/api/shop/callback`);
+    url.searchParams.set('callback', `${baseUrl}/`);
   }
 
   // Add any additional custom parameters
@@ -119,11 +119,11 @@ export function generateShopUrlWithUniqueCallback(
   coupon: string,
   customToken?: string
 ): { shopUrl: string; callbackToken: string; callbackUrl: string } {
-  // Use facepet.club as the base URL for callbacks
-  const baseUrl = 'https://facepet.club';
+  // Use tag.chapiz.co.il as the base URL for callbacks
+  const baseUrl = 'https://tag.chapiz.co.il';
 
   const token = customToken || generateCallbackToken();
-  const callbackUrl = `${baseUrl}/api/shop/callback?token=${token}`;
+  const callbackUrl = `${baseUrl}/?token=${token}`;
   const shopUrlWithParams = generateShopUrl(shopUrl, userId, coupon, callbackUrl, false);
 
   return {

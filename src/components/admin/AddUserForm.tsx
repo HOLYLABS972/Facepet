@@ -65,6 +65,7 @@ export default function AddUserForm() {
 
       if (!result.success) {
         setError(result.error || t('forms.addUser.error'));
+        setIsSubmitting(false);
         return;
       }
 
@@ -77,6 +78,9 @@ export default function AddUserForm() {
         role: 'user'
       });
       setIsOpen(false);
+
+      // Show success message
+      console.log('✅ User created successfully:', result.userId);
 
       // Refresh the page to show the new user
       router.refresh();
