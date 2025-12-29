@@ -106,6 +106,10 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  // Force cache invalidation for mobile browsers (fixes Server Action cache issues)
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
   // Cache optimization
   onDemandEntries: {
     // period (in ms) where the server will keep pages in the buffer

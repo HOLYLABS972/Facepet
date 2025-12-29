@@ -19,7 +19,17 @@ const middleware = (req: NextRequest) => {
   }
   
   // Handle internationalization for all routes
-  return intlMiddleware(req);
+  const response = intlMiddleware(req);
+  
+  // Add cache-busting headers for mobile browsers (fixes Server Action cache issues)
+  // Only for HTML pages, not static assets
+  if (response && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+  }
+  
+  return response;
 };
 
 export const config = {
