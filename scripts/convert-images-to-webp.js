@@ -6,10 +6,9 @@ let sharp;
 try {
   sharp = require('sharp');
 } catch (error) {
-  console.error('❌ sharp is not installed.');
-  console.error('⚠️  Skipping image conversion. Install with: npm install --save-dev sharp');
-  console.error('   Build will continue without WebP conversion...');
-  process.exit(0); // Exit gracefully, don't break build
+  console.error('❌ sharp is not installed. Installing it now...');
+  console.error('Please run: npm install --save-dev sharp');
+  process.exit(1);
 }
 
 // Image extensions to convert
@@ -57,25 +56,9 @@ async function convertToWebP(inputPath, outputPath, quality = 85) {
     const inputStats = fs.statSync(inputPath);
     stats.totalSizeBefore += inputStats.size;
 
-    // Try different sharp API formats for compatibility
-    let image = sharp(inputPath);
-    
-    // Check sharp version and use appropriate API
-    const sharpVersion = require('sharp/package.json').version;
-    const majorVersion = parseInt(sharpVersion.split('.')[0]);
-    
-    if (majorVersion >= 1) {
-      // Modern sharp API
-      image = image.webp({ 
-        quality: quality,
-        effort: 6
-      });
-    } else {
-      // Older sharp API
-      image = image.webp(quality);
-    }
-    
-    await image.toFile(outputPath);
+    await sharp(inputPath)
+      .webp({ quality, effort: 6 })
+      .toFile(outputPath);
 
     const outputStats = fs.statSync(outputPath);
     stats.totalSizeAfter += outputStats.size;
@@ -212,8 +195,7 @@ async function main() {
 
 // Run the script
 main().catch(error => {
-  console.error('❌ Fatal error:', error.message);
-  console.error('⚠️  Continuing build without WebP conversion...');
-  process.exit(0); // Don't break the build
+  console.error('❌ Fatal error:', error);
+  process.exit(1);
 });
 

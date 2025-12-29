@@ -250,35 +250,54 @@ type AnimatedPetProps = {
   index: number;
 };
 
-// Component for pets around text section - fully static (no animations)
+// Component for pets around text section - arranged in horizontal oval
 const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
+  const [isFalling, setIsFalling] = useState(false);
+  const [hasFallen, setHasFallen] = useState(false);
+  
+  // Detect mobile - initialize correctly to avoid flash
+  const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== 'undefined') {
-      setIsMobile(window.innerWidth < 640);
+      return window.innerWidth < 640;
     }
+    return false;
+  });
+  
+  // Update on resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm breakpoint
+    };
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
+  
+  // Calculate floor position (bottom of section)
+  const floorPosition = 350;
 
-  // Calculate position
   let baseX: number;
   let baseY: number;
 
   if (isMobile) {
-    const circleRadius = 120;
-    const centerX = -40;
-    const centerY = 0;
-    const angleStep = (2 * Math.PI) / 6;
-    const startAngle = -Math.PI / 2;
+    // Mobile: Circular positioning around center
+    const circleRadius = 120; // Distance from center
+    const centerX = -40; // Shift 40px left
+    const centerY = 0; // Center of the container
+
+    // Arrange in a circle
+    const angleStep = (2 * Math.PI) / 6; // 6 pets evenly distributed
+    const startAngle = -Math.PI / 2; // Start from top (12 o'clock position)
     const angle = startAngle + (index * angleStep);
 
     baseX = centerX + circleRadius * Math.cos(angle);
     baseY = centerY + circleRadius * Math.sin(angle);
   } else {
+    // Desktop: Oval positioning (original perfect positioning)
     const ovalWidth = 500;
     const ovalHeight = 250;
-    const centerX = -40;
-    const centerY = 0;
+    const centerX = -40; // Shift 40px left
+    const centerY = 0; // Center of the container
+
     const angleStep = (2 * Math.PI) / 6;
     const startAngle = 0;
     const angle = startAngle + (index * angleStep);
@@ -286,61 +305,165 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     baseX = centerX + ovalWidth * Math.cos(angle);
     baseY = centerY + ovalHeight * Math.sin(angle);
   }
-
-  const responsiveSize = isMobile ? pet.size * 0.5 : pet.size;
-
-  // Static image - no animations at all
+  
+  // Responsive pet size
+  const responsiveSize = isMobile ? pet.size * 0.5 : pet.size; // 50% size on mobile
+  
+  // Create smooth floating animation around the oval position
+  const baseMovement = 15;
+  const floatingPath = {
+    y: [
+      0,
+      -baseMovement * 0.8 + (pet.id % 3) * 3,
+      baseMovement * 0.6 - (pet.id % 2) * 2,
+      -baseMovement * 0.4 + (pet.id % 4) * 2,
+      baseMovement * 0.3 - (pet.id % 3) * 1.5,
+      0
+    ],
+    x: [
+      0,
+      baseMovement * 0.5 + (pet.id % 2) * 2,
+      -baseMovement * 0.4 - (pet.id % 3) * 1.5,
+      baseMovement * 0.3 + (pet.id % 2) * 1.5,
+      -baseMovement * 0.2 - (pet.id % 2) * 1,
+      0
+    ],
+    rotate: [
+      0,
+      -10 + (pet.id % 3) * 4,
+      8 - (pet.id % 2) * 5,
+      -6 + (pet.id % 4) * 3,
+      5 - (pet.id % 3) * 2,
+      0
+    ],
+    scale: [
+      1,
+      1.05 + (pet.id % 3) * 0.02,
+      0.95 - (pet.id % 2) * 0.02,
+      1.03 + (pet.id % 2) * 0.015,
+      0.97 - (pet.id % 3) * 0.015,
+      1
+    ]
+  };
+  
+  // Falling animation when tapped
+  const fallingPath = {
+    y: floorPosition - baseY, // Fall to floor
+    x: 0,
+    rotate: 360 + (pet.id % 2 === 0 ? 180 : 0), // Spin while falling
+    scale: [1, 0.9, 1] // Slight bounce on impact
+  };
+  
+  const handleTap = () => {
+    if (!isFalling && !hasFallen) {
+      setIsFalling(true);
+      
+      // After falling animation completes, keep pet on floor
+      setTimeout(() => {
+        setIsFalling(false);
+        setHasFallen(true);
+      }, 2000);
+    }
+  };
+  
   return (
-    <img
+    <motion.img
       src={pet.src}
       alt={pet.alt}
       width={responsiveSize}
       height={responsiveSize}
-      className="object-cover"
+      className="object-cover cursor-pointer"
       style={{
         position: 'absolute',
-        top: `calc(50% + ${baseY}px)`,
+        top: hasFallen ? `${floorPosition}px` : `calc(50% + ${baseY}px)`,
         left: `calc(50% + ${baseX}px)`,
         transform: 'translate(-50%, -50%)',
+        willChange: 'transform',
         zIndex: 1
       }}
+      animate={hasFallen ? { y: 0, x: 0, rotate: 0, scale: 1 } : (isFalling ? fallingPath : floatingPath)}
+      transition={
+        isFalling
+          ? {
+              duration: 1.5,
+              ease: [0.55, 0.085, 0.68, 0.53], // Ease out for gravity effect
+              scale: {
+                duration: 0.3,
+                delay: 1.2,
+                ease: 'easeOut'
+              }
+            }
+          : {
+              duration: 8 + (pet.id % 3) * 2, // Vary duration between 8-12 seconds
+              ease: [0.4, 0, 0.2, 1], // Smooth easing
+              repeat: Infinity,
+              delay: 0.2 * pet.id, // Stagger delays
+              repeatType: 'reverse'
+            }
+      }
+      onTap={handleTap}
+      onClick={handleTap}
     />
   );
 };
 
-// Simple pet component for mobile (horizontal layout)
-// Fully static on mobile for optimal performance - no animations
+// Simple animated pet component for mobile (horizontal layout)
 const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
-  // Always use static image on mobile for performance
-  // Mobile version of this component is already in mobile-only section
+  const [isFalling, setIsFalling] = useState(false);
+  const [hasFallen, setHasFallen] = useState(false);
+
+  const handleTap = () => {
+    if (!isFalling && !hasFallen) {
+      setIsFalling(true);
+      setTimeout(() => {
+        setIsFalling(false);
+        setHasFallen(true);
+      }, 1500);
+    }
+  };
+
   return (
-    <img
+    <motion.img
       src={pet.src}
       alt={pet.alt}
       width={size}
       height={size}
-      className="object-contain"
-      style={{
-        transform: `rotate(${pet.degrees}deg)`,
-        transformOrigin: 'center',
-      }}
+      className="object-contain cursor-pointer"
+      animate={
+        hasFallen
+          ? { y: 0, rotate: 0, scale: 1 }
+          : isFalling
+          ? {
+              y: 100,
+              rotate: 360,
+              scale: [1, 0.9, 1],
+              transition: {
+                duration: 1.5,
+                ease: [0.55, 0.085, 0.68, 0.53] as any
+              }
+            }
+          : {
+              y: [0, -10, 5, -8, 0],
+              rotate: [0, -5, 5, -3, 0],
+              scale: [1, 1.05, 0.95, 1.02, 1],
+              transition: {
+                duration: 4 + (pet.id % 3) * 1.5,
+                ease: [0.4, 0, 0.2, 1] as any,
+                repeat: Infinity,
+                delay: 0.2 * pet.id,
+                repeatType: 'reverse' as const
+              }
+            }
+      }
+      onTap={handleTap}
+      onClick={handleTap}
     />
   );
 };
 
 const AnimatedPet = ({ pet }: AnimatedPetProps) => {
-  // Disable scroll animations on mobile to prevent crashes
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768;
-    }
-    return true; // Default to mobile for safety
-  });
-
-  // Only use scroll animations on desktop
-  const scrollHook = !isMobile ? useScroll() : null;
-  const scrollY = scrollHook?.scrollY || { get: () => 0 };
-  
+  // Use the containerRef to track scroll inside that container.
+  const { scrollY } = useScroll();
   const xLargeScreen = 300;
   const yChangeValue = 600;
   const xChangeValue = 650;
@@ -354,32 +477,8 @@ const AnimatedPet = ({ pet }: AnimatedPetProps) => {
       ? xChangeValue + 500
       : xChangeValue;
 
-  const x = !isMobile ? useTransform(scrollY, [0, 2000], [0, offsetX]) : 0;
-  const y = !isMobile ? useTransform(scrollY, [0, 2000], [0, offsetY]) : 0;
-
-  // Use simple img on mobile, motion.img on desktop
-  if (isMobile) {
-    return (
-      <img
-        src={pet.src}
-        alt={pet.alt}
-        width={pet.size}
-        height={pet.size}
-        className="object-cover"
-        style={{
-          position: 'absolute',
-          top: `calc(${pet.top}px)`,
-          ...(pet.isRight
-            ? {
-                right: `calc(50% + ${pet.right}px)`
-              }
-            : {
-                left: `calc(50% - ${pet.right}px)`
-              })
-        }}
-      />
-    );
-  }
+  const x = useTransform(scrollY, [0, 2000], [0, offsetX]);
+  const y = useTransform(scrollY, [0, 2000], [0, offsetY]);
 
   return (
     <motion.img
@@ -417,68 +516,45 @@ const AnimatedPet = ({ pet }: AnimatedPetProps) => {
 
 const ProductHighlights = () => {
   const t = useTranslations('components.ProductHighlights');
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768;
-    }
-    return true;
-  });
-
-  // Use simple div on mobile, motion.div on desktop
-  const Container = isMobile ? 'div' : motion.div;
-  const Heading = isMobile ? 'h2' : motion.h2;
-  const Paragraph = isMobile ? 'p' : motion.p;
-
-  const containerProps = isMobile ? {} : {
-    initial: { opacity: 0, y: 50 },
-    whileInView: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 },
-    viewport: { amount: 0.8 }
-  };
-
-  const headingProps = isMobile ? {} : {
-    initial: { opacity: 0, y: 50 },
-    whileInView: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 },
-    viewport: { once: true }
-  };
-
-  const paragraphProps = isMobile ? {} : {
-    initial: { opacity: 0, y: 20 },
-    whileInView: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, delay: 0.2 },
-    viewport: { once: true }
-  };
 
   return (
     <section className="mt-0 mb-0">
-      <Container
-        {...containerProps}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ amount: 0.8 }}
         className="mx-auto max-w-4xl px-4 text-center pt-0"
       >
         {/* Headline */}
-        <Heading
-          {...headingProps}
+        <motion.h2
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
           className="text-primary mb-4 text-4xl font-bold"
         >
           {t('headline')}
-        </Heading>
+        </motion.h2>
 
         {/* Subheading / Engaging Text */}
-        <Paragraph
-          {...paragraphProps}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
           className="mb-4 text-lg text-gray-700"
         >
           {t('subheading')}
-        </Paragraph>
+        </motion.p>
 
         {/* Statistics */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <StatItem end={2651} label={t('recoveredPets')} duration={2.5} isMobile={isMobile} />
-          <StatItem end={122} label={t('activeUsers')} duration={2.5} isMobile={isMobile} />
-          <StatItem end={24981} label={t('chipsDeployed')} duration={2.5} isMobile={isMobile} />
+          <StatItem end={2651} label={t('recoveredPets')} duration={2.5} />
+          <StatItem end={122} label={t('activeUsers')} duration={2.5} />
+          <StatItem end={24981} label={t('chipsDeployed')} duration={2.5} />
         </div>
-      </Container>
+      </motion.div>
     </section>
   );
 };
@@ -487,31 +563,23 @@ type StatItemProps = {
   end: number;
   label: string;
   duration: number;
-  isMobile?: boolean;
 };
 
-const StatItem = ({ end, label, duration, isMobile = false }: StatItemProps) => {
-  const Container = isMobile ? 'div' : motion.div;
-  const containerProps = isMobile ? {} : {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 },
-    viewport: { once: true }
-  };
-
-  return (
-    <Container
-      {...containerProps}
-      className="flex flex-col items-center"
-    >
-      <CountUp
-        start={0}
-        end={end}
-        duration={duration}
-        separator=","
-        className="text-primary text-4xl font-extrabold"
-      />
-      <p className="mt-2 text-xl font-semibold">{label}</p>
-    </Container>
-  );
-};
+const StatItem = ({ end, label, duration }: StatItemProps) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    viewport={{ once: true }}
+    className="flex flex-col items-center"
+  >
+    <CountUp
+      start={0}
+      end={end}
+      duration={duration}
+      separator=","
+      className="text-primary text-4xl font-extrabold"
+    />
+    <p className="mt-2 text-xl font-semibold">{label}</p>
+  </motion.div>
+);

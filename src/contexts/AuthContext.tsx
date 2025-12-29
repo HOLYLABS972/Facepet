@@ -258,7 +258,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           throw new Error(`Your account has been restricted by an administrator. Reason: ${userData.restrictionReason || 'No reason provided'}`);
         }
 
-        const cookiePreference = typeof window !== 'undefined' ? localStorage.getItem('acceptCookies') === 'true' : false;
+        const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
         console.log('🔍 Handling Google authentication (preserving existing role):', { 
           email: userCredential.user.email, 
           cookiePreference 

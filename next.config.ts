@@ -106,10 +106,6 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  // Force cache invalidation for mobile browsers (fixes Server Action cache issues)
-  generateBuildId: async () => {
-    return `build-${Date.now()}`;
-  },
   // Cache optimization
   onDemandEntries: {
     // period (in ms) where the server will keep pages in the buffer
@@ -121,15 +117,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     scrollRestoration: true
-  },
-  // Mobile optimization - reduce initial bundle
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn']
-    } : false,
-  },
-  // Reduce bundle size for mobile
-  swcMinify: true,
+  }
 };
 
 module.exports = withBundleAnalyzer(withNextIntl(nextConfig));
