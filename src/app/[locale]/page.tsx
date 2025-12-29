@@ -265,11 +265,23 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   
   // Update on resize
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640); // sm breakpoint
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth < 640); // sm breakpoint
+      }
     };
+    
+    // Set initial value
+    checkMobile();
+    
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', checkMobile);
+      }
+    };
   }, []);
   
   // Calculate floor position (bottom of section)
