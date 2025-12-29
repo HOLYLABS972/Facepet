@@ -181,34 +181,30 @@ const Navbar = () => {
           'bg-white'
         )}
       >
-        <div className="mx-auto max-w-7xl w-full px-4 md:px-6 relative">
+        <div className="mx-auto max-w-7xl w-full px-4 md:px-6">
           <div className="flex h-14 sm:h-16 items-center justify-between rtl:flex-row-reverse flex-nowrap">
             {/* Brand / Logo */}
-            <Link href="/" className="flex-shrink-0">
-              <div
-                className="flex cursor-pointer items-center"
-              >
-                <Image
-                  src="/assets/Facepet.png"
-                  alt="Chapiz"
-                  width={180}
-                  height={60}
-                  className="h-8 sm:h-10 w-auto object-contain"
-                  priority
-                />
-              </div>
+            <Link href="/" className="flex-shrink-0 flex items-center">
+              <Image
+                src="/assets/Facepet.png"
+                alt="Chapiz"
+                width={180}
+                height={60}
+                className="h-8 sm:h-10 w-auto object-contain"
+                priority
+              />
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="flex items-center gap-2 sm:gap-4 relative flex-shrink-0">
+            {/* Right Side Navigation - All buttons follow same alignment rules as logo */}
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-5 flex-shrink-0">
               {loading ? (
                 // Show loading state during authentication check
                 <div className="h-8 w-8" />
               ) : user ? (
                 <>
-                  {/* Mobile: Shop button on left */}
-                  <div className="md:hidden flex items-center gap-2 flex-1 justify-start pr-12">
-                    {/* Store Button - Outlined Primary (Visible on mobile for logged in users) */}
+                  {/* Mobile: Shop button and Burger menu */}
+                  <div className="md:hidden flex items-center gap-2">
+                    {/* Store Button - Mobile */}
                     <Button
                       variant="outline"
                       size="sm"
@@ -217,18 +213,16 @@ const Navbar = () => {
                           window.location.href = storeUrl;
                         }
                       }}
-                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors -ml-10 md:ml-0"
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors"
                     >
                       <ShoppingBag className="h-3.5 w-3.5" />
                       <span className="text-center">{t('chapizStore')}</span>
                     </Button>
-                  </div>
-
-                  {/* Mobile: Burger menu - Fixed at right corner */}
-                  <div className="md:hidden fixed top-[13px] right-2 z-[70]">
+                    
+                    {/* Burger menu - Mobile */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full">
+                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center">
                           <Menu className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -274,8 +268,8 @@ const Navbar = () => {
                     </DropdownMenu>
                   </div>
 
-                  {/* Desktop: Store Button and Burger Menu - Grouped together with 20px spacing, fixed at right corner */}
-                  <div className="hidden md:flex flex-row items-center gap-[20px] fixed top-[13px] right-2 z-[70] pr-[135px]" dir="ltr">
+                  {/* Desktop: Store Button and Burger Menu */}
+                  <div className="hidden md:flex items-center gap-5" dir="ltr">
                     <Button
                       variant="outline"
                       size="sm"
@@ -284,14 +278,14 @@ const Navbar = () => {
                           window.location.href = storeUrl;
                         }
                       }}
-                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span className="text-center">{t('chapizStore')}</span>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full">
+                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center">
                           <Menu className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -367,8 +361,8 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  {/* Desktop: Contact, Store, Sign In Button - All grouped together with 20px spacing */}
-                  <div className="hidden md:flex flex-row items-center gap-5 fixed top-[13px] right-2 z-[70]" dir="ltr">
+                  {/* Desktop: Contact, Store, Sign In Button */}
+                  <div className="hidden md:flex items-center gap-5" dir="ltr">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -386,7 +380,7 @@ const Navbar = () => {
                           window.location.href = storeUrl;
                         }
                       }}
-                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2 transition-colors"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span className="text-center">{t('chapizStore')}</span>
@@ -395,16 +389,16 @@ const Navbar = () => {
                       variant="default"
                       size="sm"
                       onClick={() => router.push('/auth')}
-                      className="bg-primary hover:bg-primary hover:opacity-70 text-white border-primary flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2 transition-opacity mr-[135px]"
+                      className="bg-primary hover:bg-primary hover:opacity-70 text-white border-primary flex items-center justify-center text-xs sm:text-sm px-2 sm:px-3 gap-1.5 sm:gap-2 transition-opacity"
                     >
                       <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       {t('signIn')}
                     </Button>
                   </div>
 
-                  {/* Mobile: Show shop button on left and burger menu fixed at corner */}
-                  <div className="md:hidden flex items-center gap-2 flex-1 justify-start pr-12">
-                    {/* Store Button - Outlined Primary (Visible on mobile for not logged in users) - on left side */}
+                  {/* Mobile: Shop button and Burger menu */}
+                  <div className="md:hidden flex items-center gap-2">
+                    {/* Store Button - Mobile */}
                     <Button
                       variant="outline"
                       size="sm"
@@ -413,18 +407,16 @@ const Navbar = () => {
                           window.location.href = storeUrl;
                         }
                       }}
-                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors -ml-10 md:ml-0"
+                      className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary flex items-center justify-center whitespace-nowrap text-xs px-2 gap-1.5 transition-colors"
                     >
                       <ShoppingBag className="h-3.5 w-3.5" />
                       <span className="text-center">{t('chapizStore')}</span>
                     </Button>
-                  </div>
-                  
-                  {/* Burger menu - Fixed at right corner for mobile only (always right, regardless of language) */}
-                  <div className="md:hidden fixed top-[13px] right-2 z-[70]">
+                    
+                    {/* Burger menu - Mobile */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full">
+                        <Button variant="ghost" className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-md rounded-full flex items-center justify-center">
                           <Menu className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
