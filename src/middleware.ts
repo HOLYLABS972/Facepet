@@ -32,12 +32,11 @@ const middleware = (req: NextRequest) => {
     }
   }
 
-  // Add cache-busting headers for mobile browsers (fixes Server Action cache issues)
-  // Only for HTML pages, not static assets
+  // Smart caching that prevents mobile reload issues
+  // Use private caching with immediate revalidation instead of aggressive no-cache
+  // This prevents mobile browsers from force-reloading after Firebase auth initializes
   if (response && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
+    response.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
   }
 
   return response;
