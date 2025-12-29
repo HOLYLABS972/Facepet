@@ -283,6 +283,9 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
       }
     };
   }, []);
+
+  // Disable complex animations on mobile to prevent crashes
+  const shouldAnimate = !isMobile;
   
   // Calculate floor position (bottom of section)
   const floorPosition = 350;
@@ -393,9 +396,9 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
         willChange: 'transform',
         zIndex: 1
       }}
-      animate={hasFallen ? { y: 0, x: 0, rotate: 0, scale: 1 } : (isFalling ? fallingPath : floatingPath)}
+      animate={shouldAnimate ? (hasFallen ? { y: 0, x: 0, rotate: 0, scale: 1 } : (isFalling ? fallingPath : floatingPath)) : {}}
       transition={
-        isFalling
+        shouldAnimate ? (isFalling
           ? {
               duration: 1.5,
               ease: [0.55, 0.085, 0.68, 0.53], // Ease out for gravity effect
@@ -411,7 +414,7 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
               repeat: Infinity,
               delay: 0.2 * pet.id, // Stagger delays
               repeatType: 'reverse'
-            }
+            }) : {}
       }
       onTap={handleTap}
       onClick={handleTap}
@@ -420,6 +423,7 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
 };
 
 // Simple animated pet component for mobile (horizontal layout)
+// Simplified for mobile - minimal animations to prevent crashes
 const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
   const [isFalling, setIsFalling] = useState(false);
   const [hasFallen, setHasFallen] = useState(false);
@@ -434,6 +438,30 @@ const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
     }
   };
 
+  // Use simple img on mobile, motion.img on desktop
+  const [isMobileDevice, setIsMobileDevice] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return true; // Default to mobile for safety
+  });
+
+  // Simple static image for mobile to prevent crashes
+  if (isMobileDevice) {
+    return (
+      <img
+        src={pet.src}
+        alt={pet.alt}
+        width={size}
+        height={size}
+        className="object-contain cursor-pointer"
+        onClick={handleTap}
+        style={{ transition: 'transform 0.3s' }}
+      />
+    );
+  }
+
+  // Full animations for desktop
   return (
     <motion.img
       src={pet.src}
@@ -474,8 +502,18 @@ const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
 };
 
 const AnimatedPet = ({ pet }: AnimatedPetProps) => {
-  // Use the containerRef to track scroll inside that container.
-  const { scrollY } = useScroll();
+  // Disable scroll animations on mobile to prevent crashes
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return true; // Default to mobile for safety
+  });
+
+  // Only use scroll animations on desktop
+  const scrollHook = !isMobile ? useScroll() : null;
+  const scrollY = scrollHook?.scrollY || { get: () => 0 };
+  
   const xLargeScreen = 300;
   const yChangeValue = 600;
   const xChangeValue = 650;
@@ -489,8 +527,32 @@ const AnimatedPet = ({ pet }: AnimatedPetProps) => {
       ? xChangeValue + 500
       : xChangeValue;
 
-  const x = useTransform(scrollY, [0, 2000], [0, offsetX]);
-  const y = useTransform(scrollY, [0, 2000], [0, offsetY]);
+  const x = !isMobile ? useTransform(scrollY, [0, 2000], [0, offsetX]) : 0;
+  const y = !isMobile ? useTransform(scrollY, [0, 2000], [0, offsetY]) : 0;
+
+  // Use simple img on mobile, motion.img on desktop
+  if (isMobile) {
+    return (
+      <img
+        src={pet.src}
+        alt={pet.alt}
+        width={pet.size}
+        height={pet.size}
+        className="object-cover"
+        style={{
+          position: 'absolute',
+          top: `calc(${pet.top}px)`,
+          ...(pet.isRight
+            ? {
+                right: `calc(50% + ${pet.right}px)`
+              }
+            : {
+                left: `calc(50% - ${pet.right}px)`
+              })
+        }}
+      />
+    );
+  }
 
   return (
     <motion.img
@@ -528,45 +590,68 @@ const AnimatedPet = ({ pet }: AnimatedPetProps) => {
 
 const ProductHighlights = () => {
   const t = useTranslations('components.ProductHighlights');
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return true;
+  });
+
+  // Use simple div on mobile, motion.div on desktop
+  const Container = isMobile ? 'div' : motion.div;
+  const Heading = isMobile ? 'h2' : motion.h2;
+  const Paragraph = isMobile ? 'p' : motion.p;
+
+  const containerProps = isMobile ? {} : {
+    initial: { opacity: 0, y: 50 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 },
+    viewport: { amount: 0.8 }
+  };
+
+  const headingProps = isMobile ? {} : {
+    initial: { opacity: 0, y: 50 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 },
+    viewport: { once: true }
+  };
+
+  const paragraphProps = isMobile ? {} : {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, delay: 0.2 },
+    viewport: { once: true }
+  };
 
   return (
     <section className="mt-0 mb-0">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ amount: 0.8 }}
+      <Container
+        {...containerProps}
         className="mx-auto max-w-4xl px-4 text-center pt-0"
       >
         {/* Headline */}
-        <motion.h2
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+        <Heading
+          {...headingProps}
           className="text-primary mb-4 text-4xl font-bold"
         >
           {t('headline')}
-        </motion.h2>
+        </Heading>
 
         {/* Subheading / Engaging Text */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
+        <Paragraph
+          {...paragraphProps}
           className="mb-4 text-lg text-gray-700"
         >
           {t('subheading')}
-        </motion.p>
+        </Paragraph>
 
         {/* Statistics */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <StatItem end={2651} label={t('recoveredPets')} duration={2.5} />
-          <StatItem end={122} label={t('activeUsers')} duration={2.5} />
-          <StatItem end={24981} label={t('chipsDeployed')} duration={2.5} />
+          <StatItem end={2651} label={t('recoveredPets')} duration={2.5} isMobile={isMobile} />
+          <StatItem end={122} label={t('activeUsers')} duration={2.5} isMobile={isMobile} />
+          <StatItem end={24981} label={t('chipsDeployed')} duration={2.5} isMobile={isMobile} />
         </div>
-      </motion.div>
+      </Container>
     </section>
   );
 };
@@ -575,23 +660,31 @@ type StatItemProps = {
   end: number;
   label: string;
   duration: number;
+  isMobile?: boolean;
 };
 
-const StatItem = ({ end, label, duration }: StatItemProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-    viewport={{ once: true }}
-    className="flex flex-col items-center"
-  >
-    <CountUp
-      start={0}
-      end={end}
-      duration={duration}
-      separator=","
-      className="text-primary text-4xl font-extrabold"
-    />
-    <p className="mt-2 text-xl font-semibold">{label}</p>
-  </motion.div>
-);
+const StatItem = ({ end, label, duration, isMobile = false }: StatItemProps) => {
+  const Container = isMobile ? 'div' : motion.div;
+  const containerProps = isMobile ? {} : {
+    initial: { opacity: 0, y: 30 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 },
+    viewport: { once: true }
+  };
+
+  return (
+    <Container
+      {...containerProps}
+      className="flex flex-col items-center"
+    >
+      <CountUp
+        start={0}
+        end={end}
+        duration={duration}
+        separator=","
+        className="text-primary text-4xl font-extrabold"
+      />
+      <p className="mt-2 text-xl font-semibold">{label}</p>
+    </Container>
+  );
+};
