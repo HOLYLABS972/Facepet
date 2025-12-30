@@ -14,7 +14,7 @@ const page = async ({ searchParams }: ServicesPageProps) => {
   return (
     <>
       <Navbar />
-      <div className="flex grow flex-col h-[calc(100vh-64px)] pb-16 md:pb-0">
+      <div className="flex grow flex-col h-[calc(100vh-64px)] pb-16 md:pb-0" style={{ overflow: 'hidden', touchAction: 'none' }}>
         <ServicesPage ads={ads} businessId={params.businessId} />
       </div>
       <BottomNavigation />

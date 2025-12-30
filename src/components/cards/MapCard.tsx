@@ -220,13 +220,15 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
       const mapInstance = new window.google.maps.Map(mapRef.current, {
         center: defaultCenter,
         zoom: 10,
-        mapTypeControl: true,
+        mapTypeControl: false,
         streetViewControl: false,
-        fullscreenControl: true,
-        draggable: true,
-        scrollwheel: true,
+        fullscreenControl: false,
+        draggable: false,
+        scrollwheel: false,
         disableDoubleClickZoom: true,
-        gestureHandling: 'greedy',
+        gestureHandling: 'none',
+        keyboardShortcuts: false,
+        clickableIcons: false,
       });
 
       setMap(mapInstance);
@@ -466,11 +468,11 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative w-full h-96 rounded-lg border-2 border-gray-200 overflow-hidden">
+        <div className="relative w-full h-96 rounded-lg border-2 border-gray-200" style={{ overflow: 'hidden', touchAction: 'none', willChange: 'auto' }}>
           <div
             ref={mapRef}
             className="w-full h-full"
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', touchAction: 'none', pointerEvents: 'auto' }}
           />
           {!mapLoaded && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">

@@ -156,6 +156,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       mapTypeControl: true,
       streetViewControl: true,
       fullscreenControl: true,
+      gestureHandling: 'greedy',
     });
 
     const geocoderInstance = new window.google.maps.Geocoder();

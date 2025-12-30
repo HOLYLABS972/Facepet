@@ -776,6 +776,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       mapTypeControl: true,
       streetViewControl: true,
       fullscreenControl: true,
+      draggable: true,
+      scrollwheel: true,
+      gestureHandling: 'greedy',
+      keyboardShortcuts: true,
+      clickableIcons: true,
     });
 
     const geocoderInstance = new window.google.maps.Geocoder();
@@ -1004,14 +1009,14 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
 
       {/* Mobile Layout: Map + Drawer for Services List */}
       {isMobile ? (
-        <div className="relative h-full w-full">
+        <div className="relative h-full w-full" style={{ overflow: 'hidden' }}>
           {/* Mobile Header */}
           <div className="absolute top-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-b border-gray-200 p-4 shadow-sm z-30">
             {headerContent}
           </div>
 
           {/* Map Container - Mobile (Full Screen) */}
-          <div className="absolute inset-0 bg-gray-100">
+          <div className="absolute inset-0 bg-gray-100" style={{ overflow: 'hidden' }}>
             {isLoading && (
               <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
                 <div className="text-center">
