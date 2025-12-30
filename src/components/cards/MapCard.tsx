@@ -223,10 +223,10 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
         mapTypeControl: true,
         streetViewControl: false,
         fullscreenControl: true,
-        draggable: false,
-        scrollwheel: false,
+        draggable: true,
+        scrollwheel: true,
         disableDoubleClickZoom: true,
-        gestureHandling: 'none',
+        gestureHandling: 'greedy',
       });
 
       setMap(mapInstance);

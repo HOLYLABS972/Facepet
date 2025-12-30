@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "prebuild": "node scripts/convert-images-to-webp.js",
     "build": "next build && node scripts/copy-public-to-standalone.js",
     "postbuild": "node scripts/copy-public-to-standalone.js",

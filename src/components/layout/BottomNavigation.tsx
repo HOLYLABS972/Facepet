@@ -16,6 +16,20 @@ export default function BottomNavigation() {
     return null;
   }
 
+  // Don't show bottom navigation on detail pages
+  // Check if pathname matches detail page patterns: /services/[id], /coupons/[id], /vouchers/[id], /pet/[id], /promos/[id]
+  // The usePathname from next-intl returns pathname without locale prefix
+  const isDetailPage = pathname && (
+    (pathname.startsWith('/services/') && pathname !== '/services') || // /services/[id] but not /services
+    (pathname.startsWith('/coupons/') && pathname !== '/coupons') || // /coupons/[id] but not /coupons
+    (pathname.startsWith('/vouchers/') && pathname !== '/vouchers') || // /vouchers/[id] but not /vouchers
+    (pathname.startsWith('/pet/') && pathname !== '/pet') || // /pet/[id] but not /pet
+    (pathname.startsWith('/promos/') && pathname !== '/promos') // /promos/[id] but not /promos
+  );
+  if (isDetailPage) {
+    return null;
+  }
+
   // Navigation items for logged-in users
   const loggedInNavItems = [
     {

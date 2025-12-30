@@ -211,7 +211,7 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
   const serviceDescription = service.description || '';
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-gray-50">
+    <div className="flex flex-col flex-1 overflow-y-auto bg-gray-50">
       {/* Header with back button */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
@@ -228,7 +228,7 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
       </div>
 
       {/* Content - Desktop: Two column layout, Mobile: Single column */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pb-20 lg:pb-0">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Left Column - Image and Contact Info (Desktop) */}
@@ -272,11 +272,11 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
                   )}
                 </div>
 
-                {/* Action Buttons - Desktop Sidebar */}
-                <div className="mt-6 pt-6 border-t border-gray-200 space-y-2">
+                {/* Action Buttons - Desktop Sidebar (hidden on mobile) */}
+                <div className="hidden lg:block mt-6 pt-6 border-t border-gray-200 space-y-2">
                   <Button
                     variant="outline"
-                    className="w-full justify-start"
+                    className={cn("w-full justify-start", locale === 'he' ? 'justify-end' : 'justify-start')}
                     onClick={() => {
                       if (service.location) {
                         const address = service.location.trim();
@@ -297,37 +297,37 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
                       }
                     }}
                   >
-                    <MapPin size={18} className="mr-2" />
-                    {t('navigation') || 'Navigation'}
+                    <MapPin size={18} className={cn(locale === 'he' ? 'ml-2 order-2' : 'mr-2')} />
+                    <span>{t('navigation') || 'Navigation'}</span>
                   </Button>
                   {service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null' && (
                     <Button
                       variant="outline"
-                      className="w-full justify-start"
+                      className={cn("w-full justify-start", locale === 'he' ? 'justify-end' : 'justify-start')}
                       onClick={() => window.open(`tel:${service.phone}`, '_self')}
                     >
-                      <Phone size={18} className="mr-2" />
-                      {t('call') || 'Call'}
+                      <Phone size={18} className={cn(locale === 'he' ? 'ml-2 order-2' : 'mr-2')} />
+                      <span>{t('call') || 'Call'}</span>
                     </Button>
                   )}
                   <Button
                     variant="outline"
-                    className="w-full justify-start"
+                    className={cn("w-full justify-start", locale === 'he' ? 'justify-end' : 'justify-start')}
                     onClick={handleToggleFavorite}
                     disabled={isTogglingFavorite}
                   >
                     {isTogglingFavorite ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                      <div className={cn("h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent", locale === 'he' ? 'ml-2 order-2' : 'mr-2')} />
                     ) : isFavorited ? (
-                      <Heart size={18} className="mr-2 fill-current text-orange-500" />
+                      <Heart size={18} className={cn("fill-current text-orange-500", locale === 'he' ? 'ml-2 order-2' : 'mr-2')} />
                     ) : (
-                      <Heart size={18} className="mr-2" />
+                      <Heart size={18} className={cn(locale === 'he' ? 'ml-2 order-2' : 'mr-2')} />
                     )}
-                    {isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                    <span>{isFavorited ? t('removeFromFavorites') : t('addToFavorites')}</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full justify-start"
+                    className={cn("w-full justify-start", locale === 'he' ? 'justify-end' : 'justify-start')}
                     onClick={() => {
                       if (service.id) {
                         router.push(`/${locale}/coupons?businessId=${service.id}`);
@@ -336,8 +336,8 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
                       }
                     }}
                   >
-                    <Ticket size={18} className="mr-2" />
-                    {t('coupons') || 'Vouchers'}
+                    <Ticket size={18} className={cn(locale === 'he' ? 'ml-2 order-2' : 'mr-2')} />
+                    <span>{t('coupons') || 'Vouchers'}</span>
                   </Button>
                 </div>
               </div>
@@ -495,9 +495,9 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
         </div>
       </div>
 
-      {/* Mobile Sticky footer */}
-      <div className="lg:hidden sticky bottom-0 z-20 bg-white border-t border-gray-200 shadow-lg px-4 py-3">
-        <div className="flex justify-around">
+      {/* Mobile Sticky footer with action buttons */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-200 shadow-lg">
+        <div className="flex justify-around items-center px-4 py-3" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}>
           <Button
             variant="ghost"
             size="icon"
@@ -505,12 +505,9 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
             onClick={() => {
               if (service.location) {
                 const address = service.location.trim();
-                // Try Waze app protocol first (mobile), fallback to web
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                 if (isMobile) {
-                  // Try to open Waze app
                   window.location.href = `waze://?q=${encodeURIComponent(address)}`;
-                  // Fallback to web after a short delay
                   setTimeout(() => {
                     window.open(`https://waze.com/ul?q=${encodeURIComponent(address)}`, '_blank');
                   }, 500);
@@ -525,31 +522,24 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
           >
             <MapPin size={20} />
           </Button>
-          <Separator
-            orientation="vertical"
-            className="w-[1px] bg-gray-300"
-          />
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
-            onClick={() => {
-              if (service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null') {
-                window.open(`tel:${service.phone}`, '_self');
-              } else {
-                toast.error('מספר טלפון לא זמין');
-              }
-            }}
-            title={t('call') || 'Call'}
-          >
-            <Phone size={20} />
-          </Button>
-          <Separator
-            orientation="vertical"
-            className="w-[1px] bg-gray-300"
-          />
-
+          
+          {service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null' && (
+            <>
+              <Separator orientation="vertical" className="w-[1px] bg-gray-300" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="focus:bg-primary transition-colors focus:text-white focus:outline-none"
+                onClick={() => window.open(`tel:${service.phone}`, '_self')}
+                title={t('call') || 'Call'}
+              >
+                <Phone size={20} />
+              </Button>
+            </>
+          )}
+          
+          <Separator orientation="vertical" className="w-[1px] bg-gray-300" />
+          
           <Button
             variant="ghost"
             size="icon"
@@ -570,11 +560,9 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
               <Heart size={20} />
             )}
           </Button>
-          <Separator
-            orientation="vertical"
-            className="w-[1px] bg-gray-300"
-          />
-
+          
+          <Separator orientation="vertical" className="w-[1px] bg-gray-300" />
+          
           <Button
             variant="ghost"
             size="icon"

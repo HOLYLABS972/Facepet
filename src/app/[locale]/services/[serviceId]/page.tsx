@@ -1,6 +1,7 @@
 import { getBusinessById, getAdById } from '@/lib/actions/admin';
 import ServiceDetailsPageClient from '@/components/pages/ServiceDetailsPageClient';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 
 interface ServiceDetailsPageProps {
   params: Promise<{
@@ -50,8 +51,9 @@ export default async function ServiceDetailsPage({ params }: ServiceDetailsPageP
   return (
     <>
       <Navbar />
-      <div className="flex grow flex-col h-[calc(100vh-64px)]">
+      <div className="flex flex-col min-h-[calc(100vh-64px)]">
         <ServiceDetailsPageClient service={service} />
+        <Footer />
       </div>
     </>
   );

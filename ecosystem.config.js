@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'my-next-app',
       script: 'node .next/standalone/server.js',
-      cwd: '/home/chapiz-tag/htdocs/tag.chapiz.co.il/Facepet',
+      cwd: '/home/chapiz-tag/htdocs/tag.chapiz.co.il',
       instances: 1,
       exec_mode: 'fork',
       env: {
