@@ -131,7 +131,7 @@ export async function sendPasswordResetEmail(
   resetToken: string,
   userFirstname: string
 ): Promise<EmailResult> {
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://tag.chapiz.co.il'}/auth/reset-password?token=${resetToken}`;
 
   const { default: PasswordResetEmailContent } = await import(
     '../../emails/password-reset'
@@ -155,7 +155,7 @@ export async function sendEmailChangeConfirmation(
   token: string,
   userFirstname: string
 ): Promise<EmailResult> {
-  const confirmUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm-email-change?token=${token}`;
+  const confirmUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://tag.chapiz.co.il'}/auth/confirm-email-change?token=${token}`;
 
   // We'll create this template next
   const { default: EmailChangeConfirmationContent } = await import(
@@ -202,7 +202,7 @@ export async function sendAccountCreatedEmail(
   password: string,
   language: 'en' | 'he' = 'en'
 ): Promise<EmailResult> {
-  const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/login`;
+  const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://tag.chapiz.co.il'}/auth/login`;
 
   const { default: AccountCreatedEmailContent } = await import(
     '../../emails/account-created'
@@ -234,7 +234,7 @@ export async function sendUserInvitationEmail(
   userFirstname: string,
   language: 'en' | 'he' = 'en'
 ): Promise<EmailResult> {
-  const signupUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/signup?email=${encodeURIComponent(email)}`;
+  const signupUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://tag.chapiz.co.il'}/auth/signup?email=${encodeURIComponent(email)}`;
 
   const { default: UserInvitationEmailContent } = await import(
     '../../emails/user-invitation'

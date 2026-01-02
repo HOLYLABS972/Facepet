@@ -1,6 +1,7 @@
 import { db } from './config';
 import { collection, addDoc, doc, setDoc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
+import type { Coordinates } from '@/types/coordinates';
 
 export interface PetData {
   name: string;
@@ -22,6 +23,8 @@ export interface PetData {
   vetPhoneNumber?: string;
   vetEmailAddress?: string;
   vetAddress?: string;
+  vetCoordinates?: Coordinates;
+  vetPlaceId?: string;
 }
 
 export interface OwnerData {
@@ -39,6 +42,8 @@ export interface VetData {
   phoneNumber?: string;
   email?: string;
   address?: string;
+  coordinates?: Coordinates;
+  placeId?: string;
   isPhonePrivate?: boolean;
   isEmailPrivate?: boolean;
   isAddressPrivate?: boolean;
@@ -196,6 +201,8 @@ export async function createPetInFirestore(
         phoneNumber: petData.vetPhoneNumber || '',
         email: petData.vetEmailAddress || '',
         address: petData.vetAddress || '',
+        coordinates: petData.vetCoordinates,
+        placeId: petData.vetPlaceId,
         isPhonePrivate: false,
         isEmailPrivate: false,
         isAddressPrivate: false
@@ -203,6 +210,7 @@ export async function createPetInFirestore(
 
       vetRef = await addDoc(collection(db, 'vets'), {
         ...vetData,
+        geocodedAt: petData.vetCoordinates ? new Date() : undefined,
         createdAt: new Date(),
         updatedAt: new Date()
       });

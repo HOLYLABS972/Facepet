@@ -22,6 +22,8 @@
     "firebase:test": "npx tsx scripts/test-firebase.ts",
     "firebase:test-client": "npx tsx scripts/test-firebase-client.ts",
     "firebase:migrate": "npx tsx scripts/migrate-to-firebase.ts",
+    "migrate:coordinates": "npx tsx scripts/migrate-addresses-to-coordinates.ts",
+    "import:services": "npx tsx scripts/import-services-from-excel.ts",
     "email": "email dev",
     "test:verification": "npx tsx tests/run-all-verification-tests.ts",
     "test:verification:core": "npx tsx tests/verification-system-integration.test.ts",
@@ -105,6 +107,7 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "@types/xlsx": "^0.0.35",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
     "drizzle-kit": "^0.31.4",
@@ -122,6 +125,7 @@
     "sharp": "^0.33.5",
     "tailwindcss": "^4.0.9",
     "typescript": "^5",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "xlsx": "^0.18.5"
   }
 }

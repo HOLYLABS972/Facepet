@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { fullName, email, phone, password, role = 'user' } = body;
+    const { fullName, email, phone, password, role = 'user', language = 'he' } = body;
 
     // Validate inputs
     if (!email || !password || !fullName) {
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       updatedAt: serverTimestamp(),
       emailVerified: false,
       acceptCookies: false,
-      language: 'en'
+      language: language
     };
 
     await setDoc(doc(db, 'users', userRecord.uid), userData);

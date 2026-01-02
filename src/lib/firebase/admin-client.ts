@@ -12,7 +12,8 @@ export async function sendUserInvitationByAdmin(
   fullName: string,
   email: string,
   phone: string,
-  role: 'user' | 'admin' | 'super_admin' = 'user'
+  role: 'user' | 'admin' | 'super_admin' = 'user',
+  language: 'en' | 'he' = 'he'
 ): Promise<{ success: boolean; error?: string; warning?: string }> {
   try {
     const emailLower = email.toLowerCase().trim();
@@ -39,8 +40,8 @@ export async function sendUserInvitationByAdmin(
       console.warn('Could not check if email exists:', error);
     }
 
-    // Default language is 'en', but can be changed later by the user
-    const userLanguage: 'en' | 'he' = 'en';
+    // Use the provided language (default is Hebrew for Israeli users)
+    const userLanguage: 'en' | 'he' = language;
 
     // Send invitation email
     try {

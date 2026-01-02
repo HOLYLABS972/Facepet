@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { MapPin, Phone, Star, Send, Heart, Ticket, X } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '../ui/button';
 import {
   Drawer,
@@ -1417,7 +1418,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                       }}
                       title={t('navigation') || 'Navigation'}
                     >
-                      <MapPin size={20} />
+                      <Image 
+                        src="/icons/waze.png" 
+                        alt="Waze" 
+                        width={20} 
+                        height={20} 
+                      />
                     </Button>
                     <Separator
                       orientation="vertical"
@@ -1728,7 +1734,12 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                         }}
                         title={t('navigation') || 'Navigation'}
                       >
-                        <MapPin size={24} />
+                        <Image 
+                          src="/icons/waze.png" 
+                          alt="Waze" 
+                          width={24} 
+                          height={24} 
+                        />
                       </Button>
                       <Separator
                         orientation="vertical"

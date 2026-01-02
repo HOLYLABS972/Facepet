@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
 import { MapPin, Phone, Star, Send, Heart, Ticket, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
@@ -219,7 +220,7 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
             variant="ghost"
             size="icon"
             onClick={() => router.back()}
-            className="rounded-full"
+            className="rounded-full mr-[21px]"
           >
             <ArrowLeft size={20} />
           </Button>
@@ -297,7 +298,13 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
                       }
                     }}
                   >
-                    <MapPin size={18} className={cn(locale === 'he' ? 'ml-2 order-2' : 'mr-2')} />
+                    <Image 
+                      src="/icons/waze.png" 
+                      alt="Waze" 
+                      width={18} 
+                      height={18} 
+                      className={cn(locale === 'he' ? 'ml-2 order-2' : 'mr-2')} 
+                    />
                     <span>{t('navigation') || 'Navigation'}</span>
                   </Button>
                   {service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null' && (
@@ -520,7 +527,12 @@ const ServiceDetailsPageClient: React.FC<ServiceDetailsPageClientProps> = ({ ser
             }}
             title={t('navigation') || 'Navigation'}
           >
-            <MapPin size={20} />
+            <Image 
+              src="/icons/waze.png" 
+              alt="Waze" 
+              width={20} 
+              height={20} 
+            />
           </Button>
           
           {service.phone && service.phone.trim() !== '' && service.phone !== 'undefined' && service.phone !== 'null' && (

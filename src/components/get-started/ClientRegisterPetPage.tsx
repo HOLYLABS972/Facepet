@@ -83,7 +83,9 @@ export default function ClientRegisterPetPage({
       vetName: '',
       vetPhoneNumber: '',
       vetEmailAddress: '',
-      vetAddress: ''
+      vetAddress: '',
+      vetCoordinates: undefined,
+      vetPlaceId: undefined
     }),
     [user, userDetails, petId]
   );

@@ -33,7 +33,8 @@ export default function AddUserForm() {
     fullName: '',
     email: '',
     phone: '',
-    role: 'user' as 'user' | 'admin' | 'super_admin'
+    role: 'user' as 'user' | 'admin' | 'super_admin',
+    language: 'he' as 'en' | 'he'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +63,8 @@ export default function AddUserForm() {
         formData.fullName,
         formData.email,
         formData.phone,
-        formData.role
+        formData.role,
+        formData.language
       );
 
       if (!result.success) {
@@ -76,7 +78,8 @@ export default function AddUserForm() {
         fullName: '',
         email: '',
         phone: '',
-        role: 'user'
+        role: 'user',
+        language: 'he'
       });
       setIsOpen(false);
 
@@ -180,6 +183,28 @@ export default function AddUserForm() {
                 <SelectItem value="user">{t('usersManagement.roles.user')}</SelectItem>
                 <SelectItem value="admin">{t('usersManagement.roles.admin')}</SelectItem>
                 <SelectItem value="super_admin">{t('usersManagement.roles.super_admin')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="language">Language / שפה</Label>
+            <Select
+              name="language"
+              value={formData.language}
+              onValueChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  language: value as 'en' | 'he'
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="he">עברית (Hebrew)</SelectItem>
+                <SelectItem value="en">English</SelectItem>
               </SelectContent>
             </Select>
           </div>

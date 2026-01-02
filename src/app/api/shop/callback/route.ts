@@ -271,9 +271,9 @@ export async function GET(request: NextRequest) {
       fullData: callbackData
     });
 
-    // Check if this callback token has already been processed (idempotency)
-    // Use userid as token if no token provided
-    const trackingToken = callbackData.token || `shop_visit_${callbackData.userid}`;
+    // Check if this callback has already been processed (idempotency)
+    // Use orderId if available, otherwise use userid + coupon combination
+    const trackingToken = callbackData.orderId || `shop_${callbackData.userid}_${callbackData.coupon || 'default'}`;
     const processedCheck = await checkIfTokenProcessed(trackingToken);
     if (processedCheck) {
       console.log('Callback token already processed:', trackingToken);
@@ -286,19 +286,29 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Credit points to user (default 20 points for shop visit)
+    // Check if this is a purchase (has status or orderId indicating purchase)
+    const isPurchase = callbackData.status && (
+      callbackData.status.toLowerCase() === 'success' || 
+      callbackData.status.toLowerCase() === 'completed' || 
+      callbackData.status.toLowerCase() === 'paid'
+    ) || callbackData.orderId; // If orderId exists, it's likely a purchase
+
+    // Always award points when callback is called (either visit or purchase)
     const pointsResult = await addPointsToUserByUid(
       callbackData.userid,
-      'share', // Using 'share' category for shop visits
+      'share', // Using 'share' category for shop visits/purchases
       callbackData.points,
-      `Shop visit reward - ${callbackData.points} points`,
+      isPurchase 
+        ? `Shop purchase reward - ${callbackData.points} points`
+        : `Shop visit reward - ${callbackData.points} points`,
       {
         source: 'shop_callback',
         orderId: callbackData.orderId,
         coupon: callbackData.coupon,
         status: callbackData.status,
         token: trackingToken,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        isPurchase: isPurchase
       }
     );
 
@@ -331,10 +341,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Show success message with points
+    const successMessage = `${callbackData.points} נקודות נזקפו בהצלחה! 🎉`;
+    const successMessageEn = `Successfully credited ${callbackData.points} points! 🎉`;
+
     return new NextResponse(
       generateSuccessPage(
-        `${callbackData.points} נקודות נזקפו בהצלחה! 🎉`, 
-        `Successfully credited ${callbackData.points} points! 🎉`
+        successMessage, 
+        successMessageEn
       ),
       { 
         status: 200,
@@ -419,10 +433,6 @@ function generateSuccessPage(hebrewMessage: string, englishMessage: string): str
       color: #718096;
       margin-bottom: 30px;
     }
-    .redirect-text {
-      font-size: 14px;
-      color: #a0aec0;
-    }
     .logo {
       width: 120px;
       height: auto;
@@ -435,15 +445,7 @@ function generateSuccessPage(hebrewMessage: string, englishMessage: string): str
     <div class="success-icon">✅</div>
     <h1>${hebrewMessage}</h1>
     <p>${englishMessage}</p>
-    <p class="redirect-text">מיד תועברו חזרה לאפליקציה...</p>
-    <p class="redirect-text">Redirecting back to the app...</p>
   </div>
-  <script>
-    // Redirect after 3 seconds
-    setTimeout(() => {
-      window.location.href = 'https://facepet.club/he/coupons';
-    }, 3000);
-  </script>
 </body>
 </html>`;
 }
@@ -505,10 +507,6 @@ function generateErrorPage(errorMessage: string): string {
       border-radius: 10px;
       margin-bottom: 20px;
     }
-    .redirect-text {
-      font-size: 14px;
-      color: #a0aec0;
-    }
   </style>
 </head>
 <body>
@@ -517,15 +515,7 @@ function generateErrorPage(errorMessage: string): string {
     <h1>אופס! משהו השתבש</h1>
     <p>Oops! Something went wrong</p>
     <div class="error-message">${errorMessage}</div>
-    <p class="redirect-text">מיד תועברו חזרה לאפליקציה...</p>
-    <p class="redirect-text">Redirecting back to the app...</p>
   </div>
-  <script>
-    // Redirect after 5 seconds
-    setTimeout(() => {
-      window.location.href = 'https://facepet.club/he/coupons';
-    }, 5000);
-  </script>
 </body>
 </html>`;
 }

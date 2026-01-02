@@ -1,5 +1,6 @@
 import { db } from './config';
 import { collection, query, where, getDocs, orderBy, limit, startAfter } from 'firebase/firestore';
+import type { Coordinates } from '@/types/coordinates';
 
 export interface VetClinic {
   id: string;
@@ -7,6 +8,12 @@ export interface VetClinic {
   phoneNumber?: string;
   email?: string;
   address?: string;
+
+  // Immutable coordinates (geocoded once during registration)
+  coordinates?: Coordinates;
+  geocodedAt?: Date; // When coordinates were geocoded
+  placeId?: string; // Google Place ID for reference
+
   isNamePrivate: boolean;
   isPhonePrivate: boolean;
   isEmailPrivate: boolean;
@@ -69,6 +76,9 @@ export async function searchVetClinics(
         phoneNumber: data.phoneNumber,
         email: data.email,
         address: data.address,
+        coordinates: data.coordinates,
+        geocodedAt: data.geocodedAt?.toDate ? data.geocodedAt.toDate() : undefined,
+        placeId: data.placeId,
         isNamePrivate: data.isNamePrivate || false,
         isPhonePrivate: data.isPhonePrivate || false,
         isEmailPrivate: data.isEmailPrivate || false,
@@ -112,6 +122,9 @@ export async function getAllVetClinics(): Promise<VetSearchResult> {
         phoneNumber: data.phoneNumber,
         email: data.email,
         address: data.address,
+        coordinates: data.coordinates,
+        geocodedAt: data.geocodedAt?.toDate ? data.geocodedAt.toDate() : undefined,
+        placeId: data.placeId,
         isNamePrivate: data.isNamePrivate || false,
         isPhonePrivate: data.isPhonePrivate || false,
         isEmailPrivate: data.isEmailPrivate || false,

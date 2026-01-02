@@ -29,15 +29,22 @@ export function generateShopUrl(
   // Use tag.chapiz.co.il as the base URL for callbacks
   const baseUrl = 'https://tag.chapiz.co.il';
 
-  // Generate unique callback URL if requested
+  // Generate callback URL with userId - always include userid in callback URL
   let finalCallbackUrl: string;
   if (callbackUrl) {
-    finalCallbackUrl = callbackUrl;
-  } else if (uniqueCallback) {
-    const token = generateCallbackToken();
-    finalCallbackUrl = `${baseUrl}/?token=${token}`;
+    // If custom callback provided, ensure it includes the correct path and userid
+    const callbackUrlObj = new URL(callbackUrl);
+    
+    // If the callback URL doesn't have the /api/shop/callback path, add it
+    if (!callbackUrlObj.pathname.includes('/api/shop/callback')) {
+      callbackUrlObj.pathname = '/api/shop/callback';
+    }
+    
+    // Always ensure userid is in the callback URL
+    callbackUrlObj.searchParams.set('userid', userId);
+    finalCallbackUrl = callbackUrlObj.toString();
   } else {
-    finalCallbackUrl = `${baseUrl}/`;
+    finalCallbackUrl = `${baseUrl}/api/shop/callback?userid=${userId}`;
   }
 
   // Ensure shopUrl doesn't end with a slash
@@ -83,14 +90,21 @@ export function generateShopUrlWithParams(
   url.searchParams.set('userid', params.userid);
   url.searchParams.set('coupon', params.coupon);
   
-  // Set callback URL (default if not provided)
+  // Set callback URL (default if not provided) - always include userid
   if (params.callback) {
-    url.searchParams.set('callback', params.callback);
-  } else if (uniqueCallback) {
-    const token = generateCallbackToken();
-    url.searchParams.set('callback', `${baseUrl}/?token=${token}`);
+    // If custom callback provided, ensure it includes the correct path and userid
+    const callbackUrlObj = new URL(params.callback);
+    
+    // If the callback URL doesn't have the /api/shop/callback path, add it
+    if (!callbackUrlObj.pathname.includes('/api/shop/callback')) {
+      callbackUrlObj.pathname = '/api/shop/callback';
+    }
+    
+    // Always ensure userid is in the callback URL
+    callbackUrlObj.searchParams.set('userid', params.userid);
+    url.searchParams.set('callback', callbackUrlObj.toString());
   } else {
-    url.searchParams.set('callback', `${baseUrl}/`);
+    url.searchParams.set('callback', `${baseUrl}/api/shop/callback?userid=${params.userid}`);
   }
 
   // Add any additional custom parameters
@@ -122,13 +136,12 @@ export function generateShopUrlWithUniqueCallback(
   // Use tag.chapiz.co.il as the base URL for callbacks
   const baseUrl = 'https://tag.chapiz.co.il';
 
-  const token = customToken || generateCallbackToken();
-  const callbackUrl = `${baseUrl}/?token=${token}`;
+  const callbackUrl = `${baseUrl}/api/shop/callback?userid=${userId}`;
   const shopUrlWithParams = generateShopUrl(shopUrl, userId, coupon, callbackUrl, false);
 
   return {
     shopUrl: shopUrlWithParams,
-    callbackToken: token,
+    callbackToken: '', // No longer using tokens
     callbackUrl
   };
 }

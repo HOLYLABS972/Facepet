@@ -7,14 +7,48 @@ import GetStartedInput from './ui/GetStartedInput';
 import { GetStartedPhoneInput } from './ui/GetStartedPhoneInput';
 import PrivacyLockToggle from './ui/PrivacyLockToggle';
 import LocationAutocompleteComboSelect from './ui/LocationAutocompleteSelector';
+import { geocodeAddress } from '@/src/lib/geocoding/client';
+import { useState } from 'react';
 
 const VetDetailsPage = () => {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
+    setValue
   } = useFormContext();
   const t = useTranslations('pages.VetDetailsPage');
   const locale = useLocale();
+  const [isGeocodingVet, setIsGeocodingVet] = useState(false);
+
+  /**
+   * Handle vet address selection and geocode it immediately
+   */
+  const handleVetAddressChange = async (selectedAddress: string) => {
+    // Update the address field
+    setValue('vetAddress', selectedAddress);
+
+    // Geocode the address if it's not empty
+    if (selectedAddress.trim()) {
+      setIsGeocodingVet(true);
+      try {
+        const geocodeResult = await geocodeAddress(selectedAddress.trim(), {
+          validateIsraelBounds: true,
+        });
+        setValue('vetCoordinates', geocodeResult.coordinates);
+        setValue('vetPlaceId', geocodeResult.placeId);
+      } catch (geocodeError) {
+        console.error('Failed to geocode vet address:', geocodeError);
+        // Clear coordinates if geocoding fails
+        setValue('vetCoordinates', undefined);
+        setValue('vetPlaceId', undefined);
+      } finally {
+        setIsGeocodingVet(false);
+      }
+    } else {
+      setValue('vetCoordinates', undefined);
+      setValue('vetPlaceId', undefined);
+    }
+  };
 
   return (
     <div className="flex h-full grow flex-col">
@@ -122,15 +156,23 @@ const VetDetailsPage = () => {
                 name="vetAddress"
                 control={control}
                 render={({ field }) => (
-                  <LocationAutocompleteComboSelect
-                    label={t('form.VeterinaryAddress')}
-                    id="vetAddress"
-                    value={field.value || ''}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    hasError={!!errors.vetAddress}
-                    required
-                  />
+                  <div className="space-y-1">
+                    <LocationAutocompleteComboSelect
+                      label={t('form.VeterinaryAddress')}
+                      id="vetAddress"
+                      value={field.value || ''}
+                      onChange={handleVetAddressChange}
+                      onBlur={field.onBlur}
+                      hasError={!!errors.vetAddress}
+                      required
+                    />
+                    {isGeocodingVet && (
+                      <p className="text-xs text-blue-600 flex items-center gap-1 px-3">
+                        <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                        Validating address...
+                      </p>
+                    )}
+                  </div>
                 )}
               />
             </div>

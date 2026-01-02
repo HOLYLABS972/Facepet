@@ -14,6 +14,8 @@ import { isValidPhoneNumber } from 'libphonenumber-js';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import LocationAutocompleteComboSelect from './get-started/ui/LocationAutocompleteSelector';
+import { geocodeAddress } from '@/src/lib/geocoding/client';
+import type { Coordinates } from '@/types/coordinates';
 
 interface GoogleSignupBottomSheetProps {
   isOpen: boolean;
@@ -31,8 +33,10 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
-  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
+  const [placeId, setPlaceId] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
   // Fetch name from Google account when component mounts
@@ -74,25 +78,52 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
     setIsSubmitting(true);
 
     try {
+      // Geocode address if coordinates not already available
+      let finalCoordinates = coordinates;
+      let finalPlaceId = placeId;
+
+      if (!finalCoordinates && address.trim()) {
+        setIsGeocoding(true);
+        try {
+          const geocodeResult = await geocodeAddress(address.trim(), {
+            validateIsraelBounds: true,
+          });
+          finalCoordinates = geocodeResult.coordinates;
+          finalPlaceId = geocodeResult.placeId;
+          setCoordinates(finalCoordinates);
+          setPlaceId(finalPlaceId);
+        } catch (geocodeError) {
+          console.error('Geocoding error:', geocodeError);
+          toast.error('Failed to geocode address. Please try a different address.');
+          setIsSubmitting(false);
+          setIsGeocoding(false);
+          return;
+        } finally {
+          setIsGeocoding(false);
+        }
+      }
+
       // Save name, phone number, address, and coordinates to Firestore
       const result = await updateUserInFirestore(user.uid, {
         displayName: name.trim(),
         phone: phoneNumber.trim(),
         address: address.trim(),
-        coordinates: coordinates
+        coordinates: finalCoordinates || undefined,
+        placeId: finalPlaceId,
       });
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Failed to save information');
       }
-      
+
       toast.success(t('success'));
       setName('');
       setPhoneNumber('');
       setAddress('');
       setCoordinates(null);
+      setPlaceId(undefined);
       onClose();
-      
+
       // Call the completion callback if provided
       if (onComplete) {
         onComplete();
@@ -105,11 +136,33 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
     }
   };
 
-
-  const handleAddressSelect = (selectedAddress: string, selectedCoordinates: { lat: number; lng: number }) => {
+  /**
+   * Handle address selection and geocode it immediately
+   */
+  const handleAddressChange = async (selectedAddress: string) => {
     setAddress(selectedAddress);
-    setCoordinates(selectedCoordinates);
-    setShowMap(false);
+
+    // Geocode the address immediately when selected
+    if (selectedAddress.trim()) {
+      setIsGeocoding(true);
+      try {
+        const geocodeResult = await geocodeAddress(selectedAddress.trim(), {
+          validateIsraelBounds: true,
+        });
+        setCoordinates(geocodeResult.coordinates);
+        setPlaceId(geocodeResult.placeId);
+      } catch (geocodeError) {
+        console.error('Failed to geocode address:', geocodeError);
+        // Don't show error toast here, user may still be typing
+        setCoordinates(null);
+        setPlaceId(undefined);
+      } finally {
+        setIsGeocoding(false);
+      }
+    } else {
+      setCoordinates(null);
+      setPlaceId(undefined);
+    }
   };
 
   return (
@@ -184,8 +237,19 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
                     id="address"
                     value={address}
                     placeholder={t('form.addressPlaceholder')}
-                    onChange={(value) => setAddress(value)}
+                    onChange={handleAddressChange}
                   />
+                  {isGeocoding && (
+                    <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                      <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      Validating address...
+                    </p>
+                  )}
+                  {coordinates && !isGeocoding && (
+                    <p className="text-xs text-green-600 mt-1">
+                      ✓ Address validated
+                    </p>
+                  )}
                 </div>
 
                 {/* Phone Number */}
@@ -219,13 +283,13 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
                 <div className="pt-4">
                   <Button
                     type="submit"
-                    disabled={isSubmitting || !name.trim() || !phoneNumber.trim() || !address.trim()}
+                    disabled={isSubmitting || isGeocoding || !name.trim() || !phoneNumber.trim() || !address.trim()}
                     className="w-full bg-blue-600 hover:bg-blue-700 rtl:flex-row-reverse"
                   >
-                    {isSubmitting ? (
+                    {isSubmitting || isGeocoding ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 rtl:mr-0 rtl:ml-2" />
-                        {t('buttons.saving')}
+                        {isGeocoding ? 'Validating address...' : t('buttons.saving')}
                       </>
                     ) : (
                       <>
