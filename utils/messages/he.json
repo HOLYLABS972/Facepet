@@ -632,7 +632,27 @@
       "addressPlaceholder": "הזן כתובת עסק",
       "createBusiness": "צור עסק",
       "creating": "יוצר...",
-      "tags": "תגיות"
+      "tags": "תגיות",
+      "selectAll": "בחר הכל",
+      "deselectAll": "בטל בחירת הכל",
+      "selectedCount": "{count} נבחרו",
+      "bulkActions": "פעולות מרובות",
+      "bulkDelete": "מחק נבחרים",
+      "bulkAssignTags": "הקצה תגיות",
+      "bulkToggleStatus": "החלף סטטוס",
+      "confirmBulkDelete": "האם אתה בטוח שברצונך למחוק {count} עסקים? פעולה זו לא ניתנת לביטול.",
+      "bulkDeleteSuccess": "{count} עסקים נמחקו בהצלחה",
+      "bulkDeleteError": "נכשל במחיקת עסקים",
+      "bulkEditTitle": "ערוך {count} עסקים",
+      "bulkEditDescription": "החל שינויים על כל העסקים הנבחרים",
+      "addTags": "הוסף תגיות",
+      "removeTags": "הסר תגיות",
+      "selectedToAdd": "תגיות להוספה",
+      "selectedToRemove": "תגיות להסרה",
+      "applyChanges": "החל שינויים",
+      "applying": "מחיל...",
+      "bulkUpdateSuccess": "{count} עסקים עודכנו בהצלחה",
+      "bulkUpdateError": "נכשל בעדכון עסקים"
     },
     "userPetsPage": {
       "backToUsers": "חזור למשתמשים",
@@ -1025,7 +1045,6 @@
       "acceptedAt": "תקף ב",
       "viewFullPage": "צפה בדף המלא"
     },
-
     "ConfirmationPage": {
       "title": "אימות דוא\"ל",
       "subtitle": "אנא הזן את הקוד בן 6 הספרות ששלחנו לכתובת הדוא\"ל שלך",
@@ -1630,7 +1649,9 @@
       },
       "understood": "הבנתי!"
     },
-    "GoBackButton": { "buttonLabel": "חזור אחורה" },
+    "GoBackButton": {
+      "buttonLabel": "חזור אחורה"
+    },
     "AddressMapSelector": {
       "searchPlaceholder": "חפש כתובת...",
       "instructions": "לחץ על המפה או חפש כדי לבחור את הכתובת שלך",

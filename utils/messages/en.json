@@ -544,7 +544,27 @@
       "addressPlaceholder": "Enter business address",
       "createBusiness": "Create Business",
       "creating": "Creating...",
-      "tags": "Tags"
+      "tags": "Tags",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "selectedCount": "{count} selected",
+      "bulkActions": "Bulk Actions",
+      "bulkDelete": "Delete Selected",
+      "bulkAssignTags": "Assign Tags",
+      "bulkToggleStatus": "Toggle Status",
+      "confirmBulkDelete": "Are you sure you want to delete {count} businesses? This action cannot be undone.",
+      "bulkDeleteSuccess": "Successfully deleted {count} businesses",
+      "bulkDeleteError": "Failed to delete businesses",
+      "bulkEditTitle": "Edit {count} Businesses",
+      "bulkEditDescription": "Apply changes to all selected businesses",
+      "addTags": "Add Tags",
+      "removeTags": "Remove Tags",
+      "selectedToAdd": "Tags to add",
+      "selectedToRemove": "Tags to remove",
+      "applyChanges": "Apply Changes",
+      "applying": "Applying...",
+      "bulkUpdateSuccess": "Successfully updated {count} businesses",
+      "bulkUpdateError": "Failed to update businesses"
     },
     "userPetsPage": {
       "backToUsers": "Back to Users",
@@ -1020,7 +1040,6 @@
       "acceptedAt": "Accepted at",
       "viewFullPage": "View Full Page"
     },
-
     "SignUpPage": {
       "title": "Sign Up",
       "form": {
@@ -1614,7 +1633,9 @@
       },
       "understood": "Got it!"
     },
-    "GoBackButton": { "buttonLabel": "Go Back" },
+    "GoBackButton": {
+      "buttonLabel": "Go Back"
+    },
     "AddressMapSelector": {
       "searchPlaceholder": "Search for an address...",
       "instructions": "Click on the map or search to select your address",

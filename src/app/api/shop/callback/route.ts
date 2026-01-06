@@ -286,31 +286,41 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if this is a purchase (has status or orderId indicating purchase)
+    // Credit points to user ONLY on purchase (status must indicate purchase)
+    // Only award points if status indicates a successful purchase
     const isPurchase = callbackData.status && (
       callbackData.status.toLowerCase() === 'success' || 
       callbackData.status.toLowerCase() === 'completed' || 
-      callbackData.status.toLowerCase() === 'paid'
-    ) || callbackData.orderId; // If orderId exists, it's likely a purchase
-
-    // Always award points when callback is called (either visit or purchase)
-    const pointsResult = await addPointsToUserByUid(
-      callbackData.userid,
-      'share', // Using 'share' category for shop visits/purchases
-      callbackData.points,
-      isPurchase 
-        ? `Shop purchase reward - ${callbackData.points} points`
-        : `Shop visit reward - ${callbackData.points} points`,
-      {
-        source: 'shop_callback',
-        orderId: callbackData.orderId,
-        coupon: callbackData.coupon,
-        status: callbackData.status,
-        token: trackingToken,
-        timestamp: new Date().toISOString(),
-        isPurchase: isPurchase
-      }
+      callbackData.status.toLowerCase() === 'paid' ||
+      callbackData.orderId // If orderId exists, it's likely a purchase
     );
+
+    let pointsResult = { success: true };
+    
+    if (isPurchase) {
+      // Credit points only on purchase
+      pointsResult = await addPointsToUserByUid(
+        callbackData.userid,
+        'share', // Using 'share' category for shop purchases
+        callbackData.points,
+        `Shop purchase reward - ${callbackData.points} points`,
+        {
+          source: 'shop_callback',
+          orderId: callbackData.orderId,
+          coupon: callbackData.coupon,
+          status: callbackData.status,
+          token: trackingToken,
+          timestamp: new Date().toISOString()
+        }
+      );
+    } else {
+      // Log visit but don't award points
+      console.log('Shop visit (no purchase) - no points awarded:', {
+        userid: callbackData.userid,
+        status: callbackData.status,
+        orderId: callbackData.orderId
+      });
+    }
 
     if (!pointsResult.success) {
       console.error('Failed to credit points:', pointsResult.error);
@@ -341,9 +351,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Show success message with points
-    const successMessage = `${callbackData.points} נקודות נזקפו בהצלחה! 🎉`;
-    const successMessageEn = `Successfully credited ${callbackData.points} points! 🎉`;
+    // Show success message - only show points message if purchase was made
+    const successMessage = isPurchase 
+      ? `${callbackData.points} נקודות נזקפו בהצלחה! 🎉` 
+      : 'תודה על הביקור!';
+    const successMessageEn = isPurchase 
+      ? `Successfully credited ${callbackData.points} points! 🎉` 
+      : 'Thank you for visiting!';
 
     return new NextResponse(
       generateSuccessPage(
@@ -433,6 +447,10 @@ function generateSuccessPage(hebrewMessage: string, englishMessage: string): str
       color: #718096;
       margin-bottom: 30px;
     }
+    .redirect-text {
+      font-size: 14px;
+      color: #a0aec0;
+    }
     .logo {
       width: 120px;
       height: auto;
@@ -445,7 +463,15 @@ function generateSuccessPage(hebrewMessage: string, englishMessage: string): str
     <div class="success-icon">✅</div>
     <h1>${hebrewMessage}</h1>
     <p>${englishMessage}</p>
+    <p class="redirect-text">מיד תועברו חזרה לאפליקציה...</p>
+    <p class="redirect-text">Redirecting back to the app...</p>
   </div>
+  <script>
+    // Redirect after 3 seconds
+    setTimeout(() => {
+      window.location.href = 'https://facepet.club/he/coupons';
+    }, 3000);
+  </script>
 </body>
 </html>`;
 }
@@ -507,6 +533,10 @@ function generateErrorPage(errorMessage: string): string {
       border-radius: 10px;
       margin-bottom: 20px;
     }
+    .redirect-text {
+      font-size: 14px;
+      color: #a0aec0;
+    }
   </style>
 </head>
 <body>
@@ -515,7 +545,15 @@ function generateErrorPage(errorMessage: string): string {
     <h1>אופס! משהו השתבש</h1>
     <p>Oops! Something went wrong</p>
     <div class="error-message">${errorMessage}</div>
+    <p class="redirect-text">מיד תועברו חזרה לאפליקציה...</p>
+    <p class="redirect-text">Redirecting back to the app...</p>
   </div>
+  <script>
+    // Redirect after 5 seconds
+    setTimeout(() => {
+      window.location.href = 'https://facepet.club/he/coupons';
+    }, 5000);
+  </script>
 </body>
 </html>`;
 }

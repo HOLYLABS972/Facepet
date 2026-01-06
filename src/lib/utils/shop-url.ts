@@ -29,20 +29,10 @@ export function generateShopUrl(
   // Use tag.chapiz.co.il as the base URL for callbacks
   const baseUrl = 'https://tag.chapiz.co.il';
 
-  // Generate callback URL with userId - always include userid in callback URL
+  // Generate callback URL with userId
   let finalCallbackUrl: string;
   if (callbackUrl) {
-    // If custom callback provided, ensure it includes the correct path and userid
-    const callbackUrlObj = new URL(callbackUrl);
-    
-    // If the callback URL doesn't have the /api/shop/callback path, add it
-    if (!callbackUrlObj.pathname.includes('/api/shop/callback')) {
-      callbackUrlObj.pathname = '/api/shop/callback';
-    }
-    
-    // Always ensure userid is in the callback URL
-    callbackUrlObj.searchParams.set('userid', userId);
-    finalCallbackUrl = callbackUrlObj.toString();
+    finalCallbackUrl = callbackUrl;
   } else {
     finalCallbackUrl = `${baseUrl}/api/shop/callback?userid=${userId}`;
   }
@@ -90,19 +80,9 @@ export function generateShopUrlWithParams(
   url.searchParams.set('userid', params.userid);
   url.searchParams.set('coupon', params.coupon);
   
-  // Set callback URL (default if not provided) - always include userid
+  // Set callback URL (default if not provided)
   if (params.callback) {
-    // If custom callback provided, ensure it includes the correct path and userid
-    const callbackUrlObj = new URL(params.callback);
-    
-    // If the callback URL doesn't have the /api/shop/callback path, add it
-    if (!callbackUrlObj.pathname.includes('/api/shop/callback')) {
-      callbackUrlObj.pathname = '/api/shop/callback';
-    }
-    
-    // Always ensure userid is in the callback URL
-    callbackUrlObj.searchParams.set('userid', params.userid);
-    url.searchParams.set('callback', callbackUrlObj.toString());
+    url.searchParams.set('callback', params.callback);
   } else {
     url.searchParams.set('callback', `${baseUrl}/api/shop/callback?userid=${params.userid}`);
   }

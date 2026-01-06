@@ -306,32 +306,6 @@ export default function EditBusinessDialog({ business, isOpen, onClose, onSucces
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>{t('businessManagement.filters') || 'Filters'}</Label>
-            <div className="space-y-2">
-              {filters.filter(f => f.isActive).map((filter) => (
-                <label key={filter.id} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.filterIds.includes(filter.id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        handleFilterChange([...formData.filterIds, filter.id]);
-                      } else {
-                        handleFilterChange(formData.filterIds.filter(id => id !== filter.id));
-                      }
-                    }}
-                    className="cursor-pointer"
-                  />
-                  <span>{filter.name}</span>
-                </label>
-              ))}
-              {filters.filter(f => f.isActive).length === 0 && (
-                <p className="text-sm text-gray-500">{t('businessManagement.noFiltersAvailable') || 'No filters available'}</p>
-              )}
-            </div>
-          </div>
-
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               {t('dialogs.editBusiness.cancel')}

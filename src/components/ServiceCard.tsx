@@ -15,7 +15,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@radix-ui/react-separator';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Star, Send, Heart, Ticket } from 'lucide-react';
-import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
@@ -490,12 +489,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                   }}
                   title={t('navigation') || 'Navigation'}
                 >
-                  <Image 
-                    src="/icons/waze.png" 
-                    alt="Waze" 
-                    width={20} 
-                    height={20} 
-                  />
+                  <MapPin size={20} />
                 </Button>
                 <Separator
                   orientation="vertical"

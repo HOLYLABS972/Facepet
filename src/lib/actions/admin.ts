@@ -29,7 +29,7 @@ export async function getDashboardStats() {
     // Get new users in the last 30 days (filter in memory to avoid index issues)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     const newUsersCount = usersSnapshot.docs.filter(doc => {
       const createdAt = doc.data().createdAt?.toDate();
       return createdAt && createdAt >= thirtyDaysAgo;
@@ -62,7 +62,7 @@ export async function getDashboardStats() {
       }
     });
     const averageRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '0.0';
-    
+
     // Get ads by status
     const adsByStatus: Record<string, number> = {};
     adsSnapshot.forEach((doc) => {
@@ -148,7 +148,7 @@ export async function getRecentActivity(limit = 5) {
       role: doc.data().role || 'user',
       createdAt: doc.data().createdAt?.toDate() || new Date()
     }));
-    
+
     // Sort by createdAt and limit
     const recentUsers = allUsers
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
@@ -162,7 +162,7 @@ export async function getRecentActivity(limit = 5) {
       imageUrl: doc.data().imageUrl || doc.data().image || '',
       createdAt: doc.data().createdAt?.toDate() || new Date()
     }));
-    
+
     // Sort by createdAt and limit
     const recentPets = allPets
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
@@ -177,7 +177,7 @@ export async function getRecentActivity(limit = 5) {
       status: doc.data().status || 'draft',
       createdAt: doc.data().createdAt?.toDate() || new Date()
     }));
-    
+
     // Sort by createdAt and limit
     const recentAds = allAds
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
@@ -220,7 +220,7 @@ export async function getAllUsers(
         // Get user points
         const pointsResult = await getUserPointsByUid(doc.id);
         const points = pointsResult.success ? (pointsResult.points || 0) : 0;
-        
+
         return {
           id: doc.id,
           fullName: userData.displayName || userData.fullName || '',
@@ -239,7 +239,7 @@ export async function getAllUsers(
     // Apply search filter
     if (searchQuery) {
       const searchLower = searchQuery.toLowerCase();
-      allUsers = allUsers.filter(user => 
+      allUsers = allUsers.filter(user =>
         user.email.toLowerCase().includes(searchLower) ||
         user.fullName.toLowerCase().includes(searchLower)
       );
@@ -248,7 +248,7 @@ export async function getAllUsers(
     // Apply sorting
     allUsers.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortField) {
         case 'fullName':
           aValue = a.fullName;
@@ -316,7 +316,7 @@ export async function getAllUsers(
 export async function getUserById(userId: string) {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
-    
+
     if (!userDoc.exists()) {
       return null;
     }
@@ -358,7 +358,7 @@ export async function updateUserRole(
  */
 export async function restrictUser(userId: string, reason?: string) {
   try {
-    await updateDoc(doc(db, 'users', userId), { 
+    await updateDoc(doc(db, 'users', userId), {
       isRestricted: true,
       restrictionReason: reason || 'Account restricted by administrator',
       restrictedAt: new Date()
@@ -375,7 +375,7 @@ export async function restrictUser(userId: string, reason?: string) {
  */
 export async function unrestrictUser(userId: string) {
   try {
-    await updateDoc(doc(db, 'users', userId), { 
+    await updateDoc(doc(db, 'users', userId), {
       isRestricted: false,
       restrictionReason: null,
       restrictedAt: null
@@ -424,8 +424,8 @@ export async function createUserByAdmin(
 
     // Create Firebase Authentication user
     if (!adminAuth) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: initializationError || 'Firebase Admin Auth not initialized. Please check your Firebase Admin SDK configuration.',
         details: 'Make sure FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY are set in your .env.local file'
       };
@@ -466,23 +466,23 @@ export async function createUserByAdmin(
     return { success: true, userId: userRecord.uid };
   } catch (error: any) {
     console.error('Error creating user:', error);
-    
+
     // If Firestore creation fails but Auth user was created, try to clean up
     if (error.code === 'auth/email-already-exists') {
       return { success: false, error: 'User with this email already exists' };
     }
-    
+
     if (error.code === 'auth/invalid-email') {
       return { success: false, error: 'Invalid email address' };
     }
-    
+
     if (error.code === 'auth/weak-password') {
       return { success: false, error: 'Password is too weak' };
     }
 
-    return { 
-      success: false, 
-      error: error.message || 'Failed to create user. Please try again.' 
+    return {
+      success: false,
+      error: error.message || 'Failed to create user. Please try again.'
     };
   }
 }
@@ -577,7 +577,7 @@ export interface Ad {
   updatedAt: Date;
   createdBy?: string | null;
   pets?: string[]; // Array of pet IDs associated with this ad
-  
+
   // Service-specific fields
   phone?: string;
   location?: string;
@@ -586,7 +586,7 @@ export interface Ad {
   reviews?: ServiceReview[];
   averageRating?: number;
   totalReviews?: number;
-  
+
   // Pet-specific fields
   area?: string; // אזור
   city?: string[]; // עיר
@@ -622,7 +622,7 @@ export async function getAllAds(
       updatedAt: doc.data().updatedAt?.toDate() || new Date(),
       createdBy: doc.data().createdBy || null,
       pets: doc.data().pets || [],
-      
+
       // Service-specific fields
       phone: doc.data().phone || '',
       location: doc.data().location || '',
@@ -636,7 +636,7 @@ export async function getAllAds(
     // Apply search filter
     if (searchQuery) {
       const searchLower = searchQuery.toLowerCase();
-      allAds = allAds.filter(ad => 
+      allAds = allAds.filter(ad =>
         ad.title.toLowerCase().includes(searchLower)
       );
     }
@@ -644,7 +644,7 @@ export async function getAllAds(
     // Apply sorting
     allAds.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortField) {
         case 'title':
           aValue = a.title;
@@ -708,7 +708,7 @@ export async function getAllAds(
 export async function getAdById(adId: string) {
   try {
     const adDoc = await getDoc(doc(db, 'advertisements', adId));
-    
+
     if (!adDoc.exists()) {
       return null;
     }
@@ -727,13 +727,13 @@ export async function getAdById(adId: string) {
       updatedAt: adData.updatedAt?.toDate() || new Date(),
       createdBy: adData.createdBy || null,
       pets: adData.pets || [],
-      
+
       // Service-specific fields
       phone: adData.phone || '',
       location: adData.location || '',
       description: adData.description || '',
       tags: adData.tags || [],
-      
+
       // Pet-specific fields
       area: adData.area || '',
       city: adData.city || [],
@@ -997,12 +997,12 @@ export async function getAdsByPetId(petId: string) {
 export async function getAllPetsForAdmin() {
   try {
     const petsSnapshot = await getDocs(collection(db, 'pets'));
-    
+
     const pets = await Promise.all(
       petsSnapshot.docs.map(async (petDoc) => {
         const petData = petDoc.data();
         let ownerName = 'Unknown Owner';
-        
+
         // Get owner email - use userEmail directly since that's what we want to display
         if (petData.userEmail) {
           ownerName = petData.userEmail;
@@ -1052,11 +1052,11 @@ export async function getPetsByUserEmail(userEmail: string) {
     const petsSnapshot = await getDocs(
       query(collection(db, 'pets'), where('userEmail', '==', userEmail))
     );
-    
+
     const pets = await Promise.all(
       petsSnapshot.docs.map(async (petDoc) => {
         const petData = petDoc.data();
-        
+
         // Get breed name - use breedName directly since that's what's stored
         let breedName = petData.breedName || petData.breed || 'Unknown Breed';
 
@@ -1088,16 +1088,16 @@ export async function getPetsByUserEmail(userEmail: string) {
 export async function updatePetField(petId: string, field: 'type' | 'breed' | 'gender' | 'weight', value: string) {
   try {
     const petRef = doc(db, 'pets', petId);
-    
+
     // Map field names to database field names
     const dbField = field === 'breed' ? 'breedName' : field;
-    
+
     // Update the field with the string value
     await updateDoc(petRef, {
       [dbField]: value,
       updatedAt: new Date()
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error updating pet field:', error);
@@ -1127,7 +1127,7 @@ export async function deletePet(petId: string) {
 export async function getActiveAds() {
   try {
     const now = new Date();
-    
+
     // Get all ads and filter in memory (Firebase doesn't support complex queries easily)
     const adsSnapshot = await getDocs(collection(db, 'advertisements'));
     const allAds = adsSnapshot.docs.map(doc => ({
@@ -1143,19 +1143,19 @@ export async function getActiveAds() {
       if (ad.status === 'active') {
         return true;
       }
-      
+
       // Status is 'scheduled' and within date range
       if (ad.status === 'scheduled') {
         const startDate = ad.startDate?.toDate();
         const endDate = ad.endDate?.toDate();
-        
+
         if (!startDate || !endDate) {
           return false;
         }
-        
+
         return now >= startDate && now <= endDate;
       }
-      
+
       return false;
     });
 
@@ -1172,7 +1172,7 @@ export async function getActiveAds() {
 export async function getRandomActiveAd() {
   try {
     const now = new Date();
-    
+
     // Get all ads and filter for active ones
     const adsSnapshot = await getDocs(collection(db, 'advertisements'));
     const allAds = adsSnapshot.docs.map(doc => ({
@@ -1191,12 +1191,12 @@ export async function getRandomActiveAd() {
       if (ad.status === 'active') {
         return true;
       }
-      
+
       // Status is 'scheduled' and within date range
       if (ad.status === 'scheduled' && ad.startDate && ad.endDate) {
         return now >= ad.startDate && now <= ad.endDate;
       }
-      
+
       return false;
     });
 
@@ -1221,7 +1221,7 @@ export async function getActiveAdsForServices() {
   try {
     // Fetch businesses instead of advertisements
     const businessesSnapshot = await getDocs(collection(db, 'businesses'));
-    
+
     const businesses = businessesSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -1234,7 +1234,7 @@ export async function getActiveAdsForServices() {
         startDate: null,
         endDate: null,
         createdAt: data.createdAt?.toDate() || new Date(),
-        
+
         // Map business fields to ad structure
         phone: data.contactInfo?.phone || '',
         location: data.contactInfo?.address || '',
@@ -1284,14 +1284,14 @@ export interface ContactInfo {
 export async function getContactInfo(): Promise<ContactInfo | null> {
   try {
     const contactSnapshot = await getDocs(collection(db, 'contactInfo'));
-    
+
     if (contactSnapshot.empty) {
       return null;
     }
-    
+
     const doc = contactSnapshot.docs[0];
     const data = doc.data();
-    
+
     return {
       id: doc.id,
       email: data.email || '',
@@ -1318,7 +1318,7 @@ export async function getContactInfo(): Promise<ContactInfo | null> {
 export async function saveContactInfo(contactInfo: Omit<ContactInfo, 'id' | 'updatedAt'>) {
   try {
     const contactSnapshot = await getDocs(collection(db, 'contactInfo'));
-    
+
     if (contactSnapshot.empty) {
       // Create new contact info
       await addDoc(collection(db, 'contactInfo'), {
@@ -1333,7 +1333,7 @@ export async function saveContactInfo(contactInfo: Omit<ContactInfo, 'id' | 'upd
         updatedAt: new Date()
       });
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error saving contact info:', error);
@@ -1495,7 +1495,7 @@ export async function updateCommentApproval(commentId: string, isApproved: boole
 export async function getCommentsForAd(adId: string) {
   try {
     console.log('getCommentsForAd called with adId:', adId);
-    
+
     // First, let's check all comments to see what adIds exist
     const allCommentsQuery = query(collection(db, 'comments'));
     const allCommentsSnapshot = await getDocs(allCommentsQuery);
@@ -1505,7 +1505,7 @@ export async function getCommentsForAd(adId: string) {
       adTitle: doc.data().adTitle,
       isApproved: doc.data().isApproved
     })));
-    
+
     // Temporary: Remove orderBy until index is created
     const commentsQuery = query(
       collection(db, 'comments'),
@@ -1514,7 +1514,7 @@ export async function getCommentsForAd(adId: string) {
 
     const commentsSnapshot = await getDocs(commentsQuery);
     console.log('Comments snapshot size for adId', adId, ':', commentsSnapshot.docs.length);
-    
+
     const comments = commentsSnapshot.docs.map(doc => {
       const data = doc.data();
       console.log('Comment data:', data);
@@ -1577,7 +1577,7 @@ export async function submitComment({
 
     const docRef = await addDoc(collection(db, 'comments'), commentData);
     console.log('Comment submitted successfully with ID:', docRef.id);
-    
+
     return { success: true, commentId: docRef.id };
   } catch (error) {
     console.error('Error submitting comment:', error);
@@ -1725,14 +1725,14 @@ export interface CookieSettings {
 export async function getCookieSettings(): Promise<CookieSettings | null> {
   try {
     const settingsSnapshot = await getDocs(collection(db, 'cookieSettings'));
-    
+
     if (settingsSnapshot.empty) {
       return null;
     }
-    
+
     const doc = settingsSnapshot.docs[0];
     const data = doc.data();
-    
+
     return {
       id: doc.id,
       cookiesEnabled: data.cookiesEnabled || false,
@@ -1755,7 +1755,7 @@ export async function getCookieSettings(): Promise<CookieSettings | null> {
 export async function saveCookieSettings(cookieSettings: Omit<CookieSettings, 'id' | 'updatedAt'>) {
   try {
     const settingsSnapshot = await getDocs(collection(db, 'cookieSettings'));
-    
+
     if (settingsSnapshot.empty) {
       // Create new cookie settings
       await addDoc(collection(db, 'cookieSettings'), {
@@ -1770,7 +1770,7 @@ export async function saveCookieSettings(cookieSettings: Omit<CookieSettings, 'i
         updatedAt: new Date()
       });
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error saving cookie settings:', error);
@@ -1795,14 +1795,14 @@ export interface InstallBannerSettings {
 export async function getInstallBannerSettings(): Promise<InstallBannerSettings | null> {
   try {
     const settingsSnapshot = await getDocs(collection(db, 'installBannerSettings'));
-    
+
     if (settingsSnapshot.empty) {
       return null;
     }
-    
+
     const doc = settingsSnapshot.docs[0];
     const data = doc.data();
-    
+
     return {
       id: doc.id,
       enabled: data.enabled || false,
@@ -1822,7 +1822,7 @@ export async function getInstallBannerSettings(): Promise<InstallBannerSettings 
 export async function saveInstallBannerSettings(settings: Omit<InstallBannerSettings, 'id' | 'updatedAt'>) {
   try {
     const settingsSnapshot = await getDocs(collection(db, 'installBannerSettings'));
-    
+
     if (settingsSnapshot.empty) {
       // Create new settings
       await addDoc(collection(db, 'installBannerSettings'), {
@@ -1837,7 +1837,7 @@ export async function saveInstallBannerSettings(settings: Omit<InstallBannerSett
         updatedAt: new Date()
       });
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error saving install banner settings:', error);
@@ -1861,7 +1861,7 @@ export async function createCoupon(couponData: CreateCouponData, createdBy: stri
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
-    
+
     // Prefer businessIds array over single businessId
     if (businessIds && businessIds.length > 0) {
       dataToSave.businessIds = businessIds;
@@ -1869,7 +1869,7 @@ export async function createCoupon(couponData: CreateCouponData, createdBy: stri
       // Legacy support: convert single businessId to array
       dataToSave.businessIds = [businessId];
     }
-    
+
     const docRef = await addDoc(collection(db, 'coupons'), dataToSave);
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -1885,14 +1885,14 @@ export async function getCoupons() {
   try {
     const q = query(collection(db, 'coupons'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-    
+
     const coupons = querySnapshot.docs.map(doc => {
       const data = doc.data();
       const createdAt = data.createdAt?.toDate() || new Date();
       const updatedAt = data.updatedAt?.toDate() || new Date();
       const validFrom = data.validFrom?.toDate() || new Date();
       const validTo = data.validTo?.toDate() || new Date();
-      
+
       // Debug: Log business data for each coupon
       if (doc.id === 'IvmgfeBPfGRXLIQ5ce0Q') {
         console.log('🔍 getCoupons - Coupon IvmgfeBPfGRXLIQ5ce0Q raw data:', {
@@ -1903,7 +1903,7 @@ export async function getCoupons() {
           allFields: Object.keys(data)
         });
       }
-      
+
       const couponData = {
         id: doc.id,
         ...data,
@@ -1913,7 +1913,7 @@ export async function getCoupons() {
         validFrom: validFrom.toISOString(),
         validTo: validTo.toISOString()
       };
-      
+
       // Ensure businessIds is properly included (it should be in ...data, but let's be explicit)
       // Debug: Log specific coupon
       if (doc.id === 'IvmgfeBPfGRXLIQ5ce0Q') {
@@ -1925,10 +1925,10 @@ export async function getCoupons() {
           allKeys: Object.keys(couponData)
         });
       }
-      
+
       return couponData;
     });
-    
+
     return { success: true, coupons };
   } catch (error) {
     console.error('Error fetching coupons:', error);
@@ -1943,7 +1943,7 @@ export async function getCouponById(id: string) {
   try {
     const docRef = doc(db, 'coupons', id);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       const data = docSnap.data();
       console.log('🔍 getCouponById - Raw Firestore data:', {
@@ -1954,7 +1954,7 @@ export async function getCouponById(id: string) {
         businessIds: data.businessIds,
         allFields: Object.keys(data)
       });
-      
+
       const coupon = {
         id: docSnap.id,
         ...data,
@@ -1980,7 +1980,7 @@ export async function updateCoupon(id: string, updateData: UpdateCouponData) {
     const docRef = doc(db, 'coupons', id);
     // Handle both businessId (legacy) and businessIds (new)
     const { businessId, businessIds, ...restData } = updateData;
-    
+
     console.log('🔍 updateCoupon - Input data:', {
       couponId: id,
       businessId,
@@ -1988,12 +1988,12 @@ export async function updateCoupon(id: string, updateData: UpdateCouponData) {
       hasBusinessIds: businessIds !== undefined,
       businessIdsLength: businessIds?.length || 0
     });
-    
+
     const dataToUpdate: any = {
       ...restData,
       updatedAt: serverTimestamp()
     };
-    
+
     // Handle businessIds array (new format)
     if (businessIds !== undefined) {
       if (businessIds.length === 0) {
@@ -2023,12 +2023,12 @@ export async function updateCoupon(id: string, updateData: UpdateCouponData) {
     } else {
       console.log('⚠️ updateCoupon - No businessIds or businessId provided, not updating business fields');
     }
-    
+
     console.log('🔍 updateCoupon - Final dataToUpdate:', {
       ...dataToUpdate,
       updatedAt: '[serverTimestamp]'
     });
-    
+
     await updateDoc(docRef, dataToUpdate);
     console.log('✅ updateCoupon - Successfully updated coupon:', id);
     return { success: true };
@@ -2080,14 +2080,14 @@ export async function getAudiences() {
   try {
     const q = query(collection(db, 'audiences'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-    
+
     const audiences = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date()
     }));
-    
+
     return { success: true, audiences };
   } catch (error) {
     console.error('Error fetching audiences:', error);
@@ -2154,14 +2154,14 @@ export async function getBusinesses() {
   try {
     const q = query(collection(db, 'businesses'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-    
+
     const businesses = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date()
     }));
-    
+
     return { success: true, businesses };
   } catch (error) {
     console.error('Error fetching businesses:', error);
@@ -2175,7 +2175,7 @@ export async function getBusinesses() {
 export async function getBusinessById(id: string) {
   try {
     const businessDoc = await getDoc(doc(db, 'businesses', id));
-    
+
     if (!businessDoc.exists()) {
       return null;
     }
@@ -2236,6 +2236,124 @@ export async function deleteBusiness(id: string) {
   }
 }
 
+/**
+ * Bulk delete multiple businesses
+ */
+export async function bulkDeleteBusinesses(businessIds: string[]) {
+  try {
+    if (!businessIds || businessIds.length === 0) {
+      return { success: false, error: 'No business IDs provided' };
+    }
+
+    // Delete all businesses in parallel
+    const deletePromises = businessIds.map(id =>
+      deleteDoc(doc(db, 'businesses', id))
+    );
+
+    await Promise.all(deletePromises);
+
+    return {
+      success: true,
+      count: businessIds.length,
+      message: `Successfully deleted ${businessIds.length} business${businessIds.length > 1 ? 'es' : ''}`
+    };
+  } catch (error) {
+    console.error('Error bulk deleting businesses:', error);
+    return { success: false, error: 'Failed to delete businesses' };
+  }
+}
+
+/**
+ * Bulk update multiple businesses with the same changes
+ */
+export async function bulkUpdateBusinesses(
+  businessIds: string[],
+  updates: Partial<UpdateBusinessData>
+) {
+  try {
+    if (!businessIds || businessIds.length === 0) {
+      return { success: false, error: 'No business IDs provided' };
+    }
+
+    // Update all businesses in parallel
+    const updatePromises = businessIds.map(id =>
+      updateDoc(doc(db, 'businesses', id), {
+        ...updates,
+        updatedAt: serverTimestamp()
+      })
+    );
+
+    await Promise.all(updatePromises);
+
+    return {
+      success: true,
+      count: businessIds.length,
+      message: `Successfully updated ${businessIds.length} business${businessIds.length > 1 ? 'es' : ''}`
+    };
+  } catch (error) {
+    console.error('Error bulk updating businesses:', error);
+    return { success: false, error: 'Failed to update businesses' };
+  }
+}
+
+/**
+ * Bulk assign or remove tags from multiple businesses
+ */
+export async function bulkAssignTags(
+  businessIds: string[],
+  tagsToAdd: string[] = [],
+  tagsToRemove: string[] = []
+) {
+  try {
+    if (!businessIds || businessIds.length === 0) {
+      return { success: false, error: 'No business IDs provided' };
+    }
+
+    // Fetch all businesses to get their current tags
+    const businessPromises = businessIds.map(id =>
+      getDoc(doc(db, 'businesses', id))
+    );
+    const businessDocs = await Promise.all(businessPromises);
+
+    // Update tags for each business
+    const updatePromises = businessDocs.map((businessDoc, index) => {
+      if (!businessDoc.exists()) {
+        console.warn(`Business ${businessIds[index]} not found`);
+        return Promise.resolve();
+      }
+
+      const currentTags = businessDoc.data().tags || [];
+
+      // Add new tags (avoid duplicates)
+      let updatedTags = [...currentTags];
+      tagsToAdd.forEach(tag => {
+        if (!updatedTags.includes(tag)) {
+          updatedTags.push(tag);
+        }
+      });
+
+      // Remove specified tags
+      updatedTags = updatedTags.filter(tag => !tagsToRemove.includes(tag));
+
+      return updateDoc(businessDoc.ref, {
+        tags: updatedTags,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    await Promise.all(updatePromises);
+
+    return {
+      success: true,
+      count: businessIds.length,
+      message: `Successfully updated tags for ${businessIds.length} business${businessIds.length > 1 ? 'es' : ''}`
+    };
+  } catch (error) {
+    console.error('Error bulk assigning tags:', error);
+    return { success: false, error: 'Failed to assign tags' };
+  }
+}
+
 // FILTER MANAGEMENT FUNCTIONS
 
 /**
@@ -2264,7 +2382,7 @@ export async function getFilters() {
   try {
     const q = query(collection(db, 'filters'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-    
+
     const filters = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
@@ -2272,7 +2390,7 @@ export async function getFilters() {
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date()
     }));
-    
+
     return { success: true, filters };
   } catch (error) {
     console.error('Error fetching filters:', error);
@@ -2326,7 +2444,7 @@ export async function createPromo(promoData: CreatePromoData, createdBy: string)
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
-    
+
     // Convert startDate and endDate to Timestamps if they exist
     if (promoData.startDate && promoData.startDate instanceof Date) {
       dataToSave.startDate = Timestamp.fromDate(promoData.startDate);
@@ -2334,14 +2452,14 @@ export async function createPromo(promoData: CreatePromoData, createdBy: string)
       // Remove undefined dates from dataToSave
       delete dataToSave.startDate;
     }
-    
+
     if (promoData.endDate && promoData.endDate instanceof Date) {
       dataToSave.endDate = Timestamp.fromDate(promoData.endDate);
     } else {
       // Remove undefined dates from dataToSave
       delete dataToSave.endDate;
     }
-    
+
     const docRef = await addDoc(collection(db, 'promos'), dataToSave);
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -2357,10 +2475,10 @@ export async function getPromos() {
   try {
     const q = query(collection(db, 'promos'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-    
+
     const promos = querySnapshot.docs.map(doc => {
       const data = doc.data();
-      
+
       // Helper function to safely convert dates
       const convertDate = (dateValue: any): Date | undefined => {
         if (!dateValue) return undefined;
@@ -2373,7 +2491,7 @@ export async function getPromos() {
         }
         return undefined;
       };
-      
+
       return {
         id: doc.id,
         ...data,
@@ -2385,7 +2503,7 @@ export async function getPromos() {
         isActive: data.isActive !== undefined ? data.isActive : true
       };
     });
-    
+
     return { success: true, promos };
   } catch (error) {
     console.error('Error fetching promos:', error);
@@ -2402,16 +2520,16 @@ export async function getRandomActivePromo(
 ) {
   try {
     const now = new Date();
-    
+
     // Get all promos
     const promosSnapshot = await getDocs(collection(db, 'promos'));
     console.log('Total promos in database:', promosSnapshot.size);
-    
+
     if (promosSnapshot.size === 0) {
       console.log('No promos in database');
       return null;
     }
-    
+
     const allPromos = promosSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -2430,10 +2548,10 @@ export async function getRandomActivePromo(
         createdBy: data.createdBy || ''
       };
     });
-    
+
     // Filter for promos with images OR YouTube URLs (required for display)
     let promosWithMedia = allPromos.filter(promo => !!promo.imageUrl || !!promo.youtubeUrl);
-    
+
     if (promosWithMedia.length === 0) {
       console.log('No promos with media (image or YouTube) found');
       return null;
@@ -2445,7 +2563,7 @@ export async function getRandomActivePromo(
       if (promo.isActive === false) {
         return false;
       }
-      
+
       // Check date range if both dates are provided
       if (promo.startDate && promo.endDate) {
         if (now < promo.startDate || now > promo.endDate) {
@@ -2462,7 +2580,7 @@ export async function getRandomActivePromo(
           return false;
         }
       }
-      
+
       return true;
     });
 
@@ -2479,7 +2597,7 @@ export async function getRandomActivePromo(
         // Promo must have an audienceId that matches one of the user's audiences
         return promo.audienceId && userAudienceIds.includes(promo.audienceId);
       });
-      
+
       // If we found matching promos, use them; otherwise show all promos
       if (audienceFilteredPromos.length > 0) {
         finalPromos = audienceFilteredPromos;
@@ -2523,7 +2641,7 @@ export async function getPromoById(id: string) {
   try {
     const docRef = doc(db, 'promos', id);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       const promo = {
         id: docSnap.id,

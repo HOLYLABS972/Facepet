@@ -17,11 +17,21 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Edit, Trash2, Mail, Phone, MapPin, Image, Filter, X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { MoreHorizontal, Edit, Trash2, Mail, Phone, MapPin, Image, Filter, X, Tags } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Business, Filter as FilterType } from '@/types/promo';
-import { getBusinesses, updateBusiness, deleteBusiness, getFilters } from '@/lib/actions/admin';
+import {
+  getBusinesses,
+  updateBusiness,
+  deleteBusiness,
+  getFilters,
+  bulkDeleteBusinesses,
+  bulkUpdateBusinesses,
+  bulkAssignTags
+} from '@/lib/actions/admin';
 import EditBusinessDialog from './EditBusinessDialog';
+import BulkEditBusinessDialog from './BulkEditBusinessDialog';
 import { useMemo } from 'react';
 import {
   Select,
@@ -40,6 +50,8 @@ export default function BusinessesTable() {
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedFilterId, setSelectedFilterId] = useState<string>('__all__');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -52,7 +64,7 @@ export default function BusinessesTable() {
         getBusinesses(),
         getFilters()
       ]);
-      
+
       if (businessesResult.success) {
         setBusinesses(businessesResult.businesses);
       } else {
@@ -74,8 +86,8 @@ export default function BusinessesTable() {
     try {
       const result = await updateBusiness(business.id, { isActive: !business.isActive });
       if (result.success) {
-        setBusinesses(prev => 
-          prev.map(b => 
+        setBusinesses(prev =>
+          prev.map(b =>
             b.id === business.id ? { ...b, isActive: !b.isActive } : b
           )
         );
@@ -126,6 +138,90 @@ export default function BusinessesTable() {
       hour: '2-digit',
       minute: '2-digit'
     }).format(date);
+  };
+
+  // Bulk operation handlers
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(filteredBusinesses.map(b => b.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds(prev => [...prev, id]);
+    } else {
+      setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+
+    const confirmMessage = t('businessManagement.confirmBulkDelete', { count: selectedIds.length });
+    if (!confirm(confirmMessage)) return;
+
+    try {
+      const result = await bulkDeleteBusinesses(selectedIds);
+      if (result.success) {
+        setBusinesses(prev => prev.filter(b => !selectedIds.includes(b.id)));
+        setSelectedIds([]);
+        alert(t('businessManagement.bulkDeleteSuccess', { count: selectedIds.length }));
+      } else {
+        setError(result.error || t('businessManagement.bulkDeleteError'));
+      }
+    } catch (err) {
+      setError(t('businessManagement.bulkDeleteError'));
+      console.error(err);
+    }
+  };
+
+  const handleBulkToggleStatus = async () => {
+    if (selectedIds.length === 0) return;
+
+    try {
+      // Get current status of selected businesses
+      const selectedBusinesses = businesses.filter(b => selectedIds.includes(b.id));
+      const allActive = selectedBusinesses.every(b => b.isActive);
+      const newStatus = !allActive;
+
+      const result = await bulkUpdateBusinesses(selectedIds, { isActive: newStatus });
+      if (result.success) {
+        setBusinesses(prev =>
+          prev.map(b =>
+            selectedIds.includes(b.id) ? { ...b, isActive: newStatus } : b
+          )
+        );
+        setSelectedIds([]);
+        alert(t('businessManagement.bulkUpdateSuccess', { count: selectedIds.length }));
+      } else {
+        setError(result.error || t('businessManagement.bulkUpdateError'));
+      }
+    } catch (err) {
+      setError(t('businessManagement.bulkUpdateError'));
+      console.error(err);
+    }
+  };
+
+  const handleBulkEditTags = async (tagsToAdd: string[], tagsToRemove: string[]) => {
+    if (selectedIds.length === 0) return;
+
+    try {
+      const result = await bulkAssignTags(selectedIds, tagsToAdd, tagsToRemove);
+      if (result.success) {
+        // Refresh data to get updated tags
+        await fetchData();
+        setSelectedIds([]);
+        alert(t('businessManagement.bulkUpdateSuccess', { count: selectedIds.length }));
+      } else {
+        setError(result.error || t('businessManagement.bulkUpdateError'));
+      }
+    } catch (err) {
+      setError(t('businessManagement.bulkUpdateError'));
+      console.error(err);
+    }
   };
 
   // Get selected filter
@@ -203,6 +299,49 @@ export default function BusinessesTable() {
         )}
       </div>
 
+      {/* Bulk Actions Toolbar */}
+      {selectedIds.length > 0 && (
+        <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={selectedIds.length === filteredBusinesses.length}
+              onCheckedChange={handleSelectAll}
+            />
+            <span className="font-medium text-blue-900">
+              {t('businessManagement.selectedCount', { count: selectedIds.length })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsBulkEditOpen(true)}
+              className="gap-2"
+            >
+              <Tags className="h-4 w-4" />
+              {t('businessManagement.bulkAssignTags')}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkToggleStatus}
+              className="gap-2"
+            >
+              {t('businessManagement.bulkToggleStatus')}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkDelete}
+              className="gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              {t('businessManagement.bulkDelete')}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Results count */}
       {selectedFilterId && selectedFilterId !== '__all__' && selectedFilter && (
         <div className="text-sm text-gray-600">
@@ -214,6 +353,12 @@ export default function BusinessesTable() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={selectedIds.length > 0 && selectedIds.length === filteredBusinesses.length}
+                  onCheckedChange={handleSelectAll}
+                />
+              </TableHead>
               <TableHead>{t('businessManagement.name')}</TableHead>
               <TableHead>{t('businessManagement.description')}</TableHead>
               <TableHead>{t('businessManagement.image')}</TableHead>
@@ -226,7 +371,7 @@ export default function BusinessesTable() {
           <TableBody>
             {filteredBusinesses.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                   {selectedFilterId && selectedFilterId !== '__all__'
                     ? (t('businessManagement.noBusinessesMatchingFilter') || 'No businesses match the selected filter')
                     : t('businessManagement.noBusinesses')
@@ -235,7 +380,16 @@ export default function BusinessesTable() {
               </TableRow>
             ) : (
               filteredBusinesses.map((business) => (
-                <TableRow key={business.id}>
+                <TableRow
+                  key={business.id}
+                  className={selectedIds.includes(business.id) ? 'bg-blue-50' : ''}
+                >
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds.includes(business.id)}
+                      onCheckedChange={(checked) => handleSelectOne(business.id, checked as boolean)}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{business.name}</TableCell>
                   <TableCell className="max-w-xs truncate">
                     {business.description}
@@ -243,8 +397,8 @@ export default function BusinessesTable() {
                   <TableCell>
                     {business.imageUrl ? (
                       <div className="w-10 h-10 rounded-md overflow-hidden">
-                        <img 
-                          src={business.imageUrl} 
+                        <img
+                          src={business.imageUrl}
                           alt={business.name}
                           className="w-full h-full object-cover"
                         />
@@ -294,7 +448,7 @@ export default function BusinessesTable() {
                         <DropdownMenuItem onClick={() => handleToggleActive(business)}>
                           {business.isActive ? t('businessManagement.deactivate') : t('businessManagement.activate')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => handleDelete(business)}
                           className="text-red-600"
                         >
@@ -310,7 +464,7 @@ export default function BusinessesTable() {
           </TableBody>
         </Table>
       </div>
-      
+
       {editingBusiness && (
         <EditBusinessDialog
           business={editingBusiness}
@@ -322,6 +476,13 @@ export default function BusinessesTable() {
           onSuccess={handleEditSuccess}
         />
       )}
+
+      <BulkEditBusinessDialog
+        isOpen={isBulkEditOpen}
+        onClose={() => setIsBulkEditOpen(false)}
+        selectedCount={selectedIds.length}
+        onApply={handleBulkEditTags}
+      />
     </div>
   );
 }

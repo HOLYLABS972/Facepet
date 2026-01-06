@@ -315,14 +315,8 @@ export async function createActionNotification(
       return { success: false, error: 'User not authenticated' };
     }
 
-    // Don't create notifications for share actions (points only awarded on purchase)
-    if (actionType === 'share') {
-      console.log('Skipping notification creation for share action');
-      return { success: true };
-    }
-
-    // For registration and phone_setup notifications, check if user already has one
-    if (actionType === 'registration' || actionType === 'phone_setup') {
+    // For share, registration, and phone_setup notifications, check if user already has one
+    if (actionType === 'share' || actionType === 'registration' || actionType === 'phone_setup') {
       const hasNotification = await hasNotificationOfType(user, actionType);
       if (hasNotification.success && hasNotification.hasNotification) {
         console.log(`User already has a ${actionType} notification, skipping creation`);
@@ -396,12 +390,6 @@ export async function createNotificationWithPoints(
   try {
     if (!user?.email) {
       return { success: false, error: 'User not authenticated' };
-    }
-
-    // Don't create notifications for share actions (points only awarded on purchase)
-    if (actionType === 'share') {
-      console.log('Skipping notification creation for share action');
-      return { success: true };
     }
 
     // Create notification only (no points transactions)
