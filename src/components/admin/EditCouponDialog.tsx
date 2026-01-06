@@ -36,7 +36,8 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     imageUrl: '',
     validFrom: '',
     validTo: '',
-    businessIds: [] as string[]
+    businessIds: [] as string[],
+    purchaseLimit: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,29 +48,30 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     if (isOpen) {
       fetchBusinesses();
       if (coupon) {
-      // Support both old businessId and new businessIds format
-      const businessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
-      
-      console.log('🔍 EditCouponDialog - Coupon data received:', {
-        couponId: coupon.id,
-        couponName: coupon.name,
-        hasBusinessId: !!coupon.businessId,
-        hasBusinessIds: !!coupon.businessIds,
-        businessId: coupon.businessId,
-        businessIds: coupon.businessIds,
-        extractedBusinessIds: businessIds
-      });
-      
-      setFormData({
-        name: coupon.name || '',
-        description: coupon.description || '',
-        price: coupon.price?.toString() || '',
-        points: coupon.points?.toString() || '',
-        imageUrl: coupon.imageUrl || '',
+        // Support both old businessId and new businessIds format
+        const businessIds = coupon.businessIds || (coupon.businessId ? [coupon.businessId] : []);
+
+        console.log('🔍 EditCouponDialog - Coupon data received:', {
+          couponId: coupon.id,
+          couponName: coupon.name,
+          hasBusinessId: !!coupon.businessId,
+          hasBusinessIds: !!coupon.businessIds,
+          businessId: coupon.businessId,
+          businessIds: coupon.businessIds,
+          extractedBusinessIds: businessIds
+        });
+
+        setFormData({
+          name: coupon.name || '',
+          description: coupon.description || '',
+          price: coupon.price?.toString() || '',
+          points: coupon.points?.toString() || '',
+          imageUrl: coupon.imageUrl || '',
           validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().slice(0, 16) : '',
           validTo: coupon.validTo ? new Date(coupon.validTo).toISOString().slice(0, 16) : '',
-          businessIds: businessIds
-      });
+          businessIds: businessIds,
+          purchaseLimit: coupon.purchaseLimit?.toString() || ''
+        });
       }
     }
   }, [isOpen, coupon]);
@@ -113,17 +115,17 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
     try {
       // Allow empty price for free vouchers (defaults to 0)
       const price = formData.price === '' ? 0 : parseFloat(formData.price);
-      
+
       // Default points to 0 if empty and price is 0
       let points = parseInt(formData.points);
       if (isNaN(points) && price === 0) {
         points = 0;
       }
-      
+
       if (isNaN(price) || price < 0) {
         throw new Error('Please enter a valid price (0 for free vouchers)');
       }
-      
+
       if (isNaN(points) || points < 0) {
         throw new Error('Please enter valid points');
       }
@@ -135,6 +137,11 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
         willSend: formData.businessIds.length > 0 ? formData.businessIds : undefined
       });
 
+      const purchaseLimit = formData.purchaseLimit === '' ? undefined : parseInt(formData.purchaseLimit);
+      if (purchaseLimit !== undefined && (isNaN(purchaseLimit) || purchaseLimit < 1)) {
+        throw new Error('Purchase limit must be a positive number or left empty for unlimited');
+      }
+
       const result = await updateCoupon(coupon.id, {
         name: formData.name,
         description: formData.description,
@@ -143,7 +150,8 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
         imageUrl: formData.imageUrl,
         validFrom: new Date(formData.validFrom),
         validTo: new Date(formData.validTo),
-        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined
+        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
+        purchaseLimit: purchaseLimit
       });
 
       if (!result.success) {
@@ -176,7 +184,7 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('dialogs.editCoupon.title')}</DialogTitle>
         </DialogHeader>
@@ -290,6 +298,22 @@ export default function EditCouponDialog({ coupon, isOpen, onClose, onSuccess }:
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="purchaseLimit">{t('couponsManagement.purchaseLimit')}</Label>
+            <Input
+              id="purchaseLimit"
+              name="purchaseLimit"
+              type="number"
+              min="1"
+              value={formData.purchaseLimit}
+              onChange={handleChange}
+              placeholder={t('couponsManagement.purchaseLimitPlaceholder')}
+            />
+            <p className="text-xs text-gray-500">
+              {t('couponsManagement.purchaseLimitHelp')}
+            </p>
           </div>
 
           <DialogFooter>

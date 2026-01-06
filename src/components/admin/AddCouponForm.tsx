@@ -33,7 +33,8 @@ export default function AddCouponForm() {
     imageUrl: '',
     validFrom: '',
     validTo: '',
-    businessIds: [] as string[]
+    businessIds: [] as string[],
+    purchaseLimit: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,22 +89,27 @@ export default function AddCouponForm() {
     try {
       // Allow empty price for free vouchers (defaults to 0)
       const price = formData.price === '' ? 0 : parseFloat(formData.price);
-      
+
       // Default points to 0 if empty and price is 0
       let points = parseInt(formData.points);
       if (isNaN(points) && price === 0) {
         points = 0;
       }
-      
+
       if (isNaN(price) || price < 0) {
         throw new Error('Please enter a valid price (0 for free vouchers)');
       }
-      
+
       if (isNaN(points) || points < 0) {
         throw new Error('Please enter valid points');
       }
 
       console.log('Submitting coupon data:', formData);
+
+      const purchaseLimit = formData.purchaseLimit === '' ? undefined : parseInt(formData.purchaseLimit);
+      if (purchaseLimit !== undefined && (isNaN(purchaseLimit) || purchaseLimit < 1)) {
+        throw new Error('Purchase limit must be a positive number or left empty for unlimited');
+      }
 
       const result = await createCoupon({
         name: formData.name,
@@ -113,7 +119,8 @@ export default function AddCouponForm() {
         imageUrl: formData.imageUrl,
         validFrom: new Date(formData.validFrom),
         validTo: new Date(formData.validTo),
-        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined
+        businessIds: formData.businessIds.length > 0 ? formData.businessIds : undefined,
+        purchaseLimit: purchaseLimit
       }, 'admin'); // TODO: Get actual user ID
 
       console.log('Create coupon result:', result);
@@ -131,7 +138,8 @@ export default function AddCouponForm() {
         imageUrl: '',
         validFrom: '',
         validTo: '',
-        businessIds: []
+        businessIds: [],
+        purchaseLimit: ''
       });
       setIsOpen(false);
 
@@ -152,7 +160,7 @@ export default function AddCouponForm() {
           {t('couponsManagement.addNewCoupon')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('couponsManagement.addNewCoupon')}</DialogTitle>
         </DialogHeader>
@@ -266,6 +274,22 @@ export default function AddCouponForm() {
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="purchaseLimit">{t('couponsManagement.purchaseLimit')}</Label>
+            <Input
+              id="purchaseLimit"
+              name="purchaseLimit"
+              type="number"
+              min="1"
+              value={formData.purchaseLimit}
+              onChange={handleChange}
+              placeholder={t('couponsManagement.purchaseLimitPlaceholder')}
+            />
+            <p className="text-xs text-gray-500">
+              {t('couponsManagement.purchaseLimitHelp')}
+            </p>
           </div>
 
           <DialogFooter>

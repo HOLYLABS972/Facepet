@@ -10,6 +10,7 @@ export interface Coupon {
   isActive: boolean;
   businessId?: string; // Deprecated: use businessIds instead
   businessIds?: string[]; // Optional business assignments (multiple stores)
+  purchaseLimit?: number; // Maximum times each user can purchase this voucher (undefined = unlimited)
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;
@@ -25,6 +26,7 @@ export interface CreateCouponData {
   validTo: Date;
   businessId?: string; // Deprecated: use businessIds instead
   businessIds?: string[]; // Optional business assignments (multiple stores)
+  purchaseLimit?: number; // Maximum times each user can purchase this voucher
 }
 
 export interface UpdateCouponData extends Partial<CreateCouponData> {

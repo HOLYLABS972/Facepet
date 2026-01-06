@@ -511,7 +511,12 @@
       "confirmDelete": "האם אתה בטוח שברצונך למחוק את השובר \"{name}\"?",
       "activate": "הפעל",
       "deactivate": "השבת",
-      "preview": "תצוגה מקדימה"
+      "preview": "תצוגה מקדימה",
+      "purchaseLimit": "מגבלת רכישה",
+      "purchaseLimitPlaceholder": "השאר ריק ללא הגבלה",
+      "purchaseLimitHelp": "מספר פעמים מקסימלי שכל משתמש יכול לרכוש שובר זה (השאר ריק ללא הגבלה)",
+      "unlimited": "ללא הגבלה",
+      "purchaseLimitReached": "הגעת למגבלת הרכישה עבור שובר זה"
     },
     "promoManagement": {
       "title": "ניהול קופונים",
