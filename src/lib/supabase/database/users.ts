@@ -139,6 +139,7 @@ export async function updateUserByUid(uid: string, updates: {
     address?: string;
     coordinates?: { lat: number; lng: number };
     placeId?: string;
+    profileImage?: string;
 }): Promise<{ success: boolean; error?: string }> {
     try {
         const updateData: Partial<User> = {};
@@ -152,6 +153,9 @@ export async function updateUserByUid(uid: string, updates: {
         }
         if (updates.address !== undefined) {
             updateData.address = updates.address;
+        }
+        if (updates.profileImage !== undefined) {
+            updateData.profile_image = updates.profileImage;
         }
 
         const { error } = await supabase

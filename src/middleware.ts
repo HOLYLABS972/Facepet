@@ -19,6 +19,11 @@ const middleware = (req: NextRequest) => {
     console.log('Admin route accessed:', pathname);
   }
 
+  // Allow POST requests (Server Actions) to pass through without i18n redirect
+  if (method === 'POST') {
+    return NextResponse.next();
+  }
+
   // Handle internationalization for all routes
   const response = intlMiddleware(req);
   response.headers.delete('Vary');

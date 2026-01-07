@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               role: getUserRole(session.user.email),
               language: 'en',
               accept_cookies: false,
-              avatar_url: avatarUrl,
+              profile_image: avatarUrl,
             });
 
             // Fetch the newly created user
@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               role: getUserRole(session.user.email),
               language: 'en',
               accept_cookies: false,
-              avatar_url: avatarUrl,
+              profile_image: avatarUrl,
             });
 
             // Fetch the newly created user

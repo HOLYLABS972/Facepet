@@ -80,7 +80,7 @@ export default function SettingsPage() {
               fullName: fullName,
               phone: userResult.user.phone || '',
               address: userResult.user.address || '',
-              profileImageURL: userResult.user.profileImage || user.photoURL || '',
+              profileImageURL: userResult.user.profile_image || user.photoURL || '',
               language: locale // Always use current locale, not stored preference
             }));
           } else {
@@ -357,8 +357,8 @@ export default function SettingsPage() {
               fullName: userResult.user.displayName || user.displayName || '',
               phone: userResult.user.phone || '',
               address: userResult.user.address || '',
-              profileImageURL: userResult.user.profileImage || user.photoURL || '',
-              acceptCookies: userResult.user.acceptCookies || false,
+              profileImageURL: userResult.user.profile_image || user.photoURL || '',
+              acceptCookies: userResult.user.accept_cookies || false,
               language: locale,
               freeCouponPrice: userResult.user.freeCouponPrice || false
             }));
