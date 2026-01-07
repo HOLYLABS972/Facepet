@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPlaceFormattedAddress, getPlaceCoordinates } from '@/src/lib/google';
 
+// Mark this route as dynamic since it depends on query parameters
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const place_id = searchParams.get('place_id');
     const language = searchParams.get('language') || 'en';
     const type = searchParams.get('type') || 'address'; // 'address' or 'coordinates'
