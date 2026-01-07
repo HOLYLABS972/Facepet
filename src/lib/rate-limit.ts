@@ -57,7 +57,8 @@ export function getRateLimitStatus() {
   };
 }
 
-// Clean up rate limit records every hour (only on server side)
-if (typeof window === 'undefined') {
-  setInterval(cleanupEmailRateLimit, 60 * 60 * 1000);
-}
+// Note: Automatic cleanup has been removed to prevent memory leaks.
+// In production, trigger cleanupEmailRateLimit() via:
+// 1. API route with cron job (recommended)
+// 2. Manual cleanup calls in long-running processes
+// 3. Next.js API route called by external cron service

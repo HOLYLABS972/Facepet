@@ -604,7 +604,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
           router.push(`/${locale}/services/${service.id}`);
           return;
         }
-        
+
         // Fallback: Close previous info window
         if (currentInfoWindow) {
           currentInfoWindow.close();
@@ -687,12 +687,14 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     const apiKey = googleMapsApiKey;
     const BAD_KEY = 'AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E';
     let script: HTMLScriptElement | null = null;
+    let checkInterval: NodeJS.Timeout | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
 
     const loadGoogleMaps = () => {
       // Aggressively remove any scripts with the wrong key
       const allMapsScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
       let hasBadScript = false;
-      
+
       allMapsScripts.forEach((s) => {
         const scriptSrc = (s as HTMLScriptElement).src;
         if (scriptSrc.includes(BAD_KEY)) {
@@ -716,15 +718,15 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
           initializeMap();
         } else {
           // Wait for script to load
-          const checkInterval = setInterval(() => {
+          checkInterval = setInterval(() => {
             if (window.google && window.google.maps) {
-              clearInterval(checkInterval);
+              if (checkInterval) clearInterval(checkInterval);
               initializeMap();
             }
           }, 100);
 
-          setTimeout(() => {
-            clearInterval(checkInterval);
+          timeoutId = setTimeout(() => {
+            if (checkInterval) clearInterval(checkInterval);
           }, 5000);
         }
         return;
@@ -752,7 +754,11 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     loadGoogleMaps();
 
     return () => {
-      // Cleanup is handled by the script itself
+      // Clean up interval and timeout to prevent memory leaks
+      if (checkInterval) clearInterval(checkInterval);
+      if (timeoutId) clearTimeout(timeoutId);
+
+      // Cleanup callback
       if (window.initServicesMap) {
         delete window.initServicesMap;
       }
@@ -899,24 +905,24 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   // Handle service click from list
   const handleServiceClick = (service: ServiceWithCoordinates) => {
     console.log('handleServiceClick called', { service: service.name, id: service.id });
-    
+
     // Navigate to service details page
     if (service.id) {
       router.push(`/${locale}/services/${service.id}`);
       return;
     }
-    
+
     // Fallback: Close previous info window if any
     if (currentInfoWindow) {
       currentInfoWindow.close();
     }
-    
+
     // Center map on service if coordinates exist
     if (service.coordinates && map) {
       map.setCenter(service.coordinates);
       map.setZoom(15);
     }
-    
+
     // Set selected service and highlight it (matching marker click behavior)
     setSelectedService(service);
     if (service.id) {
@@ -1072,7 +1078,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
                 <DrawerTitle>Services List</DrawerTitle>
               </DrawerHeader>
               {/* Search Bar Placeholder or Title */}
-              <div 
+              <div
                 className="px-4 py-2 border-b cursor-pointer"
                 onClick={() => {
                   // Toggle between 40% and 100% when header is tapped

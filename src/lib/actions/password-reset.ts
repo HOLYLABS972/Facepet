@@ -160,20 +160,13 @@ export async function resetPasswordWithToken(
 
 /**
  * Clean up expired password reset tokens
+ * Call this function from an API route or cron job
  */
-export async function cleanupExpiredTokens(): Promise<number> {
+export async function cleanupExpiredPasswordResetTokens(): Promise<number> {
   return await cleanupExpiredTokens();
 }
 
-// Clean up expired tokens every hour
-if (typeof window === 'undefined') {
-  setInterval(
-    async () => {
-      const cleaned = await cleanupExpiredTokens();
-      if (cleaned > 0) {
-        console.log(`Cleaned up ${cleaned} expired password reset tokens`);
-      }
-    },
-    60 * 60 * 1000
-  );
-}
+// Note: Automatic cleanup has been removed to prevent memory leaks.
+// In production, trigger cleanupExpiredPasswordResetTokens() via:
+// 1. API route with cron job (recommended): app/api/cron/cleanup-tokens/route.ts
+// 2. External cron service calling your API

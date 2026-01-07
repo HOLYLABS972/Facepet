@@ -35,7 +35,7 @@ export function queueEmail(
   };
 
   emailQueue.push(queuedEmail);
-  
+
   // Process immediately if not already processing
   if (!processing.has('processor')) {
     processQueue();
@@ -88,9 +88,9 @@ async function processEmail(queuedEmail: QueuedEmail): Promise<void> {
 
   try {
     queuedEmail.attempts++;
-    
+
     console.log(`Processing email ${queuedEmail.id}, attempt ${queuedEmail.attempts}`);
-    
+
     const result: EmailResult = await sendEmail({
       to: queuedEmail.to,
       subject: queuedEmail.subject,
@@ -124,7 +124,7 @@ async function processEmail(queuedEmail: QueuedEmail): Promise<void> {
     }
   } catch (error) {
     console.error(`Error processing email ${queuedEmail.id}:`, error);
-    
+
     // Handle unexpected errors
     if (queuedEmail.attempts >= queuedEmail.maxAttempts) {
       const index = emailQueue.findIndex(e => e.id === queuedEmail.id);
@@ -157,14 +157,14 @@ export function getQueueStatus() {
 export function clearOldEmails(maxAge: number = 24 * 60 * 60 * 1000): number {
   const cutoff = Date.now() - maxAge;
   const initialLength = emailQueue.length;
-  
+
   for (let i = emailQueue.length - 1; i >= 0; i--) {
     const email = emailQueue[i];
     if (email.createdAt < cutoff && email.attempts >= email.maxAttempts) {
       emailQueue.splice(i, 1);
     }
   }
-  
+
   return initialLength - emailQueue.length;
 }
 
@@ -179,16 +179,20 @@ function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Start queue processor
+// Start queue processor on first email
 if (typeof window === 'undefined') {
   // Only run on server side
-  processQueue();
-  
-  // Clean up old emails every hour
-  setInterval(() => {
-    const cleared = clearOldEmails();
-    if (cleared > 0) {
-      console.log(`Cleared ${cleared} old emails from queue`);
-    }
-  }, 60 * 60 * 1000);
+  // Note: processQueue() is called automatically when emails are queued
+  // Automatic cleanup interval has been removed to prevent memory leaks.
+  // 
+  // To clean up old emails in production, create an API route:
+  // app/api/cron/cleanup-emails/route.ts
+  // 
+  // Example:
+  // export async function GET() {
+  //   const cleared = clearOldEmails();
+  //   return Response.json({ cleared });
+  // }
+  //
+  // Then trigger it with a cron service (Vercel Cron, GitHub Actions, etc.)
 }
