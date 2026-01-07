@@ -106,20 +106,90 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Listen to auth state changes
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user?.email) {
-        getUserByEmail(session.user.email).then(setDbUser);
+        const dbUserData = await getUserByEmail(session.user.email);
+
+        // If user doesn't exist in database but is authenticated (OAuth user), create them
+        if (!dbUserData && session.user) {
+          console.log('🔍 OAuth user not found in database, creating record...');
+          const fullName = session.user.user_metadata?.full_name ||
+            session.user.user_metadata?.name ||
+            session.user.email?.split('@')[0] ||
+            'User';
+          const avatarUrl = session.user.user_metadata?.avatar_url ||
+            session.user.user_metadata?.picture ||
+            null;
+
+          try {
+            await upsertUser({
+              email: session.user.email,
+              full_name: fullName,
+              display_name: fullName,
+              phone: '',
+              address: '',
+              role: getUserRole(session.user.email),
+              language: 'en',
+              accept_cookies: false,
+              avatar_url: avatarUrl,
+            });
+
+            // Fetch the newly created user
+            const newDbUser = await getUserByEmail(session.user.email);
+            setDbUser(newDbUser);
+            console.log('✅ OAuth user created in database');
+          } catch (error) {
+            console.error('Error creating OAuth user in database:', error);
+          }
+        } else {
+          setDbUser(dbUserData);
+        }
       }
       setLoading(false);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log('Supabase Auth state changed:', session?.user);
       setUser(session?.user ?? null);
       if (session?.user?.email) {
-        getUserByEmail(session.user.email).then(setDbUser);
+        const dbUserData = await getUserByEmail(session.user.email);
+
+        // If user doesn't exist in database but is authenticated (OAuth user), create them
+        if (!dbUserData && session.user) {
+          console.log('🔍 OAuth user not found in database, creating record...');
+          const fullName = session.user.user_metadata?.full_name ||
+            session.user.user_metadata?.name ||
+            session.user.email?.split('@')[0] ||
+            'User';
+          const avatarUrl = session.user.user_metadata?.avatar_url ||
+            session.user.user_metadata?.picture ||
+            null;
+
+          try {
+            await upsertUser({
+              email: session.user.email,
+              full_name: fullName,
+              display_name: fullName,
+              phone: '',
+              address: '',
+              role: getUserRole(session.user.email),
+              language: 'en',
+              accept_cookies: false,
+              avatar_url: avatarUrl,
+            });
+
+            // Fetch the newly created user
+            const newDbUser = await getUserByEmail(session.user.email);
+            setDbUser(newDbUser);
+            console.log('✅ OAuth user created in database');
+          } catch (error) {
+            console.error('Error creating OAuth user in database:', error);
+          }
+        } else {
+          setDbUser(dbUserData);
+        }
       } else {
         setDbUser(null);
       }
