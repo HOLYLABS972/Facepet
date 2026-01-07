@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
                 // Get user metadata from OAuth provider
                 const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
-                const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+                const profileImage = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
 
                 // Create or update user in database
                 try {
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
                         role: 'user', // All OAuth users get 'user' role by default
                         language: 'en',
                         accept_cookies: cookiePreference,
-                        avatar_url: avatarUrl,
+                        profile_image: profileImage,
                     });
 
                     console.log('✅ OAuth user created/updated in database:', user.email);

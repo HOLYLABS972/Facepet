@@ -15,7 +15,6 @@ export interface User {
     created_at: string;
     updated_at: string;
     accept_cookies?: boolean;
-    avatar_url?: string;
     is_restricted?: boolean;
     restriction_reason?: string;
     coordinates?: { lat: number; lng: number };
