@@ -19,21 +19,8 @@ const middleware = (req: NextRequest) => {
     console.log('Admin route accessed:', pathname);
   }
 
-  // Handle POST requests to page routes (from prefetching, etc.)
-  // Return 200 OK to prevent 405 errors
+  // Allow all POST requests - return 200 OK to prevent 405 errors
   if (method === 'POST') {
-    // Check if this is an API route or Server Action
-    const isApiRoute = pathname.startsWith('/api');
-    const isServerAction = req.headers.get('content-type')?.includes('action') ||
-                           req.headers.get('next-action');
-
-    // Allow API routes and Server Actions to pass through
-    if (isApiRoute || isServerAction) {
-      return NextResponse.next();
-    }
-
-    // For POST requests to page routes, return a success response
-    // This handles Next.js prefetching POST requests
     return NextResponse.json(
       {
         success: true,
