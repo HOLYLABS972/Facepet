@@ -160,8 +160,8 @@ const Navbar = () => {
             'bg-white'
           )}
         >
-        <div className="mx-auto max-w-7xl w-full px-4 md:px-6 relative">
-            <div className="flex h-16 items-center justify-between rtl:flex-row-reverse">
+          <div className="mx-auto max-w-7xl w-full px-4 md:px-6 relative" dir="ltr">
+            <div className="flex h-16 items-center justify-between">
               <div className="h-8 w-8" />
             </div>
           </div>
@@ -181,8 +181,8 @@ const Navbar = () => {
           'bg-white'
         )}
       >
-        <div className="mx-auto max-w-7xl w-full px-4 md:px-6">
-          <div className="flex h-14 sm:h-16 items-center justify-between rtl:flex-row-reverse flex-nowrap">
+        <div className="mx-auto max-w-7xl w-full px-4 md:px-6" dir="ltr">
+          <div className="flex h-14 sm:h-16 items-center justify-between flex-nowrap">
             {/* Brand / Logo */}
             <Link href="/" className="flex-shrink-0 flex items-center">
               <Image
@@ -218,7 +218,7 @@ const Navbar = () => {
                       <ShoppingBag className="h-3.5 w-3.5" />
                       <span className="text-center">{t('chapizStore')}</span>
                     </Button>
-                    
+
                     {/* Burger menu - Mobile */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -412,7 +412,7 @@ const Navbar = () => {
                       <ShoppingBag className="h-3.5 w-3.5" />
                       <span className="text-center">{t('chapizStore')}</span>
                     </Button>
-                    
+
                     {/* Burger menu - Mobile */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
