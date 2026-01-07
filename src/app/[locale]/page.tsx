@@ -256,18 +256,18 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   const [hasFallen, setHasFallen] = useState(false);
 
   // Detect mobile - initialize correctly to avoid flash
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 640;
-    }
-    return false;
-  });
+  // Detect mobile - initialize to false for consistency with server/SSR
+  const [isMobile, setIsMobile] = useState(false);
 
   // Update on resize
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640); // sm breakpoint
     };
+
+    // Initial check
+    checkMobile();
+
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -435,58 +435,7 @@ const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
   );
 };
 
-const AnimatedPet = ({ pet }: AnimatedPetProps) => {
-  // Use the containerRef to track scroll inside that container.
-  const { scrollY } = useScroll();
-  const xLargeScreen = 300;
-  const yChangeValue = 600;
-  const xChangeValue = 650;
-  // Map scroll range [0, 1200] to a horizontal offset.
-  const offsetY = pet.isTop ? -100 : pet.isMiddle ? 0 : yChangeValue;
-  const offsetX = pet.isRight
-    ? pet.isMiddle
-      ? -xChangeValue - 700
-      : -xChangeValue
-    : pet.isMiddle
-      ? xChangeValue + 500
-      : xChangeValue;
 
-  const x = useTransform(scrollY, [0, 2000], [0, offsetX]);
-  const y = useTransform(scrollY, [0, 2000], [0, offsetY]);
-
-  return (
-    <motion.img
-      src={pet.src} // Fixed: removed extra .src
-      alt={pet.alt}
-      width={pet.size}
-      height={pet.size}
-      className="object-cover"
-      style={{
-        x,
-        y,
-        position: 'absolute',
-        top: `calc(${pet.top}px)`,
-        ...(pet.isRight
-          ? {
-            right: `calc(50% + ${pet.right}px)`
-          }
-          : {
-            left: `calc(50% - ${pet.right}px)`
-          }),
-        willChange: 'transform'
-      }}
-      animate={{
-        rotate: [0, -5, 5, -5, 0], // Rotating effect
-        transition: {
-          duration: 6,
-          ease: 'easeInOut',
-          repeat: Infinity,
-          delay: 0.1 * pet.id
-        }
-      }}
-    />
-  );
-};
 
 const ProductHighlights = () => {
   const t = useTranslations('components.ProductHighlights');

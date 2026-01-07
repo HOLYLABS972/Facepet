@@ -22,20 +22,7 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
   const { user, loading } = useAuth();
 
   // Remove background for non-authenticated users
-  useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        document.body.classList.add('no-background');
-      } else {
-        document.body.classList.remove('no-background');
-      }
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.classList.remove('no-background');
-    };
-  }, [user, loading]);
+  // Body background class manipulation removed to prevent layout thrashing on mobile
 
   // Show bottom navigation on mobile for all users
   const showBottomNav = true;
