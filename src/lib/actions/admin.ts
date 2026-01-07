@@ -6,7 +6,6 @@
 // This file exists only to prevent build errors
 
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
-import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
 import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData, CreateFilterData, UpdateFilterData } from '@/types/promo';
 import { createServerClient } from '@/lib/supabase/server';
 
