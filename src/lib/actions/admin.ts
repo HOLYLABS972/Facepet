@@ -135,6 +135,26 @@ export async function getBusinesses() {
   return [];
 }
 
+export async function getBusinessById(id: string) {
+  console.warn('getBusinessById is a stub using Supabase');
+  return null;
+}
+
+export async function getPromos() {
+  console.warn('getPromos is a stub using Supabase');
+  return [];
+}
+
+export async function getPromoById(id: string) {
+  console.warn('getPromoById is a stub using Supabase');
+  return null;
+}
+
+export async function getAdById(id: string) {
+  console.warn('getAdById is a stub using Supabase');
+  return null;
+}
+
 export async function getAllComments() {
   console.warn('getAllComments is a stub using Supabase');
   return [];

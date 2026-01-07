@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 const CLICK_COUNT_KEY = 'ad_click_count';
 const CLICK_THRESHOLD = 15;
@@ -9,10 +10,20 @@ const CLICK_DEBOUNCE_MS = 100; // Prevent rapid clicks from counting multiple ti
 
 export function useClickTracker() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [clickCount, setClickCount] = useState(0);
   const [shouldShowAd, setShouldShowAd] = useState(false);
   const lastClickTimeRef = useRef<number>(0);
   const isTrackingRef = useRef<boolean>(true);
+
+  // Return disabled state if user is not authenticated
+  if (!user) {
+    return {
+      clickCount: 0,
+      shouldShowAd: false,
+      resetAdFlag: () => {}
+    };
+  }
 
   // Check if we're on a pet profile page (disable click tracking here)
   const isPetProfilePage = pathname?.match(/\/pet\/[^\/]+$/) !== null;

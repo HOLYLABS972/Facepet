@@ -7,14 +7,21 @@ import { fetchRandomAd } from '@/lib/actions/ads-server';
 import AdFullPage from './get-started/AdFullPage';
 import { usePathname } from 'next/navigation';
 import { getYouTubeVideoId } from '@/lib/utils/youtube';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdDisplayManager() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const { shouldShowAd, resetAdFlag } = useClickTracker();
   const { petId } = usePetId();
   const [ad, setAd] = useState<any | null>(null);
   const [showAd, setShowAd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Don't show ads for non-authenticated users
+  if (!user) {
+    return null;
+  }
 
   // Check if we're on a pet profile page (don't show click-based ads here)
   const isPetProfilePage = pathname?.match(/\/pet\/[^\/]+$/) !== null;
