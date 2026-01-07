@@ -4,6 +4,9 @@ import { supabase } from '@/src/lib/supabase/client';
 import { markCouponAsUsed } from '@/src/lib/supabase/database/coupons';
 import { addPointsToUserByUid } from '@/src/lib/supabase/database/points-server';
 
+// Mark this route as dynamic since it handles callbacks with query parameters
+export const dynamic = 'force-dynamic';
+
 // Validation schema for shop callback
 const shopCallbackSchema = z.object({
   userid: z.string().min(1, 'User ID is required'),
@@ -75,9 +78,9 @@ export async function POST(request: NextRequest) {
     
     // Validate the request body
     const validatedData = shopCallbackSchema.parse(body);
-    
+
     // Extract token from query params if not in body (for unique callbacks)
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const token = validatedData.token || searchParams.get('token');
     
     // Log the callback for debugging
@@ -202,8 +205,8 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    
+    const searchParams = request.nextUrl.searchParams;
+
     // Extract parameters from query string
     const callbackData = {
       userid: searchParams.get('userid'),

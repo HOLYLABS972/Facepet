@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { autocomplete } from '@/src/lib/google';
 
+// Mark this route as dynamic since it depends on query parameters
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const input = searchParams.get('input');
     const language = searchParams.get('language') || 'en';
 

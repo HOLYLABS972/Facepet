@@ -3,8 +3,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { upsertUser } from '@/src/lib/supabase/database/users';
 
+// Mark this route as dynamic since it's an OAuth callback
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
-    const requestUrl = new URL(request.url);
+    const requestUrl = request.nextUrl;
     const code = requestUrl.searchParams.get('code');
     const next = requestUrl.searchParams.get('next') ?? '/';
 
@@ -26,7 +29,7 @@ export async function GET(request: NextRequest) {
 
             if (sessionError) {
                 console.error('Error exchanging code for session:', sessionError);
-                return NextResponse.redirect(new URL('/auth?error=oauth_failed', requestUrl.origin));
+                return NextResponse.redirect(new URL('/auth?error=oauth_failed', requestUrl));
             }
 
             if (session?.user) {
@@ -62,13 +65,13 @@ export async function GET(request: NextRequest) {
             }
 
             // Redirect to the next URL or home page
-            return NextResponse.redirect(new URL(next, requestUrl.origin));
+            return NextResponse.redirect(new URL(next, requestUrl));
         } catch (error) {
             console.error('OAuth callback error:', error);
-            return NextResponse.redirect(new URL('/auth?error=oauth_failed', requestUrl.origin));
+            return NextResponse.redirect(new URL('/auth?error=oauth_failed', requestUrl));
         }
     }
 
     // No code provided, redirect to auth page
-    return NextResponse.redirect(new URL('/auth', requestUrl.origin));
+    return NextResponse.redirect(new URL('/auth', requestUrl));
 }
