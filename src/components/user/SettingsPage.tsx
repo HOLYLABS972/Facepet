@@ -365,6 +365,8 @@ export default function SettingsPage() {
       } else {
         // Also update Firebase Auth profile if displayName was changed
         if (formData.fullName && formData.fullName !== user.displayName) {
+          // Firebase Auth update temporarily disabled due to dependency removal
+          /*
           try {
             const { updateProfile } = await import('firebase/auth');
             await updateProfile(user, {
@@ -375,6 +377,7 @@ export default function SettingsPage() {
             console.error('Failed to update Firebase Auth displayName:', authError);
             // Don't show error to user since Firestore was updated successfully
           }
+          */
         }
 
         if (showToast) {
@@ -444,6 +447,14 @@ export default function SettingsPage() {
 
     setDeletingAccount(true);
     try {
+      // Firebase dependency removed. TODO: Implement Supabase deletion logic.
+      console.warn('Account deletion temporarily unavailable during migration.');
+      toast.error('Account deletion is temporarily unavailable. Please contact support.');
+      setDeletingAccount(false);
+      setShowDeletionVerification(false);
+      return;
+
+      /*
       // Delete user data from Firestore collections
       const { deleteDoc, doc, collection, query, where, getDocs } = await import('firebase/firestore');
       const { db } = await import('@/src/lib/firebase/config');
@@ -498,7 +509,7 @@ export default function SettingsPage() {
 
       // Redirect to landing page
       window.location.href = '/';
-
+      */
     } catch (error: any) {
       console.error('Error deleting account data:', error);
       toast.error('Failed to delete account data. Please try again.');
@@ -651,8 +662,8 @@ export default function SettingsPage() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${uploadProgress.status === 'completed' ? 'bg-green-500' :
-                            uploadProgress.status === 'error' ? 'bg-red-500' :
-                              'bg-primary'
+                          uploadProgress.status === 'error' ? 'bg-red-500' :
+                            'bg-primary'
                           }`}
                         style={{ width: `${uploadProgress.progress}%` }}
                       />

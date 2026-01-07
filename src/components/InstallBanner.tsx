@@ -37,11 +37,11 @@ export default function InstallBanner() {
     setIsMac(/Macintosh|Mac OS X/i.test(userAgent) && !/iPhone|iPad|iPod/i.test(userAgent));
     setIsAndroid(/Android/i.test(userAgent));
 
-    // USER REQUEST: Disable install banner on iOS
-    if (/iPhone|iPad|iPod/i.test(userAgent)) {
-      console.log('InstallBanner: iOS detected, hiding banner as per configuration');
-      return;
-    }
+    // USER REQUEST: Disable install banner on iOS (REMOVED to enable iOS banner)
+    // if (/iPhone|iPad|iPod/i.test(userAgent)) {
+    //   console.log('InstallBanner: iOS detected, hiding banner as per configuration');
+    //   return;
+    // }
 
     // Check if user dismissed the banner before
     if (typeof window !== 'undefined') {

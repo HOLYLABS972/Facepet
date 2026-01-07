@@ -78,8 +78,7 @@ const nextConfig = {
   // Experimental features
   experimental: {
     optimizeCss: false,
-    scrollRestoration: true,
-    serverActions: true
+    scrollRestoration: true
   }
 };
 
