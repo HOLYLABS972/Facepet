@@ -6,7 +6,9 @@
 // This file exists only to prevent build errors
 
 import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
+import { CreateCouponData, UpdateCouponData } from '@/types/coupon';
 import { CreateAudienceData, CreateBusinessData, CreatePromoData, UpdateAudienceData, UpdateBusinessData, UpdatePromoData, CreateFilterData, UpdateFilterData } from '@/types/promo';
+import { createServerClient } from '@/lib/supabase/server';
 
 console.warn('⚠️ Admin actions are using stubs - Firebase has been removed. Please rewrite for Supabase.');
 
@@ -36,6 +38,26 @@ export async function updateUser(id: string, data: any) {
 
 export async function deleteUser(id: string) {
   throw new Error('Admin functions need to be rewritten for Supabase');
+}
+
+export async function updateUserRole(id: string, role: string) {
+  console.warn('updateUserRole is a stub using Supabase');
+  return { success: true };
+}
+
+export async function restrictUser(id: string, reason: string) {
+  console.warn('restrictUser is a stub using Supabase');
+  return { success: true };
+}
+
+export async function unrestrictUser(id: string) {
+  console.warn('unrestrictUser is a stub using Supabase');
+  return { success: true };
+}
+
+export async function addPointsToUser(id: string, points: number, category?: string) {
+  console.warn('addPointsToUser is a stub using Supabase');
+  return { success: true };
 }
 
 export async function getAllBusinesses() {
@@ -116,6 +138,21 @@ export async function createCoupon(data: CreateCouponData) {
   throw new Error('createCoupon needs to be rewritten for Supabase');
 }
 
+export async function getCoupons() {
+  console.warn('getCoupons is a stub using Supabase');
+  return {
+    success: true,
+    coupons: []
+  };
+}
+
+export async function getCouponById(id: string) {
+  console.warn('getCouponById is a stub using Supabase');
+  return {
+    success: true,
+    coupon: null
+  };
+}
 
 // Add more stub functions as needed
 // TODO: Rewrite all admin functions to use Supabase
@@ -179,4 +216,42 @@ export async function getCommentsForAd(adId: string) {
 export async function submitComment(data: any) {
   console.warn('submitComment is a stub using Supabase');
   return { success: true };
+}
+
+export async function getPetsByUserEmail(email: string) {
+  try {
+    const supabase = await createServerClient();
+
+    // Fetch pets with breed and gender joins
+    const { data: pets, error } = await supabase
+      .from('pets')
+      .select(`
+        *,
+        breed:breeds(en, he),
+        gender:genders(en, he)
+      `)
+      .eq('user_email', email);
+
+    if (error) {
+      console.error('Error fetching pets:', error);
+      return [];
+    }
+
+    // Map to Pet interface expected by client
+    return (pets || []).map((pet: any) => ({
+      id: pet.id,
+      name: pet.name,
+      type: 'Pet', // Type information is currently missing in schema association
+      breed: pet.breed?.en || 'Unknown',
+      gender: pet.gender?.en || 'Unknown',
+      weight: 'N/A', // Weight is missing in schema
+      imageUrl: pet.image_url,
+      ownerName: '', // Not needed as we filtering by user and hiding owner column
+      ownerId: pet.owner_id || '',
+      createdAt: new Date(pet.created_at)
+    }));
+  } catch (error) {
+    console.error('Exception in getPetsByUserEmail:', error);
+    return [];
+  }
 }
