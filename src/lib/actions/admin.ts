@@ -283,9 +283,9 @@ export async function getRecentActivity() {
   return [];
 }
 
-export async function getAllAds() {
+export async function getAllAds(page?: number, limit?: number) {
   console.warn('getAllAds is a stub using Supabase');
-  return [];
+  return { ads: [] };
 }
 
 export async function getFilters() {
@@ -329,6 +329,16 @@ export async function updateContactInfo(data: any) {
   throw new Error('updateContactInfo needs to be rewritten for Supabase');
 }
 
+export async function deleteContactSubmission(id: string) {
+  console.warn('deleteContactSubmission is a stub using Supabase');
+  return { success: true };
+}
+
+export async function updateContactSubmissionReadStatus(id: string, isRead: boolean) {
+  console.warn('updateContactSubmissionReadStatus is a stub using Supabase');
+  return { success: true };
+}
+
 export async function createAudience(data: CreateAudienceData) {
   throw new Error('createAudience needs to be rewritten for Supabase');
 }
@@ -344,4 +354,12 @@ export async function deleteAudience(id: string) {
 export async function getAudiences() {
   console.warn('getAudiences is a stub using Supabase');
   return [];
+}
+
+export async function updatePetField(id: string, field: string, value: any) {
+  throw new Error('updatePetField needs to be rewritten for Supabase');
+}
+
+export async function deletePet(id: string) {
+  throw new Error('deletePet needs to be rewritten for Supabase');
 }
