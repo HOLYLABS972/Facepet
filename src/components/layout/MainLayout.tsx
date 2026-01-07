@@ -47,7 +47,7 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
         {!isAdminRoute && <InstallBanner />}
         <div className={`flex min-h-dvh flex-col ${!isAdminRoute ? 'pt-16' : ''}`} id="main-content">
           <Toaster />
-          {!isAdminRoute && <AdDisplayManager />}
+          {/* {!isAdminRoute && <AdDisplayManager />} */}
           {children}
         </div>
         {showBottomNav && !isAdminRoute && <BottomNavigation />}

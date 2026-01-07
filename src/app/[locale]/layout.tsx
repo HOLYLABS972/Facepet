@@ -62,8 +62,8 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={direction} suppressHydrationWarning={true}>
-      <body 
-        className={`${rubik.className} antialiased`} 
+      <body
+        className={`${rubik.className} antialiased`}
         suppressHydrationWarning={true}
         data-testim-main-word-scripts-loaded="false"
       >
@@ -73,7 +73,7 @@ export default async function LocaleLayout({
             <GoogleSignupHandler />
           </NextIntlClientProvider>
         </AppProviders>
-        <AnalyticsWrapper />
+        {/* <AnalyticsWrapper /> */}
       </body>
     </html>
   );
