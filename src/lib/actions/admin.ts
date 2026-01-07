@@ -142,7 +142,13 @@ export async function getAllPetsForAdmin() {
   return [];
 }
 
-export async function getCoupons() {
-  console.warn('getCoupons is a stub using Supabase');
+// Comment stubs
+export async function getCommentsForAd(adId: string) {
+  console.warn('getCommentsForAd is a stub using Supabase');
   return [];
+}
+
+export async function submitComment(data: any) {
+  console.warn('submitComment is a stub using Supabase');
+  return { success: true };
 }

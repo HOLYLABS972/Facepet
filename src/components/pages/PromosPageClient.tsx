@@ -58,7 +58,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
       const usedSet = new Set<string>();
       await Promise.all(
         promos.map(async (promo) => {
-          const used = await isPromoUsed(user.uid, promo.id);
+          const used = await isPromoUsed(user.id, promo.id);
           if (used) {
             usedSet.add(promo.id);
           }
@@ -67,7 +67,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
       setUsedPromoIds(usedSet);
 
       // Get all used promos for history
-      const usedPromosResult = await getUserUsedPromos(user.uid);
+      const usedPromosResult = await getUserUsedPromos(user.id);
       console.log('Used promos result:', usedPromosResult);
       if (usedPromosResult.success && usedPromosResult.promos) {
         console.log(`Setting ${usedPromosResult.promos.length} used promos`);
@@ -128,7 +128,7 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
 
   const handleShare = async (promo: Promo) => {
     if (!couponUrl) return;
-    
+
     const shareUrl = couponUrl;
     const shareData = {
       title: promo.name,
@@ -190,10 +190,12 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
       {promo.youtubeUrl ? (
         <div className="relative w-full h-48">
           {getYouTubeThumbnailUrl(promo.youtubeUrl) ? (
-            <img
+            <Image
               src={getYouTubeThumbnailUrl(promo.youtubeUrl) || ''}
               alt={promo.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -219,10 +221,12 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
         </div>
       ) : promo.imageUrl && (
         <div className="relative w-full h-48">
-          <img
+          <Image
             src={promo.imageUrl}
             alt={promo.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           {/* Date Overlay */}
           {promo.endDate && (
@@ -298,10 +302,12 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
       {userPromo.promo.youtubeUrl ? (
         <div className="relative w-full h-48">
           {getYouTubeThumbnailUrl(userPromo.promo.youtubeUrl) ? (
-            <img
+            <Image
               src={getYouTubeThumbnailUrl(userPromo.promo.youtubeUrl) || ''}
               alt={userPromo.promo.name}
-              className="w-full h-full object-cover grayscale"
+              fill
+              className="object-cover grayscale"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center grayscale">
@@ -318,10 +324,12 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
         </div>
       ) : userPromo.promo.imageUrl && (
         <div className="relative w-full h-48">
-          <img
+          <Image
             src={userPromo.promo.imageUrl}
             alt={userPromo.promo.name}
-            className="w-full h-full object-cover grayscale"
+            fill
+            className="object-cover grayscale"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
       )}
@@ -404,11 +412,13 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               {business?.imageUrl && (
-                <div className="w-16 h-16 rounded-lg overflow-hidden">
-                  <img
+                <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                  <Image
                     src={business.imageUrl}
                     alt={business.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="64px"
                   />
                 </div>
               )}
@@ -557,10 +567,12 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
                   </div>
                 ) : selectedPromo.imageUrl && (
                   <div className="relative w-full h-64 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={selectedPromo.imageUrl}
                       alt={selectedPromo.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 800px"
                     />
                   </div>
                 )}

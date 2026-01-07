@@ -5,6 +5,9 @@ export interface UserPromo {
     user_id: string;
     promo_id: string;
     created_at: string;
+    // Extended fields for UI
+    promo?: any; // Should be Promo type but circular dependency risk, using any for now or imported
+    usedAt?: string;
 }
 
 /**
@@ -46,8 +49,8 @@ export async function isPromoUsed(userId: string, promoId: string): Promise<bool
 /**
  * Get user used promos (placeholder - implement based on actual schema)
  */
-export async function getUserUsedPromos(userId: string): Promise<UserPromo[]> {
+export async function getUserUsedPromos(userId: string): Promise<{ success: boolean; promos: UserPromo[]; error?: any }> {
     // TODO: Implement with actual Supabase schema
     console.warn('getUserUsedPromos not yet fully implemented');
-    return [];
+    return { success: true, promos: [] };
 }

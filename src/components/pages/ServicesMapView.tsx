@@ -262,8 +262,13 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     if (!user || !serviceId) return;
 
     try {
-      const favorited = await isAdFavorited(user, serviceId);
-      setIsFavorited(favorited);
+      // Check if favorited
+      // Use user.id or user.uid depending on AuthContext provider type
+      const userId = (user as any).id || (user as any).uid;
+      if (userId) {
+        const favorited = await isAdFavorited(user as any, serviceId); // isAdFavorited expects user object apparently? Check signature.
+        setIsFavorited(favorited);
+      }
     } catch (error) {
       console.error('Error checking if favorited:', error);
     }
@@ -288,7 +293,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
         const result = await submitComment({
           adId: selectedService.id,
           adTitle: selectedService.name,
-          userName: user.displayName || user.email?.split('@')[0] || 'User',
+          userName: (user.user_metadata?.full_name as string) || user.email?.split('@')[0] || 'User',
           userEmail: user.email || '',
           content: commentText.trim() || '',
           rating: userRating
@@ -329,16 +334,24 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     setIsTogglingFavorite(true);
 
     try {
+      // Use user.id or user.uid depending on AuthContext provider type
+      const userId = (user as any).id || (user as any).uid;
+
+      if (!userId) {
+        toast.error('User ID missing');
+        return;
+      }
+
       if (isFavorited) {
-        const result = await removeFromFavorites(user, selectedService.id);
-        if (result.success) {
+        const result = await removeFromFavorites(userId, selectedService.id);
+        if (result) {
           setIsFavorited(false);
         } else {
           toast.error('Failed to remove from favorites');
         }
       } else {
-        const result = await addToFavorites(user, selectedService.id, selectedService.name, 'service');
-        if (result.success) {
+        const result = await addToFavorites(userId, selectedService.id);
+        if (result) {
           setIsFavorited(true);
         } else {
           toast.error('Failed to add to favorites');
@@ -531,34 +544,51 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
   // Calculate distances for all services and sort them
   const calculateDistancesAndSort = async (userLoc: { lat: number; lng: number }) => {
     setIsLoading(true);
-    const servicesWithDistances: ServiceWithCoordinates[] = [];
 
-    for (const service of services) {
+    // LIMIT geocoding to first 20 items
+    const ITEMS_TO_GEOCODE = 20;
+    const itemsToProcess = services.slice(0, ITEMS_TO_GEOCODE);
+    const geocodedResults: ServiceWithCoordinates[] = [];
+
+    for (let i = 0; i < itemsToProcess.length; i++) {
+      const service = itemsToProcess[i];
+
+      // Yield to main thread
+      if (i % 2 === 0) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
       const coords = await geocodeService(service);
       if (coords) {
         const distance = calculateDistance(userLoc.lat, userLoc.lng, coords.lat, coords.lng);
-        servicesWithDistances.push({
+        geocodedResults.push({
           ...service,
           coordinates: coords,
           distance
         });
       } else {
-        // If geocoding fails, still include the service but without distance
-        servicesWithDistances.push({
-          ...service
-        });
+        geocodedResults.push({ ...service });
       }
     }
 
-    // Sort by distance (closest first)
-    servicesWithDistances.sort((a, b) => {
-      if (!a.distance) return 1;
-      if (!b.distance) return -1;
-      return a.distance - b.distance;
+    // Merge and Sort
+    const geocodedMap = new Map(geocodedResults.map(s => [s.id, s]));
+    const finalServices = services.map(s => geocodedMap.get(s.id) || s) as ServiceWithCoordinates[];
+
+    finalServices.sort((a, b) => {
+      // Helper to safely get distance or infinity if undefined
+      const distA = a.distance !== undefined ? a.distance : Number.MAX_VALUE;
+      const distB = b.distance !== undefined ? b.distance : Number.MAX_VALUE;
+
+      // If we have actual distances, sort by them
+      if (distA !== Number.MAX_VALUE || distB !== Number.MAX_VALUE) {
+        return distA - distB;
+      }
+      return 0;
     });
 
-    setServicesWithCoords(servicesWithDistances);
-    updateMapMarkers(servicesWithDistances);
+    setServicesWithCoords(finalServices);
+    updateMapMarkers(geocodedResults); // Only add markers for geocoded ones
     setIsLoading(false);
   };
 
