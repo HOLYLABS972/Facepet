@@ -30,42 +30,6 @@ const nextConfig = {
         ...config.optimization,
         moduleIds: 'deterministic',
         runtimeChunk: 'single',
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            // Vendor chunk for node_modules
-            vendor: {
-              name: 'vendor',
-              chunks: 'all',
-              test: /node_modules/,
-              priority: 20,
-            },
-            // Common chunk for shared code
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              priority: 10,
-              reuseExistingChunk: true,
-              enforce: true,
-            },
-            // Separate chunk for large libraries
-            firebase: {
-              name: 'firebase',
-              test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
-              chunks: 'all',
-              priority: 30,
-            },
-            radix: {
-              name: 'radix',
-              test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
-              chunks: 'all',
-              priority: 25,
-            },
-          },
-        },
       };
     }
     return config;
@@ -113,7 +77,7 @@ const nextConfig = {
   },
   // Experimental features
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
     scrollRestoration: true,
     serverActions: true
   }
