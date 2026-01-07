@@ -435,18 +435,20 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
               map.setZoom(8);
             }
 
-            // Add user location marker
-            new window.google.maps.Marker({
+            // Add user location marker using AdvancedMarkerElement
+            const userLocationElement = document.createElement('div');
+            userLocationElement.className = 'user-location-marker';
+            userLocationElement.style.width = '16px';
+            userLocationElement.style.height = '16px';
+            userLocationElement.style.backgroundColor = '#4285F4';
+            userLocationElement.style.borderRadius = '50%';
+            userLocationElement.style.border = '2px solid white';
+            userLocationElement.style.boxShadow = '0 0 5px rgba(0,0,0,0.3)';
+
+            new window.google.maps.marker.AdvancedMarkerElement({
               position: location,
               map: map,
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 8,
-                fillColor: '#4285F4',
-                fillOpacity: 1,
-                strokeColor: '#ffffff',
-                strokeWeight: 2
-              },
+              content: userLocationElement,
               title: 'Your Location'
             });
           }
@@ -605,13 +607,10 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     servicesData.forEach((service) => {
       if (!service.coordinates) return;
 
-      const marker = new window.google.maps.Marker({
+      const marker = new window.google.maps.marker.AdvancedMarkerElement({
         position: service.coordinates,
         map: mapToUse,
         title: service.name,
-        icon: {
-          url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-        }
       });
 
       // Create info window content
@@ -771,7 +770,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
       }
 
       script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initServicesMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&callback=initServicesMap`;
       script.async = true;
       script.defer = true;
       script.setAttribute('data-services-map', 'true');
@@ -809,6 +808,7 @@ const ServicesMapView: React.FC<ServicesMapViewProps> = ({ services, headerConte
     const mapInstance = new window.google.maps.Map(mapRef.current, {
       center: defaultCenter,
       zoom: 8,
+      mapId: "DEMO_MAP_ID",
       mapTypeControl: true,
       streetViewControl: true,
       fullscreenControl: true,

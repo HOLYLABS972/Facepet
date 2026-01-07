@@ -50,7 +50,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       // Aggressively remove any scripts with the wrong key
       const allMapsScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
       let hasBadScript = false;
-      
+
       allMapsScripts.forEach((s) => {
         const scriptSrc = (s as HTMLScriptElement).src;
         if (scriptSrc.includes(BAD_KEY)) {
@@ -91,7 +91,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
               initializeMap();
             }
           }, 100);
-          
+
           setTimeout(() => {
             if (checkInterval) {
               clearInterval(checkInterval);
@@ -113,10 +113,10 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       // Only create script if it doesn't exist and Google Maps isn't loaded
       if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&callback=initMap`;
         script.async = true;
         script.defer = true;
-        
+
         window.initMap = initializeMap;
         document.head.appendChild(script);
         console.log('✅ Loading Google Maps with key:', apiKey);
@@ -127,13 +127,13 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
 
     return () => {
       isMounted = false;
-      
+
       // Clear any intervals
       if (checkInterval) {
         clearInterval(checkInterval);
         checkInterval = null;
       }
-      
+
       // Don't remove script - it might be used by other components
       // Only clean up the callback if it's ours
       if (window.initMap === initializeMap) {
@@ -153,6 +153,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
     const mapInstance = new window.google.maps.Map(mapRef.current, {
       center: selectedCoordinates,
       zoom: 15,
+      mapId: "DEMO_MAP_ID",
       mapTypeControl: true,
       streetViewControl: true,
       fullscreenControl: true,
@@ -163,10 +164,10 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
     setGeocoder(geocoderInstance);
 
     // Create initial marker
-    const markerInstance = new window.google.maps.Marker({
+    const markerInstance = new window.google.maps.marker.AdvancedMarkerElement({
       position: selectedCoordinates,
       map: mapInstance,
-      draggable: true,
+      gmpDraggable: true,
       title: t('markerTitle')
     });
 
@@ -178,10 +179,10 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
       const newPosition = { lat, lng };
-      
-      markerInstance.setPosition(newPosition);
+
+      markerInstance.position = newPosition;
       setSelectedCoordinates(newPosition);
-      
+
       // Reverse geocode to get address
       reverseGeocode(newPosition, geocoderInstance);
     });
@@ -191,7 +192,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
       const newPosition = { lat, lng };
-      
+
       setSelectedCoordinates(newPosition);
       reverseGeocode(newPosition, geocoderInstance);
     });
@@ -221,9 +222,9 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
           lat: location.lat(),
           lng: location.lng()
         };
-        
+
         mapInstance.setCenter(coordinates);
-        markerInstance.setPosition(coordinates);
+        markerInstance.position = coordinates;
         setSelectedCoordinates(coordinates);
         setSelectedAddress(results[0].formatted_address);
         setSearchQuery(results[0].formatted_address);
@@ -267,8 +268,8 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
               disabled={isLoading}
             />
           </div>
-          <Button 
-            onClick={handleSearch} 
+          <Button
+            onClick={handleSearch}
             disabled={isLoading || !searchQuery.trim()}
             variant="outline"
           >
@@ -284,7 +285,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
       {/* Map Container */}
       <div className="flex-1 relative">
         <div ref={mapRef} className="w-full h-full" />
-        
+
         {/* Instructions Overlay */}
         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg max-w-xs">
           <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -304,7 +305,7 @@ const AddressMapSelector: React.FC<AddressMapSelectorProps> = ({
             {selectedAddress || t('noAddressSelected')}
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             onClick={handleConfirm}

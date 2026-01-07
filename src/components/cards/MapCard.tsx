@@ -37,7 +37,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
 
-  const defaultTitle = title || (businesses.length > 0 
+  const defaultTitle = title || (businesses.length > 0
     ? (t('businessLocations') || 'Business Locations')
     : (t('storeLocation') || 'Store Location'));
 
@@ -48,7 +48,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
     if (!mapRef.current) {
       console.log('⚠️ MapCard: No mapRef.current, setting mapLoaded to true');
       setMapLoaded(true);
-      return () => {};
+      return () => { };
     }
 
     isMountedRef.current = true;
@@ -57,7 +57,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
     const loadGoogleMaps = () => {
       const apiKey = googleMapsApiKey;
       const BAD_KEY = 'AIzaSyAwzQsbG0vO0JWzOs7UAyu0upW6Xc1KL4E';
-      
+
       if (!apiKey) {
         console.error('❌ Google Maps API key is not configured');
         setMapLoaded(true);
@@ -67,7 +67,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
       // Aggressively remove any scripts with the wrong key
       const allMapsScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
       let hasBadScript = false;
-      
+
       allMapsScripts.forEach((s) => {
         const scriptSrc = (s as HTMLScriptElement).src;
         if (scriptSrc.includes(BAD_KEY)) {
@@ -165,7 +165,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMapCard`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&callback=initMapCard`;
       script.async = true;
       script.defer = true;
       script.setAttribute('data-map-card', 'true');
@@ -213,13 +213,14 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
         }, 100);
         return;
       }
-      
+
       console.log('✅ MapCard: Initializing map with', businesses.length, 'businesses');
 
       const defaultCenter = { lat: 31.7683, lng: 35.2137 }; // Default to Jerusalem
       const mapInstance = new window.google.maps.Map(mapRef.current, {
         center: defaultCenter,
         zoom: 10,
+        mapId: "DEMO_MAP_ID",
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
@@ -295,14 +296,10 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
               const location = results[0].geometry.location;
               const position = { lat: location.lat(), lng: location.lng() };
 
-              const marker = new window.google.maps.Marker({
+              const marker = new window.google.maps.marker.AdvancedMarkerElement({
                 position,
                 map: mapInstance,
                 title: businessItem.name,
-                icon: {
-                  url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                  scaledSize: new window.google.maps.Size(40, 40),
-                },
               });
 
               const phoneDisplay = businessItem.contactInfo?.phone
@@ -323,7 +320,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
 
               marker.addListener('click', () => {
                 if (!isMountedRef.current) return;
-                
+
                 // Navigate directly to services page with business ID
                 if (businessItem.id) {
                   router.push(`/services?businessId=${businessItem.id}`);
@@ -342,7 +339,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
             }
           });
         });
-      } 
+      }
       // Handle single contact info
       else if (contactInfo?.address) {
         geocoder.geocode({ address: contactInfo.address }, (results, status) => {
@@ -354,14 +351,10 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
             const location = results[0].geometry.location;
             const position = { lat: location.lat(), lng: location.lng() };
 
-            const marker = new window.google.maps.Marker({
+            const marker = new window.google.maps.marker.AdvancedMarkerElement({
               position,
               map: mapInstance,
               title: contactInfo.address,
-              icon: {
-                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                scaledSize: new window.google.maps.Size(40, 40),
-              },
             });
 
             const phoneDisplay = contactInfo.phone
@@ -413,14 +406,14 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
         try {
           clearTimeout(timeoutRef.current);
           timeoutRef.current = null;
-        } catch (e) {}
+        } catch (e) { }
       }
 
       if (intervalRef.current) {
         try {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
-        } catch (e) {}
+        } catch (e) { }
       }
 
       if (window.initMapCard && initCallbackRef.current) {
@@ -428,7 +421,7 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
           if (window.initMapCard === initCallbackRef.current) {
             delete window.initMapCard;
           }
-        } catch (e) {}
+        } catch (e) { }
       }
       initCallbackRef.current = null;
       scriptRef.current = null;
@@ -446,13 +439,13 @@ export default function MapCard({ businesses = [], contactInfo, title }: MapCard
               if (item.infoWindow && typeof item.infoWindow.close === 'function') {
                 item.infoWindow.close();
               }
-            } catch (e) {}
+            } catch (e) { }
 
             try {
               if (item.marker && typeof item.marker.setMap === 'function') {
                 item.marker.setMap(null);
               }
-            } catch (e) {}
+            } catch (e) { }
           });
         }
       }
