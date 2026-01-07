@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "analyze": "ANALYZE=true npm run build",
     "clean": "rm -rf .next node_modules out build dist .vercel && find . -name '.DS_Store' -delete",
     "clean:build": "./scripts/clean-build.sh",
     "seed": "npx tsx database/seed.ts",
