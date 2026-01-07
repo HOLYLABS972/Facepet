@@ -7,19 +7,21 @@ const intlMiddleware = createMiddleware(routing);
 
 const middleware = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
-  
+
   // Check if the request is for admin routes
   const isAdminRoute = pathname.includes('/admin');
-  
+
   if (isAdminRoute) {
     // For admin routes, we'll let the client-side handle authentication
     // but we can add additional server-side checks here if needed
     // For now, we'll just pass through to the client-side auth check
     console.log('Admin route accessed:', pathname);
   }
-  
+
   // Handle internationalization for all routes
-  return intlMiddleware(req);
+  const response = intlMiddleware(req);
+  response.headers.delete('Vary');
+  return response;
 };
 
 export const config = {
