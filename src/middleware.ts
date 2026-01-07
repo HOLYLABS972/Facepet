@@ -19,9 +19,29 @@ const middleware = (req: NextRequest) => {
     console.log('Admin route accessed:', pathname);
   }
 
-  // Allow POST requests (Server Actions) to pass through without i18n redirect
+  // Handle POST requests to page routes (from prefetching, etc.)
+  // Return 200 OK to prevent 405 errors
   if (method === 'POST') {
-    return NextResponse.next();
+    // Check if this is an API route or Server Action
+    const isApiRoute = pathname.startsWith('/api');
+    const isServerAction = req.headers.get('content-type')?.includes('action') ||
+                           req.headers.get('next-action');
+
+    // Allow API routes and Server Actions to pass through
+    if (isApiRoute || isServerAction) {
+      return NextResponse.next();
+    }
+
+    // For POST requests to page routes, return a success response
+    // This handles Next.js prefetching POST requests
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'POST request acknowledged',
+        timestamp: new Date().toISOString()
+      },
+      { status: 200 }
+    );
   }
 
   // Handle internationalization for all routes
