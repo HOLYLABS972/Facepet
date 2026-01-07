@@ -24,18 +24,24 @@ export default function InstallBanner() {
     const userAgent = navigator.userAgent;
     const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(userAgent);
     const isSmallScreen = window.innerWidth <= 768; // md breakpoint
-    
+
     // Show banner on mobile devices OR small screens (for testing)
     const shouldShow = isMobileDevice || isSmallScreen;
-    
+
     if (!shouldShow) {
       console.log('InstallBanner: Not mobile device and not small screen, hiding banner');
       return;
     }
-    
+
     setIsIOS(/iPhone|iPad|iPod/i.test(userAgent));
     setIsMac(/Macintosh|Mac OS X/i.test(userAgent) && !/iPhone|iPad|iPod/i.test(userAgent));
     setIsAndroid(/Android/i.test(userAgent));
+
+    // USER REQUEST: Disable install banner on iOS
+    if (/iPhone|iPad|iPod/i.test(userAgent)) {
+      console.log('InstallBanner: iOS detected, hiding banner as per configuration');
+      return;
+    }
 
     // Check if user dismissed the banner before
     if (typeof window !== 'undefined') {
@@ -75,7 +81,7 @@ export default function InstallBanner() {
 
       const currentIsSmallScreen = window.innerWidth <= 768;
       const currentIsMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
+
       if (currentIsSmallScreen || currentIsMobileDevice) {
         // Re-check visibility on resize
         try {
@@ -121,7 +127,7 @@ export default function InstallBanner() {
       // For iOS/Mac: Download mobileconfig file via API route
       // The API route serves it with correct MIME type: application/x-apple-aspen-config
       window.open('/api/mobileconfig', '_blank');
-      
+
       // Don't hide banner immediately
     } else if (deferredPrompt) {
       // Android or Desktop: Use the deferred prompt
@@ -169,7 +175,7 @@ export default function InstallBanner() {
           <p className="text-sm font-medium">התקינו את האפליקציה של Chapiz</p>
           {(isIOS || isMac) && (
             <p className="text-xs mt-1 opacity-90">
-              {isMac 
+              {isMac
                 ? 'לחץ על "הורד" כדי להוריד את פרופיל התצורה'
                 : (
                   <>
@@ -186,15 +192,15 @@ export default function InstallBanner() {
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Always show install/download button based on OS */}
-            <Button
-              onClick={handleInstall}
-              size="sm"
-              variant="secondary"
-              className="bg-white text-primary hover:bg-gray-100"
-            >
-              <Download className="h-4 w-4 mr-1" />
+          <Button
+            onClick={handleInstall}
+            size="sm"
+            variant="secondary"
+            className="bg-white text-primary hover:bg-gray-100"
+          >
+            <Download className="h-4 w-4 mr-1" />
             {(isIOS || isMac) ? 'הורד' : 'התקן'}
-            </Button>
+          </Button>
           {/* Always show dismiss button */}
           <Button
             onClick={handleDismiss}
