@@ -108,6 +108,14 @@ export async function deleteAd(id: string) {
   throw new Error('Admin functions need to be rewritten for Supabase');
 }
 
+export async function createAd(data: any) {
+  throw new Error('createAd needs to be rewritten for Supabase');
+}
+
+export async function createCoupon(data: CreateCouponData) {
+  throw new Error('createCoupon needs to be rewritten for Supabase');
+}
+
 
 // Add more stub functions as needed
 // TODO: Rewrite all admin functions to use Supabase
