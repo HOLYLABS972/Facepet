@@ -272,6 +272,14 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // PERFORMANCE OPTIMIZATION: 
+  // If we are on mobile (small screen) and this component is ONLY used in the desktop view (hidden sm:flex),
+  // we should stop rendering to save memory/CPU.
+  // The parent `page.tsx` hides this with CSS, but React still renders it.
+  if (isMobile) {
+    return null;
+  }
+
   // Calculate floor position (bottom of section)
   const floorPosition = 350;
 
