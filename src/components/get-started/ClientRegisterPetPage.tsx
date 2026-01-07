@@ -8,8 +8,8 @@ import GetStartedProgressDots from '@/components/get-started/ui/GetStartedProgre
 import { useRouter } from '@/i18n/routing';
 import { usePetId } from '@/src/hooks/use-pet-id';
 import { useParams } from 'next/navigation';
-import { createNewPet } from '@/src/lib/firebase/client-pets';
-import { getUserFromFirestore } from '@/src/lib/firebase/users';
+import { createPetInFirestore } from '@/src/lib/supabase/database/pets';
+import { getUserFromFirestore } from '@/src/lib/supabase/database/users';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { getPetRegisterSchemas } from '@/utils/validation/petRegister';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -166,7 +166,12 @@ export default function ClientRegisterPetPage({
     setError(null);
 
     try {
-      const result = await createNewPet(petId, allFormData as any, user);
+      const result = await createPetInFirestore({
+        id: petId,
+        ...allFormData,
+        user_email: user.email,
+        owner_id: user.uid
+      } as any);
 
       if (result.success) {
         clearPetId();

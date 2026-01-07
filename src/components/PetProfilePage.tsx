@@ -13,7 +13,7 @@ import { Button } from './ui/button';
 import GiftPopup from './GiftPopup';
 import Navbar from './layout/Navbar';
 import ShareButton from './ShareButton';
-import { getBreedNameFromId, convertBreedSlugToName } from '@/src/lib/firebase/breed-utils';
+import { getBreedNameById } from '@/src/lib/supabase/database/pets';
 import { getGenders } from '@/src/lib/hardcoded-data';
 import { breedsData } from '@/src/lib/data/comprehensive-breeds';
 import AdFullPage from './get-started/AdFullPage';
@@ -176,7 +176,11 @@ export default function PetProfilePage({
     console.log('PetProfilePage - initial breedDisplay:', breedDisplay);
     
     if (pet.breedId) {
-      breedDisplay = getBreedNameFromId(String(pet.breedId), locale as 'en' | 'he');
+      // Look up breed from breedsData
+      const breed = breedsData.find(b => b.id === Number(pet.breedId));
+      if (breed) {
+        breedDisplay = locale === 'he' ? breed.he : breed.en;
+      }
       console.log('PetProfilePage - breed from ID:', breedDisplay);
     } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
       // Try to find the breed in comprehensive data and translate it

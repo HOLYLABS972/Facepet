@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { getCommentsForAd, submitComment } from '@/lib/actions/admin';
 import { useAuth } from '@/contexts/AuthContext';
-import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/lib/firebase/favorites';
+import { addToFavorites, removeFromFavorites, isAdFavorited } from '@/src/lib/supabase/database/favorites';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';

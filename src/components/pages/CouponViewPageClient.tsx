@@ -11,7 +11,7 @@ import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent } from '@/components/ui/card';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { markPromoAsUsed, isPromoUsed } from '@/lib/firebase/user-promos';
+import { markPromoAsUsed, isPromoUsed } from '@/src/lib/supabase/database/promos';
 import { motion } from 'framer-motion';
 import { getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 import QRCodeCard from '@/components/cards/QRCodeCard';

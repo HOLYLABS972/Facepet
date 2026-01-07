@@ -1,4 +1,4 @@
-import { getPetById } from '@/src/lib/firebase/simple-pets';
+import { getPetById } from '@/src/lib/supabase/database/pets';
 import { notFound } from 'next/navigation';
 import NFCScanPage from '@/components/NFCScanPage';
 import AuthGuard from '@/src/components/auth/AuthGuard';
@@ -12,9 +12,9 @@ interface TagPetPageProps {
 
 export default async function TagPet({ params }: TagPetPageProps) {
   const { id } = params;
-  
-  const result = await getPetById(id);
-  
+
+  const result = await getPetById(id, true);
+
   if (!result.success || !result.pet) {
     notFound();
   }

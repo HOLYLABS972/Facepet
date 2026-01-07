@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { updatePetField } from '@/lib/actions/admin';
-import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
+import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/supabase/database/pets';
 import { getPetTypes, getBreeds, getGenders } from '@/src/lib/hardcoded-data';
 import toast from 'react-hot-toast';
 import { useLocale } from 'next-intl';

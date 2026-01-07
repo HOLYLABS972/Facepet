@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/src/lib/firebase/config';
+import { supabase } from '@/src/lib/supabase/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,8 +14,16 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting to send password reset email to:', email);
 
-    // Send password reset email
-    await sendPasswordResetEmail(auth, email);
+    // Send password reset email using Supabase
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      console.error('Error sending password reset email:', error);
+      return NextResponse.json({
+        success: false,
+        error: error.message
+      }, { status: 500 });
+    }
 
     console.log('Password reset email sent successfully to:', email);
 
@@ -27,11 +34,10 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error sending password reset email:', error);
-    
+
     return NextResponse.json({
       success: false,
-      error: error.message,
-      code: error.code
+      error: error.message
     }, { status: 500 });
   }
 }

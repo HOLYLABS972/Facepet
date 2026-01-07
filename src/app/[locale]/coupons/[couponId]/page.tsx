@@ -4,18 +4,16 @@ import CouponViewPageClient from '@/components/pages/CouponViewPageClient';
 import { Business } from '@/types/promo';
 
 interface CouponViewPageProps {
-  params: Promise<{
+  params: {
     couponId: string;
     locale: string;
-  }>;
-  searchParams: Promise<{ businessId?: string }>;
+  };
+  searchParams: { businessId?: string };
 }
 
 export default async function CouponViewPage({ params, searchParams }: CouponViewPageProps) {
-  const resolvedParams = await params;
-  const resolvedSearchParams = await searchParams;
-  const { couponId } = resolvedParams;
-  const businessId = resolvedSearchParams.businessId;
+  const { couponId } = params;
+  const businessId = searchParams.businessId;
 
   if (!couponId) {
     redirect('/coupons');
@@ -40,7 +38,7 @@ export default async function CouponViewPage({ params, searchParams }: CouponVie
   }
 
   return (
-    <CouponViewPageClient 
+    <CouponViewPageClient
       coupon={promoResult.promo}
       business={business}
       businesses={businesses}

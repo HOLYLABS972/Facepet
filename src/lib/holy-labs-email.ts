@@ -19,7 +19,7 @@ export interface HolyLabsEmailOptions {
 
 // Configuration - these should be moved to environment variables
 const HOLY_LABS_CONFIG = {
-  baseUrl: 'https://smtp.theholylabs.com/api/email/send',
+  baseUrl: 'https://smtp.roamjet.net/api/email/send',
   projectId: 'Y0XohJn9DB71FDkTGAke', // This should come from env vars
   templateId: 'zXnn8XNiQu0IifDRg63J', // This should come from env vars
   deletionTemplateId: 'zXnn8XNiQu0IifDRg63J', // Same template for now, can be changed later
@@ -44,7 +44,7 @@ export async function sendVerificationEmailViaHolyLabs(
 
     const url = `${HOLY_LABS_CONFIG.baseUrl}?${params.toString()}`;
     
-    console.log('Sending verification email via Holy Labs:', { email, otpCode, userName });
+    console.log('Sending verification email via Holylabs:', { email, otpCode, userName });
     
     const response = await fetch(url, {
       method: 'GET',
@@ -66,7 +66,7 @@ export async function sendVerificationEmailViaHolyLabs(
         message: data.message || 'Verification email sent successfully'
       };
     } else {
-      console.error('Holy Labs API error:', data);
+      console.error('Holylabs API error:', data);
       return {
         success: false,
         message: data.message || 'Failed to send verification email',
@@ -74,7 +74,7 @@ export async function sendVerificationEmailViaHolyLabs(
       };
     }
   } catch (error: any) {
-    console.error('Holy Labs email sending error:', error);
+    console.error('Holylabs email sending error:', error);
     return {
       success: false,
       message: 'Failed to send verification email',

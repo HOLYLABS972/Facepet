@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createContactSubmission } from '@/src/lib/firebase/queries/contact';
+import { createContactSubmission } from '@/src/lib/supabase/database/contact';
 import { z } from 'zod';
 
 // Validation schema for contact form

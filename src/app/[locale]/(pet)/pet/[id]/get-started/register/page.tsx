@@ -2,8 +2,8 @@ import ClientRegisterPetPage from '@/components/get-started/ClientRegisterPetPag
 import { GENDERS, GENDERS_HEBREW } from '@/src/lib/hardcoded-data';
 import { getBreedsForType } from '@/src/lib/data/comprehensive-breeds';
 
-const page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const petId = (await params).id;
+const page = async ({ params }: { params: { id: string } }) => {
+  const petId = params.id;
 
   // Get data from local comprehensive breeds data (not Firebase)
   const allDogBreeds = getBreedsForType('dog');

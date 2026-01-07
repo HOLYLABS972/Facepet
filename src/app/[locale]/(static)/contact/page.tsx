@@ -11,10 +11,10 @@ import { Mail, Phone, MapPin, Send, CheckCircle, Facebook, Instagram, MessageCir
 import Navbar from '@/src/components/layout/Navbar';
 import Footer from '@/src/components/layout/Footer';
 import { useTranslations } from 'next-intl';
-import { createContactSubmission } from '@/src/lib/firebase/contact';
+import { createContactSubmission } from '@/src/lib/supabase/database/contact';
 import { getContactInfo } from '@/lib/actions/admin';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { getUserFromFirestore } from '@/src/lib/firebase/users';
+import { getUserFromFirestore } from '@/src/lib/supabase/database/users';
 
 export default function ContactPage() {
   const t = useTranslations('pages.ContactPage');

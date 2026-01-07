@@ -9,7 +9,7 @@ import { Input } from './ui/input';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { updateUserInFirestore } from '@/src/lib/firebase/users';
+import { updateUserByUid } from '@/src/lib/supabase/database/users';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
@@ -103,8 +103,8 @@ const GoogleSignupBottomSheet: React.FC<GoogleSignupBottomSheetProps> = ({
         }
       }
 
-      // Save name, phone number, address, and coordinates to Firestore
-      const result = await updateUserInFirestore(user.uid, {
+      // Save name, phone number, address, and coordinates to Supabase
+      const result = await updateUserByUid(user.uid, {
         displayName: name.trim(),
         phone: phoneNumber.trim(),
         address: address.trim(),

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { uploadPetImage } from '@/src/lib/firebase/simple-upload';
-import { updatePetInFirestore } from '@/src/lib/firebase/simple-pets';
+import { uploadPetImage } from '@/src/lib/supabase/storage';
+import { updatePetInFirestore } from '@/src/lib/supabase/database/pets';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
@@ -11,7 +11,7 @@ import { Label } from './ui/label';
 import { Upload, Loader2, CheckCircle, XCircle, Save, ArrowLeft, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from '@/i18n/routing';
-import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/firebase/dropdown-data';
+import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/supabase/database/pets';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
 import Image from 'next/image';

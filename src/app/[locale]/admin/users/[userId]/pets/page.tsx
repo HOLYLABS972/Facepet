@@ -1,5 +1,5 @@
 import { getPetsByUserEmail } from '@/lib/actions/admin';
-import { getUserFromFirestore } from '@/lib/firebase/users';
+import { getUserFromFirestore } from '@/src/lib/supabase/database/users';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, PawPrint } from 'lucide-react';
@@ -21,9 +21,9 @@ interface UserPetsPageProps {
 }
 
 export default async function UserPetsPage({ params, searchParams }: UserPetsPageProps) {
-  const { userId } = await params;
+  const { userId } = params;
   const t = await getTranslations('Admin');
-  
+
   // Get user information
   const userResult = await getUserFromFirestore(userId);
   if (!userResult.success || !userResult.user) {
@@ -31,7 +31,7 @@ export default async function UserPetsPage({ params, searchParams }: UserPetsPag
   }
 
   const user = userResult.user;
-  
+
   // Get pets for this user
   const pets = await getPetsByUserEmail(user.email);
 
@@ -64,9 +64,9 @@ export default async function UserPetsPage({ params, searchParams }: UserPetsPag
 
       {/* Pets table */}
       {pets.length > 0 ? (
-        <PetsPageClient 
-          pets={pets} 
-          searchParams={searchParams} 
+        <PetsPageClient
+          pets={pets}
+          searchParams={searchParams}
           hideOwnerColumn={true} // Hide owner column since we're already filtering by user
         />
       ) : (

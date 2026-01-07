@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, ShoppingCart, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { UserCoupon } from '@/lib/firebase/user-coupons';
+import { UserCoupon } from '@/src/lib/supabase/database/coupons';
 import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent } from '@/components/ui/card';
 import toast from 'react-hot-toast';

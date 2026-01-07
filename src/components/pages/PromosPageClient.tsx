@@ -11,7 +11,7 @@ import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
-import { isPromoUsed, getUserUsedPromos, UserPromo } from '@/lib/firebase/user-promos';
+import { isPromoUsed, getUserUsedPromos, UserPromo } from '@/src/lib/supabase/database/promos';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getYouTubeThumbnailUrl, getYouTubeEmbedUrl } from '@/lib/utils/youtube';
 import MapCard from '@/components/cards/MapCard';

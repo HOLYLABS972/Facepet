@@ -10,11 +10,10 @@ import InviteFriendsCard from './InviteFriendsCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { db } from '@/src/lib/firebase/config';
-import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
-import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
+import { getBreedNameById } from '@/src/lib/supabase/database/pets';
+import { supabase } from '@/src/lib/supabase/client';
 
 interface Pet {
   id: string;
@@ -40,41 +39,49 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
   // Fetch pets when user is authenticated
   useEffect(() => {
     const fetchPets = async () => {
-      if (user?.uid && !loading) {
+      if (user?.email && !loading) {
         setPetsLoading(true);
         try {
-          // Use the same method as the pet details page for consistency
-          const { getPetWithConsolidatedOwner } = await import('@/src/lib/firebase/consolidated-pet-creation');
-          
-          // First get all pets for this user with a simple query
-          const petsRef = collection(db, 'pets');
-          const q = query(
-            petsRef, 
-            where('userEmail', '==', user.email)
-          );
-          
-          const querySnapshot = await getDocs(q);
+          // Use Supabase to fetch pets
+          const { getPetWithConsolidatedOwner } = await import('@/src/lib/supabase/database/pets');
+
+          // Query pets by user email
+          const { data: petsData, error } = await supabase
+            .from('pets')
+            .select('id')
+            .eq('user_email', user.email);
+
+          if (error) {
+            console.error('Error fetching pets:', error);
+            setPetsLoading(false);
+            return;
+          }
+
+          const querySnapshot = { empty: !petsData || petsData.length === 0, size: petsData?.length || 0, docs: petsData || [] };
           console.log('Query snapshot size:', querySnapshot.size);
           console.log('User email:', user.email);
-          
-          if (!querySnapshot.empty) {
+
+          if (!querySnapshot.empty && petsData) {
             // Use the same data fetching method as pet details page
-            const petsData = await Promise.all(querySnapshot.docs.map(async doc => {
+            const fetchedPets = await Promise.all(petsData.map(async (petDoc: any) => {
               try {
                 // Use the same function that works for the details page
-                const result = await getPetWithConsolidatedOwner(doc.id);
+                const result = await getPetWithConsolidatedOwner(petDoc.id);
                 
                 if (result.success && result.pet) {
                   console.log('Pet data from consolidated method:', result.pet);
                   // Get breed name with proper translation
                   let breedDisplay = result.pet.breedName || result.pet.breed || 'Unknown Breed';
                   if (result.pet.breedId) {
-                    breedDisplay = getBreedNameFromId(String(result.pet.breedId), locale as 'en' | 'he');
+                    breedDisplay = await getBreedNameById(result.pet.breedId, locale);
                   } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
                     // Check if breedDisplay is actually an ID (e.g., "dog-3", "cat-5")
                     if (breedDisplay.startsWith('dog-') || breedDisplay.startsWith('cat-')) {
-                      // It's a legacy breed ID format, resolve it
-                      breedDisplay = getBreedNameFromId(breedDisplay, locale as 'en' | 'he');
+                      // It's a legacy breed ID format, try to parse it
+                      const idMatch = breedDisplay.match(/\d+/);
+                      if (idMatch) {
+                        breedDisplay = await getBreedNameById(parseInt(idMatch[0]), locale);
+                      }
                     } else {
                       // Try to find the breed in comprehensive data and translate it
                       const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
@@ -96,67 +103,41 @@ const MyPetClient: React.FC<MyPetClientProps> = ({ pets: initialPets }) => {
                   };
                 } else {
                   // Fallback to basic data if consolidated method fails
-                  const data = doc.data();
-                  // Get breed name with proper translation
+                  // Get the pet data directly from the petDoc
+                  return {
+                    id: petDoc.id,
+                    name: 'Unknown Pet',
+                    breed: 'Unknown Breed',
+                    image: '/default-pet.png'
+                  };
+                  /* Legacy fallback - not needed with Supabase
+                  const data = petDoc;
                   let breedDisplay = data.breedName || data.breed || 'Unknown Breed';
                   if (data.breedId) {
-                    breedDisplay = getBreedNameFromId(String(data.breedId), locale as 'en' | 'he');
+                    breedDisplay = await getBreedNameById(data.breedId, locale);
                   } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
-                    // Check if breedDisplay is actually an ID (e.g., "dog-3", "cat-5")
                     if (breedDisplay.startsWith('dog-') || breedDisplay.startsWith('cat-')) {
-                      // It's a legacy breed ID format, resolve it
-                      breedDisplay = getBreedNameFromId(breedDisplay, locale as 'en' | 'he');
-                    } else {
-                      // Try to find the breed in comprehensive data and translate it
-                      const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
-                      const breed = breedsData.find(b => 
-                        b.en.toLowerCase() === breedDisplay.toLowerCase() || 
-                        b.he === breedDisplay
-                      );
-                      if (breed) {
-                        breedDisplay = locale === 'he' ? breed.he : breed.en;
+                      const idMatch = breedDisplay.match(/\d+/);
+                      if (idMatch) {
+                        breedDisplay = await getBreedNameById(parseInt(idMatch[0]), locale);
                       }
                     }
                   }
-                  
-                  return {
-                    id: doc.id,
-                    name: data.name || 'Unknown Pet',
-                    breed: breedDisplay,
-                    image: data.imageUrl || '/default-pet.png'
-                  };
+                  */
                 }
               } catch (error) {
                 console.error('Error fetching pet with consolidated method:', error);
-                // Fallback to basic data
-                const data = doc.data();
-                // Get breed name with proper translation
-                let breedDisplay = data.breedName || data.breed || 'Unknown Breed';
-                if (data.breedId) {
-                  breedDisplay = getBreedNameFromId(String(data.breedId), locale as 'en' | 'he');
-                } else if (breedDisplay && breedDisplay !== 'Unknown Breed') {
-                  // Try to find the breed in comprehensive data and translate it
-                  const { breedsData } = await import('@/src/lib/data/comprehensive-breeds');
-                  const breed = breedsData.find(b => 
-                    b.en.toLowerCase() === breedDisplay.toLowerCase() || 
-                    b.he === breedDisplay
-                  );
-                  if (breed) {
-                    breedDisplay = locale === 'he' ? breed.he : breed.en;
-                  }
-                }
-                
                 return {
-                  id: doc.id,
-                  name: data.name || 'Unknown Pet',
-                  breed: breedDisplay,
-                  image: data.imageUrl || '/default-pet.png'
+                  id: petDoc.id,
+                  name: 'Unknown Pet',
+                  breed: 'Unknown Breed',
+                  image: '/default-pet.png'
                 };
               }
             }));
-            
-            console.log('Final processed pets data:', petsData);
-            setPets(petsData);
+
+            console.log('Final processed pets data:', fetchedPets);
+            setPets(fetchedPets);
           } else {
             setPets([]);
           }

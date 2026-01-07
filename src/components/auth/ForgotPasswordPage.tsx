@@ -8,8 +8,7 @@ import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Mail } from 'lucide-react';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/src/lib/firebase/config';
+import { supabase } from '@/src/lib/supabase/client';
 import toast from 'react-hot-toast';
 
 export default function ForgotPasswordPage() {
@@ -29,12 +28,17 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
     
     try {
-      await sendPasswordResetEmail(auth, email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      });
+
+      if (error) throw error;
+
       toast.success(t('messages.resetLinkSent'));
       router.push('/auth/reset-password-sent');
     } catch (error: any) {
       console.error('Password reset error:', error);
-      if (error.code === 'auth/user-not-found') {
+      if (error.message?.includes('User not found')) {
         toast.error(t('errors.userNotFound'));
       } else if (error.code === 'auth/invalid-email') {
         toast.error(t('errors.invalidEmail'));

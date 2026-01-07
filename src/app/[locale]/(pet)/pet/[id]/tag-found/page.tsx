@@ -8,7 +8,7 @@ interface TagFoundPageProps {
 }
 
 export default async function TagFound({ params }: TagFoundPageProps) {
-  const { id } = await params;
-  
+  const { id } = params;
+
   return <TagFoundPage petId={id} />;
 }

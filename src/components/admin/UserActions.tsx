@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { getUserFromFirestore } from '@/lib/firebase/users';
+import { getUserFromFirestore } from '@/src/lib/supabase/database/users';
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { deleteUser, updateUserRole, restrictUser, unrestrictUser, addPointsToUser } from '@/lib/actions/admin';
-import { updateUserInFirestore } from '@/lib/firebase/users';
+import { updateUserByUid } from '@/src/lib/supabase/database/users';
 import { MoreHorizontal, Phone, PawPrint, Coins } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -186,7 +186,7 @@ export default function UserActions({
 
       // Update phone and address if changed
       if (phone !== phoneNumber || currentAddress !== userAddress) {
-        const result = await updateUserInFirestore(userId, { 
+        const result = await updateUserByUid(userId, {
           ...(phone !== phoneNumber ? { phone } : {}),
           ...(currentAddress !== userAddress ? { address: currentAddress } : {})
         });

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations, useLocale } from 'next-intl';
 import { getMobileAppLinks } from '@/src/lib/actions/admin';
-import { getBreedNameFromId } from '@/src/lib/firebase/breed-utils';
+import { getBreedNameById } from '@/src/lib/supabase/database/pets';
 
 interface Pet {
   id: string;

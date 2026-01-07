@@ -27,8 +27,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useNotifications } from '@/src/contexts/NotificationsContext';
 import PointsExplenationPopup from '../PointsExplenationPopup';
-import { getUserFromFirestore } from '@/src/lib/firebase/users';
-import { getContactInfo } from '@/src/lib/actions/admin';
+import { getUserFromFirestore } from '@/src/lib/supabase/database/users';
+import { getContactInfo } from '@/lib/actions/admin';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import {

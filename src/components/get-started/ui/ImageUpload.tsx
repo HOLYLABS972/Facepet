@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { uploadPetImage } from '@/src/lib/firebase/simple-upload';
+import { uploadPetImage } from '@/src/lib/supabase/storage';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { ArrowLeftRight, Upload, X } from 'lucide-react';
 import Image from 'next/image';

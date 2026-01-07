@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { uploadPetImage } from '@/src/lib/firebase/simple-upload';
-import { createPetInFirestore } from '@/src/lib/firebase/simple-pets';
+import { uploadPetImage } from '@/src/lib/supabase/storage';
+import { createPetInFirestore } from '@/src/lib/supabase/database/pets';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';

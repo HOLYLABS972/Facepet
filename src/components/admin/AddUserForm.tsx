@@ -23,7 +23,12 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { sendUserInvitationByAdmin } from '@/lib/firebase/admin-client';
+
+// TODO: Implement with Supabase
+const sendUserInvitationByAdmin = async (data: any) => {
+  console.warn('sendUserInvitationByAdmin not yet implemented with Supabase');
+  throw new Error('Function not yet implemented with Supabase');
+};
 
 export default function AddUserForm() {
   const t = useTranslations('Admin');

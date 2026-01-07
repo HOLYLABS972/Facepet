@@ -13,8 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../ui/separator';
 import { ArrowLeft, User, Phone, Camera, Loader2, Save, Globe, Upload, CheckCircle, XCircle, AlertTriangle, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { uploadProfileImage, testStorageConnection } from '@/src/lib/firebase/simple-upload';
-import { updateUserInFirestore, getUserFromFirestore } from '@/src/lib/firebase/users';
+import { uploadProfileImage, testStorageConnection } from '@/src/lib/supabase/storage';
+import { updateUserByUid, getUserFromFirestore } from '@/src/lib/supabase/database/users';
 import LocationAutocompleteComboSelect from '../get-started/ui/LocationAutocompleteSelector';
 import DeletionVerificationPage from '../auth/DeletionVerificationPage';
 
@@ -185,7 +185,7 @@ export default function SettingsPage() {
       setSavingCookies(true);
 
       // Also save to Firestore immediately
-      updateUserInFirestore(user.uid, { acceptCookies: value })
+      updateUserByUid(user.uid, { acceptCookies: value })
         .then(result => {
           if (result.success) {
             toast.success('Cookie preference saved!');
@@ -252,7 +252,7 @@ export default function SettingsPage() {
           }));
 
           // Update user profile in Firestore
-          await updateUserInFirestore(user.uid, {
+          await updateUserByUid(user.uid, {
             profileImage: result.downloadURL
           });
 
@@ -355,7 +355,7 @@ export default function SettingsPage() {
         updateData.profileImage = formData.profileImageURL;
       }
 
-      const userResult = await updateUserInFirestore(user.uid, updateData);
+      const userResult = await updateUserByUid(user.uid, updateData);
 
       if (!userResult.success) {
         console.error('Failed to update user in Firestore:', userResult.error);

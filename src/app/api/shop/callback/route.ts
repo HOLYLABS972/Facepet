@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { db } from '@/lib/firebase/config';
-import { collection, query, where, getDocs, updateDoc, doc, Timestamp } from 'firebase/firestore';
-import { markCouponAsUsed } from '@/lib/firebase/user-coupons';
-import { addPointsToUserByUid } from '@/lib/firebase/points-server';
+import { supabase } from '@/src/lib/supabase/client';
+import { markCouponAsUsed } from '@/src/lib/supabase/database/coupons';
+import { addPointsToUserByUid } from '@/src/lib/supabase/database/points-server';
 
 // Validation schema for shop callback
 const shopCallbackSchema = z.object({
@@ -34,15 +33,9 @@ export async function OPTIONS() {
  */
 async function checkIfTokenProcessed(token: string): Promise<boolean> {
   try {
-    // Check if there's a userCoupon with this token in metadata
-    const userCouponsRef = collection(db, 'userCoupons');
-    const q = query(
-      userCouponsRef,
-      where('metadata.callbackToken', '==', token),
-      where('status', '==', 'used')
-    );
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+    // TODO: Implement with Supabase
+    console.warn('checkIfTokenProcessed not yet fully implemented');
+    return false;
   } catch (error) {
     console.error('Error checking callback token:', error);
     return false;
@@ -63,35 +56,9 @@ async function markCouponAsUsedByCode(
   }
 ): Promise<{ success: boolean; error?: string; userCouponId?: string }> {
   try {
-    // Find the user's active coupon with this code
-    const userCouponsRef = collection(db, 'userCoupons');
-    const q = query(
-      userCouponsRef,
-      where('userId', '==', userId),
-      where('couponCode', '==', couponCode),
-      where('status', '==', 'active')
-    );
-    
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-      return { success: false, error: 'Active coupon not found for this code' };
-    }
-
-    // Get the first matching coupon
-    const userCouponDoc = querySnapshot.docs[0];
-    const userCouponId = userCouponDoc.id;
-
-    // Mark as used with metadata
-    const couponMetadata = {
-      callbackToken,
-      source: 'shop_callback',
-      ...metadata
-    };
-    
-    const result = await markCouponAsUsed(userCouponId, couponMetadata);
-
-    return { success: true, userCouponId };
+    // TODO: Implement with Supabase
+    console.warn('markCouponAsUsedByCode not yet fully implemented');
+    return { success: false, error: 'Not yet implemented' };
   } catch (error: any) {
     console.error('Error marking coupon as used by code:', error);
     return { success: false, error: 'Failed to mark coupon as used' };
@@ -299,20 +266,11 @@ export async function GET(request: NextRequest) {
     
     if (isPurchase) {
       // Credit points only on purchase
-      pointsResult = await addPointsToUserByUid(
+      const result = await addPointsToUserByUid(
         callbackData.userid,
-        'share', // Using 'share' category for shop purchases
-        callbackData.points,
-        `Shop purchase reward - ${callbackData.points} points`,
-        {
-          source: 'shop_callback',
-          orderId: callbackData.orderId,
-          coupon: callbackData.coupon,
-          status: callbackData.status,
-          token: trackingToken,
-          timestamp: new Date().toISOString()
-        }
+        callbackData.points
       );
+      pointsResult = { success: result };
     } else {
       // Log visit but don't award points
       console.log('Shop visit (no purchase) - no points awarded:', {

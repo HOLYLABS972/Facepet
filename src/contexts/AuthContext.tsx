@@ -1,41 +1,17 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import {
-  User,
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signInWithPopup,
-  GoogleAuthProvider,
-  updateProfile,
-  fetchSignInMethodsForEmail
-} from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
-import { createUserInFirestore, handleUserAuthentication, getUserFromFirestore } from '@/lib/firebase/users';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase/client';
+import { getUserByEmail, upsertUser, User as DBUser } from '@/lib/supabase/database/users';
 import { generateOTPCode } from '@/src/lib/otp-generator';
 import { sendVerificationEmailWithFallback, sendDeletionVerificationEmailWithFallback } from '@/src/lib/holy-labs-email';
 
 // Function to determine user role - all users get 'user' role by default
-// Admin roles must be assigned manually through the admin panel
 const getUserRole = (email: string): 'user' | 'admin' | 'super_admin' => {
-  // All users get 'user' role by default
-  // Admin roles are assigned manually through the admin interface
   console.log('🔍 Role assignment: All users get default "user" role');
   return 'user';
 };
-
-interface UserData {
-  acceptCookies?: boolean;
-  language?: string;
-  role?: string;
-  isRestricted?: boolean;
-  restrictionReason?: string;
-  phone?: string;
-  address?: string;
-}
 
 interface VerificationResult {
   success: boolean;
@@ -43,7 +19,8 @@ interface VerificationResult {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: SupabaseUser | null;
+  dbUser: DBUser | null;
   loading: boolean;
   needsGoogleProfileCompletion: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -53,7 +30,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
   checkEmailExists: (email: string) => Promise<boolean>;
   sendVerificationCode: (email: string, userName?: string) => Promise<VerificationResult>;
-  verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => Promise<{ success: boolean; user: User | null }>;
+  verifyCodeAndCreateAccount: (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => Promise<{ success: boolean; user: SupabaseUser | null }>;
   completeGoogleProfile: () => void;
   getStoredOTPCode: () => string | null;
   sendDeletionVerificationCode: (email: string, userName?: string) => Promise<VerificationResult>;
@@ -76,27 +53,24 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [dbUser, setDbUser] = useState<DBUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsGoogleProfileCompletion, setNeedsGoogleProfileCompletion] = useState(false);
   const [storedOTPCode, setStoredOTPCode] = useState<string | null>(() => {
-    // Initialize from localStorage if available
     if (typeof window !== 'undefined') {
       return localStorage.getItem('storedOTPCode');
     }
     return null;
   });
-
-  // Deletion verification code state
   const [storedDeletionOTPCode, setStoredDeletionOTPCode] = useState<string | null>(() => {
-    // Initialize from localStorage if available
     if (typeof window !== 'undefined') {
       return localStorage.getItem('storedDeletionOTPCode');
     }
     return null;
   });
 
-  // Helper function to store OTP code in both state and localStorage
+  // Helper functions for OTP storage
   const storeOTPCode = (code: string) => {
     setStoredOTPCode(code);
     if (typeof window !== 'undefined') {
@@ -105,7 +79,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Helper function to clear OTP code from both state and localStorage
   const clearOTPCode = () => {
     setStoredOTPCode(null);
     if (typeof window !== 'undefined') {
@@ -114,7 +87,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Helper function to store deletion OTP code in both state and localStorage
   const storeDeletionOTPCode = (code: string) => {
     setStoredDeletionOTPCode(code);
     if (typeof window !== 'undefined') {
@@ -123,7 +95,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Helper function to clear deletion OTP code from both state and localStorage
   const clearDeletionOTPCode = () => {
     setStoredDeletionOTPCode(null);
     if (typeof window !== 'undefined') {
@@ -132,109 +103,104 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('Firebase Auth state changed:', user);
-      setUser(user);
-      setLoading(false);
-    }, (error) => {
-      console.error('Firebase Auth state change error:', error);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user?.email) {
+        getUserByEmail(session.user.email).then(setDbUser);
+      }
       setLoading(false);
     });
 
-    // No need for redirect result handling since we're using popup
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Supabase Auth state changed:', session?.user);
+      setUser(session?.user ?? null);
+      if (session?.user?.email) {
+        getUserByEmail(session.user.email).then(setDbUser);
+      } else {
+        setDbUser(null);
+      }
+      setLoading(false);
+    });
 
-    return unsubscribe;
+    return () => subscription.unsubscribe();
   }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Check if user is restricted after successful Firebase authentication
-      if (userCredential.user) {
-        const userResult = await getUserFromFirestore(userCredential.user.uid);
-        const userData = userResult.user as UserData;
-        if (userResult.success && userData?.isRestricted) {
-          // Sign out the user immediately if they are restricted
-          await firebaseSignOut(auth);
-          throw new Error(`Your account has been restricted by an administrator. Reason: ${userData.restrictionReason || 'No reason provided'}`);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Check if user is restricted
+      if (data.user?.email) {
+        const dbUserData = await getUserByEmail(data.user.email);
+        if (dbUserData?.is_restricted) {
+          await supabase.auth.signOut();
+          throw new Error(`Your account has been restricted by an administrator. Reason: ${dbUserData.restriction_reason || 'No reason provided'}`);
         }
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
-      
-      // If Firebase Auth fails with network error, provide helpful message
-      if (error.code === 'auth/network-request-failed' || error.message?.includes('network')) {
-        console.log('Firebase Auth network error detected');
-        throw new Error('Network connection issue. Please check your internet connection and try again. If the problem persists, try using a different network or contact support.');
-      }
-      
-      throw error;
-    }
-  };
-
-  // Alternative login method using OTP (for when Firebase Auth has network issues)
-  const signInWithOTP = async (email: string) => {
-    try {
-      // Send OTP for login
-      await sendVerificationCode(email);
-      return { success: true, message: 'OTP sent for login' };
-    } catch (error) {
-      console.error('OTP login error:', error);
       throw error;
     }
   };
 
   const signUp = async (email: string, password: string, fullName: string, phone?: string, address?: string) => {
     try {
-      // Check if email already exists
-      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-      if (signInMethods.length > 0) {
-        throw new Error('This email is already registered. Please sign in instead.');
-      }
+      // Create Supabase auth user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            display_name: fullName,
+          },
+        },
+      });
 
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Update the user's display name
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-          displayName: fullName
-        });
+      if (error) throw error;
+      if (!data.user) throw new Error('Failed to create user');
 
-        // Store user in Firestore collection with role assignment
-        const userRole = getUserRole(email);
-        const cookiePreference = typeof window !== 'undefined' ? localStorage.getItem('acceptCookies') === 'true' : false;
-        console.log('🔍 Creating user (signUp) with role:', { email, userRole, cookiePreference });
-        const userResult = await createUserInFirestore(userCredential.user, {
-          phone: phone || '',
-          address: address || '',
-          acceptCookies: cookiePreference,
-          language: 'en',
-          role: userRole
-        });
+      // Create user in database
+      const userRole = getUserRole(email);
+      const cookiePreference = typeof window !== 'undefined' ? localStorage.getItem('acceptCookies') === 'true' : false;
 
-        if (!userResult.success) {
-          // If Firestore creation fails, delete the Firebase Auth user
-          await userCredential.user.delete();
-          throw new Error('Failed to create user profile. Please try again.');
-        }
-      }
+      console.log('🔍 Creating user in database:', { email, userRole, cookiePreference });
+
+      await upsertUser({
+        email,
+        full_name: fullName,
+        display_name: fullName,
+        phone: phone || '',
+        address: address || '',
+        role: userRole,
+        language: 'en',
+        accept_cookies: cookiePreference,
+      });
+
     } catch (error: any) {
       console.error('Sign up error:', error);
-      // Make the error message more user-friendly
-      if (error.code === 'auth/email-already-in-use') {
+      if (error.message?.includes('already registered')) {
         throw new Error('This email is already registered. Please sign in instead.');
-      } else {
-        throw error;
       }
+      throw error;
     }
   };
 
   const signOut = async () => {
     try {
-      console.log('Firebase sign out...');
-      await firebaseSignOut(auth);
-      console.log('Firebase sign out completed');
+      console.log('Supabase sign out...');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      console.log('Supabase sign out completed');
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;
@@ -243,43 +209,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      // Use popup for in-frame experience
-      const userCredential = await signInWithPopup(auth, provider);
-      
-      // Handle user authentication without overriding existing role
-      if (userCredential.user) {
-        // Check if user is restricted
-        const userResult = await getUserFromFirestore(userCredential.user.uid);
-        const userData = userResult.user as UserData;
-        if (userResult.success && userData?.isRestricted) {
-          // Sign out the user immediately if they are restricted
-          await firebaseSignOut(auth);
-          throw new Error(`Your account has been restricted by an administrator. Reason: ${userData.restrictionReason || 'No reason provided'}`);
-        }
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-        const cookiePreference = localStorage.getItem('acceptCookies') === 'true';
-        console.log('🔍 Handling Google authentication (preserving existing role):', { 
-          email: userCredential.user.email, 
-          cookiePreference 
-        });
-        
-        const authResult = await handleUserAuthentication(userCredential.user, {
-          acceptCookies: cookiePreference,
-          language: 'en'
-        });
-
-        if (!authResult.success) {
-          console.error('Failed to handle Google user authentication:', authResult.error);
-        } else {
-          console.log('Google authentication successful:', authResult.isNewUser ? 'New user' : 'Existing user');
-          
-          // Check if user needs profile completion (missing phone or address)
-          if (authResult.isNewUser || !userData?.phone || !userData?.address) {
-            setNeedsGoogleProfileCompletion(true);
-          }
-        }
-      }
+      if (error) throw error;
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;
@@ -288,7 +225,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const resetPassword = async (email: string) => {
     try {
-      await sendPasswordResetEmail(auth, email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
     } catch (error) {
       console.error('Password reset error:', error);
       throw error;
@@ -297,29 +237,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const sendVerificationCode = async (email: string, userName?: string): Promise<VerificationResult> => {
     try {
-      // Check if email exists before sending code
-      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-      if (signInMethods.length > 0) {
+      // Check if email already exists
+      const exists = await checkEmailExists(email);
+      if (exists) {
         return { success: false, message: 'This email is already registered. Please sign in instead.' };
       }
 
-      // Generate OTP code on frontend
+      // Generate OTP code
       const otpCode = generateOTPCode();
       console.log('Generated OTP code:', otpCode);
 
-      // Store the OTP code FIRST, regardless of email sending status
+      // Store the OTP code
       storeOTPCode(otpCode);
       console.log('✅ OTP code generated and stored:', otpCode);
       console.log('🔑 DEBUG: Your verification code is:', otpCode);
-      
-      // Try to send email via Holy Labs API (but don't fail if it doesn't work)
+
+      // Try to send email
       try {
         const result = await sendVerificationEmailWithFallback(
-          email, 
-          otpCode, 
+          email,
+          otpCode,
           userName || 'User'
         );
-        
+
         if (result.success) {
           console.log('✅ Verification email sent successfully');
           return { success: true, message: 'Verification code sent to your email' };
@@ -328,7 +268,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return { success: true, message: 'Verification code generated. Please check your email or try again.' };
         }
       } catch (error) {
-        console.warn('⚠️ Email sending failed due to CORS, but code is stored:', error);
+        console.warn('⚠️ Email sending failed, but code is stored:', error);
         return { success: true, message: 'Verification code generated. Please check your email or try again.' };
       }
     } catch (error) {
@@ -339,23 +279,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const sendDeletionVerificationCode = async (email: string, userName?: string): Promise<VerificationResult> => {
     try {
-      // Generate OTP code on frontend
       const otpCode = generateOTPCode();
       console.log('Generated deletion OTP code:', otpCode);
 
-      // Store the deletion OTP code FIRST, regardless of email sending status
       storeDeletionOTPCode(otpCode);
       console.log('✅ Deletion OTP code generated and stored:', otpCode);
       console.log('🔑 DEBUG: Your deletion verification code is:', otpCode);
-      
-      // Try to send deletion verification email via Holy Labs API (but don't fail if it doesn't work)
+
       try {
         const result = await sendDeletionVerificationEmailWithFallback(
-          email, 
-          otpCode, 
+          email,
+          otpCode,
           userName || 'User'
         );
-        
+
         if (result.success) {
           console.log('✅ Deletion verification email sent successfully');
           return { success: true, message: 'Deletion verification code sent to your email' };
@@ -364,7 +301,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return { success: true, message: 'Deletion verification code generated. Please check your email or try again.' };
         }
       } catch (error) {
-        console.warn('⚠️ Deletion email sending failed due to CORS, but code is stored:', error);
+        console.warn('⚠️ Deletion email sending failed, but code is stored:', error);
         return { success: true, message: 'Deletion verification code generated. Please check your email or try again.' };
       }
     } catch (error) {
@@ -373,58 +310,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const verifyCodeAndCreateAccount = async (email: string, password: string, fullName: string, code: string, address?: string, phone?: string) => {
+  const verifyCodeAndCreateAccount = async (
+    email: string,
+    password: string,
+    fullName: string,
+    code: string,
+    address?: string,
+    phone?: string
+  ) => {
     try {
-      console.log('🔍 Verifying code:', { 
-        providedCode: code, 
-        storedCode: storedOTPCode, 
-        codesMatch: storedOTPCode === code 
+      console.log('🔍 Verifying code:', {
+        providedCode: code,
+        storedCode: storedOTPCode,
+        codesMatch: storedOTPCode === code
       });
-      
-      // Validate the OTP code against the stored frontend code
+
+      // Validate the OTP code
       if (!storedOTPCode || storedOTPCode !== code) {
-        console.error('❌ Code validation failed:', { 
-          providedCode: code, 
-          storedCode: storedOTPCode,
-          storedCodeType: typeof storedOTPCode,
-          providedCodeType: typeof code
-        });
+        console.error('❌ Code validation failed');
         throw new Error('Invalid verification code');
       }
 
       console.log('✅ Code validation successful, creating account...');
-      
-      // Clear the stored OTP code after successful verification
+
+      // Clear the stored OTP code
       clearOTPCode();
 
-      // Create Firebase account
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Update the user's display name
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-          displayName: fullName
-        });
+      // Create account
+      await signUp(email, password, fullName, phone, address);
 
-        // Store user in Firestore collection with role assignment
-        const userRole = getUserRole(email);
-        const cookiePreference = typeof window !== 'undefined' ? localStorage.getItem('acceptCookies') === 'true' : false;
-        console.log('🔍 Creating user with role:', { email, userRole, cookiePreference });
-        const userResult = await createUserInFirestore(userCredential.user, {
-          phone: phone || '',
-          address: address || '',
-          acceptCookies: cookiePreference,
-          language: 'en',
-          role: userRole
-        });
+      // Get the created user
+      const { data } = await supabase.auth.getUser();
 
-        if (!userResult.success) {
-          console.error('Failed to store user in Firestore:', userResult.error);
-          // Don't throw error here, user is still created in Firebase Auth
-        }
-      }
-
-      return { success: true, user: userCredential.user };
+      return { success: true, user: data.user };
     } catch (error) {
       console.error('Verify code and create account error:', error);
       throw error;
@@ -433,8 +351,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const checkEmailExists = async (email: string): Promise<boolean> => {
     try {
-      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-      return signInMethods.length > 0;
+      const dbUserData = await getUserByEmail(email);
+      return dbUserData !== null;
     } catch (error) {
       console.error('Error checking email existence:', error);
       return false;
@@ -447,6 +365,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const value = {
     user,
+    dbUser,
     loading,
     needsGoogleProfileCompletion,
     signIn,

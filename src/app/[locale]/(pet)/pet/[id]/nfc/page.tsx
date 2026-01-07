@@ -1,5 +1,5 @@
 import NFCScanPage from '@/components/NFCScanPage';
-import { getPetById } from '@/src/lib/firebase/simple-pets';
+import { getPetById } from '@/src/lib/supabase/database/pets';
 import { notFound } from 'next/navigation';
 import AuthGuard from '@/src/components/auth/AuthGuard';
 
@@ -12,9 +12,9 @@ interface NFCPageProps {
 
 export default async function NFC({ params }: NFCPageProps) {
   const { id } = params;
-  
-  const result = await getPetById(id);
-  
+
+  const result = await getPetById(id, true);
+
   if (!result.success || !result.pet) {
     notFound();
   }

@@ -1,10 +1,10 @@
 import DonePage from '@/src/components/DonePage';
 import { redirect } from '@/src/i18n/routing';
-import { getPetByIdFromFirestore } from '@/src/lib/firebase/pets';
+import { getPetByIdFromFirestore } from '@/src/lib/supabase/database/pets';
 import { getLocale } from 'next-intl/server';
 
-const page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const id = (await params).id;
+const page = async ({ params }: { params: { id: string } }) => {
+  const id = params.id;
   const locale = await getLocale();
 
   const petResult = await getPetByIdFromFirestore(id);

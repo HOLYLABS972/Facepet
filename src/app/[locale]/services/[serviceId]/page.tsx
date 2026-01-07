@@ -4,15 +4,14 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
 interface ServiceDetailsPageProps {
-  params: Promise<{
+  params: {
     serviceId: string;
     locale: string;
-  }>;
+  };
 }
 
 export default async function ServiceDetailsPage({ params }: ServiceDetailsPageProps) {
-  const resolvedParams = await params;
-  const { serviceId, locale } = resolvedParams;
+  const { serviceId, locale } = params;
 
   // Try to fetch as business first (since services page uses businesses)
   let service = null;
