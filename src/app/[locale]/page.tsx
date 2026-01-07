@@ -220,11 +220,6 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
 
       {/* Product Highlights Section */}
       <div className="relative w-full">
-        <div className="sm:hidden">
-          <ProductHighlights />
-        </div>
-      </div>
-      <div className="hidden sm:block">
         <ProductHighlights />
       </div>
       <Footer />
@@ -256,27 +251,30 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   const [hasFallen, setHasFallen] = useState(false);
 
   // Detect mobile - initialize correctly to avoid flash
-  // Detect mobile - initialize to false for consistency with server/SSR
-  const [isMobile, setIsMobile] = useState(false);
+  // PERFORMANCE CRITICAL: Initialize to FALSE.
+  // We assume NOT desktop initially to prevent any heavy rendering on mobile.
+  // We will only enable this component after verifying window width > 640px.
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Update on resize
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640); // sm breakpoint
+    const checkDesktop = () => {
+      // sm breakpoint is 640px
+      setIsDesktop(window.innerWidth >= 640);
     };
 
     // Initial check
-    checkMobile();
+    checkDesktop();
 
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
   }, []);
 
-  // PERFORMANCE OPTIMIZATION: 
-  // If we are on mobile (small screen) and this component is ONLY used in the desktop view (hidden sm:flex),
-  // we should stop rendering to save memory/CPU.
-  // The parent `page.tsx` hides this with CSS, but React still renders it.
-  if (isMobile) {
+  // PERFORMANCE OPTIMIZATION:
+  // Default to NOT rendering (safe for mobile).
+  // Only render if we have confirmed we are on a desktop screen.
+  // This ensures zero memory cost on mobile devices.
+  if (!isDesktop) {
     return null;
   }
 
@@ -286,36 +284,21 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   let baseX: number;
   let baseY: number;
 
-  if (isMobile) {
-    // Mobile: Circular positioning around center
-    const circleRadius = 120; // Distance from center
-    const centerX = -40; // Shift 40px left
-    const centerY = 0; // Center of the container
+  // Desktop: Oval positioning (original perfect positioning)
+  const ovalWidth = 500;
+  const ovalHeight = 250;
+  const centerX = -40; // Shift 40px left
+  const centerY = 0; // Center of the container
 
-    // Arrange in a circle
-    const angleStep = (2 * Math.PI) / 6; // 6 pets evenly distributed
-    const startAngle = -Math.PI / 2; // Start from top (12 o'clock position)
-    const angle = startAngle + (index * angleStep);
+  const angleStep = (2 * Math.PI) / 6;
+  const startAngle = 0; // Start from 0 degrees
+  const angle = startAngle + (index * angleStep);
 
-    baseX = centerX + circleRadius * Math.cos(angle);
-    baseY = centerY + circleRadius * Math.sin(angle);
-  } else {
-    // Desktop: Oval positioning (original perfect positioning)
-    const ovalWidth = 500;
-    const ovalHeight = 250;
-    const centerX = -40; // Shift 40px left
-    const centerY = 0; // Center of the container
+  baseX = centerX + ovalWidth * Math.cos(angle);
+  baseY = centerY + ovalHeight * Math.sin(angle);
 
-    const angleStep = (2 * Math.PI) / 6;
-    const startAngle = 0;
-    const angle = startAngle + (index * angleStep);
-
-    baseX = centerX + ovalWidth * Math.cos(angle);
-    baseY = centerY + ovalHeight * Math.sin(angle);
-  }
-
-  // Responsive pet size
-  const responsiveSize = isMobile ? pet.size * 0.5 : pet.size; // 50% size on mobile
+  // Responsive pet size - Desktop only
+  const responsiveSize = pet.size;
 
   // Create smooth floating animation around the oval position
   const baseMovement = 15;
