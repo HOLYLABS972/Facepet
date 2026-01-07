@@ -53,12 +53,12 @@ const AuthPage = () => {
 
     try {
       if (isSignUp) {
-        // Send verification code using your simple API
-        await sendVerificationCode(formData.email);
-        toast.success(t('verificationCodeSent'));
-        
-        // Redirect to email verification page with simple parameters
-        router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}&fullName=${encodeURIComponent(formData.fullName)}&address=${encodeURIComponent(formData.address)}&phone=${encodeURIComponent(formData.phone)}`);
+        // Sign up and directly sign in (email verification disabled)
+        await signUp(formData.email, formData.password, formData.fullName);
+        toast.success(t('accountCreatedSuccess'));
+        await signIn(formData.email, formData.password);
+        toast.success(t('signInSuccess'));
+        router.push('/pages/my-pets');
       } else {
         await signIn(formData.email, formData.password);
         toast.success(t('signInSuccess'));

@@ -42,46 +42,11 @@ function requiresEmailVerification(pathname: string): boolean {
 
 /**
  * Email verification middleware
+ * DISABLED: Email verification is not required for now
  */
 export async function emailVerificationMiddleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Skip if route doesn't require email verification
-  if (!requiresEmailVerification(pathname)) {
-    return NextResponse.next();
-  }
-
-  try {
-    // Get user session
-    const session = await auth();
-    
-    if (!session || !session.user || !session.user.email) {
-      // Redirect to sign in if not authenticated
-      const signInUrl = new URL('/auth', request.url);
-      signInUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(signInUrl);
-    }
-
-    // Check if email is verified
-    const user = await getUserDetailsByEmail(session.user.email);
-    
-    if (!user || !user.emailVerified) {
-      // Redirect to email verification page
-      const verificationUrl = new URL('/auth/confirmation', request.url);
-      verificationUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(verificationUrl);
-    }
-
-    // User is authenticated and email is verified
-    return NextResponse.next();
-  } catch (error) {
-    console.error('Email verification middleware error:', error);
-    
-    // On error, redirect to sign in
-    const signInUrl = new URL('/auth', request.url);
-    signInUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(signInUrl);
-  }
+  // Email verification is disabled - allow all authenticated users
+  return NextResponse.next();
 }
 
 /**

@@ -5,7 +5,6 @@ import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase/client';
 import { getUserByEmail, upsertUser, User as DBUser } from '@/lib/supabase/database/users';
 import { generateOTPCode } from '@/src/lib/otp-generator';
-import { sendVerificationEmailWithFallback, sendDeletionVerificationEmailWithFallback } from '@/src/lib/holy-labs-email';
 
 // Function to determine user role - all users get 'user' role by default
 const getUserRole = (email: string): 'user' | 'admin' | 'super_admin' => {
@@ -322,25 +321,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log('✅ OTP code generated and stored:', otpCode);
       console.log('🔑 DEBUG: Your verification code is:', otpCode);
 
-      // Try to send email
-      try {
-        const result = await sendVerificationEmailWithFallback(
-          email,
-          otpCode,
-          userName || 'User'
-        );
-
-        if (result.success) {
-          console.log('✅ Verification email sent successfully');
-          return { success: true, message: 'Verification code sent to your email' };
-        } else {
-          console.warn('⚠️ Email sending failed, but code is stored:', result.message);
-          return { success: true, message: 'Verification code generated. Please check your email or try again.' };
-        }
-      } catch (error) {
-        console.warn('⚠️ Email sending failed, but code is stored:', error);
-        return { success: true, message: 'Verification code generated. Please check your email or try again.' };
-      }
+      // Email verification disabled - just return success
+      console.log('⚠️ Email sending disabled (email verification removed)');
+      return { success: true, message: 'Verification code generated. Check console for code.' };
     } catch (error) {
       console.error('Send verification code error:', error);
       return { success: false, message: error instanceof Error ? error.message : 'Failed to send verification code' };
@@ -356,24 +339,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log('✅ Deletion OTP code generated and stored:', otpCode);
       console.log('🔑 DEBUG: Your deletion verification code is:', otpCode);
 
-      try {
-        const result = await sendDeletionVerificationEmailWithFallback(
-          email,
-          otpCode,
-          userName || 'User'
-        );
-
-        if (result.success) {
-          console.log('✅ Deletion verification email sent successfully');
-          return { success: true, message: 'Deletion verification code sent to your email' };
-        } else {
-          console.warn('⚠️ Deletion email sending failed, but code is stored:', result.message);
-          return { success: true, message: 'Deletion verification code generated. Please check your email or try again.' };
-        }
-      } catch (error) {
-        console.warn('⚠️ Deletion email sending failed, but code is stored:', error);
-        return { success: true, message: 'Deletion verification code generated. Please check your email or try again.' };
-      }
+      // Email verification disabled - just return success
+      console.log('⚠️ Email sending disabled (email verification removed)');
+      return { success: true, message: 'Deletion verification code generated. Check console for code.' };
     } catch (error) {
       console.error('Send deletion verification code error:', error);
       return { success: false, message: error instanceof Error ? error.message : 'Failed to send deletion verification code' };

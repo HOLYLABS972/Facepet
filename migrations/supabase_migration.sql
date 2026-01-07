@@ -511,16 +511,10 @@ CREATE POLICY users_update_own ON users
   FOR UPDATE
   USING (auth.uid()::text = uid);
 
--- Admins can read all users
-CREATE POLICY users_select_admin ON users
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM users
-      WHERE uid = auth.uid()::text
-      AND role IN ('admin', 'super_admin')
-    )
-  );
+-- Allow service role (backend) to bypass RLS for admin operations
+CREATE POLICY users_service_role ON users
+  FOR ALL
+  USING (auth.role() = 'service_role');
 
 -- Users can read their own pets
 CREATE POLICY pets_select_own ON pets

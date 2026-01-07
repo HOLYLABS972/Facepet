@@ -28,7 +28,6 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ progress: number; status: string; downloadURL?: string; error?: string } | null>(null);
-  const [savingCookies, setSavingCookies] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showDeletionVerification, setShowDeletionVerification] = useState(false);
 
@@ -39,9 +38,7 @@ export default function SettingsPage() {
     address: '',
     profileImage: null as File | null,
     profileImageURL: '',
-    acceptCookies: false,
-    language: locale,
-    freeCouponPrice: false
+    language: locale
   });
 
   // Available languages
@@ -61,7 +58,7 @@ export default function SettingsPage() {
 
   // Initialize form data when user loads
   useEffect(() => {
-    if (user) {
+    if (user && user.uid) {
       const loadUserData = async () => {
         try {
           // Try to get user data from Firestore first
@@ -84,54 +81,41 @@ export default function SettingsPage() {
               phone: userResult.user.phone || '',
               address: userResult.user.address || '',
               profileImageURL: userResult.user.profileImage || user.photoURL || '',
-              acceptCookies: userResult.user.acceptCookies || false,
-              language: locale, // Always use current locale, not stored preference
-              freeCouponPrice: userResult.user.freeCouponPrice || false
+              language: locale // Always use current locale, not stored preference
             }));
           } else {
             // Fallback to localStorage and Firebase Auth data
-            let acceptCookies = false;
-            if (typeof window !== 'undefined') {
-              try {
-                acceptCookies = localStorage.getItem('acceptCookies') === 'true';
-              } catch (error) {
-                console.error('Error accessing localStorage:', error);
-              }
-            }
             setFormData(prev => ({
               ...prev,
               fullName: user.displayName || '',
               address: '',
               profileImageURL: user.photoURL || '',
-              acceptCookies,
-              language: locale, // Always use current locale
-              freeCouponPrice: false
+              language: locale // Always use current locale
             }));
           }
         } catch (error) {
           console.error('Error loading user data:', error);
           // Fallback to basic data
-          let acceptCookies = false;
-          if (typeof window !== 'undefined') {
-            try {
-              acceptCookies = localStorage.getItem('acceptCookies') === 'true';
-            } catch (storageError) {
-              console.error('Error accessing localStorage:', storageError);
-            }
-          }
           setFormData(prev => ({
             ...prev,
             fullName: user.displayName || '',
             address: '',
             profileImageURL: user.photoURL || '',
-            acceptCookies,
-            language: locale, // Always use current locale
-            freeCouponPrice: false
+            language: locale // Always use current locale
           }));
         }
       };
 
       loadUserData();
+    } else if (user && !user.uid) {
+      // User exists but uid is missing - use basic Firebase Auth data
+      console.warn('User uid is missing, using Firebase Auth data only');
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.displayName || '',
+        profileImageURL: user.photoURL || '',
+        language: locale
+      }));
     }
   }, [user, locale]);
 
@@ -173,33 +157,10 @@ export default function SettingsPage() {
       return newData;
     });
 
-    // Auto-save cookie preference immediately
+    // Auto-save cookie preference immediately - REMOVED (email verification disabled)
     if (field === 'acceptCookies' && user) {
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('acceptCookies', value.toString());
-        } catch (error) {
-          console.error('Error setting localStorage:', error);
-        }
-      }
-      setSavingCookies(true);
-
-      // Also save to Firestore immediately
-      updateUserByUid(user.uid, { acceptCookies: value })
-        .then(result => {
-          if (result.success) {
-            toast.success('Cookie preference saved!');
-          } else {
-            toast.error('Failed to save cookie preference');
-          }
-        })
-        .catch(error => {
-          console.error('Failed to save cookie preference:', error);
-          toast.error('Failed to save cookie preference');
-        })
-        .finally(() => {
-          setSavingCookies(false);
-        });
+      // Cookies setting removed - no action needed
+      return;
     }
   };
 
@@ -314,13 +275,17 @@ export default function SettingsPage() {
         return;
       }
 
+      if (!user.uid) {
+        toast.error('User ID not available - please sign in again');
+        return;
+      }
+
       console.log('Saving profile with formData:', formData);
       console.log('Full name being saved:', formData.fullName);
 
       // Save to localStorage for immediate access
       if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem('acceptCookies', formData.acceptCookies.toString());
           localStorage.setItem('preferredLanguage', formData.language);
         } catch (error) {
           console.error('Error setting localStorage:', error);
@@ -329,9 +294,7 @@ export default function SettingsPage() {
 
       // Update user profile in Firestore
       const updateData: any = {
-        acceptCookies: formData.acceptCookies,
-        language: formData.language,
-        freeCouponPrice: formData.freeCouponPrice
+        language: formData.language
       };
 
       // Add full name if provided
@@ -728,48 +691,6 @@ export default function SettingsPage() {
                 onChange={(value) => handleInputChange('address', value)}
                 hasError={false}
               />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Privacy Settings */}
-        <Card className="mb-6 shadow-xl">
-          <CardHeader>
-            <CardTitle>{t('privacySettings')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="acceptCookies"
-                checked={formData.acceptCookies}
-                onCheckedChange={(checked) => handleInputChange('acceptCookies', checked)}
-                disabled={savingCookies}
-              />
-              <div className="space-y-1 flex-1">
-                <Label htmlFor="acceptCookies" className="cursor-pointer">{t('acceptCookies')}</Label>
-                <p className="text-sm text-gray-500">
-                  {t('acceptCookiesDescription')}
-                </p>
-              </div>
-              {savingCookies && (
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              )}
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="freeCouponPrice"
-                checked={formData.freeCouponPrice}
-                onCheckedChange={(checked) => handleInputChange('freeCouponPrice', checked)}
-              />
-              <div className="space-y-1 flex-1">
-                <Label htmlFor="freeCouponPrice" className="cursor-pointer">{t('freeCouponPrice')}</Label>
-                <p className="text-sm text-gray-500">
-                  {t('freeCouponPriceDescription')}
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>
