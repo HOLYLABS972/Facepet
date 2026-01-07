@@ -9,7 +9,10 @@ export const routing = defineRouting({
   defaultLocale: 'he',
 
   // Always use locale prefix in URLs
-  localePrefix: 'as-needed'
+  localePrefix: 'as-needed',
+
+  // Disable automatic locale detection
+  localeDetection: false
 });
 
 // Lightweight wrappers around Next.js' navigation APIs
