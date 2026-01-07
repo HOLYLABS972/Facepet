@@ -43,3 +43,20 @@ export async function markCouponAsUsed(couponId: string): Promise<{ success: boo
     console.warn('markCouponAsUsed not yet fully implemented');
     return { success: false, error: 'Not yet implemented' };
 }
+
+/**
+ * Get user coupon by ID (placeholder - implement based on actual schema)
+ */
+export async function getUserCouponById(userCouponId: string): Promise<UserCoupon | null> {
+    // TODO: Implement with actual Supabase schema
+    console.warn('getUserCouponById not yet fully implemented');
+    return null;
+}
+
+/**
+ * Get coupon by ID
+ */
+export async function getCouponById(couponId: string): Promise<any> {
+    console.warn('getCouponById stub');
+    return null;
+}

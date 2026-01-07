@@ -70,6 +70,20 @@ const petCharacters = [
 ];
 
 const AnimatedPetCharacters: React.FC = () => {
+  const [isMobile, setIsMobile] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkMobile();
+
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <div className="relative min-h-[350px] w-full overflow-hidden">
       {petCharacters.map((pet) => (
@@ -84,10 +98,10 @@ const AnimatedPetCharacters: React.FC = () => {
             position: 'absolute',
             top: `${pet.top}px`,
             left: `calc(50% - ${pet.right}px)`,
-            willChange: 'transform'
+            willChange: isMobile ? 'auto' : 'transform'
           }}
           initial={{ opacity: 0 }}
-          animate={{
+          animate={isMobile ? { opacity: 1 } : {
             opacity: 1,
             y: [0, 2, 0, 2, 0], // Floating effect
             rotate: [0, -3, 3, -3, 0], // Reduced rotation for better performance

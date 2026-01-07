@@ -111,3 +111,38 @@ export async function deleteAd(id: string) {
 
 // Add more stub functions as needed
 // TODO: Rewrite all admin functions to use Supabase
+
+export async function getRandomActiveAd(): Promise<Ad | null> {
+  console.warn('getRandomActiveAd is a stub using Supabase');
+  return null;
+}
+
+export async function getActiveAdsForServices(serviceType?: string): Promise<Ad[]> {
+  console.warn('getActiveAdsForServices is a stub using Supabase');
+  return [];
+}
+
+export async function getBusinesses() {
+  console.warn('getBusinesses is a stub using Supabase');
+  return [];
+}
+
+export async function getAllComments() {
+  console.warn('getAllComments is a stub using Supabase');
+  return [];
+}
+
+export async function getAllContactSubmissions() {
+  console.warn('getAllContactSubmissions is a stub using Supabase');
+  return [];
+}
+
+export async function getAllPetsForAdmin() {
+  console.warn('getAllPetsForAdmin is a stub using Supabase');
+  return [];
+}
+
+export async function getCoupons() {
+  console.warn('getCoupons is a stub using Supabase');
+  return [];
+}

@@ -130,12 +130,12 @@ export default function LandingHomePage() {
     <div className="flex grow flex-col">
       {/* Navbar */}
       <Navbar />
-      
+
       {/* Always show the public landing page */}
       <PublicLandingPage t={t} router={router} />
-      
+
       {/* Cookie Consent */}
-      <CookieConsent 
+      <CookieConsent
         onAccept={handleCookieAccept}
         onReject={handleCookieReject}
       />
@@ -155,9 +155,9 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
           <div className="hidden sm:flex relative items-center justify-center h-[calc(100vh-4rem)]">
             {/* Desktop: Pet Icons Around Text - all 6 pets in horizontal oval */}
             <div className="absolute inset-0 flex items-center justify-center">
-          {petCharacters.map((pet, index) => (
-            <AnimatedPetAroundText key={pet.id} pet={pet} index={index} />
-          ))}
+              {petCharacters.map((pet, index) => (
+                <AnimatedPetAroundText key={pet.id} pet={pet} index={index} />
+              ))}
             </div>
 
             {/* Text and Button in the center */}
@@ -166,7 +166,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
                 <p className="text-gray-500">{t('upperTitle')}</p>
                 <p className="text-black">{t('lowerTitle')}</p>
               </div>
-              
+
               {/* Desktop Get Started Button */}
               <div className="mt-8 flex w-full items-center justify-center">
                 <Button
@@ -189,7 +189,7 @@ const PublicLandingPage = ({ t, router }: { t: any; router: any }) => {
               </div>
               <AnimatedPetSimple pet={petCharacters[5]} size={80} /> {/* bear */}
             </div>
-            
+
             <div className="text-center text-3xl lg:text-4xl pt-4 mt-[30px]">
               <p className="text-gray-500">{t('upperTitle')}</p>
               <p className="text-black">{t('lowerTitle')}</p>
@@ -254,7 +254,7 @@ type AnimatedPetProps = {
 const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   const [isFalling, setIsFalling] = useState(false);
   const [hasFallen, setHasFallen] = useState(false);
-  
+
   // Detect mobile - initialize correctly to avoid flash
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -262,7 +262,7 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     }
     return false;
   });
-  
+
   // Update on resize
   useEffect(() => {
     const checkMobile = () => {
@@ -271,7 +271,7 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   // Calculate floor position (bottom of section)
   const floorPosition = 350;
 
@@ -305,10 +305,10 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     baseX = centerX + ovalWidth * Math.cos(angle);
     baseY = centerY + ovalHeight * Math.sin(angle);
   }
-  
+
   // Responsive pet size
   const responsiveSize = isMobile ? pet.size * 0.5 : pet.size; // 50% size on mobile
-  
+
   // Create smooth floating animation around the oval position
   const baseMovement = 15;
   const floatingPath = {
@@ -345,7 +345,7 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
       1
     ]
   };
-  
+
   // Falling animation when tapped
   const fallingPath = {
     y: floorPosition - baseY, // Fall to floor
@@ -353,11 +353,11 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
     rotate: 360 + (pet.id % 2 === 0 ? 180 : 0), // Spin while falling
     scale: [1, 0.9, 1] // Slight bounce on impact
   };
-  
+
   const handleTap = () => {
     if (!isFalling && !hasFallen) {
       setIsFalling(true);
-      
+
       // After falling animation completes, keep pet on floor
       setTimeout(() => {
         setIsFalling(false);
@@ -365,7 +365,7 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
       }, 2000);
     }
   };
-  
+
   return (
     <motion.img
       src={pet.src}
@@ -385,21 +385,21 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
       transition={
         isFalling
           ? {
-              duration: 1.5,
-              ease: [0.55, 0.085, 0.68, 0.53], // Ease out for gravity effect
-              scale: {
-                duration: 0.3,
-                delay: 1.2,
-                ease: 'easeOut'
-              }
+            duration: 1.5,
+            ease: [0.55, 0.085, 0.68, 0.53], // Ease out for gravity effect
+            scale: {
+              duration: 0.3,
+              delay: 1.2,
+              ease: 'easeOut'
             }
+          }
           : {
-              duration: 8 + (pet.id % 3) * 2, // Vary duration between 8-12 seconds
-              ease: [0.4, 0, 0.2, 1], // Smooth easing
-              repeat: Infinity,
-              delay: 0.2 * pet.id, // Stagger delays
-              repeatType: 'reverse'
-            }
+            duration: 8 + (pet.id % 3) * 2, // Vary duration between 8-12 seconds
+            ease: [0.4, 0, 0.2, 1], // Smooth easing
+            repeat: Infinity,
+            delay: 0.2 * pet.id, // Stagger delays
+            repeatType: 'reverse'
+          }
       }
       onTap={handleTap}
       onClick={handleTap}
@@ -423,40 +423,14 @@ const AnimatedPetSimple = ({ pet, size }: { pet: Pet; size: number }) => {
   };
 
   return (
-    <motion.img
+    // Optimized for mobile: Static image without heavy animation loop
+    <Image
       src={pet.src}
       alt={pet.alt}
       width={size}
       height={size}
-      className="object-contain cursor-pointer"
-      animate={
-        hasFallen
-          ? { y: 0, rotate: 0, scale: 1 }
-          : isFalling
-          ? {
-              y: 100,
-              rotate: 360,
-              scale: [1, 0.9, 1],
-              transition: {
-                duration: 1.5,
-                ease: [0.55, 0.085, 0.68, 0.53] as any
-              }
-            }
-          : {
-              y: [0, -10, 5, -8, 0],
-              rotate: [0, -5, 5, -3, 0],
-              scale: [1, 1.05, 0.95, 1.02, 1],
-              transition: {
-                duration: 4 + (pet.id % 3) * 1.5,
-                ease: [0.4, 0, 0.2, 1] as any,
-                repeat: Infinity,
-                delay: 0.2 * pet.id,
-                repeatType: 'reverse' as const
-              }
-            }
-      }
-      onTap={handleTap}
-      onClick={handleTap}
+      className="object-contain"
+      priority={true}
     />
   );
 };
@@ -494,11 +468,11 @@ const AnimatedPet = ({ pet }: AnimatedPetProps) => {
         top: `calc(${pet.top}px)`,
         ...(pet.isRight
           ? {
-              right: `calc(50% + ${pet.right}px)`
-            }
+            right: `calc(50% + ${pet.right}px)`
+          }
           : {
-              left: `calc(50% - ${pet.right}px)`
-            }),
+            left: `calc(50% - ${pet.right}px)`
+          }),
         willChange: 'transform'
       }}
       animate={{
