@@ -74,5 +74,40 @@ export async function getMobileAppLinks() {
   };
 }
 
+// Ads stubs
+export type AdStatus = 'active' | 'inactive' | 'pending';
+export type AdType = 'image' | 'video';
+
+export interface Ad {
+  id: string;
+  title: string;
+  content: string;
+  type: AdType;
+  status: AdStatus;
+  startDate: string | null;
+  endDate: string | null;
+  phone?: string;
+  location?: string;
+  description?: string;
+  tags?: string[];
+  area?: string;
+  city?: string[];
+  petType?: string;
+  breed?: string;
+  ageRange?: string[];
+  weight?: string[];
+  views: number;
+  clicks: number;
+}
+
+export async function updateAd(id: string, data: any) {
+  throw new Error('Admin functions need to be rewritten for Supabase');
+}
+
+export async function deleteAd(id: string) {
+  throw new Error('Admin functions need to be rewritten for Supabase');
+}
+
+
 // Add more stub functions as needed
 // TODO: Rewrite all admin functions to use Supabase
