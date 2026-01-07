@@ -23,7 +23,7 @@ export default function SettingsPage() {
   const pathname = usePathname();
   const t = useTranslations('pages.UserSettingsPage');
   const locale = useLocale();
-  const { user, loading: authLoading, sendDeletionVerificationCode, signOut } = useAuth();
+  const { user, dbUser, loading: authLoading, sendDeletionVerificationCode, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -58,66 +58,33 @@ export default function SettingsPage() {
 
   // Initialize form data when user loads
   useEffect(() => {
-    if (user && user.uid) {
-      const loadUserData = async () => {
-        try {
-          // Try to get user data from Firestore first
-          const userResult = await getUserFromFirestore(user.uid);
+    if (user && dbUser) {
+      // Use database user data (already loaded by AuthContext)
+      console.log('Loading user data from database:', dbUser);
 
-          if (userResult.success && userResult.user) {
-            // Use Firestore data if available - prioritize Firestore over Firebase Auth
-            console.log('Loading user data from Firestore:');
-            console.log('- Firebase Auth user.displayName:', user.displayName);
-            console.log('- Firestore userResult.user.displayName:', userResult.user.displayName);
-            console.log('- Firestore userResult.user:', userResult.user);
-
-            // Prioritize Firestore displayName over Firebase Auth displayName
-            const fullName = userResult.user.displayName || user.displayName || '';
-            console.log('- Final fullName being set (prioritizing Firestore):', fullName);
-
-            setFormData(prev => ({
-              ...prev,
-              fullName: fullName,
-              phone: userResult.user.phone || '',
-              address: userResult.user.address || '',
-              profileImageURL: userResult.user.profile_image || user.photoURL || '',
-              language: locale // Always use current locale, not stored preference
-            }));
-          } else {
-            // Fallback to localStorage and Firebase Auth data
-            setFormData(prev => ({
-              ...prev,
-              fullName: user.displayName || '',
-              address: '',
-              profileImageURL: user.photoURL || '',
-              language: locale // Always use current locale
-            }));
-          }
-        } catch (error) {
-          console.error('Error loading user data:', error);
-          // Fallback to basic data
-          setFormData(prev => ({
-            ...prev,
-            fullName: user.displayName || '',
-            address: '',
-            profileImageURL: user.photoURL || '',
-            language: locale // Always use current locale
-          }));
-        }
-      };
-
-      loadUserData();
-    } else if (user && !user.uid) {
-      // User exists but uid is missing - use basic Firebase Auth data
-      console.warn('User uid is missing, using Firebase Auth data only');
       setFormData(prev => ({
         ...prev,
-        fullName: user.displayName || '',
-        profileImageURL: user.photoURL || '',
+        fullName: dbUser.display_name || dbUser.full_name || '',
+        phone: dbUser.phone || '',
+        address: dbUser.address || '',
+        profileImageURL: dbUser.profile_image || user.user_metadata?.avatar_url || '',
+        language: locale // Always use current locale, not stored preference
+      }));
+    } else if (user && !dbUser) {
+      // User authenticated but no database record yet - use Supabase auth metadata
+      console.log('Using Supabase auth metadata:', user.user_metadata);
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
+      const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+
+      setFormData(prev => ({
+        ...prev,
+        fullName: fullName,
+        address: '',
+        profileImageURL: avatarUrl,
         language: locale
       }));
     }
-  }, [user, locale]);
+  }, [user, dbUser, locale]);
 
   // Update language when locale changes
   useEffect(() => {
@@ -212,10 +179,12 @@ export default function SettingsPage() {
             profileImageURL: result.downloadURL
           }));
 
-          // Update user profile in Firestore
-          await updateUserByUid(user.uid, {
-            profileImage: result.downloadURL
-          });
+          // Update user profile in database
+          if (dbUser?.uid) {
+            await updateUserByUid(dbUser.uid, {
+              profileImage: result.downloadURL
+            });
+          }
 
           toast.success('Profile image uploaded successfully!');
         } else {
@@ -270,12 +239,12 @@ export default function SettingsPage() {
   const handleSave = async (showToast: boolean = true) => {
     setSaving(true);
     try {
-      if (!user) {
+      if (!user || !dbUser) {
         toast.error('User not authenticated');
         return;
       }
 
-      if (!user.uid) {
+      if (!dbUser.uid) {
         toast.error('User ID not available - please sign in again');
         return;
       }
@@ -318,46 +287,41 @@ export default function SettingsPage() {
         updateData.profileImage = formData.profileImageURL;
       }
 
-      const userResult = await updateUserByUid(user.uid, updateData);
+      // Only update if we have a database user with uid
+      if (!dbUser?.uid) {
+        console.error('Cannot update user: dbUser or uid is missing');
+        if (showToast) {
+          toast.error('Failed to save: User not found');
+        }
+        return;
+      }
+
+      const userResult = await updateUserByUid(dbUser.uid, updateData);
 
       if (!userResult.success) {
-        console.error('Failed to update user in Firestore:', userResult.error);
+        console.error('Failed to update user in database:', userResult.error);
         if (showToast) {
           toast.error('Failed to save some preferences');
         }
       } else {
-        // Also update Firebase Auth profile if displayName was changed
-        if (formData.fullName && formData.fullName !== user.displayName) {
-          // Firebase Auth update temporarily disabled due to dependency removal
-          /*
-          try {
-            const { updateProfile } = await import('firebase/auth');
-            await updateProfile(user, {
-              displayName: formData.fullName
-            });
-            console.log('Firebase Auth displayName updated successfully');
-          } catch (authError) {
-            console.error('Failed to update Firebase Auth displayName:', authError);
-            // Don't show error to user since Firestore was updated successfully
-          }
-          */
-        }
-
         if (showToast) {
           toast.success('Profile updated successfully!');
         }
 
         // Reload user data to ensure latest information is displayed
-        if (user) {
-          const userResult = await getUserFromFirestore(user.uid);
+        if (dbUser?.uid) {
+          const userResult = await getUserFromFirestore(dbUser.uid);
           if (userResult.success && userResult.user) {
             console.log('Reloading user data after save:', userResult.user);
+            const fullName = userResult.user.display_name || userResult.user.full_name || '';
+            const avatarUrl = userResult.user.profile_image || user.user_metadata?.avatar_url || '';
+
             setFormData(prev => ({
               ...prev,
-              fullName: userResult.user.displayName || user.displayName || '',
+              fullName: fullName,
               phone: userResult.user.phone || '',
               address: userResult.user.address || '',
-              profileImageURL: userResult.user.profile_image || user.photoURL || '',
+              profileImageURL: avatarUrl,
               acceptCookies: userResult.user.accept_cookies || false,
               language: locale,
               freeCouponPrice: userResult.user.freeCouponPrice || false
@@ -388,7 +352,8 @@ export default function SettingsPage() {
     setDeletingAccount(true);
     try {
       // Send deletion verification code
-      const result = await sendDeletionVerificationCode(user.email!, user.displayName || 'User');
+      const userName = dbUser?.display_name || dbUser?.full_name || user.user_metadata?.full_name || 'User';
+      const result = await sendDeletionVerificationCode(user.email!, userName);
 
       if (result.success) {
         toast.success('Verification code sent to your email');
@@ -484,11 +449,12 @@ export default function SettingsPage() {
 
   // Show deletion verification page if needed
   if (showDeletionVerification) {
-    console.log('🔍 Rendering DeletionVerificationPage with email:', user.email);
+    console.log('🔍 Rendering DeletionVerificationPage with email:', user?.email);
+    const userName = dbUser?.display_name || dbUser?.full_name || user?.user_metadata?.full_name || 'User';
     return (
       <DeletionVerificationPage
-        email={user.email!}
-        userName={user.displayName || 'User'}
+        email={user!.email!}
+        userName={userName}
         onVerified={handleVerifiedDeletion}
         onBack={() => setShowDeletionVerification(false)}
       />
@@ -568,9 +534,15 @@ export default function SettingsPage() {
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
-                  ) : user?.photoURL ? (
+                  ) : dbUser?.profile_image ? (
                     <img
-                      src={user.photoURL}
+                      src={dbUser.profile_image}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : user?.user_metadata?.avatar_url ? (
+                    <img
+                      src={user.user_metadata.avatar_url}
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />

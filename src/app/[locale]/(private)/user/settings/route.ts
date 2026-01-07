@@ -4,13 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 /**
- * POST handler for the root route
+ * POST handler for the user settings route
  * This handles POST requests that might come from forms, prefetch, or other sources
  */
 export async function POST(request: NextRequest) {
   try {
     // Log the POST request for debugging
-    console.log('POST request received at root:', {
+    console.log('POST request received at user/settings:', {
       url: request.url,
       headers: Object.fromEntries(request.headers.entries()),
     });
