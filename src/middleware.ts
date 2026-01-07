@@ -6,7 +6,19 @@ import { routing } from './i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 const middleware = (req: NextRequest) => {
-  const { pathname } = req.nextUrl;
+  const { pathname, searchParams } = req.nextUrl;
+  const method = req.method;
+
+  // Block POST requests to root endpoints - prevent unnecessary POST to /
+  // This policy prevents iOS Safari from hammering the server with POST requests
+  if (method === 'POST' && (pathname === '/' || pathname === '' || !pathname.includes('api'))) {
+    // Only allow legitimate API routes to handle POST requests
+    console.warn(`[Policy] Blocked unauthorized POST request to ${pathname}`);
+    return NextResponse.json(
+      { error: 'Method not allowed', message: 'POST requests to root are not permitted' },
+      { status: 405 }
+    );
+  }
 
   // Check if the request is for admin routes
   const isAdminRoute = pathname.includes('/admin');

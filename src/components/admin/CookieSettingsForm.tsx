@@ -80,7 +80,8 @@ export default function CookieSettingsForm({ initialData }: CookieSettingsFormPr
         setSuccess(true);
         setTimeout(() => {
           setSuccess(false);
-          router.refresh();
+          // Avoid router.refresh() which causes POST to / on iOS memory issues
+          // Just close the success message instead
         }, 2000);
       } else {
         setError(result.error || 'Failed to save cookie settings');

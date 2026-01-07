@@ -8,9 +8,10 @@ import GoogleSignupHandler from '@/components/GoogleSignupHandler';
 import AnalyticsWrapper from '@/components/AnalyticsWrapper';
 import './globals.css';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+// Optimize caching for iOS - don't force dynamic for every request
+// Use default caching behavior to reduce server load on reload
+export const revalidate = 60; // 60 second cache for iOS performance
+export const fetchCache = 'force-cache'; // Cache by default, reduce iOS memory strain
 
 export const metadata: Metadata = {
   title: 'Chapiz',

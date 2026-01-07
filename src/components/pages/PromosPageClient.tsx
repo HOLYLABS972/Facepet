@@ -90,15 +90,29 @@ export default function PromosPageClient({ promos, business, businesses = [] }: 
   }, [loadUsedPromos]);
 
   // Refresh when returning to the page (e.g., after using a coupon)
+  // Use debouncing to prevent excessive requests on iOS
   useEffect(() => {
+    let isMounted = true;
+    let debounceTimer: NodeJS.Timeout | null = null;
+
     const handleFocus = () => {
-      if (user && activeTab === 'history') {
-        loadUsedPromos();
-      }
+      if (!isMounted) return;
+      
+      // Debounce to prevent rapid-fire requests on iOS
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (user && activeTab === 'history' && isMounted) {
+          loadUsedPromos();
+        }
+      }, 500); // Wait 500ms before loading to avoid multiple rapid calls
     };
 
     window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      isMounted = false;
+    };
   }, [user, activeTab, loadUsedPromos]);
 
   // Update coupon URL when selected promo changes

@@ -74,7 +74,8 @@ export default function InstallBannerSettingsForm({ initialData }: InstallBanner
         toast.success('Install banner settings saved successfully!');
         setTimeout(() => {
           setSuccess(false);
-          router.refresh();
+          // Avoid router.refresh() which causes POST to / on iOS memory issues
+          // Just close the success message instead
         }, 2000);
       } else {
         setError(result.error || 'Failed to save install banner settings');

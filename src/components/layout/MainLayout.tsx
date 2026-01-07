@@ -9,6 +9,7 @@ import AdDisplayManager from '@/components/AdDisplayManager';
 import InstallBanner from '@/components/InstallBanner';
 import Navbar from './Navbar';
 import BottomNavigation from './BottomNavigation';
+import { initializeIOSOptimizations } from '@/lib/ios-optimization';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,11 @@ const MainLayout = ({ children, direction }: MainLayoutProps) => {
   const isAdminRoute = pathname?.startsWith('/admin');
   const isAuthRoute = pathname?.startsWith('/auth');
   const { user, loading } = useAuth();
+
+  // Initialize iOS optimizations on mount
+  useEffect(() => {
+    initializeIOSOptimizations();
+  }, []);
 
   // Remove background for non-authenticated users
   // Body background class manipulation removed to prevent layout thrashing on mobile
