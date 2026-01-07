@@ -1,12 +1,4 @@
 // lib/clients.ts
-import { Client as QStashClient } from '@upstash/qstash';
-import { Client as WorkflowClient } from '@upstash/workflow';
+// Upstash clients have been removed as dependencies were migrated to in-memory solutions
+// For workflows, use the in-memory queue in lib/ratelimit.ts or implement as needed
 
-export const workflowClient = new WorkflowClient({
-  baseUrl: process.env.QSTASH_URL!,
-  token: process.env.QSTASH_TOKEN!
-});
-
-export const qstashClient = new QStashClient({
-  token: process.env.QSTASH_TOKEN!
-});
