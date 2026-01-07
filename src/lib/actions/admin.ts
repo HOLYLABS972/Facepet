@@ -153,6 +153,16 @@ export async function getCouponById(id: string) {
   };
 }
 
+export async function updateCoupon(id: string, data: UpdateCouponData) {
+  console.warn('updateCoupon is a stub using Supabase');
+  return { success: true };
+}
+
+export async function deleteCoupon(id: string) {
+  console.warn('deleteCoupon is a stub using Supabase');
+  return { success: true };
+}
+
 // Add more stub functions as needed
 // TODO: Rewrite all admin functions to use Supabase
 
@@ -253,4 +263,85 @@ export async function getPetsByUserEmail(email: string) {
     console.error('Exception in getPetsByUserEmail:', error);
     return [];
   }
+}
+
+// Additional stub functions for admin components
+export async function createPromo(data: CreatePromoData) {
+  throw new Error('createPromo needs to be rewritten for Supabase');
+}
+
+export async function updatePromo(id: string, data: UpdatePromoData) {
+  throw new Error('updatePromo needs to be rewritten for Supabase');
+}
+
+export async function deletePromo(id: string) {
+  throw new Error('deletePromo needs to be rewritten for Supabase');
+}
+
+export async function getRecentActivity() {
+  console.warn('getRecentActivity is a stub using Supabase');
+  return [];
+}
+
+export async function getAllAds() {
+  console.warn('getAllAds is a stub using Supabase');
+  return [];
+}
+
+export async function getFilters() {
+  console.warn('getFilters is a stub using Supabase');
+  return [];
+}
+
+export async function createFilter(data: CreateFilterData) {
+  throw new Error('createFilter needs to be rewritten for Supabase');
+}
+
+export async function updateFilter(id: string, data: UpdateFilterData) {
+  throw new Error('updateFilter needs to be rewritten for Supabase');
+}
+
+export async function deleteFilter(id: string) {
+  throw new Error('deleteFilter needs to be rewritten for Supabase');
+}
+
+export async function bulkDeleteBusinesses(ids: string[]) {
+  throw new Error('bulkDeleteBusinesses needs to be rewritten for Supabase');
+}
+
+export async function bulkUpdateBusinesses(ids: string[], data: Partial<UpdateBusinessData>) {
+  throw new Error('bulkUpdateBusinesses needs to be rewritten for Supabase');
+}
+
+export async function bulkAssignTags(ids: string[], tags: string[]) {
+  throw new Error('bulkAssignTags needs to be rewritten for Supabase');
+}
+
+export async function deleteComment(id: string) {
+  throw new Error('deleteComment needs to be rewritten for Supabase');
+}
+
+export async function saveContactInfo(data: any) {
+  throw new Error('saveContactInfo needs to be rewritten for Supabase');
+}
+
+export async function updateContactInfo(data: any) {
+  throw new Error('updateContactInfo needs to be rewritten for Supabase');
+}
+
+export async function createAudience(data: CreateAudienceData) {
+  throw new Error('createAudience needs to be rewritten for Supabase');
+}
+
+export async function updateAudience(id: string, data: UpdateAudienceData) {
+  throw new Error('updateAudience needs to be rewritten for Supabase');
+}
+
+export async function deleteAudience(id: string) {
+  throw new Error('deleteAudience needs to be rewritten for Supabase');
+}
+
+export async function getAudiences() {
+  console.warn('getAudiences is a stub using Supabase');
+  return [];
 }

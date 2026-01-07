@@ -33,8 +33,6 @@ const nextConfig = {
         moduleIds: 'deterministic',
         runtimeChunk: 'single',
         minimize: true,
-        usedExports: true, // Enable tree-shaking
-        sideEffects: false,
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
@@ -111,8 +109,9 @@ const nextConfig = {
   experimental: {
     optimizeCss: false,
     scrollRestoration: true,
-    isrMemoryCacheSize: 50 * 1024 * 1024, // 50MB ISR cache
   },
+  // Cache configuration
+  cacheMaxMemorySize: 50 * 1024 * 1024, // 50MB ISR cache
   // Strip console logs in production
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
