@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useRandomAd } from '@/hooks/useRandomAd';
-import { usePathname, useRouter } from '@/i18n/routing';
+import { usePathname, useRouter } from 'next/navigation';
 import { usePetId } from '@/src/hooks/use-pet-id';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslations } from 'next-intl';

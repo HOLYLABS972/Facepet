@@ -5,7 +5,7 @@ import PetDetailsPage from '@/components/get-started/PetDetailsPage';
 import VetDetailsPage from '@/components/get-started/VetDetailsPage';
 import GetStartedFloatingActionButton from '@/components/get-started/ui/GetStartedFloatingActionButton';
 import GetStartedProgressDots from '@/components/get-started/ui/GetStartedProgressDots';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { usePetId } from '@/src/hooks/use-pet-id';
 import { useParams } from 'next/navigation';
 import { createPetInFirestore } from '@/src/lib/supabase/database/pets';

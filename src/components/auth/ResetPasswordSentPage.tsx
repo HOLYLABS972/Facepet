@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/src/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';

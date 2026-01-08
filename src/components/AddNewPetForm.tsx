@@ -10,7 +10,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Upload, Loader2, CheckCircle, XCircle, ArrowRight, ArrowLeft, Heart, Star, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { BreedSelect } from './ui/breed-select';
 import { getBreedsForType, getLocalizedBreedsForType, type PetType } from '@/src/lib/data/breeds';
 import { motion, AnimatePresence } from 'framer-motion';

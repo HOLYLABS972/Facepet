@@ -10,7 +10,7 @@ import InviteFriendsCard from './InviteFriendsCard';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { getBreedNameById } from '@/src/lib/supabase/database/pets';
 import { supabase } from '@/src/lib/supabase/client';

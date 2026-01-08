@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 
 const petImages = {
   bear: '/pets/bear.png',

@@ -3,7 +3,7 @@
 import { useDirection } from '@radix-ui/react-direction';
 import { motion } from 'framer-motion';
 import { ArrowRight, Pencil, PawPrint } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';

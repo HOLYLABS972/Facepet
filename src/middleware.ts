@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(req: NextRequest) {
-  // Handle all POST requests - return 200 OK
+  // Handle all POST requests - return 200 OK to prevent 405 errors
   if (req.method === 'POST') {
     return NextResponse.json({ success: true }, { status: 200 });
   }

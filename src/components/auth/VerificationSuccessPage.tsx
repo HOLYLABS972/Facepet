@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { CheckCircle, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';

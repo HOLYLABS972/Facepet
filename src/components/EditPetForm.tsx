@@ -10,7 +10,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Upload, Loader2, CheckCircle, XCircle, Save, ArrowLeft, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/supabase/database/pets';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';

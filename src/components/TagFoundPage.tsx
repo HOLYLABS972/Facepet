@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { usePetId } from '@/src/hooks/use-pet-id';

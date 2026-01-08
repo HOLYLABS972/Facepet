@@ -1,7 +1,7 @@
 'use client';
 
 import { Gift, Ticket, PawPrint, MapPin, Mail, LogIn } from 'lucide-react';
-import { Link, usePathname } from '@/i18n/routing';
+import { Link, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/src/contexts/AuthContext';
 

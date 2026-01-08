@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Smartphone, Tag, Download, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { getMobileAppLinks } from '@/src/lib/actions/admin';
 import { getBreedNameById } from '@/src/lib/supabase/database/pets';

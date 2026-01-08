@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/src/lib/firebase/config';
 import toast from 'react-hot-toast';

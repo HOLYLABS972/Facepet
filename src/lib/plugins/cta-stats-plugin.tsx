@@ -7,7 +7,7 @@
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import CountUp from 'react-countup';
 
 export const StatsPlugin = () => {

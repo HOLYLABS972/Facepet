@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { redirect } from '@/i18n/routing';
+import { redirect } from 'next/navigation';
 import { getAllUsers } from '@/lib/actions/admin';
 import { format } from 'date-fns';
 import { ArrowDown, ArrowUp, Search, Coins } from 'lucide-react';

@@ -2,7 +2,7 @@
 
 import Navbar from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import CountUp from 'react-countup';

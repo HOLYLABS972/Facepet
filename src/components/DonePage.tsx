@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
-import { useRouter } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Navbar from './layout/Navbar';
