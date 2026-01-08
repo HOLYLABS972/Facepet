@@ -8,10 +8,9 @@ import GoogleSignupHandler from '@/components/GoogleSignupHandler';
 import AnalyticsWrapper from '@/components/AnalyticsWrapper';
 import './globals.css';
 
-// Optimize caching for iOS - don't force dynamic for every request
-// Use default caching behavior to reduce server load on reload
-export const revalidate = 60; // 60 second cache for iOS performance
-export const fetchCache = 'force-cache'; // Cache by default, reduce iOS memory strain
+// Optimize for iOS Safari - disable aggressive caching that causes refresh issues
+export const revalidate = 0; // Disable ISR caching to prevent iOS refresh errors
+export const fetchCache = 'default-cache'; // Use default caching behavior
 
 export const metadata: Metadata = {
   title: 'Chapiz',
@@ -28,14 +27,18 @@ export const metadata: Metadata = {
   manifest: '/icons/site.webmanifest',
   appleWebApp: {
     title: 'Chapiz',
-    statusBarStyle: 'default'
+    statusBarStyle: 'default',
+    capable: true
   },
   // For meta tags that are not directly supported (like Microsoft's navbutton color),
   // you can add them under the `other` property.
   other: {
     'msapplication-navbutton-color': '#eff1f6',
     'google': 'notranslate',
-    'translate': 'no'
+    'translate': 'no',
+    // iOS Safari specific - prevent aggressive caching
+    'format-detection': 'telephone=no',
+    'apple-mobile-web-app-capable': 'yes'
   }
 };
 
