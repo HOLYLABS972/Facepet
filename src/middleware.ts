@@ -1,4 +1,8 @@
+import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
+import { routing } from './i18n/routing';
+
+const intlMiddleware = createMiddleware(routing);
 
 export function middleware(req: NextRequest) {
   // Handle all POST requests - return 200 OK to prevent 405 errors
@@ -6,8 +10,8 @@ export function middleware(req: NextRequest) {
     return NextResponse.json({ success: true }, { status: 200 });
   }
 
-  // Pass through all other requests
-  return NextResponse.next();
+  // Handle internationalization for GET requests
+  return intlMiddleware(req);
 }
 
 export const config = {
