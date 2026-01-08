@@ -253,8 +253,9 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   // Detect mobile - initialize correctly to avoid flash
   // PERFORMANCE CRITICAL: Initialize to FALSE.
   // We assume NOT desktop initially to prevent any heavy rendering on mobile.
-  // We will only enable this component after verifying window width > 640px.
+  // We will only enable this component after verifying window width >= 640px.
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   // Update on resize
   useEffect(() => {
@@ -263,8 +264,15 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
       setIsDesktop(window.innerWidth >= 640);
     };
 
+    // Detect iOS
+    const checkIOS = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      setIsIOS(/iphone|ipad|ipod/.test(userAgent));
+    };
+
     // Initial check
     checkDesktop();
+    checkIOS();
 
     window.addEventListener('resize', checkDesktop);
     return () => window.removeEventListener('resize', checkDesktop);
@@ -274,7 +282,8 @@ const AnimatedPetAroundText = ({ pet, index }: AnimatedPetProps) => {
   // Default to NOT rendering (safe for mobile).
   // Only render if we have confirmed we are on a desktop screen.
   // This ensures zero memory cost on mobile devices.
-  if (!isDesktop) {
+  // CRITICAL: Disable on iOS to prevent crashes
+  if (!isDesktop || isIOS) {
     return null;
   }
 
