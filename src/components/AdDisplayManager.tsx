@@ -5,12 +5,12 @@ import { useClickTracker } from '@/hooks/useClickTracker';
 import { usePetId } from '@/hooks/use-pet-id';
 import { fetchRandomAd } from '@/lib/actions/ads-server';
 import AdFullPage from './get-started/AdFullPage';
-import { usePathname } from 'next/navigation';
+import { useLocation } from 'react-router-dom';
 import { getYouTubeVideoId } from '@/lib/utils/youtube';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdDisplayManager() {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const { user } = useAuth();
   const { shouldShowAd, resetAdFlag } = useClickTracker();
   const { petId } = usePetId();
@@ -108,7 +108,7 @@ export default function AdDisplayManager() {
     // Detect if content is a YouTube URL
     const isYouTube = ad.content.includes('youtube.com') || ad.content.includes('youtu.be') || getYouTubeVideoId(ad.content) !== null;
     const adType = isYouTube ? 'youtube' : (ad.type || 'image');
-    
+
     return (
       <AdFullPage
         type={adType}

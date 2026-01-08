@@ -10,11 +10,11 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Upload, Loader2, CheckCircle, XCircle, ArrowRight, ArrowLeft, Heart, Star, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { BreedSelect } from './ui/breed-select';
 import { getBreedsForType, getLocalizedBreedsForType, type PetType } from '@/src/lib/data/breeds';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslation } from 'react-i18next';
 
 interface PetFormData {
   name: string;
@@ -30,15 +30,15 @@ interface UploadProgress {
 }
 
 export default function AddNewPetForm() {
-  const t = useTranslations('Pet.add');
-  const locale = useLocale() as 'en' | 'he';
-  
+  const { t, i18n } = useTranslation('Pet');
+  const locale = (i18n.language || 'en') as 'en' | 'he';
+
   const PET_TYPES = [
     { id: 'cat', name: t('types.cat'), emoji: '🐱', icon: '🐱' },
     { id: 'dog', name: t('types.dog'), emoji: '🐶', icon: '🐶' },
     { id: 'other', name: t('types.other'), emoji: '🐾', icon: '🐾' }
   ];
-  
+
   const STEPS = [
     { id: 1, title: t('steps.type.title'), description: t('steps.type.description') },
     { id: 2, title: t('steps.breed.title'), description: t('steps.breed.description') },
@@ -53,7 +53,7 @@ export default function AddNewPetForm() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const [breedId, setBreedId] = useState<string>('');
-  
+
   const [formData, setFormData] = useState<PetFormData>({
     name: '',
     type: '',
@@ -98,7 +98,7 @@ export default function AddNewPetForm() {
 
     try {
       const result = await uploadPetImage(file, user);
-      
+
       if (result.success && result.downloadURL) {
         setFormData(prev => ({
           ...prev,
@@ -204,11 +204,10 @@ export default function AddNewPetForm() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleInputChange('type', type.id)}
-                  className={`p-6 rounded-2xl border-2 transition-all duration-200 ${
-                    formData.type === type.id
+                  className={`p-6 rounded-2xl border-2 transition-all duration-200 ${formData.type === type.id
                       ? 'border-primary bg-primary/10 shadow-lg'
                       : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <div className="text-4xl mb-2">{type.icon}</div>
                   <div className="text-sm font-medium text-gray-700">{type.name}</div>
@@ -317,7 +316,7 @@ export default function AddNewPetForm() {
               <h3 className="text-xl font-semibold text-gray-800">{t('photo.title', { name: formData.name })}</h3>
               <p className="text-gray-600">{t('photo.description')}</p>
             </div>
-            
+
             <div className="flex justify-center">
               <div className="relative">
                 <input
@@ -438,19 +437,17 @@ export default function AddNewPetForm() {
             {STEPS.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    currentStep >= step.id
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${currentStep >= step.id
                       ? 'bg-primary text-white'
                       : 'bg-gray-200 text-gray-500'
-                  }`}
+                    }`}
                 >
                   {currentStep > step.id ? <CheckCircle className="w-4 h-4" /> : step.id}
                 </div>
                 {index < STEPS.length - 1 && (
                   <div
-                    className={`w-8 h-0.5 mx-2 ${
-                      currentStep > step.id ? 'bg-primary' : 'bg-gray-200'
-                    }`}
+                    className={`w-8 h-0.5 mx-2 ${currentStep > step.id ? 'bg-primary' : 'bg-gray-200'
+                      }`}
                   />
                 )}
               </div>
@@ -461,7 +458,7 @@ export default function AddNewPetForm() {
             <p className="text-gray-600">{STEPS[currentStep - 1].description}</p>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <AnimatePresence mode="wait">
             {renderStepContent()}

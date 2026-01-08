@@ -10,11 +10,10 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Upload, Loader2, CheckCircle, XCircle, Save, ArrowLeft, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { getBreedsForDropdown, getGendersForDropdown, getPetTypesForDropdown } from '@/src/lib/supabase/database/pets';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import GetStartedDatePicker from './get-started/ui/GetStartedDatePicker';
 import { AutocompleteBreedInput } from './ui/autocomplete-breed-input';
 import { getLocalizedBreedsForType } from '@/src/lib/data/breeds';
@@ -58,9 +57,10 @@ interface UploadProgress {
 
 export default function EditPetForm({ pet }: EditPetFormProps) {
   const { user } = useAuth();
-  const router = useRouter();
-  const t = useTranslations('Pet.edit');
-  const locale = useLocale() as 'en' | 'he';
+  const navigate = useNavigate();
+  const { t, i18n } = useTranslation('Pet');
+
+  const locale = (i18n.language || 'en') as 'en' | 'he';
   const [formData, setFormData] = useState<PetFormData>({
     name: pet.name || '',
     type: pet.type || '',
@@ -95,7 +95,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
           getGendersForDropdown(locale),
           getPetTypesForDropdown(locale)
         ]);
-        
+
         setBreeds(breedsData);
         setGenders(gendersData);
         setPetTypes(typesData);
@@ -117,7 +117,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
         const localizedBreeds = getLocalizedBreedsForType(formData.type as 'dog' | 'cat' | 'other', locale);
         const matchingBreed = localizedBreeds.find(
           breed => breed.name.toLowerCase() === formData.breed.toLowerCase() ||
-                   breed.name === formData.breed
+            breed.name === formData.breed
         );
         if (matchingBreed) {
           setBreedId(matchingBreed.id);
@@ -178,7 +178,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
 
     try {
       const result = await uploadPetImage(file, user);
-      
+
       if (result.success && result.downloadURL) {
         setFormData(prev => ({
           ...prev,
@@ -213,15 +213,15 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
       });
 
       if (response.ok) {
-        toast.success(t('deleteSuccess'));
-        router.push('/pages/my-pets');
+        toast.success(t('edit.deleteSuccess'));
+        navigate('/pages/my-pets');
       } else {
         const errorData = await response.json();
-        toast.error(errorData.message || t('deleteError'));
+        toast.error(errorData.message || t('edit.deleteError'));
       }
     } catch (error) {
       console.error('Delete pet error:', error);
-      toast.error(t('deleteError'));
+      toast.error(t('edit.deleteError'));
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -251,12 +251,12 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
       console.log('Original pet name:', pet.name);
       console.log('Form data name:', formData.name);
       console.log('Pet data name being sent:', petData.name);
-      
+
       const updateResult = await updatePetInFirestore(pet.id, petData);
       console.log('Update result:', updateResult);
-      
+
       if (updateResult.success) {
-        toast.success(t('success'));
+        toast.success(t('edit.success'));
         // Force refresh the page to ensure updated data is displayed
         window.location.href = '/pages/my-pets';
       } else {
@@ -264,7 +264,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
       }
     } catch (error) {
       console.error('Error updating pet:', error);
-      toast.error(t('error'));
+      toast.error(t('edit.error'));
       setUploadProgress({ progress: 0, status: 'error' });
     } finally {
       setIsSubmitting(false);
@@ -286,13 +286,13 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.back()}
+                onClick={() => navigate(-1)}
                 className="absolute left-0 top-1/2 -translate-y-1/2"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <CardTitle className="text-2xl font-bold text-gray-800">
-                {t('title')}
+                {t('edit.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -300,14 +300,14 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {/* Pet Name */}
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                    {t('form.name')} *
+                    {t('edit.form.name')} *
                   </Label>
                   <Input
                     id="name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder={t('form.name')}
+                    placeholder={t('edit.form.name')}
                     required
                     className="w-full"
                   />
@@ -316,7 +316,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {/* Pet Type */}
                 <div className="space-y-2">
                   <Label htmlFor="type" className="text-sm font-medium text-gray-700">
-                    {t('form.type')} *
+                    {t('edit.form.type')} *
                   </Label>
                   <select
                     id="type"
@@ -326,7 +326,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     disabled={isLoadingDropdowns}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                   >
-                    <option value="">{isLoadingDropdowns ? 'Loading...' : t('form.selectType')}</option>
+                    <option value="">{isLoadingDropdowns ? 'Loading...' : t('edit.form.selectType')}</option>
                     {petTypes.map((type) => (
                       <option key={type.value} value={type.value}>
                         {type.label}
@@ -357,8 +357,8 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                           handleInputChange('breed', '');
                         }
                       }}
-                      placeholder={t('form.selectBreed')}
-                      label={t('form.breed')}
+                      placeholder={t('edit.form.selectBreed')}
+                      label={t('edit.form.breed')}
                       disabled={isLoadingDropdowns}
                       className="w-full"
                     />
@@ -368,14 +368,14 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {formData.type === 'other' && (
                   <div className="space-y-2">
                     <Label htmlFor="breed" className="text-sm font-medium text-gray-700">
-                      {t('form.breed')}
+                      {t('edit.form.breed')}
                     </Label>
                     <Input
                       id="breed"
                       type="text"
                       value={formData.breed}
                       onChange={(e) => handleInputChange('breed', e.target.value)}
-                      placeholder={t('form.breed')}
+                      placeholder={t('edit.form.breed')}
                       disabled={isLoadingDropdowns}
                       className="w-full"
                     />
@@ -386,14 +386,13 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {formData.imageUrl && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">
-{t('form.currentPhoto')}
+                      {t('edit.form.currentPhoto')}
                     </Label>
                     <div className="relative w-32 h-32 mx-auto">
-                      <Image
+                      <img
                         src={formData.imageUrl}
                         alt={formData.name}
-                        fill
-                        className="object-cover rounded-lg"
+                        className="w-full h-full object-cover rounded-lg"
                       />
                     </div>
                   </div>
@@ -402,7 +401,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {/* Image Upload */}
                 <div className="space-y-2">
                   <Label htmlFor="image" className="text-sm font-medium text-gray-700">
-{formData.imageUrl ? t('form.changePhoto') : t('form.uploadPhoto')}
+                    {formData.imageUrl ? t('edit.form.changePhoto') : t('edit.form.uploadPhoto')}
                   </Label>
                   <div className="flex items-center justify-center w-full">
                     <label
@@ -412,9 +411,9 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-8 h-8 mb-4 text-gray-500" />
                         <p className="mb-2 text-sm text-gray-500">
-                          <span className="font-semibold">{t('form.uploadPrompt')}</span>
+                          <span className="font-semibold">{t('edit.form.uploadPrompt')}</span>
                         </p>
-                        <p className="text-xs text-gray-500">{t('form.imageRequirements')}</p>
+                        <p className="text-xs text-gray-500">{t('edit.form.imageRequirements')}</p>
                       </div>
                       <input
                         id="image"
@@ -431,7 +430,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {uploadProgress.status === 'uploading' && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">{t('form.updating')}</span>
+                      <span className="text-gray-600">{t('edit.form.updating')}</span>
                       <span className="text-gray-600">{uploadProgress.progress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -448,7 +447,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                   <div className="space-y-2">
                     <GetStartedDatePicker
-                      label={t('form.birthDate')}
+                      label={t('edit.form.birthDate')}
                       id="birthDate"
                       value={formData.birthDate}
                       maxDate={new Date()}
@@ -461,7 +460,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="gender" className="text-sm font-medium text-gray-700">
-                      {t('form.gender')}
+                      {t('edit.form.gender')}
                     </Label>
                     <select
                       id="gender"
@@ -470,7 +469,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                       disabled={isLoadingDropdowns}
                       className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                     >
-                      <option value="">{isLoadingDropdowns ? 'Loading...' : t('form.selectGender')}</option>
+                      <option value="">{isLoadingDropdowns ? 'Loading...' : t('edit.form.selectGender')}</option>
                       {genders.map((gender) => (
                         <option key={gender.value} value={gender.value}>
                           {gender.label}
@@ -484,27 +483,27 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="weight" className="text-sm font-medium text-gray-700">
-                      {t('form.weight')}
+                      {t('edit.form.weight')}
                     </Label>
                     <Input
                       id="weight"
                       type="number"
                       value={formData.weight}
                       onChange={(e) => handleInputChange('weight', e.target.value)}
-                      placeholder={t('form.weightPlaceholder')}
+                      placeholder={t('edit.form.weightPlaceholder')}
                       className="w-full"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
-                      {t('form.notes')}
+                      {t('edit.form.notes')}
                     </Label>
                     <Input
                       id="notes"
                       type="text"
                       value={formData.notes}
                       onChange={(e) => handleInputChange('notes', e.target.value)}
-                      placeholder={t('form.notesPlaceholder')}
+                      placeholder={t('edit.form.notesPlaceholder')}
                       className="w-full"
                     />
                   </div>
@@ -523,7 +522,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     className="bg-red-600 hover:bg-red-700 text-white"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    {t('delete')}
+                    {t('edit.delete')}
                   </Button>
 
                   {/* Save Button */}
@@ -535,12 +534,12 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {t('form.updating')}
+                        {t('edit.form.updating')}
                       </>
                     ) : (
                       <>
                         <Save className="w-4 h-4 mr-2" />
-                        {t('form.save')}
+                        {t('edit.form.save')}
                       </>
                     )}
                   </Button>
@@ -556,10 +555,10 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {t('deleteConfirm.title')}
+              {t('edit.deleteConfirm.title')}
             </h3>
             <p className="text-gray-600 mb-6">
-              {t('deleteConfirm.message')}
+              {t('edit.deleteConfirm.message')}
             </p>
             <div className="flex justify-end space-x-3">
               <Button
@@ -567,7 +566,7 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
               >
-                {t('deleteConfirm.cancel')}
+                {t('edit.deleteConfirm.cancel')}
               </Button>
               <Button
                 variant="destructive"
@@ -578,12 +577,12 @@ export default function EditPetForm({ pet }: EditPetFormProps) {
                 {isDeleting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t('deleteConfirm.deleting')}
+                    {t('edit.deleteConfirm.deleting')}
                   </>
                 ) : (
                   <>
                     <Trash2 className="w-4 h-4 mr-2" />
-                    {t('deleteConfirm.delete')}
+                    {t('edit.deleteConfirm.delete')}
                   </>
                 )}
               </Button>
